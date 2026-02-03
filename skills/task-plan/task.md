@@ -148,32 +148,165 @@ Recomendações: usar controllers → services → repositories pattern. Validar
 ---
 
 ## 9) Checklist de Implementação (priorizada)
-1. [ ] Scaffold monorepo: `apps/web`, `apps/api`, `packages/ui`, `packages/schema`, `db`.
-2. [ ] Criar Prisma schema inicial (Postgres) com migrations e seeds.
-3. [ ] Implementar pacote `packages/schema` com Zod schemas + TS types.
-4. [ ] Scaffold frontend (React + Vite + Tailwind + Lucid) e design system mínimo.
-5. [ ] Implementar CRUD básico (`/contracts`) na API com validações e testes.
-6. [ ] Implementar Form de criação (typeahead lookups, tabs, keyboard shortcuts, autosave rascunho).
-7. [ ] Implementar upload/anexos (Supabase Storage) e linkagem ao DB.
-8. [ ] Criar scripts de migração das planilhas e rodar validação em staging.
-9. [ ] Criar Dashboard MVP (Viaturômetro, Saúde Contratual) com queries otimizadas.
-10. [ ] Tests (unit, integration, E2E) e a11y checks; integrar CI.
-11. [ ] Documentação (README, runbooks, run migration steps) e treinamento mínimo para colaboradores.
+
+### Phase 1: Foundation (✅ CONCLUÍDO)
+1. [x] Scaffold monorepo: `apps/web`, `apps/api`, `packages/ui`, `packages/schema`, `db`.
+2. [x] Criar Prisma schema inicial (Postgres) com migrations e seeds.
+   - Gerado: 8 tabelas (UnidadeFsp, EntidadeGestora, Municipio, Empresa, Contrato, Aditivo, AuditLog, User)
+   - Migrations aplicadas: init.sql + post.sql + source_field.sql + uuid_defaults.sql
+   - Seed data: 3 unidades, 1 empresa, 1 contrato de exemplo, 1 aditivo, 2 audit logs
+3. [x] Implementar pacote `packages/schema` com Zod schemas + TS types.
+4. [x] Scaffold frontend (React + Vite + Tailwind + Lucid) e design system mínimo.
+5. [x] Sincronizar Supabase: todas as tabelas, triggers, índices, extensões live em staging.
+
+### Phase 2: API CRUD Core (🔄 EM PROGRESSO)
+6. [ ] Implementar CRUD completo (`/contracts`) na API com validações e testes.
+   - [x] POST /contracts (criar contrato com validação Zod)
+   - [ ] GET /contracts (listar com filters, pagination, search)
+   - [ ] GET /contracts/:id (detalhe + aditivos relacionados)
+   - [ ] PUT /contracts/:id (atualizar com validação e audit)
+   - [ ] DELETE /contracts/:id (soft-delete com audit)
+   - [ ] POST /contracts/import (CSV bulk import com dry-run)
+7. [ ] Implementar autenticação real: Supabase JWT verification no middleware `apps/api/src/middleware/auth.ts`
+8. [ ] Testes unitários e integração para endpoints (Vitest + Supertest)
+
+### Phase 3: Frontend Integration (⏳ PRÓXIMO)
+9. [ ] Integrar React Query hooks com API endpoints (useContracts, useContract, useCreateContract, etc)
+10. [ ] Implementar Form de criação (typeahead lookups, tabs, keyboard shortcuts, autosave rascunho).
+11. [ ] Implementar ContractsList com paginação, filtros e busca.
+12. [ ] Implementar ContractDetail com edição inline e aditivos management.
+13. [ ] Testes E2E com Playwright para fluxos de criação e edição.
+
+### Phase 4: Advanced Features (⏳ FUTURO)
+14. [ ] Implementar upload/anexos (Supabase Storage) e linkagem ao DB.
+15. [ ] Criar scripts de migração das planilhas e rodar validação em staging.
+16. [ ] Criar Dashboard MVP (Viaturômetro, Saúde Contratual) com queries otimizadas.
+17. [ ] Implementar relatórios exportáveis (PDF, CSV).
+18. [ ] Integrar SSO/OIDC (se requisitado).
+
+### Phase 5: QA & Deploy (⏳ FUTURO)
+19. [ ] Tests (unit, integration, E2E) e a11y checks; integrar CI com GitHub Actions.
+20. [ ] Deploy em staging e validar migração de dados.
+21. [ ] Documentação (README, runbooks, run migration steps) e treinamento colaboradores.
 
 ---
 
-## 10) Critérios de Aceitação
+## 10) Dívidas Técnicas & Notas de Implementação
+
+### Constraints & Limitações Conhecidas
+- **Prisma v4 fixed**: Pinned a `^4.16.2` para evitar breaking changes do v7 (datasource { url = env(...) }). Não atualizar sem revisão completa.
+- **UUID generation**: Inicial (`init.sql`) não incluía `DEFAULT gen_random_uuid()` nos IDs. **Workaround**: migration `00000000000003_fix_uuid_defaults.sql` adicionou defaults. Futuras tabelas precisam ter UUID explicit no SQL.
+- **PgBouncer connection pooling**: Supabase usa transaction-mode pooler na porta 6543. Migrations devem rodar na porta 5432 (DIRECT_URL). Aplicação usa DATABASE_URL (pooled).
+- **ts-node warning**: Seed script gera warning sobre module type. Fix: adicionar `"type": "module"` em `packages/db/package.json` (opcional para MVP).
+
+### Testing & Auth Gap
+- **Auth middleware placeholder**: `apps/api/src/middleware/auth.ts` usa demo tokens ('admin'/'colaborador'). **TODO**: implementar Supabase JWT verify real.
+- **No E2E tests yet**: Playwright tests precisam ser criados para flows de contrato (criar, editar, deletar, import CSV).
+- **Missing error handling**: Frontend não tem tratamento robusto de erros HTTP (retry, toast notifications, etc).
+
+### API Completeness
+- **Only POST /contracts**: Endpoints GET, PUT, DELETE faltam. Precisam de validação, RBAC checks, e audit logging.
+- **CSV import untested**: Script de import sheets precisa ser validado em staging com dados reais.
+- **Report endpoints missing**: `/reports/viaturometro`, `/reports/saude-contratual` ainda não existem.
+
+### Frontend Polish
+- **Mock API calls**: ContractsList e ContractForm chamam axios para endpoints, mas logic de erro/loading é minimal.
+- **Design system incomplete**: Componentes Lucid React usados mas não há Storybook stories.
+- **No optimistic updates**: React Query queries não têm optimistic mutation handling.
+- **Missing a11y**: Nenhum teste com axe-core ainda.
+
+### DevOps & Deployment
+- **No CI/CD pipeline**: GitHub Actions workflow não está configurado (lint, test, build, deploy).
+- **Netlify Functions untested**: API roda com Express localmente; deployment em Netlify Functions não foi validado.
+- **No monitoring**: Sentry ou similar não está integrado.
+
+---
+
+## 11) Próximos Passos Imediatos (Próxima Sessão)
+
+### Curto Prazo (Semana 1)
+1. **Implementar endpoints GET /contracts e GET /contracts/:id**
+   - Usar Prisma queries com includes (Aditivo, EntidadeGestora, Empresa)
+   - Adicionar paginação e filtros (status, data_inicio, unidade, empresa)
+   - Testes com Vitest + Supertest
+
+2. **Implementar Supabase JWT auth real**
+   - Substituir placeholder em `apps/api/src/middleware/auth.ts` com `@supabase/supabase-js` + JWT verify
+   - Testar login flow completo (Supabase UI ou custom form)
+   - Validar RBAC no middleware
+
+3. **Ligar frontend com API**
+   - Criar hooks React Query: `useContracts()`, `useContract(id)`, `useCreateContract()`, etc
+   - Telas ContractsList e ContractForm chamar API real
+   - Implementar error/loading states com toast notifications (usar `react-hot-toast` ou similar)
+
+### Médio Prazo (Semana 2)
+4. **Implementar PUT e DELETE endpoints**
+   - Validar autorização (só admin/gestor pode editar)
+   - Atualizar audit logs com campo `source` ("web:form", "api:import", etc)
+   - Soft-delete com flag `deleted_at`
+
+5. **Criar dashboard MVP**
+   - Query `view_consolidada` para listar contratos e aditivos
+   - Cards mostrando: total de contratos, valor total, vencimentos próximos
+   - Gráficos básicos (Recharts): distribuição por modalidade, por unidade
+
+6. **Implementar import CSV**
+   - Endpoint POST /contracts/import com dry-run
+   - Validar rows com Zod antes de inserir
+   - Retornar relatório de erros/sucesso
+
+### Testes & CI
+7. **GitHub Actions CI setup**
+   - Lint (ESLint) + typecheck (tsc) + test (Vitest)
+   - Run on PRs e main branch
+   - Opcional: Playwright E2E em staging
+
+8. **Testes de aceitação**
+   - Validar migração de dados real (se houver planilhas para importar)
+   - Testar RBAC: admin vê tudo, colaborador vê só seus contratos
+   - Verificar audit logs registram todas mudanças
+
+### Critério de Aceitação para Milestone 1
+- ✅ Todos endpoints CRUD funcionando (GET, POST, PUT, DELETE)
+- ✅ Auth com Supabase JWT live
+- ✅ Frontend lê/escreve dados via API
+- ✅ Dashboard MVP mostra overview de contratos
+- ✅ Audit logs registram todas operações (who/what/when)
+- ✅ Testes unitários + integração cobrindo 70% da lógica
+- ✅ Nenhuma dívida crítica bloqueando deploy em staging
+
+---
+
+## 12) Critérios de Aceitação Final (MVP)
 - Deploy em staging funcional com login, CRUD contratos, import CSV e Dashboard MVP.
 - Migração das planilhas testada com <1% inconsistências manuais.
 - RBAC e audit logs funcionando (todas as mudanças têm registro de `who/when/what`).
 
 ---
 
-## 11) Próximos passos (imediatos)
-1. Confirmar provider Supabase (projeto e credenciais de dev).  
-2. Eu gero: **Prisma schema** (Postgres) + **Zod DTOs** + exemplos de endpoints REST (controllers/services).
-3. Decidir onde rodar API: Netlify Functions (serverless) ou Render container (long-lived). Sugestão inicial: **Netlify Functions** (já alinhado com sua preferência).  
+## 13) Comandos Úteis (Referência Rápida)
+
+```bash
+# Database
+npm run db:generate          # Gerar Prisma Client
+npm run db:migrate:deploy    # Aplicar migrations em produção
+npm run db:seed             # Executar seed com Prisma
+
+# API
+npm run api:dev             # Rodar servidor Express localmente
+npm run api:test            # Rodar testes Vitest
+
+# Web
+npm run web:dev             # Rodar Vite dev server
+npm run web:build           # Build para produção
+npm run web:preview         # Preview build localmente
+
+# Root
+npm run lint                # ESLint em todo workspace
+npm run type-check          # TypeScript compilation check
+```
 
 ---
 
-> Arquivo salvo em `skills/task-plan/task.md`. Se quiser, eu gero os artefatos (Prisma schema, Zod schemas e endpoints) para revisão — quer que eu gere agora?
+> **Última atualização:** 2026-02-03 — Supabase sync completo, Phase 1 finalizada, iniciando Phase 2 (CRUD endpoints completos).
