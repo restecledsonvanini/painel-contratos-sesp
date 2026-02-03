@@ -1,0 +1,10 @@
+{
+  "skills": [
+    {"id": "react", "title": "React 19+ / TypeScript", "path": "react/skill.md"},
+    {"id": "tailwind", "title": "Tailwind CSS v4.1", "path": "tailwind/skill.md"},
+    {"id": "lucid-react", "title": "Lucid React Patterns", "path": "lucid-react/skill.md"},
+    {"id": "accessibility", "title": "Acessibilidade (a11y)", "path": "accessibility/skill.md"},
+    {"id": "testing", "title": "Testes & Storybook", "path": "testing/skill.md"},
+    {"id": "ci-cd", "title": "CI/CD & Observability", "path": "ci-cd/skill.md"}
+  ]
+}

@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SESP/PR - Centro de Inteligência Contratual</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chosen Palette: SESP Corporate Professional -->
+    <!-- 
+        Background: Slate-50
+        Primary: Slate-900 (Navy)
+        Accent: Amber-600 (Gold)
+        PMPR: Green-800 | PCPR: Slate-800 | PPPR: Red-800 | PCP: Violet-800
+    -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sesp: {
+                            navy: '#0f172a',
+                            gold: '#d97706',
+                            slate: '#f8fafc',
+                            accent: '#1e40af'
+                        },
+                        pmpr: '#166534',
+                        pcpr: '#1e293b',
+                        pppr: '#991b1b',
+                        pcp: '#5b21b6'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container { position: relative; width: 100%; height: 320px; max-height: 400px; }
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .active-tab { border-left: 4px solid #d97706; background-color: #1e293b; color: white !important; }
+        .modal-overlay { background-color: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-sesp-slate text-slate-800 font-sans antialiased overflow-hidden h-screen flex">
+
+    <!-- Application Structure Plan:
+         1. Sidebar Navigation: Gerencia as visões (Dashboard Geral, Custeio, Investimento, Serviços, Aditivos).
+         2. Global Header: Contém o seletor de Força de Segurança (SESP, PMPR, PCPR, PPPR, PCP) e o botão de Ajuda.
+         3. Dynamic Views:
+            - Dashboard Geral: Visão macro financeira e de conformidade.
+            - Custeio: Foco em Viaturas (Locadas), Imóveis e Alimentos.
+            - Investimento: Foco em Aquisições e Bens Táticos.
+            - Serviços: Foco em Postos de Mão de Obra e Refeição.
+            - Aditivos/Compliance: Foco em auditoria e prazos.
+         4. Popover de Ajuda: Documentação técnica completa integrada via Modal central.
+         5. State Management: Um objeto central JS controla filtros de força e a "view" ativa, atualizando os KPIs e Gráficos reativamente.
+    -->
+
+    <!-- Visualization & Content Choices:
+         - KPIs: Cards detalhados com Valor Total e Quantidade por pilar.
+         - Viaturômetro: Gráfico de radar para perfil de frota e barras para Locação vs Aquisição.
+         - Heatmap Territorial: Matriz de densidade por município (Simulado em HTML Grid).
+         - Radar de Fiscalização: Bubble chart para monitoramento de gestores.
+         - Library: Chart.js para visualizações dinâmicas, Tailwind para layout.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-sesp-navy text-slate-400 flex flex-col shrink-0">
+        <div class="p-6 flex items-center gap-3 border-b border-slate-800">
+            <i class="fa-solid fa-building-shield text-amber-500 text-2xl"></i>
+            <span class="font-black text-white text-lg tracking-tighter">SESP/PR</span>
+        </div>
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto custom-scroll">
+            <p class="text-[10px] font-bold uppercase tracking-widest px-2 mb-2 text-slate-600">Gestão Estratégica</p>
+            <button onclick="switchView('EXECUTIVE')" id="tab-EXECUTIVE" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white transition-all text-sm active-tab">
+                <i class="fa-solid fa-gauge-high"></i> Painel Executivo
+            </button>
+            <button onclick="switchView('CUSTEIO')" id="tab-CUSTEIO" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white transition-all text-sm">
+                <i class="fa-solid fa-hand-holding-dollar"></i> Pilar: Custeio
+            </button>
+            <button onclick="switchView('INVESTIMENTO')" id="tab-INVESTIMENTO" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white transition-all text-sm">
+                <i class="fa-solid fa-chart-line"></i> Pilar: Investimento
+            </button>
+            <button onclick="switchView('SERVICOS')" id="tab-SERVICOS" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white transition-all text-sm">
+                <i class="fa-solid fa-users-gear"></i> Pilar: Serviços
+            </button>
+            <div class="pt-6">
+                <p class="text-[10px] font-bold uppercase tracking-widest px-2 mb-2 text-slate-600">Auditabilidade</p>
+                <button onclick="switchView('ADITIVOS')" id="tab-ADITIVOS" class="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-slate-800 hover:text-white transition-all text-sm">
+                    <i class="fa-solid fa-file-signature"></i> Aditivos e Vigência
+                </button>
+            </div>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <div class="bg-slate-800 rounded-lg p-3 text-[10px] text-slate-500">
+                <p>Última Sincronização:</p>
+                <p class="text-white font-mono mt-1" id="sync-time">03/02/2026 - 10:45</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        
+        <!-- Header -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
+            <div class="flex items-center gap-4">
+                <h2 id="view-title" class="text-lg font-bold text-slate-800 uppercase tracking-tight">Painel Executivo</h2>
+                <div class="h-4 w-px bg-slate-200 mx-2"></div>
+                <div class="relative">
+                    <select id="force-selector" onchange="updateGlobalFilter()" class="appearance-none bg-slate-100 border-none rounded-lg px-4 py-1.5 pr-8 text-xs font-bold text-slate-600 focus:ring-2 focus:ring-amber-500 cursor-pointer">
+                        <option value="SESP">SESP/PR (Geral)</option>
+                        <option value="PMPR">PMPR</option>
+                        <option value="PCPR">PCPR</option>
+                        <option value="PPPR">PPPR</option>
+                        <option value="PCP">PCP</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-[10px] pointer-events-none text-slate-400"></i>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleHelpModal()" class="flex items-center gap-2 bg-slate-100 hover:bg-amber-100 text-slate-600 hover:text-amber-700 px-4 py-2 rounded-lg text-xs font-bold transition-all">
+                    <i class="fa-solid fa-book-open"></i> Documentação Técnica
+                </button>
+                <div class="h-8 w-8 rounded-full bg-sesp-navy flex items-center justify-center text-white text-xs font-bold">DIR</div>
+            </div>
+        </header>
+
+        <!-- View Container -->
+        <main id="main-view" class="flex-1 overflow-y-auto p-8 custom-scroll bg-sesp-slate">
+            <!-- Renderizado dinamicamente pelo JS -->
+        </main>
+    </div>
+
+    <!-- Help Documentation Modal -->
+    <div id="help-modal" class="fixed inset-0 z-[100] modal-overlay hidden flex items-center justify-center p-4 sm:p-8">
+        <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden fade-in">
+            <div class="p-6 bg-sesp-navy text-white flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-circle-info text-amber-500 text-xl"></i>
+                    <h3 class="font-bold text-lg">📊 Centro de Inteligência Contratual - SESP/PR</h3>
+                </div>
+                <button onclick="toggleHelpModal()" class="text-slate-400 hover:text-white transition-all"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-8 space-y-8 custom-scroll text-sm leading-relaxed text-slate-600">
+                <section>
+                    <h4 class="font-bold text-sesp-navy mb-3 text-base flex items-center gap-2">
+                        <span class="w-1 h-5 bg-amber-500 rounded-full"></span> 1. Visão Geral do Projeto
+                    </h4>
+                    <p>O sistema foi concebido para centralizar a gestão de dados de segurança pública em um Hub de Inteligência, eliminando silos de informação e permitindo uma visão 360º da logística e dos gastos da Secretaria.</p>
+                    <div class="mt-4 grid grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <p class="font-bold text-xs uppercase text-slate-500 mb-1">Lei Federal 14.133/2021</p>
+                            <p class="text-xs">Princípios de Eficiência, Segregação de Funções e Transparência.</p>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                            <p class="font-bold text-xs uppercase text-slate-500 mb-1">Decreto Estadual 10.086/2022</p>
+                            <p class="text-xs">Regulamentação do fluxo contratual no Estado do Paraná.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h4 class="font-bold text-sesp-navy mb-3 text-base flex items-center gap-2">
+                        <span class="w-1 h-5 bg-green-500 rounded-full"></span> 2. Estrutura de Entroncamentos (Data Sources)
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <div class="p-4 border border-green-100 rounded-xl bg-green-50/30">
+                            <p class="font-bold text-green-700 mb-2">🟢 PILAR I: CUSTEIO</p>
+                            <ul class="space-y-1">
+                                <li>• <strong>Locação Veículos:</strong> Frota externa.</li>
+                                <li>• <strong>Locação Imóveis:</strong> Quartéis e sedes.</li>
+                                <li>• <strong>Gênero Alimentício:</strong> Suprimentos FSP.</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 border border-blue-100 rounded-xl bg-blue-50/30">
+                            <p class="font-bold text-blue-700 mb-2">🔵 PILAR II: INVESTIMENTO</p>
+                            <ul class="space-y-1">
+                                <li>• <strong>Aquisição Veículos:</strong> Frota própria.</li>
+                                <li>• <strong>Bens Táticos:</strong> Armamento e equipamentos.</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 border border-amber-100 rounded-xl bg-amber-50/30">
+                            <p class="font-bold text-amber-700 mb-2">🟡 PILAR III: SERVIÇOS CONTINUADOS</p>
+                            <ul class="space-y-1">
+                                <li>• <strong>Mão de Obra:</strong> Terceirizados adm/oper.</li>
+                                <li>• <strong>Serviço Eventual:</strong> Manutenção tática.</li>
+                                <li>• <strong>Refeição:</strong> Fornecimento FSP.</li>
+                            </ul>
+                        </div>
+                        <div class="p-4 border border-red-100 rounded-xl bg-red-50/30">
+                            <p class="font-bold text-red-700 mb-2">🔴 PILAR IV: ADITIVOS</p>
+                            <p>O "Cérebro" que correlaciona IDs originais a novos termos vigentes.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h4 class="font-bold text-sesp-navy mb-3 text-base flex items-center gap-2">
+                        <span class="w-1 h-5 bg-sesp-navy rounded-full"></span> 3. Fluxo Tecnológico de Dados (ETL)
+                    </h4>
+                    <div class="bg-slate-900 p-6 rounded-xl overflow-x-auto">
+                        <pre class="text-amber-500 text-[10px] leading-tight font-mono">
+[ PLANILHAS MESTRE ]          [ MOTOR DE INTEGRAÇÃO ]        [ CAMADA EXECUTIVA ]
++------------------+          +---------------------+        +------------------+
+| Custeio          |          |  Google Apps Script |        |                  |
+| Investimento     | -------> |  (Refinamento/ETL)  | -----> | VIEW_CONSOLIDADA |
+| Serviços         |          |  (Join de Aditivos) |        | (Única Fonte)    |
+| Aditivos         |          +----------+----------+        +---------+--------+
++------------------+                     |                            |
+                                         v                            v
+                              [ MEMÓRIA OPERACIONAL ]        [ DASHBOARD EXECUTIVO ]
+                               (Cache de Performance)        (Gráficos e KPIs)
+                        </pre>
+                    </div>
+                </section>
+
+                <section>
+                    <h4 class="font-bold text-sesp-navy mb-3 text-base flex items-center gap-2">
+                        <span class="w-1 h-5 bg-amber-500 rounded-full"></span> 4. Visões do Dashboard
+                    </h4>
+                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <li class="p-3 bg-slate-50 rounded-lg"><strong>I. Viaturômetro:</strong> Logística de mobilidade por município.</li>
+                        <li class="p-3 bg-slate-50 rounded-lg"><strong>II. Saúde Contratual:</strong> Previsibilidade de vencimentos.</li>
+                        <li class="p-3 bg-slate-50 rounded-lg"><strong>III. Radar Fiscal:</strong> Monitoramento de carga de trabalho.</li>
+                        <li class="p-3 bg-slate-50 rounded-lg"><strong>IV. Estratégia Orç.:</strong> Rubricas por natureza de despesa.</li>
+                    </ul>
+                </section>
+            </div>
+            <div class="p-6 border-t border-slate-100 bg-slate-50 flex justify-between items-center text-[10px] text-slate-400">
+                <span>Versão 2.6.0 | Build 2026-02-03</span>
+                <span>Documento Gerado pelo Especialista SESP</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- UI Logic -->
+    <script>
+        // --- App State ---
+        const appState = {
+            view: 'EXECUTIVE',
+            force: 'SESP',
+            data: null
+        };
+
+        // --- Mock Data Generator (Simulando JSON da View Consolidada) ---
+        const generateMockData = (force) => {
+            const base = {
+                PM: { color: '#166534', label: 'Polícia Militar' },
+                PC: { color: '#1e293b', label: 'Polícia Civil' },
+                PP: { color: '#991b1b', label: 'Polícia Penal' },
+                PCP: { color: '#5b21b6', label: 'Polícia Científica' }
+            };
+
+            const multi = force === 'SESP' ? 1 : 0.4;
+            return {
+                kpis: {
+                    custeio: { val: 45000000 * multi, qtd: 142 * multi },
+                    investimento: { val: 28000000 * multi, qtd: 85 * multi },
+                    servicos: { val: 18000000 * multi, qtd: 54 * multi },
+                    alertas: 12 * multi,
+                    vtr_locada: 450 * multi,
+                    vtr_propria: 320 * multi
+                },
+                charts: {
+                    financeiro: [45, 25, 15, 15],
+                    status: [85, 42, 12, 5],
+                    gestores: [
+                        { x: 12, y: 45, r: 15, l: 'Maj. Silva' },
+                        { x: 5, y: 12, r: 8, l: 'Cap. Lima' },
+                        { x: 18, y: 82, r: 25, l: 'Deleg. Marcos' }
+                    ]
+                }
+            };
+        };
+
+        // --- UI Functions ---
+        function toggleHelpModal() {
+            document.getElementById('help-modal').classList.toggle('hidden');
+        }
+
+        function switchView(viewName) {
+            appState.view = viewName;
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active-tab'));
+            document.getElementById('tab-' + viewName).classList.add('active-tab');
+            renderCurrentView();
+        }
+
+        function updateGlobalFilter() {
+            appState.force = document.getElementById('force-selector').value;
+            renderCurrentView();
+        }
+
+        function formatBRL(val) {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(val);
+        }
+
+        // --- View Rendering ---
+        function renderCurrentView() {
+            const container = document.getElementById('main-view');
+            const data = generateMockData(appState.force);
+            const title = document.getElementById('view-title');
+            
+            container.innerHTML = ''; // Limpa
+            
+            switch (appState.view) {
+                case 'EXECUTIVE':
+                    title.innerText = 'Painel Executivo';
+                    renderExecutiveDashboard(container, data);
+                    break;
+                case 'CUSTEIO':
+                    title.innerText = 'Pilar: Custeio';
+                    renderPillarView(container, data, 'Custeio');
+                    break;
+                case 'INVESTIMENTO':
+                    title.innerText = 'Pilar: Investimento';
+                    renderPillarView(container, data, 'Investimento');
+                    break;
+                case 'SERVICOS':
+                    title.innerText = 'Pilar: Serviços';
+                    renderPillarView(container, data, 'Serviços');
+                    break;
+                case 'ADITIVOS':
+                    title.innerText = 'Auditabilidade e Prazos';
+                    renderComplianceView(container, data);
+                    break;
+            }
+            initViewCharts(data);
+        }
+
+        function renderExecutiveDashboard(container, data) {
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 fade-in">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-2 bg-green-50 text-green-600 rounded-lg"><i class="fa-solid fa-money-bill-1-wave"></i></div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Custeio Geral</span>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-800">${formatBRL(data.kpis.custeio.val)}</h3>
+                        <p class="text-[10px] text-slate-500 mt-1">${Math.floor(data.kpis.custeio.qtd)} Contratos Ativos</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i class="fa-solid fa-truck-pickup"></i></div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Investimentos</span>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-800">${formatBRL(data.kpis.investimento.val)}</h3>
+                        <p class="text-[10px] text-slate-500 mt-1">${Math.floor(data.kpis.investimento.qtd)} Aquisições</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-2 bg-amber-50 text-amber-600 rounded-lg"><i class="fa-solid fa-user-gear"></i></div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Serviços Cont.</span>
+                        </div>
+                        <h3 class="text-xl font-black text-slate-800">${formatBRL(data.kpis.servicos.val)}</h3>
+                        <p class="text-[10px] text-slate-500 mt-1">${Math.floor(data.kpis.servicos.qtd)} Postos Ativos</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm bg-rose-50/30">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-2 bg-rose-100 text-rose-600 rounded-lg"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                            <span class="text-[10px] font-bold text-rose-400 uppercase">Risco de Vigência</span>
+                        </div>
+                        <h3 class="text-xl font-black text-rose-600">${Math.floor(data.kpis.alertas)} Alertas</h3>
+                        <p class="text-[10px] text-rose-400 mt-1">Vencimento < 60 dias</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 fade-in">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-slate-800 text-sm uppercase mb-6">Saúde Financeira por Pilar (%)</h4>
+                        <div class="chart-container"><canvas id="mainChartFinance"></canvas></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-slate-800 text-sm uppercase mb-6">Contratos por Status</h4>
+                        <div class="chart-container"><canvas id="mainChartStatus"></canvas></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 fade-in">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                        <h4 class="font-bold text-slate-800 text-sm uppercase mb-6">Radar de Fiscalização (Carga x Risco)</h4>
+                        <div class="chart-container"><canvas id="mainChartRadar"></canvas></div>
+                    </div>
+                    <div class="bg-sesp-navy p-6 rounded-2xl shadow-xl text-white">
+                        <h4 class="font-bold text-amber-500 text-sm uppercase mb-4">Resumo Territorial</h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                <span class="text-xs">Curitiba (Capital)</span>
+                                <span class="text-xs font-bold">R$ 12M</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                <span class="text-xs">Região Metropolitana</span>
+                                <span class="text-xs font-bold">R$ 8.5M</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                <span class="text-xs">Londrina / Norte</span>
+                                <span class="text-xs font-bold">R$ 5.2M</span>
+                            </div>
+                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                                <span class="text-xs">Foz do Iguaçu / Oeste</span>
+                                <span class="text-xs font-bold">R$ 7.1M</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderPillarView(container, data, pillarName) {
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 fade-in">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Custo Total ${pillarName}</p>
+                        <h3 class="text-2xl font-black text-slate-800">${formatBRL(data.kpis.custeio.val)}</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Média por Contrato</p>
+                        <h3 class="text-2xl font-black text-slate-800">${formatBRL(data.kpis.custeio.val / data.kpis.custeio.qtd)}</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase">Aderência ao Orçamento</p>
+                        <h3 class="text-2xl font-black text-green-600">92%</h3>
+                    </div>
+                </div>
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden fade-in">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+                        <h4 class="font-bold uppercase text-xs">Acompanhamento Logístico: ${pillarName}</h4>
+                        <div class="flex gap-2">
+                            <button class="bg-slate-100 px-3 py-1 rounded text-[10px] font-bold">PDF</button>
+                            <button class="bg-slate-100 px-3 py-1 rounded text-[10px] font-bold">XLS</button>
+                        </div>
+                    </div>
+                    <div class="p-8 chart-container">
+                        <canvas id="pillarChart"></canvas>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderComplianceView(container, data) {
+            container.innerHTML = `
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 fade-in">
+                    <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 p-6">
+                        <h4 class="font-bold mb-6 text-sm uppercase">Timeline de Vencimentos (Próximos 12 meses)</h4>
+                        <div class="chart-container"><canvas id="complianceChart"></canvas></div>
+                    </div>
+                    <div class="bg-white rounded-2xl border border-slate-200 p-6 flex flex-col">
+                        <h4 class="font-bold mb-6 text-sm uppercase">Índice de Aditamento</h4>
+                        <div class="flex-1 flex items-center justify-center">
+                            <div class="relative h-40 w-40">
+                                <canvas id="complianceDoughnut"></canvas>
+                                <div class="absolute inset-0 flex items-center justify-center flex-col">
+                                    <span class="text-2xl font-black text-slate-800">15%</span>
+                                    <span class="text-[8px] uppercase text-slate-400 font-bold">Taxa de Adit.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- Charts Initialization ---
+        function initViewCharts(data) {
+            if (appState.view === 'EXECUTIVE') {
+                new Chart(document.getElementById('mainChartFinance').getContext('2d'), {
+                    type: 'doughnut',
+                    data: { labels: ['Custeio', 'Investimento', 'Serviços', 'Outros'], datasets: [{ data: data.charts.financeiro, backgroundColor: ['#16a34a', '#2563eb', '#d97706', '#94a3b8'], borderWidth: 0, cutout: '75%' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10, font: { size: 10 } } } } }
+                });
+
+                new Chart(document.getElementById('mainChartStatus').getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: ['Vigente', 'Aditado', 'Em Renovação', 'Encerrado'], datasets: [{ label: 'Qtd Contratos', data: data.charts.status, backgroundColor: '#1e293b', borderRadius: 6 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } } }
+                });
+
+                new Chart(document.getElementById('mainChartRadar').getContext('2d'), {
+                    type: 'bubble',
+                    data: { datasets: [{ label: 'Carga de Fiscais', data: data.charts.gestores, backgroundColor: 'rgba(217, 119, 6, 0.6)' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { title: { display: true, text: 'Qtd Contratos' }, min: 0, max: 25 }, y: { title: { display: true, text: 'Valor Acumulado (M)' }, min: 0, max: 100 } } }
+                });
+            } else if (appState.view === 'ADITIVOS') {
+                new Chart(document.getElementById('complianceChart').getContext('2d'), {
+                    type: 'line',
+                    data: { labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'], datasets: [{ label: 'Contratos Vencendo', data: [5, 12, 8, 20, 15, 30, 25, 40, 12, 18, 5, 22], borderColor: '#e11d48', tension: 0.4, fill: true, backgroundColor: 'rgba(225, 29, 72, 0.1)' }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false } } }
+                });
+
+                new Chart(document.getElementById('complianceDoughnut').getContext('2d'), {
+                    type: 'doughnut',
+                    data: { labels: ['Aditados', 'Originais'], datasets: [{ data: [15, 85], backgroundColor: ['#d97706', '#f1f5f9'], borderWidth: 0 }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '85%' }
+                });
+            } else {
+                // Pilar View Charts
+                new Chart(document.getElementById('pillarChart').getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: ['Vtr Locadas', 'Imóveis', 'Alimentação', 'Tático', 'Mão Obra'], datasets: [{ label: 'Valor Executado (M)', data: [45, 12, 18, 25, 30], backgroundColor: '#1e40af', borderRadius: 4 }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }
+        }
+
+        // --- Init App ---
+        window.onload = () => {
+            renderCurrentView();
+        };
+    </script>
+</body>
+</html>

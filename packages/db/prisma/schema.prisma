@@ -1,0 +1,97 @@
+// Prisma schema for Supabase/Postgres
+// Generated as a starting point for discussion. Do NOT apply migrations until reviewed.
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model UnidadeFsp {
+  id        String     @id @default(uuid())
+  sigla     String     @unique
+  nome      String
+  contratos Contrato[]
+}
+
+model EntidadeGestora {
+  id               String     @id @default(uuid())
+  nome             String
+  cpf              String     @unique
+  gestorContratos  Contrato[] @relation("gestorContratos")
+  fiscalContratos  Contrato[] @relation("fiscalContratos")
+}
+
+model Municipio {
+  id    String @id @default(uuid())
+  nome  String
+  uf    String
+}
+
+model Empresa {
+  id            String     @id @default(uuid())
+  cnpj          String     @unique
+  razaoSocial   String
+  contratos     Contrato[]
+}
+
+model Contrato {
+  id                 String              @id @default(uuid())
+  protocoloCabeca    String?             @unique
+  numGms             Int
+  anoGms             Int
+  unidadeFspId       String
+  unidadeFsp         UnidadeFsp          @relation(fields: [unidadeFspId], references: [id])
+  gestorId           String
+  gestor             EntidadeGestora     @relation("gestorContratos", fields: [gestorId], references: [id])
+  fiscalId           String
+  fiscal             EntidadeGestora     @relation("fiscalContratos", fields: [fiscalId], references: [id])
+  empresaId          String
+  empresa            Empresa             @relation(fields: [empresaId], references: [id])
+  modalidade         String
+  objeto             String
+  valorAnualCents    Int
+  dataInicio         DateTime?           @db.Date
+  dataFimOrig        DateTime?           @db.Date
+  status             String
+  aditivos           Aditivo[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@unique([numGms, anoGms])
+  @@index([dataFimOrig])
+  @@index([unidadeFspId])
+  @@index([empresaId])
+}
+
+model Aditivo {
+  id                  String      @id @default(uuid())
+  contratoId          String
+  contrato            Contrato    @relation(fields: [contratoId], references: [id])
+  numAditivo          Int
+  protocoloAdit       String
+  novoFimVigencia     DateTime?   @db.Date
+  valorAdicionalCents Int?
+  createdAt           DateTime    @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  tabela     String
+  registroId String
+  action     String
+  diff       Json
+  changedBy  String?
+  changedAt  DateTime @default(now())
+}
+
+model User {
+  id        String   @id @default(uuid())
+  sub       String?  @unique
+  email     String?  @unique
+  role      String   @default("colaborador")
+  createdAt DateTime @default(now())
+}
