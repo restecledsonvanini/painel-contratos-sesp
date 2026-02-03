@@ -1,5 +1,20 @@
 {
+  "name": "painel-contratos-sesp",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "db:generate": "cd packages/db && npx prisma generate --schema=./prisma/schema.prisma",
+    "db:migrate:create": "cd packages/db && npx prisma migrate dev --schema=./prisma/schema.prisma --create-only --name init",
+    "db:migrate:deploy": "cd packages/db && npx prisma migrate deploy --schema=./prisma/schema.prisma",
+    "db:seed": "npm --workspace packages/db run seed"
+  },
+  "devDependencies": {
+    "pg": "^8.18.0"
+  },
   "dependencies": {
-    "zod": "^4.3.6"
+    "@prisma/client": "^4.16.2"
   }
 }
