@@ -1,15 +1,34 @@
-import { PrismaClient } from '@prisma/client';
 import { Request, Response } from 'express';
 import { ContractCreateSchema } from '../../../../packages/schema/src/contracts';
 
-const prisma = new PrismaClient();
+let prisma: any = null;
+
+async function getPrismaClient() {
+  if (prisma) {
+    return prisma;
+  }
+
+  try {
+    const { PrismaClient } = await import('@prisma/client');
+    prisma = new PrismaClient();
+    return prisma;
+  } catch (error: any) {
+    console.warn('Prisma client unavailable:', error?.message || error);
+    return null;
+  }
+}
 
 export async function createContract(req: Request, res: Response) {
   try {
     const parsed = ContractCreateSchema.parse(req.body);
+    const db = await getPrismaClient();
+
+    if (!db) {
+      return res.status(500).json({ error: 'Database unavailable' });
+    }
 
     // Transactional create: contrato + aditivos (if any) + audit log
-    const result = await prisma.$transaction(async (tx: any) => {
+    const result = await db.$transaction(async (tx: any) => {
       const contrato = await tx.contrato.create({
         data: {
           protocoloCabeca: parsed.protocoloCabeca || null,

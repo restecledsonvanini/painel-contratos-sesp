@@ -16,7 +16,7 @@
 - Leia os arquivos de Projeto de implementação e do últim módulo implementado
 - Verifique os arquivos de documentação consolidada, e avalie as dívidas técnicas e testes
 
->> Caso haja dívica técnica, informe juntamente com a proposta de e ordem de solução, caso contrário, pergunte ao usuário (dev).
+>> Caso haja dívida técnica, informe juntamente com a proposta de e ordem de solução, caso contrário, pergunte ao usuário (dev).
 >> SEMPRE PERGUNTE:
 
 - Evite implementação antes de tirar todas as dúvidas técnicas e intenções do usuário.
