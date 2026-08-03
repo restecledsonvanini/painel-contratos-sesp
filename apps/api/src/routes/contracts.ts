@@ -1,12 +1,19 @@
 import { Router } from 'express';
-import { createContract } from '../controllers/contractsController';
+import {
+  createContract,
+  deleteContract,
+  getContract,
+  listContracts,
+  updateContract,
+} from '../controllers/contractsController';
 import { requireRole } from '../middleware/rbac';
 
 const router = Router();
 
-// Create contract (collaborator+)
+router.get('/', listContracts as any);
+router.get('/:id', getContract as any);
 router.post('/', requireRole(['colaborador', 'admin']), createContract as any);
-
-// Additional endpoints should be added here (GET list, GET detail, update, delete)
+router.put('/:id', requireRole(['colaborador', 'admin']), updateContract as any);
+router.delete('/:id', requireRole(['colaborador', 'admin']), deleteContract as any);
 
 export default router;

@@ -7,9 +7,13 @@ export interface Contract {
   numGms: number;
   anoGms: number;
   unidadeFspId: string;
+  unidadeFsp?: { id: string; sigla: string; nome: string };
   gestorId?: string;
+  gestorName?: string;
   fiscalId?: string;
+  fiscalName?: string;
   empresaId?: string;
+  empresaName?: string;
   modalidade?: string;
   objeto?: string;
   valorAnual?: number;

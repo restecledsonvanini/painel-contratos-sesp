@@ -1,13 +1,18 @@
 :root {
   color-scheme: light;
-  --background: #ffffff;
-  --surface: #f8fbff;
-  --text: #0f172a;
+  --background: #f3f3f3;
+  --surface: #ffffff;
+  --surface-muted: #e5e5e5;
+  --surface-alt: #f4ebe1;
+  --text: #333333;
+  --text-muted: #6b7280;
   --text-inverse: #ffffff;
-  --primary: #0d6efd;
-  --primary-dark: #0b5ed7;
-  --primary-light: #eef4ff;
-  --border: #dbeafe;
+  --primary: #4c5b8b;
+  --primary-dark: #3f4d75;
+  --primary-light: #eef0fb;
+  --border: #d7dce9;
+  --border-strong: #b8bcc9;
+  --shadow: 0 24px 50px rgba(17, 24, 39, 0.08);
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
@@ -53,4 +58,17 @@ button, input, select, textarea {
 input, textarea, select {
   background: var(--surface);
   color: var(--text);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(76, 91, 139, 0.18);
 }

@@ -38,6 +38,13 @@ model Empresa {
   contratos     Contrato[]
 }
 
+model Fornecedor {
+  id          String   @id @default(uuid())
+  cnpj        String?  @unique
+  nome        String
+  createdAt   DateTime @default(now())
+}
+
 model Contrato {
   id                 String              @id @default(uuid())
   protocoloCabeca    String?             @unique
@@ -78,6 +85,12 @@ model Aditivo {
   createdAt           DateTime    @default(now())
 }
 
+model Servico {
+  id        String   @id @default(uuid())
+  titulo    String
+  descricao String?
+  createdAt DateTime @default(now())
+}
 model AuditLog {
   id         String   @id @default(uuid())
   tabela     String

@@ -9,11 +9,17 @@
     "db:generate": "cd packages/db && npx prisma generate --schema=./prisma/schema.prisma",
     "db:migrate:create": "cd packages/db && npx prisma migrate dev --schema=./prisma/schema.prisma --create-only --name init",
     "db:migrate:deploy": "cd packages/db && npx prisma migrate deploy --schema=./prisma/schema.prisma",
-    "db:seed": "npm --workspace packages/db run seed"
+    "db:seed": "npm --workspace packages/db run seed",
+    "prepare": "npm run db:generate",
+    "build:all": "npm run db:generate && npm --workspace apps/web run build && npm --workspace apps/api run build",
+    "netlify:build": "npm run db:generate && npm --workspace apps/web run build",
+    "deploy:prepare": "npm run db:generate && npm run db:migrate:deploy"
   },
   "devDependencies": {
-    "@types/react": "^19.2.17",
-    "pg": "^8.18.0"
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.1",
+    "pg": "^8.18.0",
+    "prisma": "^4.16.2"
   },
   "dependencies": {
     "@prisma/client": "^4.16.2"

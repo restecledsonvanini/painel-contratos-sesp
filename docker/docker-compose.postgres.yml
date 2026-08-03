@@ -1,0 +1,17 @@
+services:
+  db:
+    build: ./postgres
+    image: painel-postgres:latest
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: painel
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: painel_db
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+    name: painel_postgres_data
