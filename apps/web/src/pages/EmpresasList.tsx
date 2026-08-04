@@ -1,58 +1,66 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@painel/ui';
+import { Button, Card, Page, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@painel/ui';
+import { Plus } from 'lucide-react';
 import { useEmpresas, useDeleteEmpresa } from '../hooks/useReferences';
 
 export default function EmpresasList() {
   const { data: empresas, isLoading, error } = useEmpresas();
-  const deleteEmpresa = useDeleteEmpresa();
+  const del = useDeleteEmpresa();
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Deseja excluir esta empresa?')) return;
     try {
-      await deleteEmpresa.mutateAsync(id);
-      alert('Empresa excluída.');
+      await del.mutateAsync(id);
     } catch {
-      alert('Falha ao excluir.');
+      alert('Falha ao excluir');
     }
   };
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Empresas</h1>
+    <Page
+      title="Empresas"
+      description="Cadastro de empresas contratadas (CNPJ)."
+      actions={
         <Link to="/empresas/new">
-          <Button>Novo</Button>
+          <Button>
+            <Plus size={16} />
+            Nova empresa
+          </Button>
         </Link>
-      </div>
-
-      <Card>
+      }
+    >
+      <Card variant="bordered" className="overflow-hidden">
         {isLoading ? (
-          <p>Carregando...</p>
+          <p className="p-[var(--space-lg)] text-[var(--text-muted)]">Carregando...</p>
         ) : error ? (
-          <p>Erro ao carregar empresas.</p>
+          <p className="p-[var(--space-lg)] text-[var(--danger)]">
+            Erro ao carregar empresas. Verifique se a API está rodando (`npm run api:dev`).
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableHeader>NOME</TableHeader>
                   <TableHeader>CNPJ</TableHeader>
-                  <TableHeader>AÇÃO</TableHeader>
+                  <TableHeader>Razão social</TableHeader>
+                  <TableHeader>Ações</TableHeader>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {empresas && empresas.length > 0 ? (
                   empresas.map((e) => (
                     <TableRow key={e.id}>
-                      <TableCell>{e.razaoSocial}</TableCell>
                       <TableCell>{e.cnpj}</TableCell>
+                      <TableCell className="font-semibold">{e.razaoSocial}</TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           <Link to={`/empresas/${e.id}/edit`}>
-                            <Button variant="secondary">Editar</Button>
+                            <Button size="sm" variant="secondary">
+                              Editar
+                            </Button>
                           </Link>
-                          <Button variant="ghost" onClick={() => handleDelete(e.id)}>
+                          <Button size="sm" variant="danger" onClick={() => handleDelete(e.id)}>
                             Excluir
                           </Button>
                         </div>
@@ -61,7 +69,9 @@ export default function EmpresasList() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3}>Nenhuma empresa encontrada.</TableCell>
+                    <TableCell colSpan={3} className="text-[var(--text-muted)]">
+                      Nenhuma empresa encontrada.
+                    </TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -69,6 +79,6 @@ export default function EmpresasList() {
           </div>
         )}
       </Card>
-    </div>
+    </Page>
   );
 }

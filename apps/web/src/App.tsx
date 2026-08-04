@@ -34,6 +34,8 @@ export default function App() {
           <Route path="/fornecedores/new" element={<FornecedoresForm />} />
           <Route path="/fornecedores/:id/edit" element={<FornecedoresForm />} />
           <Route path="/servicos" element={<ServicosList />} />
+          <Route path="/servicos/new" element={<ServicosForm />} />
+          <Route path="/servicos/:id/edit" element={<ServicosForm />} />
           <Route path="/entidades-gestoras" element={<EntidadesGestorasList />} />
           <Route path="/entidades-gestoras/new" element={<EntidadesGestorasForm />} />
           <Route path="/entidades-gestoras/:id/edit" element={<EntidadesGestorasForm />} />

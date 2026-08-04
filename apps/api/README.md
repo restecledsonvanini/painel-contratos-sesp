@@ -1,19 +1,83 @@
-# API (Netlify Functions) — quick notes
+# API — Hub de Inteligência Contratual (SESP/PR)
 
-This folder contains example code for the API that will run as Netlify Functions or as a small Node service.
+Express + Prisma + Postgres local (Docker). Também exporta handler Netlify Functions via `serverless-http`.
 
-What I added as an example:
-- `src/controllers/contractsController.ts` — example controller for `POST /contracts` demonstrating Zod validation + Prisma transactional writes + basic audit log.
+## Pré-requisitos
 
-Notes before running:
-- Configure `DATABASE_URL` to point to your Supabase Postgres instance.
-- Install dependencies: `pnpm install` (add `prisma`, `@prisma/client`, `express`, `zod` etc.).
-- This is sample code for review; I'll add routing, auth middleware and tests after you approve the contract shapes.
+- Node 20+
+- Docker Desktop com Postgres do projeto
 
-Suggested next steps (ask me to run any of these):
-1. Generate Prisma client: `npx prisma generate` after adding `DATABASE_URL`.
-2. Create migration: `npx prisma migrate dev --name init`
-3. Add auth middleware and route wiring (I can generate those files next).
+## Banco local (Docker)
 
-Suggested one-line commit message after scaffolding the API:  
-`feat(api): add contract create controller with validation and transaction`
+```bash
+docker compose -f docker/docker-compose.postgres.yml up -d
+```
+
+Credenciais (ver `.env.example`):
+
+```
+DATABASE_URL=postgresql://painel:pass@localhost:5434/painel_db
+```
+
+> O compose do projeto publica Postgres em **5434** para não conflitar com outros containers em `:5432`.
+
+Na raiz do monorepo:
+
+```bash
+# criar .env na raiz com DATABASE_URL acima (ou exportar no shell)
+npm run db:generate
+npm run db:migrate:deploy
+npm run db:seed
+```
+
+## Subir a API
+
+```bash
+# na raiz
+npm run api:dev
+
+# ou
+npm --workspace apps/api run dev
+```
+
+API em `http://localhost:8888`
+
+Rotas:
+
+- `GET /.netlify/functions/api/health`
+- `/.netlify/functions/api/contracts`
+- `/.netlify/functions/api/references/*`
+
+O Vite (`apps/web`) faz proxy de `/.netlify/functions/api` → `:8888`.
+
+## Auth (stub de desenvolvimento)
+
+JWT/Supabase ainda não implementado. Contrato atual:
+
+| Header | Resultado |
+|---|---|
+| (ausente) | `role=colaborador`, `id=system` |
+| `Authorization: Bearer admin` | `role=admin` |
+| `Authorization: Bearer colaborador` | `role=colaborador` |
+
+Mutações (POST/PUT/DELETE) em contracts e references exigem role `colaborador` ou `admin`.
+
+## Erros
+
+Formato uniforme:
+
+```json
+{ "error": { "code": "VALIDATION_ERROR", "message": "...", "details": [] } }
+```
+
+## Testes
+
+Com Postgres Docker no ar e `DATABASE_URL` definido:
+
+```bash
+npm run api:test
+```
+
+## Prisma
+
+Cliente gerado a partir de `packages/db/prisma/schema.prisma` (Prisma **4.16.x**). Não use Prisma 7 neste app.

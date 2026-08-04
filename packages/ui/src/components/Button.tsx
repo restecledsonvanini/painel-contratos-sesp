@@ -2,17 +2,34 @@ import clsx from 'clsx';
 import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
+  size?: 'sm' | 'md';
 }
 
-export function Button({ className, variant = 'primary', ...props }: ButtonProps) {
+export function Button({
+  className,
+  variant = 'primary',
+  size = 'md',
+  type = 'button',
+  ...props
+}: ButtonProps) {
   return (
     <button
+      type={type}
       className={clsx(
-        'rounded-md px-4 py-2 text-sm font-semibold transition duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]',
-        variant === 'primary' && 'bg-[var(--primary)] text-[var(--text-inverse)] shadow-sm hover:bg-[var(--primary-dark)]',
-        variant === 'secondary' && 'bg-[var(--surface)] text-[var(--text)] shadow-sm hover:bg-slate-100 border border-[var(--border)]',
-        variant === 'ghost' && 'bg-transparent text-[var(--primary)] hover:bg-[var(--primary-light)]',
+        'Botão inline-flex items-center justify-center gap-2 font-semibold transition duration-150',
+        'rounded-[var(--radius-md)] focus-visible:outline-none focus-visible:shadow-[var(--focus-ring)]',
+        'disabled:cursor-not-allowed disabled:opacity-55',
+        size === 'sm' && 'px-3 py-1.5 text-[var(--font-size-sm)]',
+        size === 'md' && 'px-4 py-2 text-[var(--font-size-sm)]',
+        variant === 'primary' &&
+          'bg-[var(--primary)] text-[var(--text-inverse)] shadow-[var(--shadow-sm)] hover:bg-[var(--primary-dark)]',
+        variant === 'secondary' &&
+          'border border-[var(--border-strong)] bg-[var(--surface)] text-[var(--text)] hover:bg-[var(--surface-muted)]',
+        variant === 'ghost' &&
+          'bg-transparent text-[var(--primary)] hover:bg-[var(--primary-light)]',
+        variant === 'danger' &&
+          'border border-transparent bg-[color-mix(in_srgb,var(--danger)_12%,white)] text-[var(--danger)] hover:bg-[color-mix(in_srgb,var(--danger)_18%,white)]',
         className,
       )}
       {...props}

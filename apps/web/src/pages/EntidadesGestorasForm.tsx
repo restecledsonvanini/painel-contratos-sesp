@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Button, Card, Input } from '@painel/ui';
+import { Button, Input, Page } from '@painel/ui';
 import { useCreateEntidadeGestora, useEntidadeGestora, useUpdateEntidadeGestora } from '../hooks/useReferences';
 
 export default function EntidadesGestorasForm() {
@@ -10,22 +10,15 @@ export default function EntidadesGestorasForm() {
   const { data: existing } = useEntidadeGestora(id);
   const create = useCreateEntidadeGestora();
   const update = useUpdateEntidadeGestora();
-
   const form = useForm({ defaultValues: { nome: '', cpf: '' } });
-  const { register, handleSubmit, setValue, formState: { errors } } = form;
+  const { register, handleSubmit, setValue, formState: { errors }, getValues } = form;
 
   const formatCPF = (val: string) => {
-    const digits = (val || '').replace(/\D/g, '').slice(0,11);
+    const digits = (val || '').replace(/\D/g, '').slice(0, 11);
     if (!digits) return '';
-    return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})?/, (_m, a, b, c, d) => {
-      return d ? `${a}.${b}.${c}-${d}` : `${a}.${b}.${c}`;
-    });
-  };
-
-  const handleCpfBlur = () => {
-    const raw = form.getValues('cpf') || '';
-    const formatted = formatCPF(raw);
-    setValue('cpf', formatted);
+    return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})?/, (_m, a, b, c, d) =>
+      d ? `${a}.${b}.${c}-${d}` : `${a}.${b}.${c}`,
+    );
   };
 
   useEffect(() => {
@@ -37,36 +30,40 @@ export default function EntidadesGestorasForm() {
 
   const onSubmit = async (data: any) => {
     try {
-      if (id) {
-        await update.mutateAsync({ id, payload: data });
-        alert('Atualizado');
-      } else {
-        await create.mutateAsync(data);
-        alert('Criado');
-      }
+      if (id) await update.mutateAsync({ id, payload: data });
+      else await create.mutateAsync(data);
       navigate('/entidades-gestoras');
-    } catch (err) {
+    } catch {
       alert('Erro ao salvar');
     }
   };
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 sm:px-6 lg:px-8">
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <Card>
-          <div className="space-y-4">
-            <h2 className="text-xl font-semibold">{id ? 'Editar Entidade' : 'Nova Entidade'}</h2>
-            <Input label="Nome" {...register('nome', { required: true })} />
-            {errors.nome && <p className="text-sm text-red-600">Obrigatório</p>}
-            <Input label="CPF" {...register('cpf', { required: true })} onBlur={handleCpfBlur} />
-            {errors.cpf && <p className="text-sm text-red-600">Obrigatório</p>}
-            <div className="flex gap-2">
-              <Button type="submit">Salvar</Button>
-              <Button variant="ghost" type="button" onClick={() => navigate('/entidades-gestoras')}>Cancelar</Button>
+    <Page title={id ? 'Editar entidade' : 'Nova entidade gestora'}>
+      <form onSubmit={handleSubmit(onSubmit)} className="app-form">
+        <div className="app-form__panel">
+          <div className="app-form__grid">
+            <div className="app-form__span-2">
+              <Input label="Nome" {...register('nome', { required: true })} />
+              {errors.nome && <p className="field-error">Obrigatório</p>}
+            </div>
+            <div className="app-form__span-2">
+              <Input
+                label="CPF"
+                {...register('cpf', { required: true })}
+                onBlur={() => setValue('cpf', formatCPF(getValues('cpf') || ''))}
+              />
+              {errors.cpf && <p className="field-error">Obrigatório</p>}
             </div>
           </div>
-        </Card>
+          <div className="app-form__actions">
+            <Button type="submit">Salvar</Button>
+            <Button variant="ghost" type="button" onClick={() => navigate('/entidades-gestoras')}>
+              Cancelar
+            </Button>
+          </div>
+        </div>
       </form>
-    </div>
+    </Page>
   );
 }

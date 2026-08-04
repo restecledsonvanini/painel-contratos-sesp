@@ -10,6 +10,8 @@
     "db:migrate:create": "cd packages/db && npx prisma migrate dev --schema=./prisma/schema.prisma --create-only --name init",
     "db:migrate:deploy": "cd packages/db && npx prisma migrate deploy --schema=./prisma/schema.prisma",
     "db:seed": "npm --workspace packages/db run seed",
+    "api:dev": "npm --workspace apps/api run dev",
+    "api:test": "npm --workspace apps/api run test",
     "prepare": "npm run db:generate",
     "build:all": "npm run db:generate && npm --workspace apps/web run build && npm --workspace apps/api run build",
     "netlify:build": "npm run db:generate && npm --workspace apps/web run build",

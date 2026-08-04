@@ -1,74 +1,577 @@
 :root {
   color-scheme: light;
-  --background: #f3f3f3;
-  --surface: #ffffff;
-  --surface-muted: #e5e5e5;
-  --surface-alt: #f4ebe1;
-  --text: #333333;
+
+  --bg: #f3f4f6;
+  --background: var(--bg);
+  --text: #0f172a;
   --text-muted: #6b7280;
   --text-inverse: #ffffff;
-  --primary: #4c5b8b;
-  --primary-dark: #3f4d75;
-  --primary-light: #eef0fb;
-  --border: #d7dce9;
-  --border-strong: #b8bcc9;
-  --shadow: 0 24px 50px rgba(17, 24, 39, 0.08);
+  /* Azul da logo DEST (Diretoria de Gestão Estrutural) */
+  --primary: #002d54;
+  --primary-dark: #001f3d;
+  --primary-light: #e8eef5;
+  --brand-green: #0e5235;
+  --secondary: #475569;
+  --success: #0e5235;
+  --danger: #dc2626;
+  --warning: #d97706;
+
+  --surface: #ffffff;
+  --surface-muted: #f9fafb;
+  --surface-alt: #eef2fb;
+  --card-bg: var(--surface);
+  --panel-bg: #f9fafb;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --label-color: #374151;
+
+  --shadow: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05);
+
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
   --space-lg: 1.5rem;
   --space-xl: 2rem;
-  --radius-sm: 0.375rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
+  --space-2xl: 2.5rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.375rem;
+  --font-size-2xl: 1.75rem;
+
+  --sidebar-expanded: 16rem;
+  --sidebar-collapsed: 4.5rem;
+  --header-height: 3.75rem;
+
+  --focus-ring: 0 0 0 3px color-mix(in srgb, var(--primary) 22%, transparent);
 }
 
 [data-theme='dark'] {
   color-scheme: dark;
-  --background: #0f172a;
-  --surface: #15263b;
-  --text: #f8fafc;
+  --bg: #0f172a;
+  --background: var(--bg);
+  --text: #e2e8f0;
+  --text-muted: #94a3b8;
   --text-inverse: #0f172a;
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --primary-light: #1e3a8a;
+  --primary: #0a3a6b;
+  --primary-dark: #002d54;
+  --primary-light: #1e4d7a;
+  --brand-green: #34d399;
+  --secondary: #94a3b8;
+  --success: #34d399;
+  --danger: #f87171;
+  --warning: #fbbf24;
+  --surface: #1e293b;
+  --surface-muted: #1a2740;
+  --surface-alt: #1a2740;
+  --card-bg: var(--surface);
+  --panel-bg: #1a2740;
   --border: #334155;
+  --border-strong: #475569;
+  --input-bg: #0f172a;
+  --input-border: #334155;
+  --label-color: #94a3b8;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 12px 28px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --focus-ring: 0 0 0 3px color-mix(in srgb, #60a5fa 35%, transparent);
 }
 
-html, body, #root {
+html,
+body,
+#root {
+  height: 100%;
   min-height: 100%;
 }
 
-/* Utility helpers for consistent spacing */
-.container-padding { padding-left: var(--space-lg); padding-right: var(--space-lg); }
-.card-padding { padding: var(--space-md); }
-
+html {
+  overflow-x: hidden;
+}
 
 body {
   margin: 0;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-md);
+  line-height: 1.45;
   background: var(--background);
   color: var(--text);
+  -webkit-font-smoothing: antialiased;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
   font: inherit;
 }
 
-input, textarea, select {
-  background: var(--surface);
+input,
+textarea,
+select {
+  background: var(--input-bg);
   color: var(--text);
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #9ca3af;
+  color: var(--text-muted);
 }
 
 button:focus-visible,
 input:focus-visible,
 select:focus-visible,
-textarea:focus-visible {
+textarea:focus-visible,
+a:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(76, 91, 139, 0.18);
+  box-shadow: var(--focus-ring);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   APP SHELL — CSS puro (não depende do scan do Tailwind em packages/ui)
+   Layout clássico: sidebar | (header + main)
+   ═══════════════════════════════════════════════════════════════ */
+
+.app-shell {
+  position: relative;
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  background: var(--background);
+  color: var(--text);
+  --rail-width: var(--sidebar-expanded);
+}
+
+.app-shell.is-rail-collapsed {
+  --rail-width: var(--sidebar-collapsed);
+}
+
+.app-sidebar {
+  position: relative;
+  z-index: 50;
+  display: flex;
+  flex: 0 0 var(--sidebar-expanded);
+  flex-direction: column;
+  width: var(--sidebar-expanded);
+  height: 100vh;
+  background: var(--primary);
+  color: #ffffff;
+  border-right: 1px solid color-mix(in srgb, #000 18%, transparent);
+  transition: width 180ms ease, flex-basis 180ms ease, transform 180ms ease;
+  overflow: visible;
+}
+
+.app-sidebar.is-collapsed {
+  flex-basis: var(--sidebar-collapsed);
+  width: var(--sidebar-collapsed);
+}
+
+.app-sidebar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  height: var(--header-height);
+  padding: 0 0.75rem;
+  border-bottom: 1px solid color-mix(in srgb, #fff 16%, transparent);
+  flex-shrink: 0;
+}
+
+.app-sidebar.is-collapsed .app-sidebar__brand {
+  justify-content: center;
+  padding: 0 0.4rem;
+}
+
+.app-sidebar__logo {
+  display: block;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  border-radius: 100%;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px color-mix(in srgb, #fff 35%, transparent);
+}
+
+.app-sidebar__logo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 100%;
+}
+
+.app-sidebar.is-collapsed .app-sidebar__logo {
+  width: 2.35rem;
+  height: 2.35rem;
+}
+
+.app-sidebar__brand-text {
+  min-width: 0;
+  flex: 1;
+}
+
+.app-sidebar__brand-text small {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, #fff 70%, transparent);
+}
+
+.app-sidebar__brand-text strong {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: 800;
+  color: #fff;
+}
+
+.app-sidebar.is-collapsed .app-sidebar__brand-text,
+.app-sidebar.is-collapsed .app-sidebar__footer {
+  display: none;
+}
+
+/* Toggle estilo Docker Desktop — ancora na borda do rail (filho do shell) */
+.app-sidebar__edge-toggle {
+  position: absolute;
+  top: calc(var(--header-height) + 0.65rem);
+  left: calc(var(--rail-width) - 0.875rem);
+  z-index: 60;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid var(--border-strong);
+  border-radius: 100%;
+  background: var(--surface);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: left 180ms ease, background 120ms ease, color 120ms ease;
+}
+
+.app-sidebar__edge-toggle:hover {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+}
+
+@media (min-width: 768px) {
+  .app-sidebar__edge-toggle {
+    display: inline-flex;
+  }
+}
+
+.app-sidebar__nav {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.65rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.app-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.5rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: var(--radius-md);
+  color: color-mix(in srgb, #fff 88%, transparent);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.app-sidebar__link:hover {
+  background: color-mix(in srgb, #fff 12%, transparent);
+  color: #fff;
+}
+
+.app-sidebar__link.is-active {
+  background: color-mix(in srgb, #fff 18%, transparent);
+  color: #fff;
+  box-shadow: inset 3px 0 0 #fff;
+}
+
+.app-sidebar__link svg {
+  flex-shrink: 0;
+}
+
+.app-sidebar__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-sidebar.is-collapsed .app-sidebar__link {
+  justify-content: center;
+  padding-inline: 0.4rem;
+}
+
+.app-sidebar.is-collapsed .app-sidebar__label {
+  display: none;
+}
+
+.app-sidebar__footer {
+  padding: 0.85rem;
+  border-top: 1px solid color-mix(in srgb, #fff 14%, transparent);
+  font-size: var(--font-size-xs);
+  line-height: 1.4;
+  color: color-mix(in srgb, #fff 72%, transparent);
+  flex-shrink: 0;
+}
+
+.app-sidebar-backdrop {
+  display: none;
+}
+
+.app-content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 0 0 var(--header-height);
+  height: var(--header-height);
+  padding: 0 var(--space-lg);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  z-index: 20;
+}
+
+.app-header__menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.app-header__titles {
+  min-width: 0;
+  flex: 1;
+}
+
+.app-header__titles small {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.app-header__titles strong {
+  display: block;
+  font-size: var(--font-size-md);
+  font-weight: 800;
+  color: var(--primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-header__search {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 14rem;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-muted);
+  color: var(--text-muted);
+}
+
+.app-header__search input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  outline: none;
+  box-shadow: none;
+}
+
+.app-header__theme {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--primary);
+  cursor: pointer;
+}
+
+.app-header__theme:hover {
+  background: var(--primary-light);
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: var(--space-md);
+}
+
+@media (min-width: 640px) {
+  .app-main {
+    padding: var(--space-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-main {
+    padding: var(--space-xl);
+  }
+
+  .app-header__search {
+    display: flex;
+  }
+
+  .app-header__titles strong {
+    font-size: var(--font-size-lg);
+  }
+}
+
+/* Mobile: sidebar vira drawer overlay */
+@media (max-width: 767px) {
+  .app-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    transform: translateX(-105%);
+    box-shadow: var(--shadow);
+  }
+
+  .app-sidebar.is-mobile-open {
+    transform: translateX(0);
+  }
+
+  .app-sidebar.is-collapsed {
+    flex-basis: min(18rem, 88vw);
+    width: min(18rem, 88vw);
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__brand-text,
+  .app-sidebar.is-collapsed .app-sidebar__footer,
+  .app-sidebar.is-collapsed .app-sidebar__label {
+    display: initial;
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__brand-text,
+  .app-sidebar.is-collapsed .app-sidebar__footer {
+    display: block;
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__label {
+    display: inline;
+  }
+
+  .app-sidebar.is-collapsed .app-sidebar__link {
+    justify-content: flex-start;
+    padding: 0.55rem 0.75rem;
+  }
+
+  .app-sidebar__edge-toggle {
+    display: none;
+  }
+
+  .app-sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    border: 0;
+    background: rgba(15, 23, 42, 0.45);
+  }
+
+  .app-header__menu-btn {
+    display: inline-flex;
+  }
+}
+
+/* Formulários padronizados */
+.app-form {
+  width: 100%;
+}
+
+.app-form__panel {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.app-form__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-md);
+}
+
+.app-form__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border);
+}
+
+@media (min-width: 768px) {
+  .app-form__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .app-form__panel {
+    padding: var(--space-lg);
+  }
+
+  .app-form__span-2 {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 1280px) {
+  .app-form__grid.is-dense {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .app-form__grid.is-dense .app-form__span-2 {
+    grid-column: span 2;
+  }
+
+  .app-form__grid.is-dense .app-form__span-3 {
+    grid-column: span 3;
+  }
 }

@@ -10,12 +10,14 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(function T
   ref,
 ) {
   return (
-    <label className="block text-sm text-[var(--text)]">
-      {label && <span className="mb-2 block font-medium text-[var(--text)]">{label}</span>}
+    <label className="Campo block text-[var(--font-size-sm)] text-[var(--label-color)]">
+      {label && <span className="mb-1.5 block font-semibold text-[var(--label-color)]">{label}</span>}
       <textarea
         ref={ref}
         className={clsx(
-          'w-full rounded-md border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[var(--text)] shadow-sm transition duration-150 focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/20',
+          'w-full rounded-[var(--radius-md)] border border-[var(--input-border)] bg-[var(--input-bg)]',
+          'px-3 py-2 text-[var(--text)] shadow-[var(--shadow-sm)] transition duration-150',
+          'focus:border-[var(--primary)] focus:shadow-[var(--focus-ring)] focus:outline-none',
           className,
         )}
         {...props}

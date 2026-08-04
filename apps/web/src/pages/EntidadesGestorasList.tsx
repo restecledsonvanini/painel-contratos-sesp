@@ -1,35 +1,30 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@painel/ui';
+import { Button, Card, Page, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@painel/ui';
+import { Plus } from 'lucide-react';
 import { useEntidadesGestoras, useDeleteEntidadeGestora } from '../hooks/useReferences';
 
 export default function EntidadesGestorasList() {
   const { data: entidades, isLoading, error } = useEntidadesGestoras();
-  const deleteEntidade = useDeleteEntidadeGestora();
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Deseja excluir esta entidade?')) return;
-    try {
-      await deleteEntidade.mutateAsync(id);
-      alert('Excluído');
-    } catch {
-      alert('Falha ao excluir');
-    }
-  };
+  const del = useDeleteEntidadeGestora();
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Entidades Gestoras</h1>
+    <Page
+      title="Entidades gestoras"
+      description="Gestores e fiscais de contrato."
+      actions={
         <Link to="/entidades-gestoras/new">
-          <Button>Novo</Button>
+          <Button>
+            <Plus size={16} /> Nova
+          </Button>
         </Link>
-      </div>
-      <Card>
+      }
+    >
+      <Card variant="bordered" className="overflow-hidden">
         {isLoading ? (
-          <p>Carregando...</p>
+          <p className="p-[var(--space-lg)] text-[var(--text-muted)]">Carregando...</p>
         ) : error ? (
-          <p>Erro ao carregar.</p>
+          <p className="p-[var(--space-lg)] text-[var(--danger)]">Erro ao carregar.</p>
         ) : (
           <div className="overflow-x-auto">
             <Table>
@@ -37,28 +32,41 @@ export default function EntidadesGestorasList() {
                 <TableRow>
                   <TableHeader>Nome</TableHeader>
                   <TableHeader>CPF</TableHeader>
-                  <TableHeader>Ação</TableHeader>
+                  <TableHeader>Ações</TableHeader>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {entidades && entidades.length > 0 ? (
+                {entidades?.length ? (
                   entidades.map((e) => (
                     <TableRow key={e.id}>
-                      <TableCell>{e.nome}</TableCell>
+                      <TableCell className="font-semibold">{e.nome}</TableCell>
                       <TableCell>{e.cpf}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
                           <Link to={`/entidades-gestoras/${e.id}/edit`}>
-                            <Button variant="secondary">Editar</Button>
+                            <Button size="sm" variant="secondary">
+                              Editar
+                            </Button>
                           </Link>
-                          <Button variant="ghost" onClick={() => handleDelete(e.id)}>Excluir</Button>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={async () => {
+                              if (!window.confirm('Excluir?')) return;
+                              await del.mutateAsync(e.id);
+                            }}
+                          >
+                            Excluir
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3}>Nenhuma entidade encontrada.</TableCell>
+                    <TableCell colSpan={3} className="text-[var(--text-muted)]">
+                      Nenhuma entidade.
+                    </TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -66,6 +74,6 @@ export default function EntidadesGestorasList() {
           </div>
         )}
       </Card>
-    </div>
+    </Page>
   );
 }

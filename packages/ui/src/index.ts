@@ -10,3 +10,4 @@ export * from './components/Table';
 export * from './components/ThemeToggle';
 export * from './components/Sidebar';
 export * from './components/Header';
+export * from './components/Page';

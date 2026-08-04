@@ -1,27 +1,18 @@
 import { Request, Response } from 'express';
-import { ContractCreateSchema } from '../../../../packages/schema/src/contracts';
+import { ContractCreateSchema, ContractUpdateSchema } from '../../../../packages/schema/src/contracts';
+import { getActorId, writeAuditLog } from '../lib/audit';
+import { notFound } from '../lib/errors';
+import { getPrisma } from '../lib/prisma';
 
-let prisma: any = null;
+const contractInclude = {
+  aditivos: true,
+  unidadeFsp: true,
+  gestor: true,
+  fiscal: true,
+  empresa: true,
+} as const;
 
-async function getPrismaClient() {
-  if (prisma) {
-    return prisma;
-  }
-
-  const databaseUrl = process.env.DATABASE_URL || 'postgresql://painel:pass@localhost:5432/painel_db';
-  process.env.DATABASE_URL = databaseUrl;
-
-  try {
-    const { PrismaClient } = await import('@prisma/client');
-    prisma = new PrismaClient({ datasources: { db: { url: databaseUrl } } });
-    return prisma;
-  } catch (error: any) {
-    console.warn('Prisma client unavailable:', error?.message || error);
-    return null;
-  }
-}
-
-async function mapContractRecord(record: any) {
+function mapContractRecord(record: any) {
   return {
     id: record.id,
     protocoloCabeca: record.protocoloCabeca,
@@ -39,198 +30,177 @@ async function mapContractRecord(record: any) {
     empresaName: record.empresa?.razaoSocial,
     modalidade: record.modalidade,
     objeto: record.objeto,
-    valorAnual: record.valorAnualCents ? record.valorAnualCents / 100 : undefined,
+    valorAnual: record.valorAnualCents != null ? record.valorAnualCents / 100 : undefined,
     valorAnualCents: record.valorAnualCents,
     dataInicio: record.dataInicio,
     dataFimOrig: record.dataFimOrig,
     status: record.status,
     aditivos: record.aditivos?.map((aditivo: any) => ({
+      id: aditivo.id,
       numAditivo: aditivo.numAditivo,
       protocoloAdit: aditivo.protocoloAdit,
       novoFimVigencia: aditivo.novoFimVigencia,
-      valorAdicional: aditivo.valorAdicionalCents ? aditivo.valorAdicionalCents / 100 : undefined,
+      valorAdicional: aditivo.valorAdicionalCents != null ? aditivo.valorAdicionalCents / 100 : undefined,
     })),
   };
 }
 
-export async function listContracts(_req: Request, res: Response) {
-  try {
-    const db = await getPrismaClient();
-
-    if (!db) {
-      return res.status(200).json([]);
-    }
-
-    const records = await db.contrato.findMany({
-      orderBy: { createdAt: 'desc' },
-      include: {
-        aditivos: true,
-        unidadeFsp: true,
-        gestor: true,
-        fiscal: true,
-        empresa: true,
-      },
-    });
-
-    const contracts = await Promise.all(records.map(mapContractRecord));
-    return res.status(200).json(contracts);
-  } catch (err: any) {
-    console.error(err);
-    return res.status(500).json({ error: 'Internal server error' });
+async function loadMappedContract(id: string) {
+  const db = getPrisma();
+  const record = await db.contrato.findUnique({
+    where: { id },
+    include: contractInclude,
+  });
+  if (!record) {
+    throw notFound('Contract not found');
   }
+  return mapContractRecord(record);
+}
+
+export async function listContracts(_req: Request, res: Response) {
+  const db = getPrisma();
+  const records = await db.contrato.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: contractInclude,
+  });
+  return res.status(200).json(records.map(mapContractRecord));
 }
 
 export async function getContract(req: Request, res: Response) {
-  try {
-    const db = await getPrismaClient();
-
-    if (!db) {
-      return res.status(404).json({ error: 'Contract not found' });
-    }
-
-    const record = await db.contrato.findUnique({
-      where: { id: req.params.id },
-      include: {
-        aditivos: true,
-        unidadeFsp: true,
-        gestor: true,
-        fiscal: true,
-        empresa: true,
-      },
-    });
-
-    if (!record) {
-      return res.status(404).json({ error: 'Contract not found' });
-    }
-
-    return res.status(200).json(await mapContractRecord(record));
-  } catch (err: any) {
-    console.error(err);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
+  return res.status(200).json(await loadMappedContract(req.params.id));
 }
 
 export async function createContract(req: Request, res: Response) {
-  try {
-    const parsed = ContractCreateSchema.parse(req.body);
-    const db = await getPrismaClient();
+  const parsed = ContractCreateSchema.parse(req.body);
+  const db = getPrisma();
+  const actorId = getActorId(req);
 
-    if (!db) {
-      return res.status(500).json({ error: 'Database unavailable' });
-    }
-
-    const result = await db.$transaction(async (tx: any) => {
-      const contrato = await tx.contrato.create({
-        data: {
-          protocoloCabeca: parsed.protocoloCabeca || null,
-          numGms: parsed.numGms,
-          anoGms: parsed.anoGms,
-          unidadeFspId: parsed.unidadeFspId,
-          gestorId: parsed.gestorId,
-          fiscalId: parsed.fiscalId,
-          empresaId: parsed.empresaId,
-          modalidade: parsed.modalidade,
-          objeto: parsed.objeto,
-          valorAnualCents: (parsed as any).valorAnualCents,
-          dataInicio: parsed.dataInicio || null,
-          dataFimOrig: parsed.dataFimOrig || null,
-          status: parsed.status || 'vigente',
-        },
-      });
-
-      if (parsed.aditivos && parsed.aditivos.length > 0) {
-        for (const a of parsed.aditivos) {
-          await (tx as any).aditivo.create({
-            data: {
-              contratoId: contrato.id,
-              numAditivo: a.numAditivo,
-              protocoloAdit: a.protocoloAdit,
-              novoFimVigencia: a.novoFimVigencia || null,
-              valorAdicionalCents: a.valorAdicional ? Math.round(a.valorAdicional * 100) : null,
-            },
-          });
-        }
-      }
-
-      await (tx as any).auditLog.create({
-        data: {
-          tabela: 'contrato',
-          registroId: contrato.id,
-          action: 'create',
-          diff: {},
-          changedBy: (req as any).user?.id || null,
-        },
-      });
-
-      return contrato;
-    });
-
-    return res.status(201).json(result);
-  } catch (err: any) {
-    if (err.name === 'ZodError') {
-      return res.status(400).json({ error: err.errors });
-    }
-    console.error(err);
-    return res.status(500).json({ error: 'Internal server error' });
-  }
-}
-
-export async function updateContract(req: Request, res: Response) {
-  try {
-    const db = await getPrismaClient();
-
-    if (!db) {
-      return res.status(500).json({ error: 'Database unavailable' });
-    }
-
-    const record = await db.contrato.findUnique({ where: { id: req.params.id } });
-    if (!record) {
-      return res.status(404).json({ error: 'Contract not found' });
-    }
-
-    const updated = await db.contrato.update({
-      where: { id: req.params.id },
+  const createdId = await db.$transaction(async (tx) => {
+    const contrato = await tx.contrato.create({
       data: {
-        protocoloCabeca: req.body.protocoloCabeca ?? record.protocoloCabeca,
-        numGms: req.body.numGms ?? record.numGms,
-        anoGms: req.body.anoGms ?? record.anoGms,
-        unidadeFspId: req.body.unidadeFspId ?? record.unidadeFspId,
-        gestorId: req.body.gestorId ?? record.gestorId,
-        fiscalId: req.body.fiscalId ?? record.fiscalId,
-        empresaId: req.body.empresaId ?? record.empresaId,
-        modalidade: req.body.modalidade ?? record.modalidade,
-        objeto: req.body.objeto ?? record.objeto,
-        valorAnualCents: req.body.valorAnualCents ?? record.valorAnualCents,
-        dataInicio: req.body.dataInicio ?? record.dataInicio,
-        dataFimOrig: req.body.dataFimOrig ?? record.dataFimOrig,
-        status: req.body.status ?? record.status,
+        protocoloCabeca: parsed.protocoloCabeca || null,
+        numGms: parsed.numGms,
+        anoGms: parsed.anoGms,
+        unidadeFspId: parsed.unidadeFspId,
+        gestorId: parsed.gestorId,
+        fiscalId: parsed.fiscalId,
+        empresaId: parsed.empresaId,
+        modalidade: parsed.modalidade,
+        objeto: parsed.objeto,
+        valorAnualCents: parsed.valorAnualCents,
+        dataInicio: parsed.dataInicio ? new Date(parsed.dataInicio) : null,
+        dataFimOrig: parsed.dataFimOrig ? new Date(parsed.dataFimOrig) : null,
+        status: parsed.status || 'vigente',
       },
     });
 
-    return res.status(200).json(updated);
-  } catch (err: any) {
-    console.error(err);
-    return res.status(500).json({ error: 'Internal server error' });
+    if (parsed.aditivos?.length) {
+      for (const a of parsed.aditivos) {
+        await tx.aditivo.create({
+          data: {
+            contratoId: contrato.id,
+            numAditivo: a.numAditivo,
+            protocoloAdit: a.protocoloAdit,
+            novoFimVigencia: a.novoFimVigencia ? new Date(a.novoFimVigencia) : null,
+            valorAdicionalCents: a.valorAdicional != null ? Math.round(a.valorAdicional * 100) : null,
+          },
+        });
+      }
+    }
+
+    await tx.auditLog.create({
+      data: {
+        tabela: 'contrato',
+        registroId: contrato.id,
+        action: 'create',
+        diff: { id: contrato.id },
+        changedBy: actorId,
+        source: 'api',
+      },
+    });
+
+    return contrato.id;
+  });
+
+  return res.status(201).json(await loadMappedContract(createdId));
+}
+
+export async function updateContract(req: Request, res: Response) {
+  const parsed = ContractUpdateSchema.parse(req.body);
+  const db = getPrisma();
+  const actorId = getActorId(req);
+
+  const existing = await db.contrato.findUnique({ where: { id: req.params.id } });
+  if (!existing) {
+    throw notFound('Contract not found');
   }
+
+  const gestorId = (parsed.gestorId as string | undefined) ?? existing.gestorId;
+  const fiscalId = (parsed.fiscalId as string | undefined) ?? existing.fiscalId;
+  if (gestorId === fiscalId) {
+    ContractUpdateSchema.parse({ ...parsed, gestorId, fiscalId });
+  }
+
+  const data: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(parsed)) {
+    if (value !== undefined) {
+      data[key] = value;
+    }
+  }
+  if (data.dataInicio !== undefined) {
+    data.dataInicio = data.dataInicio ? new Date(String(data.dataInicio)) : null;
+  }
+  if (data.dataFimOrig !== undefined) {
+    data.dataFimOrig = data.dataFimOrig ? new Date(String(data.dataFimOrig)) : null;
+  }
+
+  await db.$transaction(async (tx) => {
+    await tx.contrato.update({
+      where: { id: req.params.id },
+      data,
+    });
+
+    await tx.auditLog.create({
+      data: {
+        tabela: 'contrato',
+        registroId: req.params.id,
+        action: 'update',
+        diff: { before: existing, patch: data },
+        changedBy: actorId,
+        source: 'api',
+      },
+    });
+  });
+
+  return res.status(200).json(await loadMappedContract(req.params.id));
 }
 
 export async function deleteContract(req: Request, res: Response) {
-  try {
-    const db = await getPrismaClient();
+  const db = getPrisma();
+  const actorId = getActorId(req);
 
-    if (!db) {
-      return res.status(500).json({ error: 'Database unavailable' });
-    }
-
-    const record = await db.contrato.findUnique({ where: { id: req.params.id } });
-    if (!record) {
-      return res.status(404).json({ error: 'Contract not found' });
-    }
-
-    await db.contrato.delete({ where: { id: req.params.id } });
-    return res.status(200).json({ success: true });
-  } catch (err: any) {
-    console.error(err);
-    return res.status(500).json({ error: 'Internal server error' });
+  const existing = await db.contrato.findUnique({
+    where: { id: req.params.id },
+    include: { aditivos: true },
+  });
+  if (!existing) {
+    throw notFound('Contract not found');
   }
+
+  await db.$transaction(async (tx) => {
+    await tx.aditivo.deleteMany({ where: { contratoId: req.params.id } });
+    await tx.contrato.delete({ where: { id: req.params.id } });
+    await tx.auditLog.create({
+      data: {
+        tabela: 'contrato',
+        registroId: req.params.id,
+        action: 'delete',
+        diff: { id: existing.id, aditivos: existing.aditivos.length },
+        changedBy: actorId,
+        source: 'api',
+      },
+    });
+  });
+
+  return res.status(200).json({ success: true });
 }

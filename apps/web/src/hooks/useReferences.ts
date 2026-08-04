@@ -32,33 +32,34 @@ export interface Servico {
 }
 
 const baseUrl = '/.netlify/functions/api/references';
+const http = { timeout: 8000 };
 
 async function getUnidadesFsp() {
-  const response = await axios.get<UnidadeFsp[]>(`${baseUrl}/unidades-fsp`);
+  const response = await axios.get<UnidadeFsp[]>(`${baseUrl}/unidades-fsp`, http);
   return response.data;
 }
 
 async function getEmpresas() {
-  const response = await axios.get<Empresa[]>(`${baseUrl}/empresas`);
+  const response = await axios.get<Empresa[]>(`${baseUrl}/empresas`, http);
   return response.data;
 }
 
 async function getEmpresa(id: string) {
-  const res = await axios.get<Empresa>(`${baseUrl}/empresas/${id}`);
+  const res = await axios.get<Empresa>(`${baseUrl}/empresas/${id}`, http);
   return res.data;
 }
 
 async function getEntidadesGestoras() {
-  const response = await axios.get<EntidadeGestora[]>(`${baseUrl}/entidades-gestoras`);
+  const response = await axios.get<EntidadeGestora[]>(`${baseUrl}/entidades-gestoras`, http);
   return response.data;
 }
 
 export function useUnidadesFsp() {
-  return useQuery({ queryKey: ['unidadesFsp'], queryFn: getUnidadesFsp, staleTime: 1000 * 60 * 10 });
+  return useQuery({ queryKey: ['unidadesFsp'], queryFn: getUnidadesFsp, staleTime: 1000 * 60 * 10, retry: 1 });
 }
 
 export function useEmpresas() {
-  return useQuery({ queryKey: ['empresas'], queryFn: getEmpresas, staleTime: 1000 * 60 * 10 });
+  return useQuery({ queryKey: ['empresas'], queryFn: getEmpresas, staleTime: 1000 * 60 * 10, retry: 1 });
 }
 
 export function useEmpresa(id?: string) {
@@ -66,7 +67,7 @@ export function useEmpresa(id?: string) {
 }
 
 export function useEntidadesGestoras() {
-  return useQuery({ queryKey: ['entidadesGestoras'], queryFn: getEntidadesGestoras, staleTime: 1000 * 60 * 10 });
+  return useQuery({ queryKey: ['entidadesGestoras'], queryFn: getEntidadesGestoras, staleTime: 1000 * 60 * 10, retry: 1 });
 }
 
 export function useCreateEmpresa() {

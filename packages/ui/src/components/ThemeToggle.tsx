@@ -1,16 +1,20 @@
+import { Moon, Sun } from 'lucide-react';
 import React from 'react';
 import { useTheme } from '../ThemeProvider';
 
 export function ThemeToggle() {
   const { mode, toggle } = useTheme();
+  const isDark = mode === 'dark';
 
   return (
     <button
       type="button"
       onClick={toggle}
-      className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--text)] shadow-sm transition hover:bg-[var(--primary-light)] hover:text-[var(--text)]"
+      aria-label={isDark ? 'Ativar modo claro' : 'Ativar modo escuro'}
+      title={isDark ? 'Modo claro' : 'Modo escuro'}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md)] border border-white/25 bg-white/10 text-white transition hover:bg-white/20"
     >
-      {mode === 'light' ? 'Modo escuro' : 'Modo claro'}
+      {isDark ? <Sun size={16} strokeWidth={2} /> : <Moon size={16} strokeWidth={2} />}
     </button>
   );
 }

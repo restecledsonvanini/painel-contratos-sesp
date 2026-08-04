@@ -1,30 +1,132 @@
 import request from 'supertest';
-import express from 'express';
-import bodyParser from 'body-parser';
-import contractsRouter from '../src/routes/contracts';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { app } from '../src/index';
+import { getPrisma, disconnectPrisma } from '../src/lib/prisma';
 
-const app = express();
-app.use(bodyParser.json());
-// very light auth mock
-app.use((req, _res, next) => { (req as any).user = { id: 'test', role: 'colaborador' }; next(); });
-app.use('/contracts', contractsRouter);
+process.env.DATABASE_URL ||= 'postgresql://painel:pass@localhost:5434/painel_db';
+process.env.VITEST = 'true';
 
-describe('POST /contracts', () => {
-  it('returns 201 and creates a contract (happy path)', async () => {
-    const payload = {
-      numGms: 1,
-      anoGms: 2026,
-      unidadeFspId: '00000000-0000-0000-0000-000000000000',
-      gestorId: '11111111-1111-1111-1111-111111111111',
-      fiscalId: '22222222-2222-2222-2222-222222222222',
-      empresaId: '33333333-3333-3333-3333-333333333333',
-      modalidade: 'Dispensa',
-      objeto: 'Teste',
-      valorAnual: 1000.0
-    };
+async function dbReady() {
+  try {
+    const db = getPrisma();
+    await db.$queryRaw`SELECT 1`;
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-    const res = await request(app).post('/contracts').send(payload);
-    expect([201,400,500]).toContain(res.status);
-    // We accept multiple responses here since database may not be available in unit CI env.
+describe('contracts API integration', () => {
+  let ready = false;
+  let unidadeId = '';
+  let empresaId = '';
+  let gestorId = '';
+  let fiscalId = '';
+
+  beforeAll(async () => {
+    ready = await dbReady();
+    if (!ready) return;
+
+    const db = getPrisma();
+    const suffix = Date.now().toString();
+    const rand = Math.floor(Math.random() * 9000) + 1000;
+
+    const unidade = await db.unidadeFsp.create({
+      data: { sigla: `T${suffix.slice(-5)}${rand}`.slice(0, 10), nome: `Unidade Teste ${suffix}` },
+    });
+    const empresa = await db.empresa.create({
+      data: {
+        cnpj: `${suffix}${rand}`.padStart(14, '0').slice(-14),
+        razaoSocial: `Empresa ${suffix}`,
+      },
+    });
+    const gestor = await db.entidadeGestora.create({
+      data: { nome: `Gestor ${suffix}`, cpf: `1${suffix}${rand}`.slice(0, 11).padStart(11, '1') },
+    });
+    const fiscal = await db.entidadeGestora.create({
+      data: { nome: `Fiscal ${suffix}`, cpf: `2${suffix}${rand}`.slice(0, 11).padStart(11, '2') },
+    });
+
+    unidadeId = unidade.id;
+    empresaId = empresa.id;
+    gestorId = gestor.id;
+    fiscalId = fiscal.id;
+  });
+
+  it('health responds ok', async () => {
+    const res = await request(app).get('/.netlify/functions/api/health');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ ok: true });
+  });
+
+  it('rejects invalid create payload with uniform error shape', async () => {
+    const res = await request(app).post('/.netlify/functions/api/contracts').send({ numGms: 1 });
+    expect(res.status).toBe(400);
+    expect(res.body.error.code).toBe('VALIDATION_ERROR');
+  });
+
+  it('creates, updates and deletes a contract with aditivos', async () => {
+    if (!ready) {
+      console.warn('Skipping DB integration test — DATABASE_URL unreachable');
+      return;
+    }
+
+    const numGms = Math.floor(Math.random() * 900000) + 100000;
+
+    const createRes = await request(app)
+      .post('/.netlify/functions/api/contracts')
+      .send({
+        numGms,
+        anoGms: 2026,
+        unidadeFspId: unidadeId,
+        gestorId,
+        fiscalId,
+        empresaId,
+        modalidade: 'Dispensa',
+        objeto: 'Contrato integração',
+        valorAnual: 2500,
+        dataInicio: '2026-01-01',
+        dataFimOrig: '2026-12-31',
+        aditivos: [
+          {
+            numAditivo: 1,
+            protocoloAdit: 'AD-IT-1',
+            novoFimVigencia: '2027-06-30',
+            valorAdicional: 100,
+          },
+        ],
+      });
+
+    expect(createRes.status).toBe(201);
+    expect(createRes.body.id).toBeTruthy();
+    expect(createRes.body.valorAnual).toBe(2500);
+    expect(createRes.body.aditivos).toHaveLength(1);
+
+    const id = createRes.body.id as string;
+
+    const getRes = await request(app).get(`/.netlify/functions/api/contracts/${id}`);
+    expect(getRes.status).toBe(200);
+    expect(getRes.body.objeto).toBe('Contrato integração');
+
+    const updateRes = await request(app)
+      .put(`/.netlify/functions/api/contracts/${id}`)
+      .send({ status: 'encerrado', valorAnual: 2600 });
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body.status).toBe('encerrado');
+    expect(updateRes.body.valorAnual).toBe(2600);
+    expect(updateRes.body.aditivos).toHaveLength(1);
+
+    const deleteRes = await request(app).delete(`/.netlify/functions/api/contracts/${id}`);
+    expect(deleteRes.status).toBe(200);
+    expect(deleteRes.body.success).toBe(true);
+
+    const missing = await request(app).get(`/.netlify/functions/api/contracts/${id}`);
+    expect(missing.status).toBe(404);
+
+    const db = getPrisma();
+    const leftoverAditivos = await db.aditivo.count({ where: { contratoId: id } });
+    expect(leftoverAditivos).toBe(0);
+
+    await disconnectPrisma();
   });
 });

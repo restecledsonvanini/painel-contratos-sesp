@@ -2,64 +2,64 @@ import { Router } from 'express';
 import {
   createEmpresa,
   createEntidadeGestora,
+  createFornecedor,
+  createServico,
   createUnidadeFsp,
+  deleteEmpresa,
+  deleteEntidadeGestora,
+  deleteFornecedor,
+  deleteServico,
+  deleteUnidadeFsp,
+  getEmpresa,
+  getEntidadeGestora,
+  getFornecedor,
+  getServico,
+  getUnidadeFsp,
   listEmpresas,
   listEntidadesGestoras,
-  listUnidadesFsp,
-  getEmpresa,
-  updateEmpresa,
-  deleteEmpresa,
-  getEntidadeGestora,
-  updateEntidadeGestora,
-  deleteEntidadeGestora,
-  getUnidadeFsp,
-  updateUnidadeFsp,
-  deleteUnidadeFsp,
-  // fornecedores & serviços (mocked)
   listFornecedores,
-  createFornecedor,
-  getFornecedor,
-  updateFornecedor,
-  deleteFornecedor,
   listServicos,
-  createServico,
-  getServico,
+  listUnidadesFsp,
+  updateEmpresa,
+  updateEntidadeGestora,
+  updateFornecedor,
   updateServico,
-  deleteServico,
+  updateUnidadeFsp,
 } from '../controllers/referenceController';
+import { asyncHandler } from '../lib/errors';
+import { requireRole } from '../middleware/rbac';
 
 const router = Router();
+const writeRoles = requireRole(['colaborador', 'admin']);
 
-router.get('/empresas', listEmpresas);
-router.post('/empresas', createEmpresa);
-router.get('/empresas/:id', getEmpresa);
-router.put('/empresas/:id', updateEmpresa);
-router.delete('/empresas/:id', deleteEmpresa);
+router.get('/empresas', asyncHandler(listEmpresas));
+router.post('/empresas', writeRoles, asyncHandler(createEmpresa));
+router.get('/empresas/:id', asyncHandler(getEmpresa));
+router.put('/empresas/:id', writeRoles, asyncHandler(updateEmpresa));
+router.delete('/empresas/:id', writeRoles, asyncHandler(deleteEmpresa));
 
-router.get('/entidades-gestoras', listEntidadesGestoras);
-router.post('/entidades-gestoras', createEntidadeGestora);
-router.get('/entidades-gestoras/:id', getEntidadeGestora);
-router.put('/entidades-gestoras/:id', updateEntidadeGestora);
-router.delete('/entidades-gestoras/:id', deleteEntidadeGestora);
+router.get('/entidades-gestoras', asyncHandler(listEntidadesGestoras));
+router.post('/entidades-gestoras', writeRoles, asyncHandler(createEntidadeGestora));
+router.get('/entidades-gestoras/:id', asyncHandler(getEntidadeGestora));
+router.put('/entidades-gestoras/:id', writeRoles, asyncHandler(updateEntidadeGestora));
+router.delete('/entidades-gestoras/:id', writeRoles, asyncHandler(deleteEntidadeGestora));
 
-router.get('/unidades-fsp', listUnidadesFsp);
-router.post('/unidades-fsp', createUnidadeFsp);
-router.get('/unidades-fsp/:id', getUnidadeFsp);
-router.put('/unidades-fsp/:id', updateUnidadeFsp);
-router.delete('/unidades-fsp/:id', deleteUnidadeFsp);
+router.get('/unidades-fsp', asyncHandler(listUnidadesFsp));
+router.post('/unidades-fsp', writeRoles, asyncHandler(createUnidadeFsp));
+router.get('/unidades-fsp/:id', asyncHandler(getUnidadeFsp));
+router.put('/unidades-fsp/:id', writeRoles, asyncHandler(updateUnidadeFsp));
+router.delete('/unidades-fsp/:id', writeRoles, asyncHandler(deleteUnidadeFsp));
 
-// Fornecedores (mocked)
-router.get('/fornecedores', listFornecedores);
-router.post('/fornecedores', createFornecedor);
-router.get('/fornecedores/:id', getFornecedor);
-router.put('/fornecedores/:id', updateFornecedor);
-router.delete('/fornecedores/:id', deleteFornecedor);
+router.get('/fornecedores', asyncHandler(listFornecedores));
+router.post('/fornecedores', writeRoles, asyncHandler(createFornecedor));
+router.get('/fornecedores/:id', asyncHandler(getFornecedor));
+router.put('/fornecedores/:id', writeRoles, asyncHandler(updateFornecedor));
+router.delete('/fornecedores/:id', writeRoles, asyncHandler(deleteFornecedor));
 
-// Serviços (mocked)
-router.get('/servicos', listServicos);
-router.post('/servicos', createServico);
-router.get('/servicos/:id', getServico);
-router.put('/servicos/:id', updateServico);
-router.delete('/servicos/:id', deleteServico);
+router.get('/servicos', asyncHandler(listServicos));
+router.post('/servicos', writeRoles, asyncHandler(createServico));
+router.get('/servicos/:id', asyncHandler(getServico));
+router.put('/servicos/:id', writeRoles, asyncHandler(updateServico));
+router.delete('/servicos/:id', writeRoles, asyncHandler(deleteServico));
 
 export default router;

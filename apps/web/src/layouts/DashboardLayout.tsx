@@ -1,14 +1,20 @@
 import React from 'react';
-import { Header, Sidebar } from '@painel/ui';
+import { Header, Sidebar, useSidebar } from '@painel/ui';
 
-export function DashboardLayout({ children }: { children: React.ReactNode }) {
+function ShellFrame({ children }: { children: React.ReactNode }) {
+  const { collapsed } = useSidebar();
   return (
-    <div className="flex min-h-screen flex-col md:flex-row bg-[#f3f3f3] text-[var(--text)]">
+    <div className={`app-shell Página-Shell${collapsed ? ' is-rail-collapsed' : ''}`}>
       <Sidebar />
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="app-content">
         <Header />
-        <main className="flex-1 bg-[#f3f3f3] p-4 md:p-6 lg:p-8">{children}</main>
+        <main className="app-main Seção-Main">{children}</main>
       </div>
     </div>
   );
+}
+
+/** Shell: [ sidebar ] | [ header + main ] */
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
+  return <ShellFrame>{children}</ShellFrame>;
 }

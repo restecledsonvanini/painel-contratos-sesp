@@ -1,35 +1,30 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '@painel/ui';
+import { Button, Card, Page, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@painel/ui';
+import { Plus } from 'lucide-react';
 import { useFornecedores, useDeleteFornecedor } from '../hooks/useReferences';
 
 export default function FornecedoresList() {
   const { data: fornecedores, isLoading, error } = useFornecedores();
   const del = useDeleteFornecedor();
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Deseja excluir este fornecedor?')) return;
-    try {
-      await del.mutateAsync(id);
-      alert('Excluído');
-    } catch {
-      alert('Falha ao excluir');
-    }
-  };
-
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Fornecedores</h1>
+    <Page
+      title="Fornecedores"
+      description="Cadastro de fornecedores."
+      actions={
         <Link to="/fornecedores/new">
-          <Button>Novo</Button>
+          <Button>
+            <Plus size={16} /> Novo
+          </Button>
         </Link>
-      </div>
-      <Card>
+      }
+    >
+      <Card variant="bordered" className="overflow-hidden">
         {isLoading ? (
-          <p>Carregando...</p>
+          <p className="p-[var(--space-lg)] text-[var(--text-muted)]">Carregando...</p>
         ) : error ? (
-          <p>Erro ao carregar.</p>
+          <p className="p-[var(--space-lg)] text-[var(--danger)]">Erro ao carregar.</p>
         ) : (
           <div className="overflow-x-auto">
             <Table>
@@ -37,28 +32,41 @@ export default function FornecedoresList() {
                 <TableRow>
                   <TableHeader>Nome</TableHeader>
                   <TableHeader>CNPJ</TableHeader>
-                  <TableHeader>Ação</TableHeader>
+                  <TableHeader>Ações</TableHeader>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {fornecedores && fornecedores.length > 0 ? (
+                {fornecedores?.length ? (
                   fornecedores.map((f) => (
                     <TableRow key={f.id}>
-                      <TableCell>{f.nome}</TableCell>
-                      <TableCell>{f.cnpj}</TableCell>
+                      <TableCell className="font-semibold">{f.nome}</TableCell>
+                      <TableCell>{f.cnpj || '—'}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">
                           <Link to={`/fornecedores/${f.id}/edit`}>
-                            <Button variant="secondary">Editar</Button>
+                            <Button size="sm" variant="secondary">
+                              Editar
+                            </Button>
                           </Link>
-                          <Button variant="ghost" onClick={() => handleDelete(f.id)}>Excluir</Button>
+                          <Button
+                            size="sm"
+                            variant="danger"
+                            onClick={async () => {
+                              if (!window.confirm('Excluir?')) return;
+                              await del.mutateAsync(f.id);
+                            }}
+                          >
+                            Excluir
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3}>Nenhum fornecedor encontrado.</TableCell>
+                    <TableCell colSpan={3} className="text-[var(--text-muted)]">
+                      Nenhum fornecedor.
+                    </TableCell>
                   </TableRow>
                 )}
               </TableBody>
@@ -66,7 +74,6 @@ export default function FornecedoresList() {
           </div>
         )}
       </Card>
-    </div>
+    </Page>
   );
 }
- 

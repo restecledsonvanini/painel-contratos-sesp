@@ -4,23 +4,19 @@ import bodyParser from 'body-parser';
 import contractsRouter from './routes/contracts';
 import referencesRouter from './routes/references';
 import { authenticate } from './middleware/auth';
+import { errorHandler } from './lib/errors';
 
 const app = express();
 app.use(bodyParser.json());
-
-// Simple auth middleware - replace with real Supabase JWT verification
 app.use(authenticate);
 
 app.use('/.netlify/functions/api/contracts', contractsRouter);
 app.use('/.netlify/functions/api/references', referencesRouter);
 
-// Health
 app.get('/.netlify/functions/api/health', (_req, res) => res.json({ ok: true }));
 
-export const handler = serverless(app);
+app.use(errorHandler);
 
-// For local dev
-if (process.env.NODE_ENV !== 'production') {
-  const port = process.env.PORT || 8888;
-  app.listen(port, () => console.log(`API listening on http://localhost:${port}`));
-}
+export const handler = serverless(app);
+export { app };
+

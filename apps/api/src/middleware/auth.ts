@@ -1,15 +1,21 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
-// NOTE: This is a lightweight placeholder for development. Replace with Supabase JWT verification in production.
-export function authenticate(req: Request, res: Response, next: NextFunction) {
+/**
+ * Dev auth stub (JWT/Supabase deferred).
+ *
+ * Contract:
+ * - No Authorization header → { id: 'system', role: 'colaborador' }
+ * - Authorization: Bearer admin → role admin
+ * - Authorization: Bearer colaborador → role colaborador
+ * - Any other Bearer token → role colaborador (unknown user)
+ */
+export function authenticate(req: Request, _res: Response, next: NextFunction) {
   const auth = req.headers.authorization;
   if (!auth) {
-    // For public endpoints, you may allow anonymous; for now we attach a default 'colaborador' fallback.
     (req as any).user = { id: 'system', role: 'colaborador' };
     return next();
   }
 
-  // Example Authorization: 'Bearer admin' or 'Bearer colaborador'
   const parts = auth.split(' ');
   const token = parts[1];
   if (token === 'admin') {
@@ -17,7 +23,6 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
   } else if (token === 'colaborador') {
     (req as any).user = { id: 'user-colab', role: 'colaborador' };
   } else {
-    // In production: verify JWT and set user id and roles based on claims
     (req as any).user = { id: 'user-unknown', role: 'colaborador' };
   }
 

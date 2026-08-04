@@ -8,15 +8,20 @@ interface StatusBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 function getBadgeVariant(status?: string | null) {
   const normalized = String(status || '').toLowerCase();
 
-  if (normalized.includes('vigente') || normalized.includes('ativo') || normalized.includes('ativo')) {
+  if (normalized.includes('vigente') || normalized.includes('ativo') || normalized.includes('conclu')) {
     return 'success';
   }
 
-  if (normalized.includes('vencendo') || normalized.includes('próximo') || normalized.includes('aviso')) {
+  if (normalized.includes('vencendo') || normalized.includes('próximo') || normalized.includes('aviso') || normalized.includes('pendente')) {
     return 'warning';
   }
 
-  if (normalized.includes('suspenso') || normalized.includes('cancelado') || normalized.includes('vencido')) {
+  if (
+    normalized.includes('suspenso') ||
+    normalized.includes('cancelado') ||
+    normalized.includes('vencido') ||
+    normalized.includes('encerrado')
+  ) {
     return 'danger';
   }
 
@@ -27,16 +32,16 @@ export function StatusBadge({ status, className, ...props }: StatusBadgeProps) {
   const variant = getBadgeVariant(status);
 
   const variantClasses = {
-    default: 'bg-[var(--surface)] text-[var(--text)] ring-1 ring-[var(--border)]',
-    success: 'bg-[var(--primary-light)] text-[var(--primary)]',
-    warning: 'bg-amber-100 text-amber-700',
-    danger: 'bg-red-100 text-red-700',
+    default: 'bg-[var(--surface-muted)] text-[var(--secondary)] ring-1 ring-[var(--border)]',
+    success: 'bg-[color-mix(in_srgb,var(--success)_16%,white)] text-[color-mix(in_srgb,var(--success)_70%,black)]',
+    warning: 'bg-[color-mix(in_srgb,var(--warning)_16%,white)] text-[color-mix(in_srgb,var(--warning)_75%,black)]',
+    danger: 'bg-[color-mix(in_srgb,var(--danger)_12%,white)] text-[var(--danger)]',
   };
 
   return (
     <span
       className={clsx(
-        'inline-flex rounded-full px-3 py-1 text-xs font-semibold',
+        'inline-flex items-center rounded-[var(--radius-sm)] px-2.5 py-1 text-[var(--font-size-xs)] font-semibold',
         variantClasses[variant as keyof typeof variantClasses],
         className,
       )}
