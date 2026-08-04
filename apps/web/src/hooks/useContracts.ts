@@ -13,7 +13,11 @@ export interface Contract {
   gestorName?: string;
   fiscalId?: string;
   fiscalName?: string;
+  fornecedorId?: string;
+  fornecedorName?: string;
+  /** @deprecated */
   empresaId?: string;
+  /** @deprecated */
   empresaName?: string;
   modalidade?: string;
   objeto?: string;

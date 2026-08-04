@@ -28,6 +28,12 @@ export const publicApiCatalog = {
       arvore: { method: 'GET', path: `${API_BASE}/unidades/arvore` },
     },
     municipios: { method: 'GET', path: `${API_BASE}/municipios?q=` },
+    fornecedores: {
+      list: { method: 'GET', path: `${API_BASE}/fornecedores` },
+      contatos: { method: 'POST', path: `${API_BASE}/fornecedores/:id/contatos` },
+      sancoes: { method: 'POST', path: `${API_BASE}/fornecedores/:id/sancoes` },
+    },
+    servidores: { method: 'GET', path: `${API_BASE}/servidores` },
     contracts: {
       list: { method: 'GET', path: `${API_BASE}/contracts` },
       get: { method: 'GET', path: `${API_BASE}/contracts/:id` },
@@ -37,8 +43,16 @@ export const publicApiCatalog = {
     },
     references: {
       unidadesFsp: { method: 'GET', path: `${API_BASE}/references/unidades-fsp` },
-      empresas: { method: 'GET', path: `${API_BASE}/references/empresas` },
-      entidadesGestoras: { method: 'GET', path: `${API_BASE}/references/entidades-gestoras` },
+      empresas: {
+        method: 'GET',
+        path: `${API_BASE}/references/empresas`,
+        note: 'alias → Fornecedor (compat)',
+      },
+      entidadesGestoras: {
+        method: 'GET',
+        path: `${API_BASE}/references/entidades-gestoras`,
+        note: 'alias → Servidor (compat)',
+      },
       fornecedores: { method: 'GET', path: `${API_BASE}/references/fornecedores` },
       servicos: { method: 'GET', path: `${API_BASE}/references/servicos` },
     },
@@ -46,7 +60,9 @@ export const publicApiCatalog = {
   tryNow: [
     `http://localhost:${process.env.PORT || 8888}${API_BASE}/health`,
     `http://localhost:${process.env.PORT || 8888}${API_BASE}/lookups`,
-    `http://localhost:${process.env.PORT || 8888}${API_BASE}/lookups/municipios?q=curi`,
+    `http://localhost:${process.env.PORT || 8888}${API_BASE}/lookups/fornecedores?q=loc`,
+    `http://localhost:${process.env.PORT || 8888}${API_BASE}/fornecedores?flat=true`,
+    `http://localhost:${process.env.PORT || 8888}${API_BASE}/servidores?flat=true`,
     `http://localhost:${process.env.PORT || 8888}${API_BASE}/contracts`,
   ],
 } as const;

@@ -111,12 +111,6 @@ exports.Prisma.UnidadeFspScalarFieldEnum = {
   nome: 'nome'
 };
 
-exports.Prisma.EntidadeGestoraScalarFieldEnum = {
-  id: 'id',
-  nome: 'nome',
-  cpf: 'cpf'
-};
-
 exports.Prisma.MunicipioScalarFieldEnum = {
   id: 'id',
   codigoIbge: 'codigoIbge',
@@ -173,17 +167,57 @@ exports.Prisma.UnidadeOrganizacionalScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.EmpresaScalarFieldEnum = {
-  id: 'id',
-  cnpj: 'cnpj',
-  razaoSocial: 'razaoSocial'
-};
-
 exports.Prisma.FornecedorScalarFieldEnum = {
   id: 'id',
-  cnpj: 'cnpj',
+  tipoPessoa: 'tipoPessoa',
+  documento: 'documento',
+  razaoSocial: 'razaoSocial',
+  nomeFantasia: 'nomeFantasia',
+  inscricaoEstadual: 'inscricaoEstadual',
+  porte: 'porte',
+  municipioId: 'municipioId',
+  situacao: 'situacao',
+  codigoLegado: 'codigoLegado',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.FornecedorContatoScalarFieldEnum = {
+  id: 'id',
+  fornecedorId: 'fornecedorId',
   nome: 'nome',
+  cargo: 'cargo',
+  email: 'email',
+  telefone: 'telefone',
+  principal: 'principal',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.FornecedorSancaoScalarFieldEnum = {
+  id: 'id',
+  fornecedorId: 'fornecedorId',
+  tipo: 'tipo',
+  processo: 'processo',
+  dataInicio: 'dataInicio',
+  dataFim: 'dataFim',
+  abrangencia: 'abrangencia',
+  fonte: 'fonte',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ServidorScalarFieldEnum = {
+  id: 'id',
+  nome: 'nome',
+  cpf: 'cpf',
+  rgFuncional: 'rgFuncional',
+  cargo: 'cargo',
+  orgaoId: 'orgaoId',
+  unidadeId: 'unidadeId',
+  email: 'email',
+  telefone: 'telefone',
+  ativo: 'ativo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.ContratoScalarFieldEnum = {
@@ -194,7 +228,7 @@ exports.Prisma.ContratoScalarFieldEnum = {
   unidadeFspId: 'unidadeFspId',
   gestorId: 'gestorId',
   fiscalId: 'fiscalId',
-  empresaId: 'empresaId',
+  fornecedorId: 'fornecedorId',
   modalidade: 'modalidade',
   objeto: 'objeto',
   valorAnualCents: 'valorAnualCents',
@@ -291,16 +325,43 @@ exports.NivelUnidade = {
   SETOR: 'SETOR'
 };
 
+exports.TipoPessoa = {
+  JURIDICA: 'JURIDICA',
+  FISICA: 'FISICA'
+};
+
+exports.PorteEmpresa = {
+  MEI: 'MEI',
+  ME: 'ME',
+  EPP: 'EPP',
+  DEMAIS: 'DEMAIS'
+};
+
+exports.SituacaoFornecedor = {
+  ATIVO: 'ATIVO',
+  INATIVO: 'INATIVO',
+  IMPEDIDO: 'IMPEDIDO',
+  INIDONEO: 'INIDONEO'
+};
+
+exports.TipoSancao = {
+  ADVERTENCIA: 'ADVERTENCIA',
+  MULTA: 'MULTA',
+  IMPEDIMENTO_LICITAR: 'IMPEDIMENTO_LICITAR',
+  DECLARACAO_INIDONEIDADE: 'DECLARACAO_INIDONEIDADE'
+};
+
 exports.Prisma.ModelName = {
   UnidadeFsp: 'UnidadeFsp',
-  EntidadeGestora: 'EntidadeGestora',
   Municipio: 'Municipio',
   Dominio: 'Dominio',
   DominioValor: 'DominioValor',
   Orgao: 'Orgao',
   UnidadeOrganizacional: 'UnidadeOrganizacional',
-  Empresa: 'Empresa',
   Fornecedor: 'Fornecedor',
+  FornecedorContato: 'FornecedorContato',
+  FornecedorSancao: 'FornecedorSancao',
+  Servidor: 'Servidor',
   Contrato: 'Contrato',
   Aditivo: 'Aditivo',
   Servico: 'Servico',

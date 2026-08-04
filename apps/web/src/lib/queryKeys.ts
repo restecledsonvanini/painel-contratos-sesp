@@ -22,6 +22,8 @@ export const qk = {
   empresa: (id: string) => ['empresas', id] as const,
   fornecedores: ['fornecedores'] as const,
   fornecedor: (id: string) => ['fornecedores', id] as const,
+  servidores: ['servidores'] as const,
+  servidor: (id: string) => ['servidores', id] as const,
   servicos: ['servicos'] as const,
   servico: (id: string) => ['servicos', id] as const,
   entidadesGestoras: ['entidadesGestoras'] as const,

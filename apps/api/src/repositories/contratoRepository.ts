@@ -5,7 +5,7 @@ const contractInclude = {
   unidadeFsp: true,
   gestor: true,
   fiscal: true,
-  empresa: true,
+  fornecedor: true,
 } as const;
 
 export type ContractInclude = typeof contractInclude;
@@ -42,7 +42,7 @@ export const contratoRepository = {
       unidadeFspId: string;
       gestorId: string;
       fiscalId: string;
-      empresaId: string;
+      fornecedorId: string;
       modalidade: string;
       objeto: string;
       valorAnualCents: number;

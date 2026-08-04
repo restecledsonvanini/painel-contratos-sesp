@@ -19,7 +19,7 @@ async function dbReady() {
 describe('contracts API integration', () => {
   let ready = false;
   let unidadeId = '';
-  let empresaId = '';
+  let fornecedorId = '';
   let gestorId = '';
   let fiscalId = '';
 
@@ -34,21 +34,31 @@ describe('contracts API integration', () => {
     const unidade = await db.unidadeFsp.create({
       data: { sigla: `T${suffix.slice(-5)}${rand}`.slice(0, 10), nome: `Unidade Teste ${suffix}` },
     });
-    const empresa = await db.empresa.create({
+    const fornecedor = await db.fornecedor.create({
       data: {
-        cnpj: `${suffix}${rand}`.padStart(14, '0').slice(-14),
-        razaoSocial: `Empresa ${suffix}`,
+        tipoPessoa: 'JURIDICA',
+        documento: `${suffix}${rand}`.padStart(14, '0').slice(-14),
+        razaoSocial: `Fornecedor ${suffix}`,
+        situacao: 'ATIVO',
       },
     });
-    const gestor = await db.entidadeGestora.create({
-      data: { nome: `Gestor ${suffix}`, cpf: `1${suffix}${rand}`.slice(0, 11).padStart(11, '1') },
+    const gestor = await db.servidor.create({
+      data: {
+        nome: `Gestor ${suffix}`,
+        cpf: `1${suffix}${rand}`.slice(0, 11).padStart(11, '1'),
+        ativo: true,
+      },
     });
-    const fiscal = await db.entidadeGestora.create({
-      data: { nome: `Fiscal ${suffix}`, cpf: `2${suffix}${rand}`.slice(0, 11).padStart(11, '2') },
+    const fiscal = await db.servidor.create({
+      data: {
+        nome: `Fiscal ${suffix}`,
+        cpf: `2${suffix}${rand}`.slice(0, 11).padStart(11, '2'),
+        ativo: true,
+      },
     });
 
     unidadeId = unidade.id;
-    empresaId = empresa.id;
+    fornecedorId = fornecedor.id;
     gestorId = gestor.id;
     fiscalId = fiscal.id;
   });
@@ -85,7 +95,7 @@ describe('contracts API integration', () => {
         unidadeFspId: unidadeId,
         gestorId,
         fiscalId,
-        empresaId,
+        fornecedorId,
         modalidade: 'Dispensa',
         objeto: 'Contrato integração',
         valorAnual: 2500,

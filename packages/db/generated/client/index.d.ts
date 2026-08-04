@@ -30,29 +30,11 @@ export type UnidadeFspPayload<ExtArgs extends $Extensions.Args = $Extensions.Def
  * 
  */
 export type UnidadeFsp = runtime.Types.DefaultSelection<UnidadeFspPayload>
-export type EntidadeGestoraPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-  name: "EntidadeGestora"
-  objects: {
-    gestorContratos: ContratoPayload<ExtArgs>[]
-    fiscalContratos: ContratoPayload<ExtArgs>[]
-  }
-  scalars: $Extensions.GetResult<{
-    id: string
-    nome: string
-    cpf: string
-  }, ExtArgs["result"]["entidadeGestora"]>
-  composites: {}
-}
-
-/**
- * Model EntidadeGestora
- * 
- */
-export type EntidadeGestora = runtime.Types.DefaultSelection<EntidadeGestoraPayload>
 export type MunicipioPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
   name: "Municipio"
   objects: {
     unidades: UnidadeOrganizacionalPayload<ExtArgs>[]
+    fornecedores: FornecedorPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -124,6 +106,7 @@ export type OrgaoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultA
   name: "Orgao"
   objects: {
     unidades: UnidadeOrganizacionalPayload<ExtArgs>[]
+    servidores: ServidorPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -149,6 +132,7 @@ export type UnidadeOrganizacionalPayload<ExtArgs extends $Extensions.Args = $Ext
     parent: UnidadeOrganizacionalPayload<ExtArgs> | null
     children: UnidadeOrganizacionalPayload<ExtArgs>[]
     municipio: MunicipioPayload<ExtArgs>
+    servidores: ServidorPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -170,32 +154,27 @@ export type UnidadeOrganizacionalPayload<ExtArgs extends $Extensions.Args = $Ext
  * 
  */
 export type UnidadeOrganizacional = runtime.Types.DefaultSelection<UnidadeOrganizacionalPayload>
-export type EmpresaPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-  name: "Empresa"
+export type FornecedorPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "Fornecedor"
   objects: {
+    municipio: MunicipioPayload<ExtArgs> | null
+    contatos: FornecedorContatoPayload<ExtArgs>[]
+    sancoes: FornecedorSancaoPayload<ExtArgs>[]
     contratos: ContratoPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
-    cnpj: string
+    tipoPessoa: TipoPessoa
+    documento: string
     razaoSocial: string
-  }, ExtArgs["result"]["empresa"]>
-  composites: {}
-}
-
-/**
- * Model Empresa
- * 
- */
-export type Empresa = runtime.Types.DefaultSelection<EmpresaPayload>
-export type FornecedorPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-  name: "Fornecedor"
-  objects: {}
-  scalars: $Extensions.GetResult<{
-    id: string
-    cnpj: string | null
-    nome: string
+    nomeFantasia: string | null
+    inscricaoEstadual: string | null
+    porte: PorteEmpresa | null
+    municipioId: string | null
+    situacao: SituacaoFornecedor
+    codigoLegado: string | null
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["fornecedor"]>
   composites: {}
 }
@@ -205,13 +184,90 @@ export type FornecedorPayload<ExtArgs extends $Extensions.Args = $Extensions.Def
  * 
  */
 export type Fornecedor = runtime.Types.DefaultSelection<FornecedorPayload>
+export type FornecedorContatoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "FornecedorContato"
+  objects: {
+    fornecedor: FornecedorPayload<ExtArgs>
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    fornecedorId: string
+    nome: string
+    cargo: string | null
+    email: string | null
+    telefone: string | null
+    principal: boolean
+    createdAt: Date
+  }, ExtArgs["result"]["fornecedorContato"]>
+  composites: {}
+}
+
+/**
+ * Model FornecedorContato
+ * 
+ */
+export type FornecedorContato = runtime.Types.DefaultSelection<FornecedorContatoPayload>
+export type FornecedorSancaoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "FornecedorSancao"
+  objects: {
+    fornecedor: FornecedorPayload<ExtArgs>
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    fornecedorId: string
+    tipo: TipoSancao
+    processo: string | null
+    dataInicio: Date
+    dataFim: Date | null
+    abrangencia: string | null
+    fonte: string | null
+    createdAt: Date
+  }, ExtArgs["result"]["fornecedorSancao"]>
+  composites: {}
+}
+
+/**
+ * Model FornecedorSancao
+ * 
+ */
+export type FornecedorSancao = runtime.Types.DefaultSelection<FornecedorSancaoPayload>
+export type ServidorPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "Servidor"
+  objects: {
+    orgao: OrgaoPayload<ExtArgs> | null
+    unidade: UnidadeOrganizacionalPayload<ExtArgs> | null
+    gestorContratos: ContratoPayload<ExtArgs>[]
+    fiscalContratos: ContratoPayload<ExtArgs>[]
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    nome: string
+    cpf: string | null
+    rgFuncional: string | null
+    cargo: string | null
+    orgaoId: string | null
+    unidadeId: string | null
+    email: string | null
+    telefone: string | null
+    ativo: boolean
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["servidor"]>
+  composites: {}
+}
+
+/**
+ * Model Servidor
+ * 
+ */
+export type Servidor = runtime.Types.DefaultSelection<ServidorPayload>
 export type ContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
   name: "Contrato"
   objects: {
     unidadeFsp: UnidadeFspPayload<ExtArgs>
-    gestor: EntidadeGestoraPayload<ExtArgs>
-    fiscal: EntidadeGestoraPayload<ExtArgs>
-    empresa: EmpresaPayload<ExtArgs>
+    gestor: ServidorPayload<ExtArgs>
+    fiscal: ServidorPayload<ExtArgs>
+    fornecedor: FornecedorPayload<ExtArgs>
     aditivos: AditivoPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
@@ -222,7 +278,7 @@ export type ContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
     unidadeFspId: string
     gestorId: string
     fiscalId: string
-    empresaId: string
+    fornecedorId: string
     modalidade: string
     objeto: string
     valorAnualCents: number
@@ -348,6 +404,44 @@ export const NivelUnidade: {
 };
 
 export type NivelUnidade = (typeof NivelUnidade)[keyof typeof NivelUnidade]
+
+
+export const TipoPessoa: {
+  JURIDICA: 'JURIDICA',
+  FISICA: 'FISICA'
+};
+
+export type TipoPessoa = (typeof TipoPessoa)[keyof typeof TipoPessoa]
+
+
+export const PorteEmpresa: {
+  MEI: 'MEI',
+  ME: 'ME',
+  EPP: 'EPP',
+  DEMAIS: 'DEMAIS'
+};
+
+export type PorteEmpresa = (typeof PorteEmpresa)[keyof typeof PorteEmpresa]
+
+
+export const SituacaoFornecedor: {
+  ATIVO: 'ATIVO',
+  INATIVO: 'INATIVO',
+  IMPEDIDO: 'IMPEDIDO',
+  INIDONEO: 'INIDONEO'
+};
+
+export type SituacaoFornecedor = (typeof SituacaoFornecedor)[keyof typeof SituacaoFornecedor]
+
+
+export const TipoSancao: {
+  ADVERTENCIA: 'ADVERTENCIA',
+  MULTA: 'MULTA',
+  IMPEDIMENTO_LICITAR: 'IMPEDIMENTO_LICITAR',
+  DECLARACAO_INIDONEIDADE: 'DECLARACAO_INIDONEIDADE'
+};
+
+export type TipoSancao = (typeof TipoSancao)[keyof typeof TipoSancao]
 
 
 /**
@@ -486,16 +580,6 @@ export class PrismaClient<
   get unidadeFsp(): Prisma.UnidadeFspDelegate<GlobalReject, ExtArgs>;
 
   /**
-   * `prisma.entidadeGestora`: Exposes CRUD operations for the **EntidadeGestora** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more EntidadeGestoras
-    * const entidadeGestoras = await prisma.entidadeGestora.findMany()
-    * ```
-    */
-  get entidadeGestora(): Prisma.EntidadeGestoraDelegate<GlobalReject, ExtArgs>;
-
-  /**
    * `prisma.municipio`: Exposes CRUD operations for the **Municipio** model.
     * Example usage:
     * ```ts
@@ -546,16 +630,6 @@ export class PrismaClient<
   get unidadeOrganizacional(): Prisma.UnidadeOrganizacionalDelegate<GlobalReject, ExtArgs>;
 
   /**
-   * `prisma.empresa`: Exposes CRUD operations for the **Empresa** model.
-    * Example usage:
-    * ```ts
-    * // Fetch zero or more Empresas
-    * const empresas = await prisma.empresa.findMany()
-    * ```
-    */
-  get empresa(): Prisma.EmpresaDelegate<GlobalReject, ExtArgs>;
-
-  /**
    * `prisma.fornecedor`: Exposes CRUD operations for the **Fornecedor** model.
     * Example usage:
     * ```ts
@@ -564,6 +638,36 @@ export class PrismaClient<
     * ```
     */
   get fornecedor(): Prisma.FornecedorDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.fornecedorContato`: Exposes CRUD operations for the **FornecedorContato** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FornecedorContatoes
+    * const fornecedorContatoes = await prisma.fornecedorContato.findMany()
+    * ```
+    */
+  get fornecedorContato(): Prisma.FornecedorContatoDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.fornecedorSancao`: Exposes CRUD operations for the **FornecedorSancao** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more FornecedorSancaos
+    * const fornecedorSancaos = await prisma.fornecedorSancao.findMany()
+    * ```
+    */
+  get fornecedorSancao(): Prisma.FornecedorSancaoDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.servidor`: Exposes CRUD operations for the **Servidor** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Servidors
+    * const servidors = await prisma.servidor.findMany()
+    * ```
+    */
+  get servidor(): Prisma.ServidorDelegate<GlobalReject, ExtArgs>;
 
   /**
    * `prisma.contrato`: Exposes CRUD operations for the **Contrato** model.
@@ -1098,14 +1202,15 @@ export namespace Prisma {
 
   export const ModelName: {
     UnidadeFsp: 'UnidadeFsp',
-    EntidadeGestora: 'EntidadeGestora',
     Municipio: 'Municipio',
     Dominio: 'Dominio',
     DominioValor: 'DominioValor',
     Orgao: 'Orgao',
     UnidadeOrganizacional: 'UnidadeOrganizacional',
-    Empresa: 'Empresa',
     Fornecedor: 'Fornecedor',
+    FornecedorContato: 'FornecedorContato',
+    FornecedorSancao: 'FornecedorSancao',
+    Servidor: 'Servidor',
     Contrato: 'Contrato',
     Aditivo: 'Aditivo',
     Servico: 'Servico',
@@ -1127,7 +1232,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     meta: {
-      modelProps: 'unidadeFsp' | 'entidadeGestora' | 'municipio' | 'dominio' | 'dominioValor' | 'orgao' | 'unidadeOrganizacional' | 'empresa' | 'fornecedor' | 'contrato' | 'aditivo' | 'servico' | 'auditLog' | 'user'
+      modelProps: 'unidadeFsp' | 'municipio' | 'dominio' | 'dominioValor' | 'orgao' | 'unidadeOrganizacional' | 'fornecedor' | 'fornecedorContato' | 'fornecedorSancao' | 'servidor' | 'contrato' | 'aditivo' | 'servico' | 'auditLog' | 'user'
       txIsolationLevel: Prisma.TransactionIsolationLevel
     },
     model: {
@@ -1193,71 +1298,6 @@ export namespace Prisma {
           count: {
             args: Prisma.UnidadeFspCountArgs<ExtArgs>,
             result: $Utils.Optional<UnidadeFspCountAggregateOutputType> | number
-          }
-        }
-      }
-      EntidadeGestora: {
-        payload: EntidadeGestoraPayload<ExtArgs>
-        operations: {
-          findUnique: {
-            args: Prisma.EntidadeGestoraFindUniqueArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EntidadeGestoraPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.EntidadeGestoraFindUniqueOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EntidadeGestoraPayload>
-          }
-          findFirst: {
-            args: Prisma.EntidadeGestoraFindFirstArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EntidadeGestoraPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.EntidadeGestoraFindFirstOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EntidadeGestoraPayload>
-          }
-          findMany: {
-            args: Prisma.EntidadeGestoraFindManyArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EntidadeGestoraPayload>[]
-          }
-          create: {
-            args: Prisma.EntidadeGestoraCreateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EntidadeGestoraPayload>
-          }
-          createMany: {
-            args: Prisma.EntidadeGestoraCreateManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          delete: {
-            args: Prisma.EntidadeGestoraDeleteArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EntidadeGestoraPayload>
-          }
-          update: {
-            args: Prisma.EntidadeGestoraUpdateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EntidadeGestoraPayload>
-          }
-          deleteMany: {
-            args: Prisma.EntidadeGestoraDeleteManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          updateMany: {
-            args: Prisma.EntidadeGestoraUpdateManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          upsert: {
-            args: Prisma.EntidadeGestoraUpsertArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EntidadeGestoraPayload>
-          }
-          aggregate: {
-            args: Prisma.EntidadeGestoraAggregateArgs<ExtArgs>,
-            result: $Utils.Optional<AggregateEntidadeGestora>
-          }
-          groupBy: {
-            args: Prisma.EntidadeGestoraGroupByArgs<ExtArgs>,
-            result: $Utils.Optional<EntidadeGestoraGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.EntidadeGestoraCountArgs<ExtArgs>,
-            result: $Utils.Optional<EntidadeGestoraCountAggregateOutputType> | number
           }
         }
       }
@@ -1586,71 +1626,6 @@ export namespace Prisma {
           }
         }
       }
-      Empresa: {
-        payload: EmpresaPayload<ExtArgs>
-        operations: {
-          findUnique: {
-            args: Prisma.EmpresaFindUniqueArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EmpresaPayload> | null
-          }
-          findUniqueOrThrow: {
-            args: Prisma.EmpresaFindUniqueOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EmpresaPayload>
-          }
-          findFirst: {
-            args: Prisma.EmpresaFindFirstArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EmpresaPayload> | null
-          }
-          findFirstOrThrow: {
-            args: Prisma.EmpresaFindFirstOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EmpresaPayload>
-          }
-          findMany: {
-            args: Prisma.EmpresaFindManyArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EmpresaPayload>[]
-          }
-          create: {
-            args: Prisma.EmpresaCreateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EmpresaPayload>
-          }
-          createMany: {
-            args: Prisma.EmpresaCreateManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          delete: {
-            args: Prisma.EmpresaDeleteArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EmpresaPayload>
-          }
-          update: {
-            args: Prisma.EmpresaUpdateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EmpresaPayload>
-          }
-          deleteMany: {
-            args: Prisma.EmpresaDeleteManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          updateMany: {
-            args: Prisma.EmpresaUpdateManyArgs<ExtArgs>,
-            result: Prisma.BatchPayload
-          }
-          upsert: {
-            args: Prisma.EmpresaUpsertArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<EmpresaPayload>
-          }
-          aggregate: {
-            args: Prisma.EmpresaAggregateArgs<ExtArgs>,
-            result: $Utils.Optional<AggregateEmpresa>
-          }
-          groupBy: {
-            args: Prisma.EmpresaGroupByArgs<ExtArgs>,
-            result: $Utils.Optional<EmpresaGroupByOutputType>[]
-          }
-          count: {
-            args: Prisma.EmpresaCountArgs<ExtArgs>,
-            result: $Utils.Optional<EmpresaCountAggregateOutputType> | number
-          }
-        }
-      }
       Fornecedor: {
         payload: FornecedorPayload<ExtArgs>
         operations: {
@@ -1713,6 +1688,201 @@ export namespace Prisma {
           count: {
             args: Prisma.FornecedorCountArgs<ExtArgs>,
             result: $Utils.Optional<FornecedorCountAggregateOutputType> | number
+          }
+        }
+      }
+      FornecedorContato: {
+        payload: FornecedorContatoPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.FornecedorContatoFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorContatoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FornecedorContatoFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorContatoPayload>
+          }
+          findFirst: {
+            args: Prisma.FornecedorContatoFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorContatoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FornecedorContatoFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorContatoPayload>
+          }
+          findMany: {
+            args: Prisma.FornecedorContatoFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorContatoPayload>[]
+          }
+          create: {
+            args: Prisma.FornecedorContatoCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorContatoPayload>
+          }
+          createMany: {
+            args: Prisma.FornecedorContatoCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.FornecedorContatoDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorContatoPayload>
+          }
+          update: {
+            args: Prisma.FornecedorContatoUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorContatoPayload>
+          }
+          deleteMany: {
+            args: Prisma.FornecedorContatoDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FornecedorContatoUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.FornecedorContatoUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorContatoPayload>
+          }
+          aggregate: {
+            args: Prisma.FornecedorContatoAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateFornecedorContato>
+          }
+          groupBy: {
+            args: Prisma.FornecedorContatoGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<FornecedorContatoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FornecedorContatoCountArgs<ExtArgs>,
+            result: $Utils.Optional<FornecedorContatoCountAggregateOutputType> | number
+          }
+        }
+      }
+      FornecedorSancao: {
+        payload: FornecedorSancaoPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.FornecedorSancaoFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorSancaoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.FornecedorSancaoFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorSancaoPayload>
+          }
+          findFirst: {
+            args: Prisma.FornecedorSancaoFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorSancaoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.FornecedorSancaoFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorSancaoPayload>
+          }
+          findMany: {
+            args: Prisma.FornecedorSancaoFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorSancaoPayload>[]
+          }
+          create: {
+            args: Prisma.FornecedorSancaoCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorSancaoPayload>
+          }
+          createMany: {
+            args: Prisma.FornecedorSancaoCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.FornecedorSancaoDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorSancaoPayload>
+          }
+          update: {
+            args: Prisma.FornecedorSancaoUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorSancaoPayload>
+          }
+          deleteMany: {
+            args: Prisma.FornecedorSancaoDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.FornecedorSancaoUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.FornecedorSancaoUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<FornecedorSancaoPayload>
+          }
+          aggregate: {
+            args: Prisma.FornecedorSancaoAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateFornecedorSancao>
+          }
+          groupBy: {
+            args: Prisma.FornecedorSancaoGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<FornecedorSancaoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.FornecedorSancaoCountArgs<ExtArgs>,
+            result: $Utils.Optional<FornecedorSancaoCountAggregateOutputType> | number
+          }
+        }
+      }
+      Servidor: {
+        payload: ServidorPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.ServidorFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ServidorPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ServidorFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ServidorPayload>
+          }
+          findFirst: {
+            args: Prisma.ServidorFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ServidorPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ServidorFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ServidorPayload>
+          }
+          findMany: {
+            args: Prisma.ServidorFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ServidorPayload>[]
+          }
+          create: {
+            args: Prisma.ServidorCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ServidorPayload>
+          }
+          createMany: {
+            args: Prisma.ServidorCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.ServidorDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ServidorPayload>
+          }
+          update: {
+            args: Prisma.ServidorUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ServidorPayload>
+          }
+          deleteMany: {
+            args: Prisma.ServidorDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ServidorUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.ServidorUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ServidorPayload>
+          }
+          aggregate: {
+            args: Prisma.ServidorAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateServidor>
+          }
+          groupBy: {
+            args: Prisma.ServidorGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<ServidorGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ServidorCountArgs<ExtArgs>,
+            result: $Utils.Optional<ServidorCountAggregateOutputType> | number
           }
         }
       }
@@ -2253,61 +2423,18 @@ export namespace Prisma {
 
 
   /**
-   * Count Type EntidadeGestoraCountOutputType
-   */
-
-
-  export type EntidadeGestoraCountOutputType = {
-    gestorContratos: number
-    fiscalContratos: number
-  }
-
-  export type EntidadeGestoraCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    gestorContratos?: boolean | EntidadeGestoraCountOutputTypeCountGestorContratosArgs
-    fiscalContratos?: boolean | EntidadeGestoraCountOutputTypeCountFiscalContratosArgs
-  }
-
-  // Custom InputTypes
-
-  /**
-   * EntidadeGestoraCountOutputType without action
-   */
-  export type EntidadeGestoraCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the EntidadeGestoraCountOutputType
-     */
-    select?: EntidadeGestoraCountOutputTypeSelect<ExtArgs> | null
-  }
-
-
-  /**
-   * EntidadeGestoraCountOutputType without action
-   */
-  export type EntidadeGestoraCountOutputTypeCountGestorContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    where?: ContratoWhereInput
-  }
-
-
-  /**
-   * EntidadeGestoraCountOutputType without action
-   */
-  export type EntidadeGestoraCountOutputTypeCountFiscalContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    where?: ContratoWhereInput
-  }
-
-
-
-  /**
    * Count Type MunicipioCountOutputType
    */
 
 
   export type MunicipioCountOutputType = {
     unidades: number
+    fornecedores: number
   }
 
   export type MunicipioCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     unidades?: boolean | MunicipioCountOutputTypeCountUnidadesArgs
+    fornecedores?: boolean | MunicipioCountOutputTypeCountFornecedoresArgs
   }
 
   // Custom InputTypes
@@ -2328,6 +2455,14 @@ export namespace Prisma {
    */
   export type MunicipioCountOutputTypeCountUnidadesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: UnidadeOrganizacionalWhereInput
+  }
+
+
+  /**
+   * MunicipioCountOutputType without action
+   */
+  export type MunicipioCountOutputTypeCountFornecedoresArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: FornecedorWhereInput
   }
 
 
@@ -2409,10 +2544,12 @@ export namespace Prisma {
 
   export type OrgaoCountOutputType = {
     unidades: number
+    servidores: number
   }
 
   export type OrgaoCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     unidades?: boolean | OrgaoCountOutputTypeCountUnidadesArgs
+    servidores?: boolean | OrgaoCountOutputTypeCountServidoresArgs
   }
 
   // Custom InputTypes
@@ -2436,6 +2573,14 @@ export namespace Prisma {
   }
 
 
+  /**
+   * OrgaoCountOutputType without action
+   */
+  export type OrgaoCountOutputTypeCountServidoresArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ServidorWhereInput
+  }
+
+
 
   /**
    * Count Type UnidadeOrganizacionalCountOutputType
@@ -2444,10 +2589,12 @@ export namespace Prisma {
 
   export type UnidadeOrganizacionalCountOutputType = {
     children: number
+    servidores: number
   }
 
   export type UnidadeOrganizacionalCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     children?: boolean | UnidadeOrganizacionalCountOutputTypeCountChildrenArgs
+    servidores?: boolean | UnidadeOrganizacionalCountOutputTypeCountServidoresArgs
   }
 
   // Custom InputTypes
@@ -2471,37 +2618,110 @@ export namespace Prisma {
   }
 
 
+  /**
+   * UnidadeOrganizacionalCountOutputType without action
+   */
+  export type UnidadeOrganizacionalCountOutputTypeCountServidoresArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ServidorWhereInput
+  }
+
+
 
   /**
-   * Count Type EmpresaCountOutputType
+   * Count Type FornecedorCountOutputType
    */
 
 
-  export type EmpresaCountOutputType = {
+  export type FornecedorCountOutputType = {
+    contatos: number
+    sancoes: number
     contratos: number
   }
 
-  export type EmpresaCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    contratos?: boolean | EmpresaCountOutputTypeCountContratosArgs
+  export type FornecedorCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contatos?: boolean | FornecedorCountOutputTypeCountContatosArgs
+    sancoes?: boolean | FornecedorCountOutputTypeCountSancoesArgs
+    contratos?: boolean | FornecedorCountOutputTypeCountContratosArgs
   }
 
   // Custom InputTypes
 
   /**
-   * EmpresaCountOutputType without action
+   * FornecedorCountOutputType without action
    */
-  export type EmpresaCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FornecedorCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the EmpresaCountOutputType
+     * Select specific fields to fetch from the FornecedorCountOutputType
      */
-    select?: EmpresaCountOutputTypeSelect<ExtArgs> | null
+    select?: FornecedorCountOutputTypeSelect<ExtArgs> | null
   }
 
 
   /**
-   * EmpresaCountOutputType without action
+   * FornecedorCountOutputType without action
    */
-  export type EmpresaCountOutputTypeCountContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type FornecedorCountOutputTypeCountContatosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: FornecedorContatoWhereInput
+  }
+
+
+  /**
+   * FornecedorCountOutputType without action
+   */
+  export type FornecedorCountOutputTypeCountSancoesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: FornecedorSancaoWhereInput
+  }
+
+
+  /**
+   * FornecedorCountOutputType without action
+   */
+  export type FornecedorCountOutputTypeCountContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoWhereInput
+  }
+
+
+
+  /**
+   * Count Type ServidorCountOutputType
+   */
+
+
+  export type ServidorCountOutputType = {
+    gestorContratos: number
+    fiscalContratos: number
+  }
+
+  export type ServidorCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    gestorContratos?: boolean | ServidorCountOutputTypeCountGestorContratosArgs
+    fiscalContratos?: boolean | ServidorCountOutputTypeCountFiscalContratosArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * ServidorCountOutputType without action
+   */
+  export type ServidorCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ServidorCountOutputType
+     */
+    select?: ServidorCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * ServidorCountOutputType without action
+   */
+  export type ServidorCountOutputTypeCountGestorContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoWhereInput
+  }
+
+
+  /**
+   * ServidorCountOutputType without action
+   */
+  export type ServidorCountOutputTypeCountFiscalContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: ContratoWhereInput
   }
 
@@ -3476,960 +3696,6 @@ export namespace Prisma {
 
 
   /**
-   * Model EntidadeGestora
-   */
-
-
-  export type AggregateEntidadeGestora = {
-    _count: EntidadeGestoraCountAggregateOutputType | null
-    _min: EntidadeGestoraMinAggregateOutputType | null
-    _max: EntidadeGestoraMaxAggregateOutputType | null
-  }
-
-  export type EntidadeGestoraMinAggregateOutputType = {
-    id: string | null
-    nome: string | null
-    cpf: string | null
-  }
-
-  export type EntidadeGestoraMaxAggregateOutputType = {
-    id: string | null
-    nome: string | null
-    cpf: string | null
-  }
-
-  export type EntidadeGestoraCountAggregateOutputType = {
-    id: number
-    nome: number
-    cpf: number
-    _all: number
-  }
-
-
-  export type EntidadeGestoraMinAggregateInputType = {
-    id?: true
-    nome?: true
-    cpf?: true
-  }
-
-  export type EntidadeGestoraMaxAggregateInputType = {
-    id?: true
-    nome?: true
-    cpf?: true
-  }
-
-  export type EntidadeGestoraCountAggregateInputType = {
-    id?: true
-    nome?: true
-    cpf?: true
-    _all?: true
-  }
-
-  export type EntidadeGestoraAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which EntidadeGestora to aggregate.
-     */
-    where?: EntidadeGestoraWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of EntidadeGestoras to fetch.
-     */
-    orderBy?: Enumerable<EntidadeGestoraOrderByWithRelationInput>
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: EntidadeGestoraWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` EntidadeGestoras from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` EntidadeGestoras.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned EntidadeGestoras
-    **/
-    _count?: true | EntidadeGestoraCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: EntidadeGestoraMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: EntidadeGestoraMaxAggregateInputType
-  }
-
-  export type GetEntidadeGestoraAggregateType<T extends EntidadeGestoraAggregateArgs> = {
-        [P in keyof T & keyof AggregateEntidadeGestora]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateEntidadeGestora[P]>
-      : GetScalarType<T[P], AggregateEntidadeGestora[P]>
-  }
-
-
-
-
-  export type EntidadeGestoraGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    where?: EntidadeGestoraWhereInput
-    orderBy?: Enumerable<EntidadeGestoraOrderByWithAggregationInput>
-    by: EntidadeGestoraScalarFieldEnum[]
-    having?: EntidadeGestoraScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: EntidadeGestoraCountAggregateInputType | true
-    _min?: EntidadeGestoraMinAggregateInputType
-    _max?: EntidadeGestoraMaxAggregateInputType
-  }
-
-
-  export type EntidadeGestoraGroupByOutputType = {
-    id: string
-    nome: string
-    cpf: string
-    _count: EntidadeGestoraCountAggregateOutputType | null
-    _min: EntidadeGestoraMinAggregateOutputType | null
-    _max: EntidadeGestoraMaxAggregateOutputType | null
-  }
-
-  type GetEntidadeGestoraGroupByPayload<T extends EntidadeGestoraGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickArray<EntidadeGestoraGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof EntidadeGestoraGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], EntidadeGestoraGroupByOutputType[P]>
-            : GetScalarType<T[P], EntidadeGestoraGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type EntidadeGestoraSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    nome?: boolean
-    cpf?: boolean
-    gestorContratos?: boolean | EntidadeGestora$gestorContratosArgs<ExtArgs>
-    fiscalContratos?: boolean | EntidadeGestora$fiscalContratosArgs<ExtArgs>
-    _count?: boolean | EntidadeGestoraCountOutputTypeArgs<ExtArgs>
-  }, ExtArgs["result"]["entidadeGestora"]>
-
-  export type EntidadeGestoraSelectScalar = {
-    id?: boolean
-    nome?: boolean
-    cpf?: boolean
-  }
-
-  export type EntidadeGestoraInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    gestorContratos?: boolean | EntidadeGestora$gestorContratosArgs<ExtArgs>
-    fiscalContratos?: boolean | EntidadeGestora$fiscalContratosArgs<ExtArgs>
-    _count?: boolean | EntidadeGestoraCountOutputTypeArgs<ExtArgs>
-  }
-
-
-  type EntidadeGestoraGetPayload<S extends boolean | null | undefined | EntidadeGestoraArgs> = $Types.GetResult<EntidadeGestoraPayload, S>
-
-  type EntidadeGestoraCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
-    Omit<EntidadeGestoraFindManyArgs, 'select' | 'include'> & {
-      select?: EntidadeGestoraCountAggregateInputType | true
-    }
-
-  export interface EntidadeGestoraDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['EntidadeGestora'], meta: { name: 'EntidadeGestora' } }
-    /**
-     * Find zero or one EntidadeGestora that matches the filter.
-     * @param {EntidadeGestoraFindUniqueArgs} args - Arguments to find a EntidadeGestora
-     * @example
-     * // Get one EntidadeGestora
-     * const entidadeGestora = await prisma.entidadeGestora.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findUnique<T extends EntidadeGestoraFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
-      args: SelectSubset<T, EntidadeGestoraFindUniqueArgs<ExtArgs>>
-    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'EntidadeGestora'> extends True ? Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
-
-    /**
-     * Find one EntidadeGestora that matches the filter or throw an error  with `error.code='P2025'` 
-     *     if no matches were found.
-     * @param {EntidadeGestoraFindUniqueOrThrowArgs} args - Arguments to find a EntidadeGestora
-     * @example
-     * // Get one EntidadeGestora
-     * const entidadeGestora = await prisma.entidadeGestora.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findUniqueOrThrow<T extends EntidadeGestoraFindUniqueOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, EntidadeGestoraFindUniqueOrThrowArgs<ExtArgs>>
-    ): Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
-
-    /**
-     * Find the first EntidadeGestora that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EntidadeGestoraFindFirstArgs} args - Arguments to find a EntidadeGestora
-     * @example
-     * // Get one EntidadeGestora
-     * const entidadeGestora = await prisma.entidadeGestora.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findFirst<T extends EntidadeGestoraFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
-      args?: SelectSubset<T, EntidadeGestoraFindFirstArgs<ExtArgs>>
-    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'EntidadeGestora'> extends True ? Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
-
-    /**
-     * Find the first EntidadeGestora that matches the filter or
-     * throw `NotFoundError` if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EntidadeGestoraFindFirstOrThrowArgs} args - Arguments to find a EntidadeGestora
-     * @example
-     * // Get one EntidadeGestora
-     * const entidadeGestora = await prisma.entidadeGestora.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findFirstOrThrow<T extends EntidadeGestoraFindFirstOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, EntidadeGestoraFindFirstOrThrowArgs<ExtArgs>>
-    ): Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
-
-    /**
-     * Find zero or more EntidadeGestoras that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EntidadeGestoraFindManyArgs=} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all EntidadeGestoras
-     * const entidadeGestoras = await prisma.entidadeGestora.findMany()
-     * 
-     * // Get first 10 EntidadeGestoras
-     * const entidadeGestoras = await prisma.entidadeGestora.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const entidadeGestoraWithIdOnly = await prisma.entidadeGestora.findMany({ select: { id: true } })
-     * 
-    **/
-    findMany<T extends EntidadeGestoraFindManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, EntidadeGestoraFindManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'findMany', never>>
-
-    /**
-     * Create a EntidadeGestora.
-     * @param {EntidadeGestoraCreateArgs} args - Arguments to create a EntidadeGestora.
-     * @example
-     * // Create one EntidadeGestora
-     * const EntidadeGestora = await prisma.entidadeGestora.create({
-     *   data: {
-     *     // ... data to create a EntidadeGestora
-     *   }
-     * })
-     * 
-    **/
-    create<T extends EntidadeGestoraCreateArgs<ExtArgs>>(
-      args: SelectSubset<T, EntidadeGestoraCreateArgs<ExtArgs>>
-    ): Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
-
-    /**
-     * Create many EntidadeGestoras.
-     *     @param {EntidadeGestoraCreateManyArgs} args - Arguments to create many EntidadeGestoras.
-     *     @example
-     *     // Create many EntidadeGestoras
-     *     const entidadeGestora = await prisma.entidadeGestora.createMany({
-     *       data: {
-     *         // ... provide data here
-     *       }
-     *     })
-     *     
-    **/
-    createMany<T extends EntidadeGestoraCreateManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, EntidadeGestoraCreateManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a EntidadeGestora.
-     * @param {EntidadeGestoraDeleteArgs} args - Arguments to delete one EntidadeGestora.
-     * @example
-     * // Delete one EntidadeGestora
-     * const EntidadeGestora = await prisma.entidadeGestora.delete({
-     *   where: {
-     *     // ... filter to delete one EntidadeGestora
-     *   }
-     * })
-     * 
-    **/
-    delete<T extends EntidadeGestoraDeleteArgs<ExtArgs>>(
-      args: SelectSubset<T, EntidadeGestoraDeleteArgs<ExtArgs>>
-    ): Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
-
-    /**
-     * Update one EntidadeGestora.
-     * @param {EntidadeGestoraUpdateArgs} args - Arguments to update one EntidadeGestora.
-     * @example
-     * // Update one EntidadeGestora
-     * const entidadeGestora = await prisma.entidadeGestora.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-    **/
-    update<T extends EntidadeGestoraUpdateArgs<ExtArgs>>(
-      args: SelectSubset<T, EntidadeGestoraUpdateArgs<ExtArgs>>
-    ): Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
-
-    /**
-     * Delete zero or more EntidadeGestoras.
-     * @param {EntidadeGestoraDeleteManyArgs} args - Arguments to filter EntidadeGestoras to delete.
-     * @example
-     * // Delete a few EntidadeGestoras
-     * const { count } = await prisma.entidadeGestora.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-    **/
-    deleteMany<T extends EntidadeGestoraDeleteManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, EntidadeGestoraDeleteManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more EntidadeGestoras.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EntidadeGestoraUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many EntidadeGestoras
-     * const entidadeGestora = await prisma.entidadeGestora.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-    **/
-    updateMany<T extends EntidadeGestoraUpdateManyArgs<ExtArgs>>(
-      args: SelectSubset<T, EntidadeGestoraUpdateManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one EntidadeGestora.
-     * @param {EntidadeGestoraUpsertArgs} args - Arguments to update or create a EntidadeGestora.
-     * @example
-     * // Update or create a EntidadeGestora
-     * const entidadeGestora = await prisma.entidadeGestora.upsert({
-     *   create: {
-     *     // ... data to create a EntidadeGestora
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the EntidadeGestora we want to update
-     *   }
-     * })
-    **/
-    upsert<T extends EntidadeGestoraUpsertArgs<ExtArgs>>(
-      args: SelectSubset<T, EntidadeGestoraUpsertArgs<ExtArgs>>
-    ): Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
-
-    /**
-     * Count the number of EntidadeGestoras.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EntidadeGestoraCountArgs} args - Arguments to filter EntidadeGestoras to count.
-     * @example
-     * // Count the number of EntidadeGestoras
-     * const count = await prisma.entidadeGestora.count({
-     *   where: {
-     *     // ... the filter for the EntidadeGestoras we want to count
-     *   }
-     * })
-    **/
-    count<T extends EntidadeGestoraCountArgs>(
-      args?: Subset<T, EntidadeGestoraCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], EntidadeGestoraCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a EntidadeGestora.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EntidadeGestoraAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends EntidadeGestoraAggregateArgs>(args: Subset<T, EntidadeGestoraAggregateArgs>): Prisma.PrismaPromise<GetEntidadeGestoraAggregateType<T>>
-
-    /**
-     * Group by EntidadeGestora.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EntidadeGestoraGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends EntidadeGestoraGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: EntidadeGestoraGroupByArgs['orderBy'] }
-        : { orderBy?: EntidadeGestoraGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends TupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, EntidadeGestoraGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEntidadeGestoraGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for EntidadeGestora.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export class Prisma__EntidadeGestoraClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
-    private readonly _dmmf;
-    private readonly _queryType;
-    private readonly _rootField;
-    private readonly _clientMethod;
-    private readonly _args;
-    private readonly _dataPath;
-    private readonly _errorFormat;
-    private readonly _measurePerformance?;
-    private _isList;
-    private _callsite;
-    private _requestPromise?;
-    readonly [Symbol.toStringTag]: 'PrismaPromise';
-    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
-
-    gestorContratos<T extends EntidadeGestora$gestorContratosArgs<ExtArgs> = {}>(args?: Subset<T, EntidadeGestora$gestorContratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
-
-    fiscalContratos<T extends EntidadeGestora$fiscalContratosArgs<ExtArgs> = {}>(args?: Subset<T, EntidadeGestora$fiscalContratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
-
-    private get _document();
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
-  }
-
-
-
-  // Custom InputTypes
-
-  /**
-   * EntidadeGestora base type for findUnique actions
-   */
-  export type EntidadeGestoraFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the EntidadeGestora
-     */
-    select?: EntidadeGestoraSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EntidadeGestoraInclude<ExtArgs> | null
-    /**
-     * Filter, which EntidadeGestora to fetch.
-     */
-    where: EntidadeGestoraWhereUniqueInput
-  }
-
-  /**
-   * EntidadeGestora findUnique
-   */
-  export interface EntidadeGestoraFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends EntidadeGestoraFindUniqueArgsBase<ExtArgs> {
-   /**
-    * Throw an Error if query returns no results
-    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
-    */
-    rejectOnNotFound?: RejectOnNotFound
-  }
-      
-
-  /**
-   * EntidadeGestora findUniqueOrThrow
-   */
-  export type EntidadeGestoraFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the EntidadeGestora
-     */
-    select?: EntidadeGestoraSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EntidadeGestoraInclude<ExtArgs> | null
-    /**
-     * Filter, which EntidadeGestora to fetch.
-     */
-    where: EntidadeGestoraWhereUniqueInput
-  }
-
-
-  /**
-   * EntidadeGestora base type for findFirst actions
-   */
-  export type EntidadeGestoraFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the EntidadeGestora
-     */
-    select?: EntidadeGestoraSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EntidadeGestoraInclude<ExtArgs> | null
-    /**
-     * Filter, which EntidadeGestora to fetch.
-     */
-    where?: EntidadeGestoraWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of EntidadeGestoras to fetch.
-     */
-    orderBy?: Enumerable<EntidadeGestoraOrderByWithRelationInput>
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for EntidadeGestoras.
-     */
-    cursor?: EntidadeGestoraWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` EntidadeGestoras from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` EntidadeGestoras.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of EntidadeGestoras.
-     */
-    distinct?: Enumerable<EntidadeGestoraScalarFieldEnum>
-  }
-
-  /**
-   * EntidadeGestora findFirst
-   */
-  export interface EntidadeGestoraFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends EntidadeGestoraFindFirstArgsBase<ExtArgs> {
-   /**
-    * Throw an Error if query returns no results
-    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
-    */
-    rejectOnNotFound?: RejectOnNotFound
-  }
-      
-
-  /**
-   * EntidadeGestora findFirstOrThrow
-   */
-  export type EntidadeGestoraFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the EntidadeGestora
-     */
-    select?: EntidadeGestoraSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EntidadeGestoraInclude<ExtArgs> | null
-    /**
-     * Filter, which EntidadeGestora to fetch.
-     */
-    where?: EntidadeGestoraWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of EntidadeGestoras to fetch.
-     */
-    orderBy?: Enumerable<EntidadeGestoraOrderByWithRelationInput>
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for EntidadeGestoras.
-     */
-    cursor?: EntidadeGestoraWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` EntidadeGestoras from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` EntidadeGestoras.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of EntidadeGestoras.
-     */
-    distinct?: Enumerable<EntidadeGestoraScalarFieldEnum>
-  }
-
-
-  /**
-   * EntidadeGestora findMany
-   */
-  export type EntidadeGestoraFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the EntidadeGestora
-     */
-    select?: EntidadeGestoraSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EntidadeGestoraInclude<ExtArgs> | null
-    /**
-     * Filter, which EntidadeGestoras to fetch.
-     */
-    where?: EntidadeGestoraWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of EntidadeGestoras to fetch.
-     */
-    orderBy?: Enumerable<EntidadeGestoraOrderByWithRelationInput>
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing EntidadeGestoras.
-     */
-    cursor?: EntidadeGestoraWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` EntidadeGestoras from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` EntidadeGestoras.
-     */
-    skip?: number
-    distinct?: Enumerable<EntidadeGestoraScalarFieldEnum>
-  }
-
-
-  /**
-   * EntidadeGestora create
-   */
-  export type EntidadeGestoraCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the EntidadeGestora
-     */
-    select?: EntidadeGestoraSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EntidadeGestoraInclude<ExtArgs> | null
-    /**
-     * The data needed to create a EntidadeGestora.
-     */
-    data: XOR<EntidadeGestoraCreateInput, EntidadeGestoraUncheckedCreateInput>
-  }
-
-
-  /**
-   * EntidadeGestora createMany
-   */
-  export type EntidadeGestoraCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many EntidadeGestoras.
-     */
-    data: Enumerable<EntidadeGestoraCreateManyInput>
-    skipDuplicates?: boolean
-  }
-
-
-  /**
-   * EntidadeGestora update
-   */
-  export type EntidadeGestoraUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the EntidadeGestora
-     */
-    select?: EntidadeGestoraSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EntidadeGestoraInclude<ExtArgs> | null
-    /**
-     * The data needed to update a EntidadeGestora.
-     */
-    data: XOR<EntidadeGestoraUpdateInput, EntidadeGestoraUncheckedUpdateInput>
-    /**
-     * Choose, which EntidadeGestora to update.
-     */
-    where: EntidadeGestoraWhereUniqueInput
-  }
-
-
-  /**
-   * EntidadeGestora updateMany
-   */
-  export type EntidadeGestoraUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update EntidadeGestoras.
-     */
-    data: XOR<EntidadeGestoraUpdateManyMutationInput, EntidadeGestoraUncheckedUpdateManyInput>
-    /**
-     * Filter which EntidadeGestoras to update
-     */
-    where?: EntidadeGestoraWhereInput
-  }
-
-
-  /**
-   * EntidadeGestora upsert
-   */
-  export type EntidadeGestoraUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the EntidadeGestora
-     */
-    select?: EntidadeGestoraSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EntidadeGestoraInclude<ExtArgs> | null
-    /**
-     * The filter to search for the EntidadeGestora to update in case it exists.
-     */
-    where: EntidadeGestoraWhereUniqueInput
-    /**
-     * In case the EntidadeGestora found by the `where` argument doesn't exist, create a new EntidadeGestora with this data.
-     */
-    create: XOR<EntidadeGestoraCreateInput, EntidadeGestoraUncheckedCreateInput>
-    /**
-     * In case the EntidadeGestora was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<EntidadeGestoraUpdateInput, EntidadeGestoraUncheckedUpdateInput>
-  }
-
-
-  /**
-   * EntidadeGestora delete
-   */
-  export type EntidadeGestoraDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the EntidadeGestora
-     */
-    select?: EntidadeGestoraSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EntidadeGestoraInclude<ExtArgs> | null
-    /**
-     * Filter which EntidadeGestora to delete.
-     */
-    where: EntidadeGestoraWhereUniqueInput
-  }
-
-
-  /**
-   * EntidadeGestora deleteMany
-   */
-  export type EntidadeGestoraDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which EntidadeGestoras to delete
-     */
-    where?: EntidadeGestoraWhereInput
-  }
-
-
-  /**
-   * EntidadeGestora.gestorContratos
-   */
-  export type EntidadeGestora$gestorContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contrato
-     */
-    select?: ContratoSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: ContratoInclude<ExtArgs> | null
-    where?: ContratoWhereInput
-    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
-    cursor?: ContratoWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: Enumerable<ContratoScalarFieldEnum>
-  }
-
-
-  /**
-   * EntidadeGestora.fiscalContratos
-   */
-  export type EntidadeGestora$fiscalContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contrato
-     */
-    select?: ContratoSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: ContratoInclude<ExtArgs> | null
-    where?: ContratoWhereInput
-    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
-    cursor?: ContratoWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: Enumerable<ContratoScalarFieldEnum>
-  }
-
-
-  /**
-   * EntidadeGestora without action
-   */
-  export type EntidadeGestoraArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the EntidadeGestora
-     */
-    select?: EntidadeGestoraSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EntidadeGestoraInclude<ExtArgs> | null
-  }
-
-
-
-  /**
    * Model Municipio
    */
 
@@ -4596,6 +3862,7 @@ export namespace Prisma {
     uf?: boolean
     regiaoAdministrativa?: boolean
     unidades?: boolean | Municipio$unidadesArgs<ExtArgs>
+    fornecedores?: boolean | Municipio$fornecedoresArgs<ExtArgs>
     _count?: boolean | MunicipioCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["municipio"]>
 
@@ -4609,6 +3876,7 @@ export namespace Prisma {
 
   export type MunicipioInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     unidades?: boolean | Municipio$unidadesArgs<ExtArgs>
+    fornecedores?: boolean | Municipio$fornecedoresArgs<ExtArgs>
     _count?: boolean | MunicipioCountOutputTypeArgs<ExtArgs>
   }
 
@@ -4984,6 +4252,8 @@ export namespace Prisma {
 
     unidades<T extends Municipio$unidadesArgs<ExtArgs> = {}>(args?: Subset<T, Municipio$unidadesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
+    fornecedores<T extends Municipio$fornecedoresArgs<ExtArgs> = {}>(args?: Subset<T, Municipio$fornecedoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<FornecedorPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
     private get _document();
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -5357,6 +4627,27 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Enumerable<UnidadeOrganizacionalScalarFieldEnum>
+  }
+
+
+  /**
+   * Municipio.fornecedores
+   */
+  export type Municipio$fornecedoresArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Fornecedor
+     */
+    select?: FornecedorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorInclude<ExtArgs> | null
+    where?: FornecedorWhereInput
+    orderBy?: Enumerable<FornecedorOrderByWithRelationInput>
+    cursor?: FornecedorWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<FornecedorScalarFieldEnum>
   }
 
 
@@ -7572,6 +6863,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     unidades?: boolean | Orgao$unidadesArgs<ExtArgs>
+    servidores?: boolean | Orgao$servidoresArgs<ExtArgs>
     _count?: boolean | OrgaoCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["orgao"]>
 
@@ -7587,6 +6879,7 @@ export namespace Prisma {
 
   export type OrgaoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     unidades?: boolean | Orgao$unidadesArgs<ExtArgs>
+    servidores?: boolean | Orgao$servidoresArgs<ExtArgs>
     _count?: boolean | OrgaoCountOutputTypeArgs<ExtArgs>
   }
 
@@ -7961,6 +7254,8 @@ export namespace Prisma {
     constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
 
     unidades<T extends Orgao$unidadesArgs<ExtArgs> = {}>(args?: Subset<T, Orgao$unidadesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    servidores<T extends Orgao$servidoresArgs<ExtArgs> = {}>(args?: Subset<T, Orgao$servidoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -8339,6 +7634,27 @@ export namespace Prisma {
 
 
   /**
+   * Orgao.servidores
+   */
+  export type Orgao$servidoresArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
+    where?: ServidorWhereInput
+    orderBy?: Enumerable<ServidorOrderByWithRelationInput>
+    cursor?: ServidorWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ServidorScalarFieldEnum>
+  }
+
+
+  /**
    * Orgao without action
    */
   export type OrgaoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -8564,6 +7880,7 @@ export namespace Prisma {
     parent?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
     children?: boolean | UnidadeOrganizacional$childrenArgs<ExtArgs>
     municipio?: boolean | MunicipioArgs<ExtArgs>
+    servidores?: boolean | UnidadeOrganizacional$servidoresArgs<ExtArgs>
     _count?: boolean | UnidadeOrganizacionalCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["unidadeOrganizacional"]>
 
@@ -8585,6 +7902,7 @@ export namespace Prisma {
     parent?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
     children?: boolean | UnidadeOrganizacional$childrenArgs<ExtArgs>
     municipio?: boolean | MunicipioArgs<ExtArgs>
+    servidores?: boolean | UnidadeOrganizacional$servidoresArgs<ExtArgs>
     _count?: boolean | UnidadeOrganizacionalCountOutputTypeArgs<ExtArgs>
   }
 
@@ -8966,6 +8284,8 @@ export namespace Prisma {
 
     municipio<T extends MunicipioArgs<ExtArgs> = {}>(args?: Subset<T, MunicipioArgs<ExtArgs>>): Prisma__MunicipioClient<$Types.GetResult<MunicipioPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
+    servidores<T extends UnidadeOrganizacional$servidoresArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacional$servidoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
     private get _document();
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -9343,6 +8663,27 @@ export namespace Prisma {
 
 
   /**
+   * UnidadeOrganizacional.servidores
+   */
+  export type UnidadeOrganizacional$servidoresArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
+    where?: ServidorWhereInput
+    orderBy?: Enumerable<ServidorOrderByWithRelationInput>
+    cursor?: ServidorWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ServidorScalarFieldEnum>
+  }
+
+
+  /**
    * UnidadeOrganizacional without action
    */
   export type UnidadeOrganizacionalArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -9354,935 +8695,6 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well.
      */
     include?: UnidadeOrganizacionalInclude<ExtArgs> | null
-  }
-
-
-
-  /**
-   * Model Empresa
-   */
-
-
-  export type AggregateEmpresa = {
-    _count: EmpresaCountAggregateOutputType | null
-    _min: EmpresaMinAggregateOutputType | null
-    _max: EmpresaMaxAggregateOutputType | null
-  }
-
-  export type EmpresaMinAggregateOutputType = {
-    id: string | null
-    cnpj: string | null
-    razaoSocial: string | null
-  }
-
-  export type EmpresaMaxAggregateOutputType = {
-    id: string | null
-    cnpj: string | null
-    razaoSocial: string | null
-  }
-
-  export type EmpresaCountAggregateOutputType = {
-    id: number
-    cnpj: number
-    razaoSocial: number
-    _all: number
-  }
-
-
-  export type EmpresaMinAggregateInputType = {
-    id?: true
-    cnpj?: true
-    razaoSocial?: true
-  }
-
-  export type EmpresaMaxAggregateInputType = {
-    id?: true
-    cnpj?: true
-    razaoSocial?: true
-  }
-
-  export type EmpresaCountAggregateInputType = {
-    id?: true
-    cnpj?: true
-    razaoSocial?: true
-    _all?: true
-  }
-
-  export type EmpresaAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Empresa to aggregate.
-     */
-    where?: EmpresaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Empresas to fetch.
-     */
-    orderBy?: Enumerable<EmpresaOrderByWithRelationInput>
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the start position
-     */
-    cursor?: EmpresaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Empresas from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Empresas.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Count returned Empresas
-    **/
-    _count?: true | EmpresaCountAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the minimum value
-    **/
-    _min?: EmpresaMinAggregateInputType
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
-     * 
-     * Select which fields to find the maximum value
-    **/
-    _max?: EmpresaMaxAggregateInputType
-  }
-
-  export type GetEmpresaAggregateType<T extends EmpresaAggregateArgs> = {
-        [P in keyof T & keyof AggregateEmpresa]: P extends '_count' | 'count'
-      ? T[P] extends true
-        ? number
-        : GetScalarType<T[P], AggregateEmpresa[P]>
-      : GetScalarType<T[P], AggregateEmpresa[P]>
-  }
-
-
-
-
-  export type EmpresaGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    where?: EmpresaWhereInput
-    orderBy?: Enumerable<EmpresaOrderByWithAggregationInput>
-    by: EmpresaScalarFieldEnum[]
-    having?: EmpresaScalarWhereWithAggregatesInput
-    take?: number
-    skip?: number
-    _count?: EmpresaCountAggregateInputType | true
-    _min?: EmpresaMinAggregateInputType
-    _max?: EmpresaMaxAggregateInputType
-  }
-
-
-  export type EmpresaGroupByOutputType = {
-    id: string
-    cnpj: string
-    razaoSocial: string
-    _count: EmpresaCountAggregateOutputType | null
-    _min: EmpresaMinAggregateOutputType | null
-    _max: EmpresaMaxAggregateOutputType | null
-  }
-
-  type GetEmpresaGroupByPayload<T extends EmpresaGroupByArgs> = Prisma.PrismaPromise<
-    Array<
-      PickArray<EmpresaGroupByOutputType, T['by']> &
-        {
-          [P in ((keyof T) & (keyof EmpresaGroupByOutputType))]: P extends '_count'
-            ? T[P] extends boolean
-              ? number
-              : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
-            : GetScalarType<T[P], EmpresaGroupByOutputType[P]>
-        }
-      >
-    >
-
-
-  export type EmpresaSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-    id?: boolean
-    cnpj?: boolean
-    razaoSocial?: boolean
-    contratos?: boolean | Empresa$contratosArgs<ExtArgs>
-    _count?: boolean | EmpresaCountOutputTypeArgs<ExtArgs>
-  }, ExtArgs["result"]["empresa"]>
-
-  export type EmpresaSelectScalar = {
-    id?: boolean
-    cnpj?: boolean
-    razaoSocial?: boolean
-  }
-
-  export type EmpresaInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    contratos?: boolean | Empresa$contratosArgs<ExtArgs>
-    _count?: boolean | EmpresaCountOutputTypeArgs<ExtArgs>
-  }
-
-
-  type EmpresaGetPayload<S extends boolean | null | undefined | EmpresaArgs> = $Types.GetResult<EmpresaPayload, S>
-
-  type EmpresaCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
-    Omit<EmpresaFindManyArgs, 'select' | 'include'> & {
-      select?: EmpresaCountAggregateInputType | true
-    }
-
-  export interface EmpresaDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Empresa'], meta: { name: 'Empresa' } }
-    /**
-     * Find zero or one Empresa that matches the filter.
-     * @param {EmpresaFindUniqueArgs} args - Arguments to find a Empresa
-     * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findUnique({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findUnique<T extends EmpresaFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
-      args: SelectSubset<T, EmpresaFindUniqueArgs<ExtArgs>>
-    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Empresa'> extends True ? Prisma__EmpresaClient<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__EmpresaClient<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
-
-    /**
-     * Find one Empresa that matches the filter or throw an error  with `error.code='P2025'` 
-     *     if no matches were found.
-     * @param {EmpresaFindUniqueOrThrowArgs} args - Arguments to find a Empresa
-     * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findUniqueOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findUniqueOrThrow<T extends EmpresaFindUniqueOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, EmpresaFindUniqueOrThrowArgs<ExtArgs>>
-    ): Prisma__EmpresaClient<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
-
-    /**
-     * Find the first Empresa that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindFirstArgs} args - Arguments to find a Empresa
-     * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findFirst({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findFirst<T extends EmpresaFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
-      args?: SelectSubset<T, EmpresaFindFirstArgs<ExtArgs>>
-    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Empresa'> extends True ? Prisma__EmpresaClient<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__EmpresaClient<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
-
-    /**
-     * Find the first Empresa that matches the filter or
-     * throw `NotFoundError` if no matches were found.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindFirstOrThrowArgs} args - Arguments to find a Empresa
-     * @example
-     * // Get one Empresa
-     * const empresa = await prisma.empresa.findFirstOrThrow({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-    **/
-    findFirstOrThrow<T extends EmpresaFindFirstOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, EmpresaFindFirstOrThrowArgs<ExtArgs>>
-    ): Prisma__EmpresaClient<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
-
-    /**
-     * Find zero or more Empresas that matches the filter.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaFindManyArgs=} args - Arguments to filter and select certain fields only.
-     * @example
-     * // Get all Empresas
-     * const empresas = await prisma.empresa.findMany()
-     * 
-     * // Get first 10 Empresas
-     * const empresas = await prisma.empresa.findMany({ take: 10 })
-     * 
-     * // Only select the `id`
-     * const empresaWithIdOnly = await prisma.empresa.findMany({ select: { id: true } })
-     * 
-    **/
-    findMany<T extends EmpresaFindManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, EmpresaFindManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'findMany', never>>
-
-    /**
-     * Create a Empresa.
-     * @param {EmpresaCreateArgs} args - Arguments to create a Empresa.
-     * @example
-     * // Create one Empresa
-     * const Empresa = await prisma.empresa.create({
-     *   data: {
-     *     // ... data to create a Empresa
-     *   }
-     * })
-     * 
-    **/
-    create<T extends EmpresaCreateArgs<ExtArgs>>(
-      args: SelectSubset<T, EmpresaCreateArgs<ExtArgs>>
-    ): Prisma__EmpresaClient<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
-
-    /**
-     * Create many Empresas.
-     *     @param {EmpresaCreateManyArgs} args - Arguments to create many Empresas.
-     *     @example
-     *     // Create many Empresas
-     *     const empresa = await prisma.empresa.createMany({
-     *       data: {
-     *         // ... provide data here
-     *       }
-     *     })
-     *     
-    **/
-    createMany<T extends EmpresaCreateManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, EmpresaCreateManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Delete a Empresa.
-     * @param {EmpresaDeleteArgs} args - Arguments to delete one Empresa.
-     * @example
-     * // Delete one Empresa
-     * const Empresa = await prisma.empresa.delete({
-     *   where: {
-     *     // ... filter to delete one Empresa
-     *   }
-     * })
-     * 
-    **/
-    delete<T extends EmpresaDeleteArgs<ExtArgs>>(
-      args: SelectSubset<T, EmpresaDeleteArgs<ExtArgs>>
-    ): Prisma__EmpresaClient<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
-
-    /**
-     * Update one Empresa.
-     * @param {EmpresaUpdateArgs} args - Arguments to update one Empresa.
-     * @example
-     * // Update one Empresa
-     * const empresa = await prisma.empresa.update({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-    **/
-    update<T extends EmpresaUpdateArgs<ExtArgs>>(
-      args: SelectSubset<T, EmpresaUpdateArgs<ExtArgs>>
-    ): Prisma__EmpresaClient<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
-
-    /**
-     * Delete zero or more Empresas.
-     * @param {EmpresaDeleteManyArgs} args - Arguments to filter Empresas to delete.
-     * @example
-     * // Delete a few Empresas
-     * const { count } = await prisma.empresa.deleteMany({
-     *   where: {
-     *     // ... provide filter here
-     *   }
-     * })
-     * 
-    **/
-    deleteMany<T extends EmpresaDeleteManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, EmpresaDeleteManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Update zero or more Empresas.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaUpdateManyArgs} args - Arguments to update one or more rows.
-     * @example
-     * // Update many Empresas
-     * const empresa = await prisma.empresa.updateMany({
-     *   where: {
-     *     // ... provide filter here
-     *   },
-     *   data: {
-     *     // ... provide data here
-     *   }
-     * })
-     * 
-    **/
-    updateMany<T extends EmpresaUpdateManyArgs<ExtArgs>>(
-      args: SelectSubset<T, EmpresaUpdateManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<BatchPayload>
-
-    /**
-     * Create or update one Empresa.
-     * @param {EmpresaUpsertArgs} args - Arguments to update or create a Empresa.
-     * @example
-     * // Update or create a Empresa
-     * const empresa = await prisma.empresa.upsert({
-     *   create: {
-     *     // ... data to create a Empresa
-     *   },
-     *   update: {
-     *     // ... in case it already exists, update
-     *   },
-     *   where: {
-     *     // ... the filter for the Empresa we want to update
-     *   }
-     * })
-    **/
-    upsert<T extends EmpresaUpsertArgs<ExtArgs>>(
-      args: SelectSubset<T, EmpresaUpsertArgs<ExtArgs>>
-    ): Prisma__EmpresaClient<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
-
-    /**
-     * Count the number of Empresas.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaCountArgs} args - Arguments to filter Empresas to count.
-     * @example
-     * // Count the number of Empresas
-     * const count = await prisma.empresa.count({
-     *   where: {
-     *     // ... the filter for the Empresas we want to count
-     *   }
-     * })
-    **/
-    count<T extends EmpresaCountArgs>(
-      args?: Subset<T, EmpresaCountArgs>,
-    ): Prisma.PrismaPromise<
-      T extends $Utils.Record<'select', any>
-        ? T['select'] extends true
-          ? number
-          : GetScalarType<T['select'], EmpresaCountAggregateOutputType>
-        : number
-    >
-
-    /**
-     * Allows you to perform aggregations operations on a Empresa.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
-     * @example
-     * // Ordered by age ascending
-     * // Where email contains prisma.io
-     * // Limited to the 10 users
-     * const aggregations = await prisma.user.aggregate({
-     *   _avg: {
-     *     age: true,
-     *   },
-     *   where: {
-     *     email: {
-     *       contains: "prisma.io",
-     *     },
-     *   },
-     *   orderBy: {
-     *     age: "asc",
-     *   },
-     *   take: 10,
-     * })
-    **/
-    aggregate<T extends EmpresaAggregateArgs>(args: Subset<T, EmpresaAggregateArgs>): Prisma.PrismaPromise<GetEmpresaAggregateType<T>>
-
-    /**
-     * Group by Empresa.
-     * Note, that providing `undefined` is treated as the value not being there.
-     * Read more here: https://pris.ly/d/null-undefined
-     * @param {EmpresaGroupByArgs} args - Group by arguments.
-     * @example
-     * // Group by city, order by createdAt, get count
-     * const result = await prisma.user.groupBy({
-     *   by: ['city', 'createdAt'],
-     *   orderBy: {
-     *     createdAt: true
-     *   },
-     *   _count: {
-     *     _all: true
-     *   },
-     * })
-     * 
-    **/
-    groupBy<
-      T extends EmpresaGroupByArgs,
-      HasSelectOrTake extends Or<
-        Extends<'skip', Keys<T>>,
-        Extends<'take', Keys<T>>
-      >,
-      OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: EmpresaGroupByArgs['orderBy'] }
-        : { orderBy?: EmpresaGroupByArgs['orderBy'] },
-      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
-      ByFields extends TupleToUnion<T['by']>,
-      ByValid extends Has<ByFields, OrderFields>,
-      HavingFields extends GetHavingFields<T['having']>,
-      HavingValid extends Has<ByFields, HavingFields>,
-      ByEmpty extends T['by'] extends never[] ? True : False,
-      InputErrors extends ByEmpty extends True
-      ? `Error: "by" must not be empty.`
-      : HavingValid extends False
-      ? {
-          [P in HavingFields]: P extends ByFields
-            ? never
-            : P extends string
-            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
-            : [
-                Error,
-                'Field ',
-                P,
-                ` in "having" needs to be provided in "by"`,
-              ]
-        }[HavingFields]
-      : 'take' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "take", you also need to provide "orderBy"'
-      : 'skip' extends Keys<T>
-      ? 'orderBy' extends Keys<T>
-        ? ByValid extends True
-          ? {}
-          : {
-              [P in OrderFields]: P extends ByFields
-                ? never
-                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-            }[OrderFields]
-        : 'Error: If you provide "skip", you also need to provide "orderBy"'
-      : ByValid extends True
-      ? {}
-      : {
-          [P in OrderFields]: P extends ByFields
-            ? never
-            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
-        }[OrderFields]
-    >(args: SubsetIntersection<T, EmpresaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmpresaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
-
-  }
-
-  /**
-   * The delegate class that acts as a "Promise-like" for Empresa.
-   * Why is this prefixed with `Prisma__`?
-   * Because we want to prevent naming conflicts as mentioned in
-   * https://github.com/prisma/prisma-client-js/issues/707
-   */
-  export class Prisma__EmpresaClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
-    private readonly _dmmf;
-    private readonly _queryType;
-    private readonly _rootField;
-    private readonly _clientMethod;
-    private readonly _args;
-    private readonly _dataPath;
-    private readonly _errorFormat;
-    private readonly _measurePerformance?;
-    private _isList;
-    private _callsite;
-    private _requestPromise?;
-    readonly [Symbol.toStringTag]: 'PrismaPromise';
-    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
-
-    contratos<T extends Empresa$contratosArgs<ExtArgs> = {}>(args?: Subset<T, Empresa$contratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
-
-    private get _document();
-    /**
-     * Attaches callbacks for the resolution and/or rejection of the Promise.
-     * @param onfulfilled The callback to execute when the Promise is resolved.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of which ever callback is executed.
-     */
-    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
-    /**
-     * Attaches a callback for only the rejection of the Promise.
-     * @param onrejected The callback to execute when the Promise is rejected.
-     * @returns A Promise for the completion of the callback.
-     */
-    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
-    /**
-     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
-     * resolved value cannot be modified from the callback.
-     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
-     * @returns A Promise for the completion of the callback.
-     */
-    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
-  }
-
-
-
-  // Custom InputTypes
-
-  /**
-   * Empresa base type for findUnique actions
-   */
-  export type EmpresaFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EmpresaInclude<ExtArgs> | null
-    /**
-     * Filter, which Empresa to fetch.
-     */
-    where: EmpresaWhereUniqueInput
-  }
-
-  /**
-   * Empresa findUnique
-   */
-  export interface EmpresaFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends EmpresaFindUniqueArgsBase<ExtArgs> {
-   /**
-    * Throw an Error if query returns no results
-    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
-    */
-    rejectOnNotFound?: RejectOnNotFound
-  }
-      
-
-  /**
-   * Empresa findUniqueOrThrow
-   */
-  export type EmpresaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EmpresaInclude<ExtArgs> | null
-    /**
-     * Filter, which Empresa to fetch.
-     */
-    where: EmpresaWhereUniqueInput
-  }
-
-
-  /**
-   * Empresa base type for findFirst actions
-   */
-  export type EmpresaFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EmpresaInclude<ExtArgs> | null
-    /**
-     * Filter, which Empresa to fetch.
-     */
-    where?: EmpresaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Empresas to fetch.
-     */
-    orderBy?: Enumerable<EmpresaOrderByWithRelationInput>
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Empresas.
-     */
-    cursor?: EmpresaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Empresas from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Empresas.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Empresas.
-     */
-    distinct?: Enumerable<EmpresaScalarFieldEnum>
-  }
-
-  /**
-   * Empresa findFirst
-   */
-  export interface EmpresaFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends EmpresaFindFirstArgsBase<ExtArgs> {
-   /**
-    * Throw an Error if query returns no results
-    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
-    */
-    rejectOnNotFound?: RejectOnNotFound
-  }
-      
-
-  /**
-   * Empresa findFirstOrThrow
-   */
-  export type EmpresaFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EmpresaInclude<ExtArgs> | null
-    /**
-     * Filter, which Empresa to fetch.
-     */
-    where?: EmpresaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Empresas to fetch.
-     */
-    orderBy?: Enumerable<EmpresaOrderByWithRelationInput>
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for searching for Empresas.
-     */
-    cursor?: EmpresaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Empresas from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Empresas.
-     */
-    skip?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-     * 
-     * Filter by unique combinations of Empresas.
-     */
-    distinct?: Enumerable<EmpresaScalarFieldEnum>
-  }
-
-
-  /**
-   * Empresa findMany
-   */
-  export type EmpresaFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EmpresaInclude<ExtArgs> | null
-    /**
-     * Filter, which Empresas to fetch.
-     */
-    where?: EmpresaWhereInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
-     * 
-     * Determine the order of Empresas to fetch.
-     */
-    orderBy?: Enumerable<EmpresaOrderByWithRelationInput>
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
-     * 
-     * Sets the position for listing Empresas.
-     */
-    cursor?: EmpresaWhereUniqueInput
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Take `±n` Empresas from the position of the cursor.
-     */
-    take?: number
-    /**
-     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
-     * 
-     * Skip the first `n` Empresas.
-     */
-    skip?: number
-    distinct?: Enumerable<EmpresaScalarFieldEnum>
-  }
-
-
-  /**
-   * Empresa create
-   */
-  export type EmpresaCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EmpresaInclude<ExtArgs> | null
-    /**
-     * The data needed to create a Empresa.
-     */
-    data: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
-  }
-
-
-  /**
-   * Empresa createMany
-   */
-  export type EmpresaCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to create many Empresas.
-     */
-    data: Enumerable<EmpresaCreateManyInput>
-    skipDuplicates?: boolean
-  }
-
-
-  /**
-   * Empresa update
-   */
-  export type EmpresaUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EmpresaInclude<ExtArgs> | null
-    /**
-     * The data needed to update a Empresa.
-     */
-    data: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
-    /**
-     * Choose, which Empresa to update.
-     */
-    where: EmpresaWhereUniqueInput
-  }
-
-
-  /**
-   * Empresa updateMany
-   */
-  export type EmpresaUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * The data used to update Empresas.
-     */
-    data: XOR<EmpresaUpdateManyMutationInput, EmpresaUncheckedUpdateManyInput>
-    /**
-     * Filter which Empresas to update
-     */
-    where?: EmpresaWhereInput
-  }
-
-
-  /**
-   * Empresa upsert
-   */
-  export type EmpresaUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EmpresaInclude<ExtArgs> | null
-    /**
-     * The filter to search for the Empresa to update in case it exists.
-     */
-    where: EmpresaWhereUniqueInput
-    /**
-     * In case the Empresa found by the `where` argument doesn't exist, create a new Empresa with this data.
-     */
-    create: XOR<EmpresaCreateInput, EmpresaUncheckedCreateInput>
-    /**
-     * In case the Empresa was found with the provided `where` argument, update it with this data.
-     */
-    update: XOR<EmpresaUpdateInput, EmpresaUncheckedUpdateInput>
-  }
-
-
-  /**
-   * Empresa delete
-   */
-  export type EmpresaDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EmpresaInclude<ExtArgs> | null
-    /**
-     * Filter which Empresa to delete.
-     */
-    where: EmpresaWhereUniqueInput
-  }
-
-
-  /**
-   * Empresa deleteMany
-   */
-  export type EmpresaDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Filter which Empresas to delete
-     */
-    where?: EmpresaWhereInput
-  }
-
-
-  /**
-   * Empresa.contratos
-   */
-  export type Empresa$contratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contrato
-     */
-    select?: ContratoSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: ContratoInclude<ExtArgs> | null
-    where?: ContratoWhereInput
-    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
-    cursor?: ContratoWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: Enumerable<ContratoScalarFieldEnum>
-  }
-
-
-  /**
-   * Empresa without action
-   */
-  export type EmpresaArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Empresa
-     */
-    select?: EmpresaSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: EmpresaInclude<ExtArgs> | null
   }
 
 
@@ -10300,46 +8712,94 @@ export namespace Prisma {
 
   export type FornecedorMinAggregateOutputType = {
     id: string | null
-    cnpj: string | null
-    nome: string | null
+    tipoPessoa: TipoPessoa | null
+    documento: string | null
+    razaoSocial: string | null
+    nomeFantasia: string | null
+    inscricaoEstadual: string | null
+    porte: PorteEmpresa | null
+    municipioId: string | null
+    situacao: SituacaoFornecedor | null
+    codigoLegado: string | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type FornecedorMaxAggregateOutputType = {
     id: string | null
-    cnpj: string | null
-    nome: string | null
+    tipoPessoa: TipoPessoa | null
+    documento: string | null
+    razaoSocial: string | null
+    nomeFantasia: string | null
+    inscricaoEstadual: string | null
+    porte: PorteEmpresa | null
+    municipioId: string | null
+    situacao: SituacaoFornecedor | null
+    codigoLegado: string | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type FornecedorCountAggregateOutputType = {
     id: number
-    cnpj: number
-    nome: number
+    tipoPessoa: number
+    documento: number
+    razaoSocial: number
+    nomeFantasia: number
+    inscricaoEstadual: number
+    porte: number
+    municipioId: number
+    situacao: number
+    codigoLegado: number
     createdAt: number
+    updatedAt: number
     _all: number
   }
 
 
   export type FornecedorMinAggregateInputType = {
     id?: true
-    cnpj?: true
-    nome?: true
+    tipoPessoa?: true
+    documento?: true
+    razaoSocial?: true
+    nomeFantasia?: true
+    inscricaoEstadual?: true
+    porte?: true
+    municipioId?: true
+    situacao?: true
+    codigoLegado?: true
     createdAt?: true
+    updatedAt?: true
   }
 
   export type FornecedorMaxAggregateInputType = {
     id?: true
-    cnpj?: true
-    nome?: true
+    tipoPessoa?: true
+    documento?: true
+    razaoSocial?: true
+    nomeFantasia?: true
+    inscricaoEstadual?: true
+    porte?: true
+    municipioId?: true
+    situacao?: true
+    codigoLegado?: true
     createdAt?: true
+    updatedAt?: true
   }
 
   export type FornecedorCountAggregateInputType = {
     id?: true
-    cnpj?: true
-    nome?: true
+    tipoPessoa?: true
+    documento?: true
+    razaoSocial?: true
+    nomeFantasia?: true
+    inscricaoEstadual?: true
+    porte?: true
+    municipioId?: true
+    situacao?: true
+    codigoLegado?: true
     createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -10418,9 +8878,17 @@ export namespace Prisma {
 
   export type FornecedorGroupByOutputType = {
     id: string
-    cnpj: string | null
-    nome: string
+    tipoPessoa: TipoPessoa
+    documento: string
+    razaoSocial: string
+    nomeFantasia: string | null
+    inscricaoEstadual: string | null
+    porte: PorteEmpresa | null
+    municipioId: string | null
+    situacao: SituacaoFornecedor
+    codigoLegado: string | null
     createdAt: Date
+    updatedAt: Date
     _count: FornecedorCountAggregateOutputType | null
     _min: FornecedorMinAggregateOutputType | null
     _max: FornecedorMaxAggregateOutputType | null
@@ -10442,16 +8910,45 @@ export namespace Prisma {
 
   export type FornecedorSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    cnpj?: boolean
-    nome?: boolean
+    tipoPessoa?: boolean
+    documento?: boolean
+    razaoSocial?: boolean
+    nomeFantasia?: boolean
+    inscricaoEstadual?: boolean
+    porte?: boolean
+    municipioId?: boolean
+    situacao?: boolean
+    codigoLegado?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
+    municipio?: boolean | MunicipioArgs<ExtArgs>
+    contatos?: boolean | Fornecedor$contatosArgs<ExtArgs>
+    sancoes?: boolean | Fornecedor$sancoesArgs<ExtArgs>
+    contratos?: boolean | Fornecedor$contratosArgs<ExtArgs>
+    _count?: boolean | FornecedorCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["fornecedor"]>
 
   export type FornecedorSelectScalar = {
     id?: boolean
-    cnpj?: boolean
-    nome?: boolean
+    tipoPessoa?: boolean
+    documento?: boolean
+    razaoSocial?: boolean
+    nomeFantasia?: boolean
+    inscricaoEstadual?: boolean
+    porte?: boolean
+    municipioId?: boolean
+    situacao?: boolean
+    codigoLegado?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type FornecedorInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    municipio?: boolean | MunicipioArgs<ExtArgs>
+    contatos?: boolean | Fornecedor$contatosArgs<ExtArgs>
+    sancoes?: boolean | Fornecedor$sancoesArgs<ExtArgs>
+    contratos?: boolean | Fornecedor$contratosArgs<ExtArgs>
+    _count?: boolean | FornecedorCountOutputTypeArgs<ExtArgs>
   }
 
 
@@ -10824,6 +9321,13 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: 'PrismaPromise';
     constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
 
+    municipio<T extends MunicipioArgs<ExtArgs> = {}>(args?: Subset<T, MunicipioArgs<ExtArgs>>): Prisma__MunicipioClient<$Types.GetResult<MunicipioPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    contatos<T extends Fornecedor$contatosArgs<ExtArgs> = {}>(args?: Subset<T, Fornecedor$contatosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    sancoes<T extends Fornecedor$sancoesArgs<ExtArgs> = {}>(args?: Subset<T, Fornecedor$sancoesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    contratos<T extends Fornecedor$contratosArgs<ExtArgs> = {}>(args?: Subset<T, Fornecedor$contratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -10861,6 +9365,10 @@ export namespace Prisma {
      */
     select?: FornecedorSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
      * Filter, which Fornecedor to fetch.
      */
     where: FornecedorWhereUniqueInput
@@ -10887,6 +9395,10 @@ export namespace Prisma {
      */
     select?: FornecedorSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
      * Filter, which Fornecedor to fetch.
      */
     where: FornecedorWhereUniqueInput
@@ -10901,6 +9413,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Fornecedor
      */
     select?: FornecedorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorInclude<ExtArgs> | null
     /**
      * Filter, which Fornecedor to fetch.
      */
@@ -10958,6 +9474,10 @@ export namespace Prisma {
      */
     select?: FornecedorSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
      * Filter, which Fornecedor to fetch.
      */
     where?: FornecedorWhereInput
@@ -11003,6 +9523,10 @@ export namespace Prisma {
      */
     select?: FornecedorSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
      * Filter, which Fornecedors to fetch.
      */
     where?: FornecedorWhereInput
@@ -11043,6 +9567,10 @@ export namespace Prisma {
      */
     select?: FornecedorSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
      * The data needed to create a Fornecedor.
      */
     data: XOR<FornecedorCreateInput, FornecedorUncheckedCreateInput>
@@ -11069,6 +9597,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Fornecedor
      */
     select?: FornecedorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorInclude<ExtArgs> | null
     /**
      * The data needed to update a Fornecedor.
      */
@@ -11104,6 +9636,10 @@ export namespace Prisma {
      */
     select?: FornecedorSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
      * The filter to search for the Fornecedor to update in case it exists.
      */
     where: FornecedorWhereUniqueInput
@@ -11127,6 +9663,10 @@ export namespace Prisma {
      */
     select?: FornecedorSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorInclude<ExtArgs> | null
+    /**
      * Filter which Fornecedor to delete.
      */
     where: FornecedorWhereUniqueInput
@@ -11145,6 +9685,69 @@ export namespace Prisma {
 
 
   /**
+   * Fornecedor.contatos
+   */
+  export type Fornecedor$contatosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    where?: FornecedorContatoWhereInput
+    orderBy?: Enumerable<FornecedorContatoOrderByWithRelationInput>
+    cursor?: FornecedorContatoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<FornecedorContatoScalarFieldEnum>
+  }
+
+
+  /**
+   * Fornecedor.sancoes
+   */
+  export type Fornecedor$sancoesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorSancao
+     */
+    select?: FornecedorSancaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorSancaoInclude<ExtArgs> | null
+    where?: FornecedorSancaoWhereInput
+    orderBy?: Enumerable<FornecedorSancaoOrderByWithRelationInput>
+    cursor?: FornecedorSancaoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<FornecedorSancaoScalarFieldEnum>
+  }
+
+
+  /**
+   * Fornecedor.contratos
+   */
+  export type Fornecedor$contratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contrato
+     */
+    select?: ContratoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoInclude<ExtArgs> | null
+    where?: ContratoWhereInput
+    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
+    cursor?: ContratoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
    * Fornecedor without action
    */
   export type FornecedorArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -11152,6 +9755,2964 @@ export namespace Prisma {
      * Select specific fields to fetch from the Fornecedor
      */
     select?: FornecedorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model FornecedorContato
+   */
+
+
+  export type AggregateFornecedorContato = {
+    _count: FornecedorContatoCountAggregateOutputType | null
+    _min: FornecedorContatoMinAggregateOutputType | null
+    _max: FornecedorContatoMaxAggregateOutputType | null
+  }
+
+  export type FornecedorContatoMinAggregateOutputType = {
+    id: string | null
+    fornecedorId: string | null
+    nome: string | null
+    cargo: string | null
+    email: string | null
+    telefone: string | null
+    principal: boolean | null
+    createdAt: Date | null
+  }
+
+  export type FornecedorContatoMaxAggregateOutputType = {
+    id: string | null
+    fornecedorId: string | null
+    nome: string | null
+    cargo: string | null
+    email: string | null
+    telefone: string | null
+    principal: boolean | null
+    createdAt: Date | null
+  }
+
+  export type FornecedorContatoCountAggregateOutputType = {
+    id: number
+    fornecedorId: number
+    nome: number
+    cargo: number
+    email: number
+    telefone: number
+    principal: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type FornecedorContatoMinAggregateInputType = {
+    id?: true
+    fornecedorId?: true
+    nome?: true
+    cargo?: true
+    email?: true
+    telefone?: true
+    principal?: true
+    createdAt?: true
+  }
+
+  export type FornecedorContatoMaxAggregateInputType = {
+    id?: true
+    fornecedorId?: true
+    nome?: true
+    cargo?: true
+    email?: true
+    telefone?: true
+    principal?: true
+    createdAt?: true
+  }
+
+  export type FornecedorContatoCountAggregateInputType = {
+    id?: true
+    fornecedorId?: true
+    nome?: true
+    cargo?: true
+    email?: true
+    telefone?: true
+    principal?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type FornecedorContatoAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FornecedorContato to aggregate.
+     */
+    where?: FornecedorContatoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorContatoes to fetch.
+     */
+    orderBy?: Enumerable<FornecedorContatoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FornecedorContatoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorContatoes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorContatoes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FornecedorContatoes
+    **/
+    _count?: true | FornecedorContatoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FornecedorContatoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FornecedorContatoMaxAggregateInputType
+  }
+
+  export type GetFornecedorContatoAggregateType<T extends FornecedorContatoAggregateArgs> = {
+        [P in keyof T & keyof AggregateFornecedorContato]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFornecedorContato[P]>
+      : GetScalarType<T[P], AggregateFornecedorContato[P]>
+  }
+
+
+
+
+  export type FornecedorContatoGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: FornecedorContatoWhereInput
+    orderBy?: Enumerable<FornecedorContatoOrderByWithAggregationInput>
+    by: FornecedorContatoScalarFieldEnum[]
+    having?: FornecedorContatoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FornecedorContatoCountAggregateInputType | true
+    _min?: FornecedorContatoMinAggregateInputType
+    _max?: FornecedorContatoMaxAggregateInputType
+  }
+
+
+  export type FornecedorContatoGroupByOutputType = {
+    id: string
+    fornecedorId: string
+    nome: string
+    cargo: string | null
+    email: string | null
+    telefone: string | null
+    principal: boolean
+    createdAt: Date
+    _count: FornecedorContatoCountAggregateOutputType | null
+    _min: FornecedorContatoMinAggregateOutputType | null
+    _max: FornecedorContatoMaxAggregateOutputType | null
+  }
+
+  type GetFornecedorContatoGroupByPayload<T extends FornecedorContatoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<FornecedorContatoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FornecedorContatoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FornecedorContatoGroupByOutputType[P]>
+            : GetScalarType<T[P], FornecedorContatoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FornecedorContatoSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fornecedorId?: boolean
+    nome?: boolean
+    cargo?: boolean
+    email?: boolean
+    telefone?: boolean
+    principal?: boolean
+    createdAt?: boolean
+    fornecedor?: boolean | FornecedorArgs<ExtArgs>
+  }, ExtArgs["result"]["fornecedorContato"]>
+
+  export type FornecedorContatoSelectScalar = {
+    id?: boolean
+    fornecedorId?: boolean
+    nome?: boolean
+    cargo?: boolean
+    email?: boolean
+    telefone?: boolean
+    principal?: boolean
+    createdAt?: boolean
+  }
+
+  export type FornecedorContatoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    fornecedor?: boolean | FornecedorArgs<ExtArgs>
+  }
+
+
+  type FornecedorContatoGetPayload<S extends boolean | null | undefined | FornecedorContatoArgs> = $Types.GetResult<FornecedorContatoPayload, S>
+
+  type FornecedorContatoCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<FornecedorContatoFindManyArgs, 'select' | 'include'> & {
+      select?: FornecedorContatoCountAggregateInputType | true
+    }
+
+  export interface FornecedorContatoDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FornecedorContato'], meta: { name: 'FornecedorContato' } }
+    /**
+     * Find zero or one FornecedorContato that matches the filter.
+     * @param {FornecedorContatoFindUniqueArgs} args - Arguments to find a FornecedorContato
+     * @example
+     * // Get one FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends FornecedorContatoFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, FornecedorContatoFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'FornecedorContato'> extends True ? Prisma__FornecedorContatoClient<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__FornecedorContatoClient<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one FornecedorContato that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {FornecedorContatoFindUniqueOrThrowArgs} args - Arguments to find a FornecedorContato
+     * @example
+     * // Get one FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends FornecedorContatoFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, FornecedorContatoFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__FornecedorContatoClient<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first FornecedorContato that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoFindFirstArgs} args - Arguments to find a FornecedorContato
+     * @example
+     * // Get one FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends FornecedorContatoFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, FornecedorContatoFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'FornecedorContato'> extends True ? Prisma__FornecedorContatoClient<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__FornecedorContatoClient<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first FornecedorContato that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoFindFirstOrThrowArgs} args - Arguments to find a FornecedorContato
+     * @example
+     * // Get one FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends FornecedorContatoFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, FornecedorContatoFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__FornecedorContatoClient<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more FornecedorContatoes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FornecedorContatoes
+     * const fornecedorContatoes = await prisma.fornecedorContato.findMany()
+     * 
+     * // Get first 10 FornecedorContatoes
+     * const fornecedorContatoes = await prisma.fornecedorContato.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const fornecedorContatoWithIdOnly = await prisma.fornecedorContato.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends FornecedorContatoFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, FornecedorContatoFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a FornecedorContato.
+     * @param {FornecedorContatoCreateArgs} args - Arguments to create a FornecedorContato.
+     * @example
+     * // Create one FornecedorContato
+     * const FornecedorContato = await prisma.fornecedorContato.create({
+     *   data: {
+     *     // ... data to create a FornecedorContato
+     *   }
+     * })
+     * 
+    **/
+    create<T extends FornecedorContatoCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, FornecedorContatoCreateArgs<ExtArgs>>
+    ): Prisma__FornecedorContatoClient<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many FornecedorContatoes.
+     *     @param {FornecedorContatoCreateManyArgs} args - Arguments to create many FornecedorContatoes.
+     *     @example
+     *     // Create many FornecedorContatoes
+     *     const fornecedorContato = await prisma.fornecedorContato.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends FornecedorContatoCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, FornecedorContatoCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a FornecedorContato.
+     * @param {FornecedorContatoDeleteArgs} args - Arguments to delete one FornecedorContato.
+     * @example
+     * // Delete one FornecedorContato
+     * const FornecedorContato = await prisma.fornecedorContato.delete({
+     *   where: {
+     *     // ... filter to delete one FornecedorContato
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends FornecedorContatoDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, FornecedorContatoDeleteArgs<ExtArgs>>
+    ): Prisma__FornecedorContatoClient<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one FornecedorContato.
+     * @param {FornecedorContatoUpdateArgs} args - Arguments to update one FornecedorContato.
+     * @example
+     * // Update one FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends FornecedorContatoUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, FornecedorContatoUpdateArgs<ExtArgs>>
+    ): Prisma__FornecedorContatoClient<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more FornecedorContatoes.
+     * @param {FornecedorContatoDeleteManyArgs} args - Arguments to filter FornecedorContatoes to delete.
+     * @example
+     * // Delete a few FornecedorContatoes
+     * const { count } = await prisma.fornecedorContato.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends FornecedorContatoDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, FornecedorContatoDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FornecedorContatoes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FornecedorContatoes
+     * const fornecedorContato = await prisma.fornecedorContato.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends FornecedorContatoUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, FornecedorContatoUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one FornecedorContato.
+     * @param {FornecedorContatoUpsertArgs} args - Arguments to update or create a FornecedorContato.
+     * @example
+     * // Update or create a FornecedorContato
+     * const fornecedorContato = await prisma.fornecedorContato.upsert({
+     *   create: {
+     *     // ... data to create a FornecedorContato
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FornecedorContato we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends FornecedorContatoUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, FornecedorContatoUpsertArgs<ExtArgs>>
+    ): Prisma__FornecedorContatoClient<$Types.GetResult<FornecedorContatoPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of FornecedorContatoes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoCountArgs} args - Arguments to filter FornecedorContatoes to count.
+     * @example
+     * // Count the number of FornecedorContatoes
+     * const count = await prisma.fornecedorContato.count({
+     *   where: {
+     *     // ... the filter for the FornecedorContatoes we want to count
+     *   }
+     * })
+    **/
+    count<T extends FornecedorContatoCountArgs>(
+      args?: Subset<T, FornecedorContatoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FornecedorContatoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FornecedorContato.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FornecedorContatoAggregateArgs>(args: Subset<T, FornecedorContatoAggregateArgs>): Prisma.PrismaPromise<GetFornecedorContatoAggregateType<T>>
+
+    /**
+     * Group by FornecedorContato.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorContatoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FornecedorContatoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FornecedorContatoGroupByArgs['orderBy'] }
+        : { orderBy?: FornecedorContatoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FornecedorContatoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFornecedorContatoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FornecedorContato.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__FornecedorContatoClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    fornecedor<T extends FornecedorArgs<ExtArgs> = {}>(args?: Subset<T, FornecedorArgs<ExtArgs>>): Prisma__FornecedorClient<$Types.GetResult<FornecedorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * FornecedorContato base type for findUnique actions
+   */
+  export type FornecedorContatoFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorContato to fetch.
+     */
+    where: FornecedorContatoWhereUniqueInput
+  }
+
+  /**
+   * FornecedorContato findUnique
+   */
+  export interface FornecedorContatoFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends FornecedorContatoFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * FornecedorContato findUniqueOrThrow
+   */
+  export type FornecedorContatoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorContato to fetch.
+     */
+    where: FornecedorContatoWhereUniqueInput
+  }
+
+
+  /**
+   * FornecedorContato base type for findFirst actions
+   */
+  export type FornecedorContatoFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorContato to fetch.
+     */
+    where?: FornecedorContatoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorContatoes to fetch.
+     */
+    orderBy?: Enumerable<FornecedorContatoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FornecedorContatoes.
+     */
+    cursor?: FornecedorContatoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorContatoes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorContatoes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FornecedorContatoes.
+     */
+    distinct?: Enumerable<FornecedorContatoScalarFieldEnum>
+  }
+
+  /**
+   * FornecedorContato findFirst
+   */
+  export interface FornecedorContatoFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends FornecedorContatoFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * FornecedorContato findFirstOrThrow
+   */
+  export type FornecedorContatoFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorContato to fetch.
+     */
+    where?: FornecedorContatoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorContatoes to fetch.
+     */
+    orderBy?: Enumerable<FornecedorContatoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FornecedorContatoes.
+     */
+    cursor?: FornecedorContatoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorContatoes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorContatoes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FornecedorContatoes.
+     */
+    distinct?: Enumerable<FornecedorContatoScalarFieldEnum>
+  }
+
+
+  /**
+   * FornecedorContato findMany
+   */
+  export type FornecedorContatoFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorContatoes to fetch.
+     */
+    where?: FornecedorContatoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorContatoes to fetch.
+     */
+    orderBy?: Enumerable<FornecedorContatoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FornecedorContatoes.
+     */
+    cursor?: FornecedorContatoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorContatoes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorContatoes.
+     */
+    skip?: number
+    distinct?: Enumerable<FornecedorContatoScalarFieldEnum>
+  }
+
+
+  /**
+   * FornecedorContato create
+   */
+  export type FornecedorContatoCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FornecedorContato.
+     */
+    data: XOR<FornecedorContatoCreateInput, FornecedorContatoUncheckedCreateInput>
+  }
+
+
+  /**
+   * FornecedorContato createMany
+   */
+  export type FornecedorContatoCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FornecedorContatoes.
+     */
+    data: Enumerable<FornecedorContatoCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * FornecedorContato update
+   */
+  export type FornecedorContatoUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FornecedorContato.
+     */
+    data: XOR<FornecedorContatoUpdateInput, FornecedorContatoUncheckedUpdateInput>
+    /**
+     * Choose, which FornecedorContato to update.
+     */
+    where: FornecedorContatoWhereUniqueInput
+  }
+
+
+  /**
+   * FornecedorContato updateMany
+   */
+  export type FornecedorContatoUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FornecedorContatoes.
+     */
+    data: XOR<FornecedorContatoUpdateManyMutationInput, FornecedorContatoUncheckedUpdateManyInput>
+    /**
+     * Filter which FornecedorContatoes to update
+     */
+    where?: FornecedorContatoWhereInput
+  }
+
+
+  /**
+   * FornecedorContato upsert
+   */
+  export type FornecedorContatoUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FornecedorContato to update in case it exists.
+     */
+    where: FornecedorContatoWhereUniqueInput
+    /**
+     * In case the FornecedorContato found by the `where` argument doesn't exist, create a new FornecedorContato with this data.
+     */
+    create: XOR<FornecedorContatoCreateInput, FornecedorContatoUncheckedCreateInput>
+    /**
+     * In case the FornecedorContato was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FornecedorContatoUpdateInput, FornecedorContatoUncheckedUpdateInput>
+  }
+
+
+  /**
+   * FornecedorContato delete
+   */
+  export type FornecedorContatoDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+    /**
+     * Filter which FornecedorContato to delete.
+     */
+    where: FornecedorContatoWhereUniqueInput
+  }
+
+
+  /**
+   * FornecedorContato deleteMany
+   */
+  export type FornecedorContatoDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FornecedorContatoes to delete
+     */
+    where?: FornecedorContatoWhereInput
+  }
+
+
+  /**
+   * FornecedorContato without action
+   */
+  export type FornecedorContatoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorContato
+     */
+    select?: FornecedorContatoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorContatoInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model FornecedorSancao
+   */
+
+
+  export type AggregateFornecedorSancao = {
+    _count: FornecedorSancaoCountAggregateOutputType | null
+    _min: FornecedorSancaoMinAggregateOutputType | null
+    _max: FornecedorSancaoMaxAggregateOutputType | null
+  }
+
+  export type FornecedorSancaoMinAggregateOutputType = {
+    id: string | null
+    fornecedorId: string | null
+    tipo: TipoSancao | null
+    processo: string | null
+    dataInicio: Date | null
+    dataFim: Date | null
+    abrangencia: string | null
+    fonte: string | null
+    createdAt: Date | null
+  }
+
+  export type FornecedorSancaoMaxAggregateOutputType = {
+    id: string | null
+    fornecedorId: string | null
+    tipo: TipoSancao | null
+    processo: string | null
+    dataInicio: Date | null
+    dataFim: Date | null
+    abrangencia: string | null
+    fonte: string | null
+    createdAt: Date | null
+  }
+
+  export type FornecedorSancaoCountAggregateOutputType = {
+    id: number
+    fornecedorId: number
+    tipo: number
+    processo: number
+    dataInicio: number
+    dataFim: number
+    abrangencia: number
+    fonte: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type FornecedorSancaoMinAggregateInputType = {
+    id?: true
+    fornecedorId?: true
+    tipo?: true
+    processo?: true
+    dataInicio?: true
+    dataFim?: true
+    abrangencia?: true
+    fonte?: true
+    createdAt?: true
+  }
+
+  export type FornecedorSancaoMaxAggregateInputType = {
+    id?: true
+    fornecedorId?: true
+    tipo?: true
+    processo?: true
+    dataInicio?: true
+    dataFim?: true
+    abrangencia?: true
+    fonte?: true
+    createdAt?: true
+  }
+
+  export type FornecedorSancaoCountAggregateInputType = {
+    id?: true
+    fornecedorId?: true
+    tipo?: true
+    processo?: true
+    dataInicio?: true
+    dataFim?: true
+    abrangencia?: true
+    fonte?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type FornecedorSancaoAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FornecedorSancao to aggregate.
+     */
+    where?: FornecedorSancaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorSancaos to fetch.
+     */
+    orderBy?: Enumerable<FornecedorSancaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: FornecedorSancaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorSancaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorSancaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned FornecedorSancaos
+    **/
+    _count?: true | FornecedorSancaoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: FornecedorSancaoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: FornecedorSancaoMaxAggregateInputType
+  }
+
+  export type GetFornecedorSancaoAggregateType<T extends FornecedorSancaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateFornecedorSancao]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateFornecedorSancao[P]>
+      : GetScalarType<T[P], AggregateFornecedorSancao[P]>
+  }
+
+
+
+
+  export type FornecedorSancaoGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: FornecedorSancaoWhereInput
+    orderBy?: Enumerable<FornecedorSancaoOrderByWithAggregationInput>
+    by: FornecedorSancaoScalarFieldEnum[]
+    having?: FornecedorSancaoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: FornecedorSancaoCountAggregateInputType | true
+    _min?: FornecedorSancaoMinAggregateInputType
+    _max?: FornecedorSancaoMaxAggregateInputType
+  }
+
+
+  export type FornecedorSancaoGroupByOutputType = {
+    id: string
+    fornecedorId: string
+    tipo: TipoSancao
+    processo: string | null
+    dataInicio: Date
+    dataFim: Date | null
+    abrangencia: string | null
+    fonte: string | null
+    createdAt: Date
+    _count: FornecedorSancaoCountAggregateOutputType | null
+    _min: FornecedorSancaoMinAggregateOutputType | null
+    _max: FornecedorSancaoMaxAggregateOutputType | null
+  }
+
+  type GetFornecedorSancaoGroupByPayload<T extends FornecedorSancaoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<FornecedorSancaoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof FornecedorSancaoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], FornecedorSancaoGroupByOutputType[P]>
+            : GetScalarType<T[P], FornecedorSancaoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type FornecedorSancaoSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    fornecedorId?: boolean
+    tipo?: boolean
+    processo?: boolean
+    dataInicio?: boolean
+    dataFim?: boolean
+    abrangencia?: boolean
+    fonte?: boolean
+    createdAt?: boolean
+    fornecedor?: boolean | FornecedorArgs<ExtArgs>
+  }, ExtArgs["result"]["fornecedorSancao"]>
+
+  export type FornecedorSancaoSelectScalar = {
+    id?: boolean
+    fornecedorId?: boolean
+    tipo?: boolean
+    processo?: boolean
+    dataInicio?: boolean
+    dataFim?: boolean
+    abrangencia?: boolean
+    fonte?: boolean
+    createdAt?: boolean
+  }
+
+  export type FornecedorSancaoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    fornecedor?: boolean | FornecedorArgs<ExtArgs>
+  }
+
+
+  type FornecedorSancaoGetPayload<S extends boolean | null | undefined | FornecedorSancaoArgs> = $Types.GetResult<FornecedorSancaoPayload, S>
+
+  type FornecedorSancaoCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<FornecedorSancaoFindManyArgs, 'select' | 'include'> & {
+      select?: FornecedorSancaoCountAggregateInputType | true
+    }
+
+  export interface FornecedorSancaoDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['FornecedorSancao'], meta: { name: 'FornecedorSancao' } }
+    /**
+     * Find zero or one FornecedorSancao that matches the filter.
+     * @param {FornecedorSancaoFindUniqueArgs} args - Arguments to find a FornecedorSancao
+     * @example
+     * // Get one FornecedorSancao
+     * const fornecedorSancao = await prisma.fornecedorSancao.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends FornecedorSancaoFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, FornecedorSancaoFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'FornecedorSancao'> extends True ? Prisma__FornecedorSancaoClient<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__FornecedorSancaoClient<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one FornecedorSancao that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {FornecedorSancaoFindUniqueOrThrowArgs} args - Arguments to find a FornecedorSancao
+     * @example
+     * // Get one FornecedorSancao
+     * const fornecedorSancao = await prisma.fornecedorSancao.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends FornecedorSancaoFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, FornecedorSancaoFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__FornecedorSancaoClient<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first FornecedorSancao that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorSancaoFindFirstArgs} args - Arguments to find a FornecedorSancao
+     * @example
+     * // Get one FornecedorSancao
+     * const fornecedorSancao = await prisma.fornecedorSancao.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends FornecedorSancaoFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, FornecedorSancaoFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'FornecedorSancao'> extends True ? Prisma__FornecedorSancaoClient<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__FornecedorSancaoClient<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first FornecedorSancao that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorSancaoFindFirstOrThrowArgs} args - Arguments to find a FornecedorSancao
+     * @example
+     * // Get one FornecedorSancao
+     * const fornecedorSancao = await prisma.fornecedorSancao.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends FornecedorSancaoFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, FornecedorSancaoFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__FornecedorSancaoClient<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more FornecedorSancaos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorSancaoFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all FornecedorSancaos
+     * const fornecedorSancaos = await prisma.fornecedorSancao.findMany()
+     * 
+     * // Get first 10 FornecedorSancaos
+     * const fornecedorSancaos = await prisma.fornecedorSancao.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const fornecedorSancaoWithIdOnly = await prisma.fornecedorSancao.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends FornecedorSancaoFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, FornecedorSancaoFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a FornecedorSancao.
+     * @param {FornecedorSancaoCreateArgs} args - Arguments to create a FornecedorSancao.
+     * @example
+     * // Create one FornecedorSancao
+     * const FornecedorSancao = await prisma.fornecedorSancao.create({
+     *   data: {
+     *     // ... data to create a FornecedorSancao
+     *   }
+     * })
+     * 
+    **/
+    create<T extends FornecedorSancaoCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, FornecedorSancaoCreateArgs<ExtArgs>>
+    ): Prisma__FornecedorSancaoClient<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many FornecedorSancaos.
+     *     @param {FornecedorSancaoCreateManyArgs} args - Arguments to create many FornecedorSancaos.
+     *     @example
+     *     // Create many FornecedorSancaos
+     *     const fornecedorSancao = await prisma.fornecedorSancao.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends FornecedorSancaoCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, FornecedorSancaoCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a FornecedorSancao.
+     * @param {FornecedorSancaoDeleteArgs} args - Arguments to delete one FornecedorSancao.
+     * @example
+     * // Delete one FornecedorSancao
+     * const FornecedorSancao = await prisma.fornecedorSancao.delete({
+     *   where: {
+     *     // ... filter to delete one FornecedorSancao
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends FornecedorSancaoDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, FornecedorSancaoDeleteArgs<ExtArgs>>
+    ): Prisma__FornecedorSancaoClient<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one FornecedorSancao.
+     * @param {FornecedorSancaoUpdateArgs} args - Arguments to update one FornecedorSancao.
+     * @example
+     * // Update one FornecedorSancao
+     * const fornecedorSancao = await prisma.fornecedorSancao.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends FornecedorSancaoUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, FornecedorSancaoUpdateArgs<ExtArgs>>
+    ): Prisma__FornecedorSancaoClient<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more FornecedorSancaos.
+     * @param {FornecedorSancaoDeleteManyArgs} args - Arguments to filter FornecedorSancaos to delete.
+     * @example
+     * // Delete a few FornecedorSancaos
+     * const { count } = await prisma.fornecedorSancao.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends FornecedorSancaoDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, FornecedorSancaoDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more FornecedorSancaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorSancaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many FornecedorSancaos
+     * const fornecedorSancao = await prisma.fornecedorSancao.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends FornecedorSancaoUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, FornecedorSancaoUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one FornecedorSancao.
+     * @param {FornecedorSancaoUpsertArgs} args - Arguments to update or create a FornecedorSancao.
+     * @example
+     * // Update or create a FornecedorSancao
+     * const fornecedorSancao = await prisma.fornecedorSancao.upsert({
+     *   create: {
+     *     // ... data to create a FornecedorSancao
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the FornecedorSancao we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends FornecedorSancaoUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, FornecedorSancaoUpsertArgs<ExtArgs>>
+    ): Prisma__FornecedorSancaoClient<$Types.GetResult<FornecedorSancaoPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of FornecedorSancaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorSancaoCountArgs} args - Arguments to filter FornecedorSancaos to count.
+     * @example
+     * // Count the number of FornecedorSancaos
+     * const count = await prisma.fornecedorSancao.count({
+     *   where: {
+     *     // ... the filter for the FornecedorSancaos we want to count
+     *   }
+     * })
+    **/
+    count<T extends FornecedorSancaoCountArgs>(
+      args?: Subset<T, FornecedorSancaoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], FornecedorSancaoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a FornecedorSancao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorSancaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends FornecedorSancaoAggregateArgs>(args: Subset<T, FornecedorSancaoAggregateArgs>): Prisma.PrismaPromise<GetFornecedorSancaoAggregateType<T>>
+
+    /**
+     * Group by FornecedorSancao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {FornecedorSancaoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends FornecedorSancaoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: FornecedorSancaoGroupByArgs['orderBy'] }
+        : { orderBy?: FornecedorSancaoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, FornecedorSancaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetFornecedorSancaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for FornecedorSancao.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__FornecedorSancaoClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    fornecedor<T extends FornecedorArgs<ExtArgs> = {}>(args?: Subset<T, FornecedorArgs<ExtArgs>>): Prisma__FornecedorClient<$Types.GetResult<FornecedorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * FornecedorSancao base type for findUnique actions
+   */
+  export type FornecedorSancaoFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorSancao
+     */
+    select?: FornecedorSancaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorSancaoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorSancao to fetch.
+     */
+    where: FornecedorSancaoWhereUniqueInput
+  }
+
+  /**
+   * FornecedorSancao findUnique
+   */
+  export interface FornecedorSancaoFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends FornecedorSancaoFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * FornecedorSancao findUniqueOrThrow
+   */
+  export type FornecedorSancaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorSancao
+     */
+    select?: FornecedorSancaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorSancaoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorSancao to fetch.
+     */
+    where: FornecedorSancaoWhereUniqueInput
+  }
+
+
+  /**
+   * FornecedorSancao base type for findFirst actions
+   */
+  export type FornecedorSancaoFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorSancao
+     */
+    select?: FornecedorSancaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorSancaoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorSancao to fetch.
+     */
+    where?: FornecedorSancaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorSancaos to fetch.
+     */
+    orderBy?: Enumerable<FornecedorSancaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FornecedorSancaos.
+     */
+    cursor?: FornecedorSancaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorSancaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorSancaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FornecedorSancaos.
+     */
+    distinct?: Enumerable<FornecedorSancaoScalarFieldEnum>
+  }
+
+  /**
+   * FornecedorSancao findFirst
+   */
+  export interface FornecedorSancaoFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends FornecedorSancaoFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * FornecedorSancao findFirstOrThrow
+   */
+  export type FornecedorSancaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorSancao
+     */
+    select?: FornecedorSancaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorSancaoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorSancao to fetch.
+     */
+    where?: FornecedorSancaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorSancaos to fetch.
+     */
+    orderBy?: Enumerable<FornecedorSancaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for FornecedorSancaos.
+     */
+    cursor?: FornecedorSancaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorSancaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorSancaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of FornecedorSancaos.
+     */
+    distinct?: Enumerable<FornecedorSancaoScalarFieldEnum>
+  }
+
+
+  /**
+   * FornecedorSancao findMany
+   */
+  export type FornecedorSancaoFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorSancao
+     */
+    select?: FornecedorSancaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorSancaoInclude<ExtArgs> | null
+    /**
+     * Filter, which FornecedorSancaos to fetch.
+     */
+    where?: FornecedorSancaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of FornecedorSancaos to fetch.
+     */
+    orderBy?: Enumerable<FornecedorSancaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing FornecedorSancaos.
+     */
+    cursor?: FornecedorSancaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` FornecedorSancaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` FornecedorSancaos.
+     */
+    skip?: number
+    distinct?: Enumerable<FornecedorSancaoScalarFieldEnum>
+  }
+
+
+  /**
+   * FornecedorSancao create
+   */
+  export type FornecedorSancaoCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorSancao
+     */
+    select?: FornecedorSancaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorSancaoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a FornecedorSancao.
+     */
+    data: XOR<FornecedorSancaoCreateInput, FornecedorSancaoUncheckedCreateInput>
+  }
+
+
+  /**
+   * FornecedorSancao createMany
+   */
+  export type FornecedorSancaoCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many FornecedorSancaos.
+     */
+    data: Enumerable<FornecedorSancaoCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * FornecedorSancao update
+   */
+  export type FornecedorSancaoUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorSancao
+     */
+    select?: FornecedorSancaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorSancaoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a FornecedorSancao.
+     */
+    data: XOR<FornecedorSancaoUpdateInput, FornecedorSancaoUncheckedUpdateInput>
+    /**
+     * Choose, which FornecedorSancao to update.
+     */
+    where: FornecedorSancaoWhereUniqueInput
+  }
+
+
+  /**
+   * FornecedorSancao updateMany
+   */
+  export type FornecedorSancaoUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update FornecedorSancaos.
+     */
+    data: XOR<FornecedorSancaoUpdateManyMutationInput, FornecedorSancaoUncheckedUpdateManyInput>
+    /**
+     * Filter which FornecedorSancaos to update
+     */
+    where?: FornecedorSancaoWhereInput
+  }
+
+
+  /**
+   * FornecedorSancao upsert
+   */
+  export type FornecedorSancaoUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorSancao
+     */
+    select?: FornecedorSancaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorSancaoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the FornecedorSancao to update in case it exists.
+     */
+    where: FornecedorSancaoWhereUniqueInput
+    /**
+     * In case the FornecedorSancao found by the `where` argument doesn't exist, create a new FornecedorSancao with this data.
+     */
+    create: XOR<FornecedorSancaoCreateInput, FornecedorSancaoUncheckedCreateInput>
+    /**
+     * In case the FornecedorSancao was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<FornecedorSancaoUpdateInput, FornecedorSancaoUncheckedUpdateInput>
+  }
+
+
+  /**
+   * FornecedorSancao delete
+   */
+  export type FornecedorSancaoDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorSancao
+     */
+    select?: FornecedorSancaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorSancaoInclude<ExtArgs> | null
+    /**
+     * Filter which FornecedorSancao to delete.
+     */
+    where: FornecedorSancaoWhereUniqueInput
+  }
+
+
+  /**
+   * FornecedorSancao deleteMany
+   */
+  export type FornecedorSancaoDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which FornecedorSancaos to delete
+     */
+    where?: FornecedorSancaoWhereInput
+  }
+
+
+  /**
+   * FornecedorSancao without action
+   */
+  export type FornecedorSancaoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the FornecedorSancao
+     */
+    select?: FornecedorSancaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: FornecedorSancaoInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model Servidor
+   */
+
+
+  export type AggregateServidor = {
+    _count: ServidorCountAggregateOutputType | null
+    _min: ServidorMinAggregateOutputType | null
+    _max: ServidorMaxAggregateOutputType | null
+  }
+
+  export type ServidorMinAggregateOutputType = {
+    id: string | null
+    nome: string | null
+    cpf: string | null
+    rgFuncional: string | null
+    cargo: string | null
+    orgaoId: string | null
+    unidadeId: string | null
+    email: string | null
+    telefone: string | null
+    ativo: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ServidorMaxAggregateOutputType = {
+    id: string | null
+    nome: string | null
+    cpf: string | null
+    rgFuncional: string | null
+    cargo: string | null
+    orgaoId: string | null
+    unidadeId: string | null
+    email: string | null
+    telefone: string | null
+    ativo: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ServidorCountAggregateOutputType = {
+    id: number
+    nome: number
+    cpf: number
+    rgFuncional: number
+    cargo: number
+    orgaoId: number
+    unidadeId: number
+    email: number
+    telefone: number
+    ativo: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ServidorMinAggregateInputType = {
+    id?: true
+    nome?: true
+    cpf?: true
+    rgFuncional?: true
+    cargo?: true
+    orgaoId?: true
+    unidadeId?: true
+    email?: true
+    telefone?: true
+    ativo?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ServidorMaxAggregateInputType = {
+    id?: true
+    nome?: true
+    cpf?: true
+    rgFuncional?: true
+    cargo?: true
+    orgaoId?: true
+    unidadeId?: true
+    email?: true
+    telefone?: true
+    ativo?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ServidorCountAggregateInputType = {
+    id?: true
+    nome?: true
+    cpf?: true
+    rgFuncional?: true
+    cargo?: true
+    orgaoId?: true
+    unidadeId?: true
+    email?: true
+    telefone?: true
+    ativo?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ServidorAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Servidor to aggregate.
+     */
+    where?: ServidorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Servidors to fetch.
+     */
+    orderBy?: Enumerable<ServidorOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ServidorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Servidors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Servidors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Servidors
+    **/
+    _count?: true | ServidorCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ServidorMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ServidorMaxAggregateInputType
+  }
+
+  export type GetServidorAggregateType<T extends ServidorAggregateArgs> = {
+        [P in keyof T & keyof AggregateServidor]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateServidor[P]>
+      : GetScalarType<T[P], AggregateServidor[P]>
+  }
+
+
+
+
+  export type ServidorGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ServidorWhereInput
+    orderBy?: Enumerable<ServidorOrderByWithAggregationInput>
+    by: ServidorScalarFieldEnum[]
+    having?: ServidorScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ServidorCountAggregateInputType | true
+    _min?: ServidorMinAggregateInputType
+    _max?: ServidorMaxAggregateInputType
+  }
+
+
+  export type ServidorGroupByOutputType = {
+    id: string
+    nome: string
+    cpf: string | null
+    rgFuncional: string | null
+    cargo: string | null
+    orgaoId: string | null
+    unidadeId: string | null
+    email: string | null
+    telefone: string | null
+    ativo: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: ServidorCountAggregateOutputType | null
+    _min: ServidorMinAggregateOutputType | null
+    _max: ServidorMaxAggregateOutputType | null
+  }
+
+  type GetServidorGroupByPayload<T extends ServidorGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<ServidorGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ServidorGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ServidorGroupByOutputType[P]>
+            : GetScalarType<T[P], ServidorGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ServidorSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    nome?: boolean
+    cpf?: boolean
+    rgFuncional?: boolean
+    cargo?: boolean
+    orgaoId?: boolean
+    unidadeId?: boolean
+    email?: boolean
+    telefone?: boolean
+    ativo?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    orgao?: boolean | OrgaoArgs<ExtArgs>
+    unidade?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+    gestorContratos?: boolean | Servidor$gestorContratosArgs<ExtArgs>
+    fiscalContratos?: boolean | Servidor$fiscalContratosArgs<ExtArgs>
+    _count?: boolean | ServidorCountOutputTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["servidor"]>
+
+  export type ServidorSelectScalar = {
+    id?: boolean
+    nome?: boolean
+    cpf?: boolean
+    rgFuncional?: boolean
+    cargo?: boolean
+    orgaoId?: boolean
+    unidadeId?: boolean
+    email?: boolean
+    telefone?: boolean
+    ativo?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ServidorInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    orgao?: boolean | OrgaoArgs<ExtArgs>
+    unidade?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+    gestorContratos?: boolean | Servidor$gestorContratosArgs<ExtArgs>
+    fiscalContratos?: boolean | Servidor$fiscalContratosArgs<ExtArgs>
+    _count?: boolean | ServidorCountOutputTypeArgs<ExtArgs>
+  }
+
+
+  type ServidorGetPayload<S extends boolean | null | undefined | ServidorArgs> = $Types.GetResult<ServidorPayload, S>
+
+  type ServidorCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<ServidorFindManyArgs, 'select' | 'include'> & {
+      select?: ServidorCountAggregateInputType | true
+    }
+
+  export interface ServidorDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Servidor'], meta: { name: 'Servidor' } }
+    /**
+     * Find zero or one Servidor that matches the filter.
+     * @param {ServidorFindUniqueArgs} args - Arguments to find a Servidor
+     * @example
+     * // Get one Servidor
+     * const servidor = await prisma.servidor.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends ServidorFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, ServidorFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Servidor'> extends True ? Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one Servidor that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {ServidorFindUniqueOrThrowArgs} args - Arguments to find a Servidor
+     * @example
+     * // Get one Servidor
+     * const servidor = await prisma.servidor.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends ServidorFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ServidorFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first Servidor that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServidorFindFirstArgs} args - Arguments to find a Servidor
+     * @example
+     * // Get one Servidor
+     * const servidor = await prisma.servidor.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends ServidorFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, ServidorFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Servidor'> extends True ? Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first Servidor that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServidorFindFirstOrThrowArgs} args - Arguments to find a Servidor
+     * @example
+     * // Get one Servidor
+     * const servidor = await prisma.servidor.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends ServidorFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ServidorFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more Servidors that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServidorFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Servidors
+     * const servidors = await prisma.servidor.findMany()
+     * 
+     * // Get first 10 Servidors
+     * const servidors = await prisma.servidor.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const servidorWithIdOnly = await prisma.servidor.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends ServidorFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ServidorFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a Servidor.
+     * @param {ServidorCreateArgs} args - Arguments to create a Servidor.
+     * @example
+     * // Create one Servidor
+     * const Servidor = await prisma.servidor.create({
+     *   data: {
+     *     // ... data to create a Servidor
+     *   }
+     * })
+     * 
+    **/
+    create<T extends ServidorCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, ServidorCreateArgs<ExtArgs>>
+    ): Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many Servidors.
+     *     @param {ServidorCreateManyArgs} args - Arguments to create many Servidors.
+     *     @example
+     *     // Create many Servidors
+     *     const servidor = await prisma.servidor.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends ServidorCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ServidorCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Servidor.
+     * @param {ServidorDeleteArgs} args - Arguments to delete one Servidor.
+     * @example
+     * // Delete one Servidor
+     * const Servidor = await prisma.servidor.delete({
+     *   where: {
+     *     // ... filter to delete one Servidor
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends ServidorDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, ServidorDeleteArgs<ExtArgs>>
+    ): Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one Servidor.
+     * @param {ServidorUpdateArgs} args - Arguments to update one Servidor.
+     * @example
+     * // Update one Servidor
+     * const servidor = await prisma.servidor.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends ServidorUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, ServidorUpdateArgs<ExtArgs>>
+    ): Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more Servidors.
+     * @param {ServidorDeleteManyArgs} args - Arguments to filter Servidors to delete.
+     * @example
+     * // Delete a few Servidors
+     * const { count } = await prisma.servidor.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends ServidorDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ServidorDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Servidors.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServidorUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Servidors
+     * const servidor = await prisma.servidor.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends ServidorUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, ServidorUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Servidor.
+     * @param {ServidorUpsertArgs} args - Arguments to update or create a Servidor.
+     * @example
+     * // Update or create a Servidor
+     * const servidor = await prisma.servidor.upsert({
+     *   create: {
+     *     // ... data to create a Servidor
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Servidor we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends ServidorUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, ServidorUpsertArgs<ExtArgs>>
+    ): Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of Servidors.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServidorCountArgs} args - Arguments to filter Servidors to count.
+     * @example
+     * // Count the number of Servidors
+     * const count = await prisma.servidor.count({
+     *   where: {
+     *     // ... the filter for the Servidors we want to count
+     *   }
+     * })
+    **/
+    count<T extends ServidorCountArgs>(
+      args?: Subset<T, ServidorCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ServidorCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Servidor.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServidorAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ServidorAggregateArgs>(args: Subset<T, ServidorAggregateArgs>): Prisma.PrismaPromise<GetServidorAggregateType<T>>
+
+    /**
+     * Group by Servidor.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ServidorGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ServidorGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ServidorGroupByArgs['orderBy'] }
+        : { orderBy?: ServidorGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ServidorGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetServidorGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Servidor.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__ServidorClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    orgao<T extends OrgaoArgs<ExtArgs> = {}>(args?: Subset<T, OrgaoArgs<ExtArgs>>): Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    unidade<T extends UnidadeOrganizacionalArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacionalArgs<ExtArgs>>): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    gestorContratos<T extends Servidor$gestorContratosArgs<ExtArgs> = {}>(args?: Subset<T, Servidor$gestorContratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    fiscalContratos<T extends Servidor$fiscalContratosArgs<ExtArgs> = {}>(args?: Subset<T, Servidor$fiscalContratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * Servidor base type for findUnique actions
+   */
+  export type ServidorFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
+    /**
+     * Filter, which Servidor to fetch.
+     */
+    where: ServidorWhereUniqueInput
+  }
+
+  /**
+   * Servidor findUnique
+   */
+  export interface ServidorFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ServidorFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Servidor findUniqueOrThrow
+   */
+  export type ServidorFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
+    /**
+     * Filter, which Servidor to fetch.
+     */
+    where: ServidorWhereUniqueInput
+  }
+
+
+  /**
+   * Servidor base type for findFirst actions
+   */
+  export type ServidorFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
+    /**
+     * Filter, which Servidor to fetch.
+     */
+    where?: ServidorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Servidors to fetch.
+     */
+    orderBy?: Enumerable<ServidorOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Servidors.
+     */
+    cursor?: ServidorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Servidors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Servidors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Servidors.
+     */
+    distinct?: Enumerable<ServidorScalarFieldEnum>
+  }
+
+  /**
+   * Servidor findFirst
+   */
+  export interface ServidorFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ServidorFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Servidor findFirstOrThrow
+   */
+  export type ServidorFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
+    /**
+     * Filter, which Servidor to fetch.
+     */
+    where?: ServidorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Servidors to fetch.
+     */
+    orderBy?: Enumerable<ServidorOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Servidors.
+     */
+    cursor?: ServidorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Servidors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Servidors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Servidors.
+     */
+    distinct?: Enumerable<ServidorScalarFieldEnum>
+  }
+
+
+  /**
+   * Servidor findMany
+   */
+  export type ServidorFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
+    /**
+     * Filter, which Servidors to fetch.
+     */
+    where?: ServidorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Servidors to fetch.
+     */
+    orderBy?: Enumerable<ServidorOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Servidors.
+     */
+    cursor?: ServidorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Servidors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Servidors.
+     */
+    skip?: number
+    distinct?: Enumerable<ServidorScalarFieldEnum>
+  }
+
+
+  /**
+   * Servidor create
+   */
+  export type ServidorCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Servidor.
+     */
+    data: XOR<ServidorCreateInput, ServidorUncheckedCreateInput>
+  }
+
+
+  /**
+   * Servidor createMany
+   */
+  export type ServidorCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Servidors.
+     */
+    data: Enumerable<ServidorCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * Servidor update
+   */
+  export type ServidorUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Servidor.
+     */
+    data: XOR<ServidorUpdateInput, ServidorUncheckedUpdateInput>
+    /**
+     * Choose, which Servidor to update.
+     */
+    where: ServidorWhereUniqueInput
+  }
+
+
+  /**
+   * Servidor updateMany
+   */
+  export type ServidorUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Servidors.
+     */
+    data: XOR<ServidorUpdateManyMutationInput, ServidorUncheckedUpdateManyInput>
+    /**
+     * Filter which Servidors to update
+     */
+    where?: ServidorWhereInput
+  }
+
+
+  /**
+   * Servidor upsert
+   */
+  export type ServidorUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Servidor to update in case it exists.
+     */
+    where: ServidorWhereUniqueInput
+    /**
+     * In case the Servidor found by the `where` argument doesn't exist, create a new Servidor with this data.
+     */
+    create: XOR<ServidorCreateInput, ServidorUncheckedCreateInput>
+    /**
+     * In case the Servidor was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ServidorUpdateInput, ServidorUncheckedUpdateInput>
+  }
+
+
+  /**
+   * Servidor delete
+   */
+  export type ServidorDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
+    /**
+     * Filter which Servidor to delete.
+     */
+    where: ServidorWhereUniqueInput
+  }
+
+
+  /**
+   * Servidor deleteMany
+   */
+  export type ServidorDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Servidors to delete
+     */
+    where?: ServidorWhereInput
+  }
+
+
+  /**
+   * Servidor.gestorContratos
+   */
+  export type Servidor$gestorContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contrato
+     */
+    select?: ContratoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoInclude<ExtArgs> | null
+    where?: ContratoWhereInput
+    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
+    cursor?: ContratoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
+   * Servidor.fiscalContratos
+   */
+  export type Servidor$fiscalContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contrato
+     */
+    select?: ContratoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoInclude<ExtArgs> | null
+    where?: ContratoWhereInput
+    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
+    cursor?: ContratoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
+   * Servidor without action
+   */
+  export type ServidorArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Servidor
+     */
+    select?: ServidorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ServidorInclude<ExtArgs> | null
   }
 
 
@@ -11189,7 +12750,7 @@ export namespace Prisma {
     unidadeFspId: string | null
     gestorId: string | null
     fiscalId: string | null
-    empresaId: string | null
+    fornecedorId: string | null
     modalidade: string | null
     objeto: string | null
     valorAnualCents: number | null
@@ -11208,7 +12769,7 @@ export namespace Prisma {
     unidadeFspId: string | null
     gestorId: string | null
     fiscalId: string | null
-    empresaId: string | null
+    fornecedorId: string | null
     modalidade: string | null
     objeto: string | null
     valorAnualCents: number | null
@@ -11227,7 +12788,7 @@ export namespace Prisma {
     unidadeFspId: number
     gestorId: number
     fiscalId: number
-    empresaId: number
+    fornecedorId: number
     modalidade: number
     objeto: number
     valorAnualCents: number
@@ -11260,7 +12821,7 @@ export namespace Prisma {
     unidadeFspId?: true
     gestorId?: true
     fiscalId?: true
-    empresaId?: true
+    fornecedorId?: true
     modalidade?: true
     objeto?: true
     valorAnualCents?: true
@@ -11279,7 +12840,7 @@ export namespace Prisma {
     unidadeFspId?: true
     gestorId?: true
     fiscalId?: true
-    empresaId?: true
+    fornecedorId?: true
     modalidade?: true
     objeto?: true
     valorAnualCents?: true
@@ -11298,7 +12859,7 @@ export namespace Prisma {
     unidadeFspId?: true
     gestorId?: true
     fiscalId?: true
-    empresaId?: true
+    fornecedorId?: true
     modalidade?: true
     objeto?: true
     valorAnualCents?: true
@@ -11405,7 +12966,7 @@ export namespace Prisma {
     unidadeFspId: string
     gestorId: string
     fiscalId: string
-    empresaId: string
+    fornecedorId: string
     modalidade: string
     objeto: string
     valorAnualCents: number
@@ -11443,7 +13004,7 @@ export namespace Prisma {
     unidadeFspId?: boolean
     gestorId?: boolean
     fiscalId?: boolean
-    empresaId?: boolean
+    fornecedorId?: boolean
     modalidade?: boolean
     objeto?: boolean
     valorAnualCents?: boolean
@@ -11453,9 +13014,9 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     unidadeFsp?: boolean | UnidadeFspArgs<ExtArgs>
-    gestor?: boolean | EntidadeGestoraArgs<ExtArgs>
-    fiscal?: boolean | EntidadeGestoraArgs<ExtArgs>
-    empresa?: boolean | EmpresaArgs<ExtArgs>
+    gestor?: boolean | ServidorArgs<ExtArgs>
+    fiscal?: boolean | ServidorArgs<ExtArgs>
+    fornecedor?: boolean | FornecedorArgs<ExtArgs>
     aditivos?: boolean | Contrato$aditivosArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["contrato"]>
@@ -11468,7 +13029,7 @@ export namespace Prisma {
     unidadeFspId?: boolean
     gestorId?: boolean
     fiscalId?: boolean
-    empresaId?: boolean
+    fornecedorId?: boolean
     modalidade?: boolean
     objeto?: boolean
     valorAnualCents?: boolean
@@ -11481,9 +13042,9 @@ export namespace Prisma {
 
   export type ContratoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     unidadeFsp?: boolean | UnidadeFspArgs<ExtArgs>
-    gestor?: boolean | EntidadeGestoraArgs<ExtArgs>
-    fiscal?: boolean | EntidadeGestoraArgs<ExtArgs>
-    empresa?: boolean | EmpresaArgs<ExtArgs>
+    gestor?: boolean | ServidorArgs<ExtArgs>
+    fiscal?: boolean | ServidorArgs<ExtArgs>
+    fornecedor?: boolean | FornecedorArgs<ExtArgs>
     aditivos?: boolean | Contrato$aditivosArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }
@@ -11860,11 +13421,11 @@ export namespace Prisma {
 
     unidadeFsp<T extends UnidadeFspArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeFspArgs<ExtArgs>>): Prisma__UnidadeFspClient<$Types.GetResult<UnidadeFspPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
-    gestor<T extends EntidadeGestoraArgs<ExtArgs> = {}>(args?: Subset<T, EntidadeGestoraArgs<ExtArgs>>): Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+    gestor<T extends ServidorArgs<ExtArgs> = {}>(args?: Subset<T, ServidorArgs<ExtArgs>>): Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
-    fiscal<T extends EntidadeGestoraArgs<ExtArgs> = {}>(args?: Subset<T, EntidadeGestoraArgs<ExtArgs>>): Prisma__EntidadeGestoraClient<$Types.GetResult<EntidadeGestoraPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+    fiscal<T extends ServidorArgs<ExtArgs> = {}>(args?: Subset<T, ServidorArgs<ExtArgs>>): Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
-    empresa<T extends EmpresaArgs<ExtArgs> = {}>(args?: Subset<T, EmpresaArgs<ExtArgs>>): Prisma__EmpresaClient<$Types.GetResult<EmpresaPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+    fornecedor<T extends FornecedorArgs<ExtArgs> = {}>(args?: Subset<T, FornecedorArgs<ExtArgs>>): Prisma__FornecedorClient<$Types.GetResult<FornecedorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
     aditivos<T extends Contrato$aditivosArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$aditivosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
@@ -15911,15 +17472,6 @@ export namespace Prisma {
   export type UnidadeFspScalarFieldEnum = (typeof UnidadeFspScalarFieldEnum)[keyof typeof UnidadeFspScalarFieldEnum]
 
 
-  export const EntidadeGestoraScalarFieldEnum: {
-    id: 'id',
-    nome: 'nome',
-    cpf: 'cpf'
-  };
-
-  export type EntidadeGestoraScalarFieldEnum = (typeof EntidadeGestoraScalarFieldEnum)[keyof typeof EntidadeGestoraScalarFieldEnum]
-
-
   export const MunicipioScalarFieldEnum: {
     id: 'id',
     codigoIbge: 'codigoIbge',
@@ -15991,23 +17543,69 @@ export namespace Prisma {
   export type UnidadeOrganizacionalScalarFieldEnum = (typeof UnidadeOrganizacionalScalarFieldEnum)[keyof typeof UnidadeOrganizacionalScalarFieldEnum]
 
 
-  export const EmpresaScalarFieldEnum: {
-    id: 'id',
-    cnpj: 'cnpj',
-    razaoSocial: 'razaoSocial'
-  };
-
-  export type EmpresaScalarFieldEnum = (typeof EmpresaScalarFieldEnum)[keyof typeof EmpresaScalarFieldEnum]
-
-
   export const FornecedorScalarFieldEnum: {
     id: 'id',
-    cnpj: 'cnpj',
-    nome: 'nome',
-    createdAt: 'createdAt'
+    tipoPessoa: 'tipoPessoa',
+    documento: 'documento',
+    razaoSocial: 'razaoSocial',
+    nomeFantasia: 'nomeFantasia',
+    inscricaoEstadual: 'inscricaoEstadual',
+    porte: 'porte',
+    municipioId: 'municipioId',
+    situacao: 'situacao',
+    codigoLegado: 'codigoLegado',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type FornecedorScalarFieldEnum = (typeof FornecedorScalarFieldEnum)[keyof typeof FornecedorScalarFieldEnum]
+
+
+  export const FornecedorContatoScalarFieldEnum: {
+    id: 'id',
+    fornecedorId: 'fornecedorId',
+    nome: 'nome',
+    cargo: 'cargo',
+    email: 'email',
+    telefone: 'telefone',
+    principal: 'principal',
+    createdAt: 'createdAt'
+  };
+
+  export type FornecedorContatoScalarFieldEnum = (typeof FornecedorContatoScalarFieldEnum)[keyof typeof FornecedorContatoScalarFieldEnum]
+
+
+  export const FornecedorSancaoScalarFieldEnum: {
+    id: 'id',
+    fornecedorId: 'fornecedorId',
+    tipo: 'tipo',
+    processo: 'processo',
+    dataInicio: 'dataInicio',
+    dataFim: 'dataFim',
+    abrangencia: 'abrangencia',
+    fonte: 'fonte',
+    createdAt: 'createdAt'
+  };
+
+  export type FornecedorSancaoScalarFieldEnum = (typeof FornecedorSancaoScalarFieldEnum)[keyof typeof FornecedorSancaoScalarFieldEnum]
+
+
+  export const ServidorScalarFieldEnum: {
+    id: 'id',
+    nome: 'nome',
+    cpf: 'cpf',
+    rgFuncional: 'rgFuncional',
+    cargo: 'cargo',
+    orgaoId: 'orgaoId',
+    unidadeId: 'unidadeId',
+    email: 'email',
+    telefone: 'telefone',
+    ativo: 'ativo',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ServidorScalarFieldEnum = (typeof ServidorScalarFieldEnum)[keyof typeof ServidorScalarFieldEnum]
 
 
   export const ContratoScalarFieldEnum: {
@@ -16018,7 +17616,7 @@ export namespace Prisma {
     unidadeFspId: 'unidadeFspId',
     gestorId: 'gestorId',
     fiscalId: 'fiscalId',
-    empresaId: 'empresaId',
+    fornecedorId: 'fornecedorId',
     modalidade: 'modalidade',
     objeto: 'objeto',
     valorAnualCents: 'valorAnualCents',
@@ -16173,48 +17771,6 @@ export namespace Prisma {
     nome?: StringWithAggregatesFilter | string
   }
 
-  export type EntidadeGestoraWhereInput = {
-    AND?: Enumerable<EntidadeGestoraWhereInput>
-    OR?: Enumerable<EntidadeGestoraWhereInput>
-    NOT?: Enumerable<EntidadeGestoraWhereInput>
-    id?: StringFilter | string
-    nome?: StringFilter | string
-    cpf?: StringFilter | string
-    gestorContratos?: ContratoListRelationFilter
-    fiscalContratos?: ContratoListRelationFilter
-  }
-
-  export type EntidadeGestoraOrderByWithRelationInput = {
-    id?: SortOrder
-    nome?: SortOrder
-    cpf?: SortOrder
-    gestorContratos?: ContratoOrderByRelationAggregateInput
-    fiscalContratos?: ContratoOrderByRelationAggregateInput
-  }
-
-  export type EntidadeGestoraWhereUniqueInput = {
-    id?: string
-    cpf?: string
-  }
-
-  export type EntidadeGestoraOrderByWithAggregationInput = {
-    id?: SortOrder
-    nome?: SortOrder
-    cpf?: SortOrder
-    _count?: EntidadeGestoraCountOrderByAggregateInput
-    _max?: EntidadeGestoraMaxOrderByAggregateInput
-    _min?: EntidadeGestoraMinOrderByAggregateInput
-  }
-
-  export type EntidadeGestoraScalarWhereWithAggregatesInput = {
-    AND?: Enumerable<EntidadeGestoraScalarWhereWithAggregatesInput>
-    OR?: Enumerable<EntidadeGestoraScalarWhereWithAggregatesInput>
-    NOT?: Enumerable<EntidadeGestoraScalarWhereWithAggregatesInput>
-    id?: StringWithAggregatesFilter | string
-    nome?: StringWithAggregatesFilter | string
-    cpf?: StringWithAggregatesFilter | string
-  }
-
   export type MunicipioWhereInput = {
     AND?: Enumerable<MunicipioWhereInput>
     OR?: Enumerable<MunicipioWhereInput>
@@ -16225,6 +17781,7 @@ export namespace Prisma {
     uf?: StringFilter | string
     regiaoAdministrativa?: StringNullableFilter | string | null
     unidades?: UnidadeOrganizacionalListRelationFilter
+    fornecedores?: FornecedorListRelationFilter
   }
 
   export type MunicipioOrderByWithRelationInput = {
@@ -16234,6 +17791,7 @@ export namespace Prisma {
     uf?: SortOrder
     regiaoAdministrativa?: SortOrderInput | SortOrder
     unidades?: UnidadeOrganizacionalOrderByRelationAggregateInput
+    fornecedores?: FornecedorOrderByRelationAggregateInput
   }
 
   export type MunicipioWhereUniqueInput = {
@@ -16413,6 +17971,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
     unidades?: UnidadeOrganizacionalListRelationFilter
+    servidores?: ServidorListRelationFilter
   }
 
   export type OrgaoOrderByWithRelationInput = {
@@ -16424,6 +17983,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     unidades?: UnidadeOrganizacionalOrderByRelationAggregateInput
+    servidores?: ServidorOrderByRelationAggregateInput
   }
 
   export type OrgaoWhereUniqueInput = {
@@ -16475,6 +18035,7 @@ export namespace Prisma {
     parent?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput> | null
     children?: UnidadeOrganizacionalListRelationFilter
     municipio?: XOR<MunicipioRelationFilter, MunicipioWhereInput>
+    servidores?: ServidorListRelationFilter
   }
 
   export type UnidadeOrganizacionalOrderByWithRelationInput = {
@@ -16492,6 +18053,7 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalOrderByWithRelationInput
     children?: UnidadeOrganizacionalOrderByRelationAggregateInput
     municipio?: MunicipioOrderByWithRelationInput
+    servidores?: ServidorOrderByRelationAggregateInput
   }
 
   export type UnidadeOrganizacionalWhereUniqueInput = {
@@ -16531,73 +18093,65 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter | Date | string
   }
 
-  export type EmpresaWhereInput = {
-    AND?: Enumerable<EmpresaWhereInput>
-    OR?: Enumerable<EmpresaWhereInput>
-    NOT?: Enumerable<EmpresaWhereInput>
-    id?: StringFilter | string
-    cnpj?: StringFilter | string
-    razaoSocial?: StringFilter | string
-    contratos?: ContratoListRelationFilter
-  }
-
-  export type EmpresaOrderByWithRelationInput = {
-    id?: SortOrder
-    cnpj?: SortOrder
-    razaoSocial?: SortOrder
-    contratos?: ContratoOrderByRelationAggregateInput
-  }
-
-  export type EmpresaWhereUniqueInput = {
-    id?: string
-    cnpj?: string
-  }
-
-  export type EmpresaOrderByWithAggregationInput = {
-    id?: SortOrder
-    cnpj?: SortOrder
-    razaoSocial?: SortOrder
-    _count?: EmpresaCountOrderByAggregateInput
-    _max?: EmpresaMaxOrderByAggregateInput
-    _min?: EmpresaMinOrderByAggregateInput
-  }
-
-  export type EmpresaScalarWhereWithAggregatesInput = {
-    AND?: Enumerable<EmpresaScalarWhereWithAggregatesInput>
-    OR?: Enumerable<EmpresaScalarWhereWithAggregatesInput>
-    NOT?: Enumerable<EmpresaScalarWhereWithAggregatesInput>
-    id?: StringWithAggregatesFilter | string
-    cnpj?: StringWithAggregatesFilter | string
-    razaoSocial?: StringWithAggregatesFilter | string
-  }
-
   export type FornecedorWhereInput = {
     AND?: Enumerable<FornecedorWhereInput>
     OR?: Enumerable<FornecedorWhereInput>
     NOT?: Enumerable<FornecedorWhereInput>
     id?: StringFilter | string
-    cnpj?: StringNullableFilter | string | null
-    nome?: StringFilter | string
+    tipoPessoa?: EnumTipoPessoaFilter | TipoPessoa
+    documento?: StringFilter | string
+    razaoSocial?: StringFilter | string
+    nomeFantasia?: StringNullableFilter | string | null
+    inscricaoEstadual?: StringNullableFilter | string | null
+    porte?: EnumPorteEmpresaNullableFilter | PorteEmpresa | null
+    municipioId?: StringNullableFilter | string | null
+    situacao?: EnumSituacaoFornecedorFilter | SituacaoFornecedor
+    codigoLegado?: StringNullableFilter | string | null
     createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    municipio?: XOR<MunicipioRelationFilter, MunicipioWhereInput> | null
+    contatos?: FornecedorContatoListRelationFilter
+    sancoes?: FornecedorSancaoListRelationFilter
+    contratos?: ContratoListRelationFilter
   }
 
   export type FornecedorOrderByWithRelationInput = {
     id?: SortOrder
-    cnpj?: SortOrderInput | SortOrder
-    nome?: SortOrder
+    tipoPessoa?: SortOrder
+    documento?: SortOrder
+    razaoSocial?: SortOrder
+    nomeFantasia?: SortOrderInput | SortOrder
+    inscricaoEstadual?: SortOrderInput | SortOrder
+    porte?: SortOrderInput | SortOrder
+    municipioId?: SortOrderInput | SortOrder
+    situacao?: SortOrder
+    codigoLegado?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
+    municipio?: MunicipioOrderByWithRelationInput
+    contatos?: FornecedorContatoOrderByRelationAggregateInput
+    sancoes?: FornecedorSancaoOrderByRelationAggregateInput
+    contratos?: ContratoOrderByRelationAggregateInput
   }
 
   export type FornecedorWhereUniqueInput = {
     id?: string
-    cnpj?: string
+    documento?: string
   }
 
   export type FornecedorOrderByWithAggregationInput = {
     id?: SortOrder
-    cnpj?: SortOrderInput | SortOrder
-    nome?: SortOrder
+    tipoPessoa?: SortOrder
+    documento?: SortOrder
+    razaoSocial?: SortOrder
+    nomeFantasia?: SortOrderInput | SortOrder
+    inscricaoEstadual?: SortOrderInput | SortOrder
+    porte?: SortOrderInput | SortOrder
+    municipioId?: SortOrderInput | SortOrder
+    situacao?: SortOrder
+    codigoLegado?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: FornecedorCountOrderByAggregateInput
     _max?: FornecedorMaxOrderByAggregateInput
     _min?: FornecedorMinOrderByAggregateInput
@@ -16608,9 +18162,222 @@ export namespace Prisma {
     OR?: Enumerable<FornecedorScalarWhereWithAggregatesInput>
     NOT?: Enumerable<FornecedorScalarWhereWithAggregatesInput>
     id?: StringWithAggregatesFilter | string
-    cnpj?: StringNullableWithAggregatesFilter | string | null
-    nome?: StringWithAggregatesFilter | string
+    tipoPessoa?: EnumTipoPessoaWithAggregatesFilter | TipoPessoa
+    documento?: StringWithAggregatesFilter | string
+    razaoSocial?: StringWithAggregatesFilter | string
+    nomeFantasia?: StringNullableWithAggregatesFilter | string | null
+    inscricaoEstadual?: StringNullableWithAggregatesFilter | string | null
+    porte?: EnumPorteEmpresaNullableWithAggregatesFilter | PorteEmpresa | null
+    municipioId?: StringNullableWithAggregatesFilter | string | null
+    situacao?: EnumSituacaoFornecedorWithAggregatesFilter | SituacaoFornecedor
+    codigoLegado?: StringNullableWithAggregatesFilter | string | null
     createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type FornecedorContatoWhereInput = {
+    AND?: Enumerable<FornecedorContatoWhereInput>
+    OR?: Enumerable<FornecedorContatoWhereInput>
+    NOT?: Enumerable<FornecedorContatoWhereInput>
+    id?: StringFilter | string
+    fornecedorId?: StringFilter | string
+    nome?: StringFilter | string
+    cargo?: StringNullableFilter | string | null
+    email?: StringNullableFilter | string | null
+    telefone?: StringNullableFilter | string | null
+    principal?: BoolFilter | boolean
+    createdAt?: DateTimeFilter | Date | string
+    fornecedor?: XOR<FornecedorRelationFilter, FornecedorWhereInput>
+  }
+
+  export type FornecedorContatoOrderByWithRelationInput = {
+    id?: SortOrder
+    fornecedorId?: SortOrder
+    nome?: SortOrder
+    cargo?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    telefone?: SortOrderInput | SortOrder
+    principal?: SortOrder
+    createdAt?: SortOrder
+    fornecedor?: FornecedorOrderByWithRelationInput
+  }
+
+  export type FornecedorContatoWhereUniqueInput = {
+    id?: string
+  }
+
+  export type FornecedorContatoOrderByWithAggregationInput = {
+    id?: SortOrder
+    fornecedorId?: SortOrder
+    nome?: SortOrder
+    cargo?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    telefone?: SortOrderInput | SortOrder
+    principal?: SortOrder
+    createdAt?: SortOrder
+    _count?: FornecedorContatoCountOrderByAggregateInput
+    _max?: FornecedorContatoMaxOrderByAggregateInput
+    _min?: FornecedorContatoMinOrderByAggregateInput
+  }
+
+  export type FornecedorContatoScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<FornecedorContatoScalarWhereWithAggregatesInput>
+    OR?: Enumerable<FornecedorContatoScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<FornecedorContatoScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    fornecedorId?: StringWithAggregatesFilter | string
+    nome?: StringWithAggregatesFilter | string
+    cargo?: StringNullableWithAggregatesFilter | string | null
+    email?: StringNullableWithAggregatesFilter | string | null
+    telefone?: StringNullableWithAggregatesFilter | string | null
+    principal?: BoolWithAggregatesFilter | boolean
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type FornecedorSancaoWhereInput = {
+    AND?: Enumerable<FornecedorSancaoWhereInput>
+    OR?: Enumerable<FornecedorSancaoWhereInput>
+    NOT?: Enumerable<FornecedorSancaoWhereInput>
+    id?: StringFilter | string
+    fornecedorId?: StringFilter | string
+    tipo?: EnumTipoSancaoFilter | TipoSancao
+    processo?: StringNullableFilter | string | null
+    dataInicio?: DateTimeFilter | Date | string
+    dataFim?: DateTimeNullableFilter | Date | string | null
+    abrangencia?: StringNullableFilter | string | null
+    fonte?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    fornecedor?: XOR<FornecedorRelationFilter, FornecedorWhereInput>
+  }
+
+  export type FornecedorSancaoOrderByWithRelationInput = {
+    id?: SortOrder
+    fornecedorId?: SortOrder
+    tipo?: SortOrder
+    processo?: SortOrderInput | SortOrder
+    dataInicio?: SortOrder
+    dataFim?: SortOrderInput | SortOrder
+    abrangencia?: SortOrderInput | SortOrder
+    fonte?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    fornecedor?: FornecedorOrderByWithRelationInput
+  }
+
+  export type FornecedorSancaoWhereUniqueInput = {
+    id?: string
+  }
+
+  export type FornecedorSancaoOrderByWithAggregationInput = {
+    id?: SortOrder
+    fornecedorId?: SortOrder
+    tipo?: SortOrder
+    processo?: SortOrderInput | SortOrder
+    dataInicio?: SortOrder
+    dataFim?: SortOrderInput | SortOrder
+    abrangencia?: SortOrderInput | SortOrder
+    fonte?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: FornecedorSancaoCountOrderByAggregateInput
+    _max?: FornecedorSancaoMaxOrderByAggregateInput
+    _min?: FornecedorSancaoMinOrderByAggregateInput
+  }
+
+  export type FornecedorSancaoScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<FornecedorSancaoScalarWhereWithAggregatesInput>
+    OR?: Enumerable<FornecedorSancaoScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<FornecedorSancaoScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    fornecedorId?: StringWithAggregatesFilter | string
+    tipo?: EnumTipoSancaoWithAggregatesFilter | TipoSancao
+    processo?: StringNullableWithAggregatesFilter | string | null
+    dataInicio?: DateTimeWithAggregatesFilter | Date | string
+    dataFim?: DateTimeNullableWithAggregatesFilter | Date | string | null
+    abrangencia?: StringNullableWithAggregatesFilter | string | null
+    fonte?: StringNullableWithAggregatesFilter | string | null
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type ServidorWhereInput = {
+    AND?: Enumerable<ServidorWhereInput>
+    OR?: Enumerable<ServidorWhereInput>
+    NOT?: Enumerable<ServidorWhereInput>
+    id?: StringFilter | string
+    nome?: StringFilter | string
+    cpf?: StringNullableFilter | string | null
+    rgFuncional?: StringNullableFilter | string | null
+    cargo?: StringNullableFilter | string | null
+    orgaoId?: StringNullableFilter | string | null
+    unidadeId?: StringNullableFilter | string | null
+    email?: StringNullableFilter | string | null
+    telefone?: StringNullableFilter | string | null
+    ativo?: BoolFilter | boolean
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    orgao?: XOR<OrgaoRelationFilter, OrgaoWhereInput> | null
+    unidade?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput> | null
+    gestorContratos?: ContratoListRelationFilter
+    fiscalContratos?: ContratoListRelationFilter
+  }
+
+  export type ServidorOrderByWithRelationInput = {
+    id?: SortOrder
+    nome?: SortOrder
+    cpf?: SortOrderInput | SortOrder
+    rgFuncional?: SortOrderInput | SortOrder
+    cargo?: SortOrderInput | SortOrder
+    orgaoId?: SortOrderInput | SortOrder
+    unidadeId?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    telefone?: SortOrderInput | SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    orgao?: OrgaoOrderByWithRelationInput
+    unidade?: UnidadeOrganizacionalOrderByWithRelationInput
+    gestorContratos?: ContratoOrderByRelationAggregateInput
+    fiscalContratos?: ContratoOrderByRelationAggregateInput
+  }
+
+  export type ServidorWhereUniqueInput = {
+    id?: string
+    cpf?: string
+    rgFuncional?: string
+  }
+
+  export type ServidorOrderByWithAggregationInput = {
+    id?: SortOrder
+    nome?: SortOrder
+    cpf?: SortOrderInput | SortOrder
+    rgFuncional?: SortOrderInput | SortOrder
+    cargo?: SortOrderInput | SortOrder
+    orgaoId?: SortOrderInput | SortOrder
+    unidadeId?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    telefone?: SortOrderInput | SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ServidorCountOrderByAggregateInput
+    _max?: ServidorMaxOrderByAggregateInput
+    _min?: ServidorMinOrderByAggregateInput
+  }
+
+  export type ServidorScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<ServidorScalarWhereWithAggregatesInput>
+    OR?: Enumerable<ServidorScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<ServidorScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    nome?: StringWithAggregatesFilter | string
+    cpf?: StringNullableWithAggregatesFilter | string | null
+    rgFuncional?: StringNullableWithAggregatesFilter | string | null
+    cargo?: StringNullableWithAggregatesFilter | string | null
+    orgaoId?: StringNullableWithAggregatesFilter | string | null
+    unidadeId?: StringNullableWithAggregatesFilter | string | null
+    email?: StringNullableWithAggregatesFilter | string | null
+    telefone?: StringNullableWithAggregatesFilter | string | null
+    ativo?: BoolWithAggregatesFilter | boolean
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
   }
 
   export type ContratoWhereInput = {
@@ -16624,7 +18391,7 @@ export namespace Prisma {
     unidadeFspId?: StringFilter | string
     gestorId?: StringFilter | string
     fiscalId?: StringFilter | string
-    empresaId?: StringFilter | string
+    fornecedorId?: StringFilter | string
     modalidade?: StringFilter | string
     objeto?: StringFilter | string
     valorAnualCents?: IntFilter | number
@@ -16634,9 +18401,9 @@ export namespace Prisma {
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
     unidadeFsp?: XOR<UnidadeFspRelationFilter, UnidadeFspWhereInput>
-    gestor?: XOR<EntidadeGestoraRelationFilter, EntidadeGestoraWhereInput>
-    fiscal?: XOR<EntidadeGestoraRelationFilter, EntidadeGestoraWhereInput>
-    empresa?: XOR<EmpresaRelationFilter, EmpresaWhereInput>
+    gestor?: XOR<ServidorRelationFilter, ServidorWhereInput>
+    fiscal?: XOR<ServidorRelationFilter, ServidorWhereInput>
+    fornecedor?: XOR<FornecedorRelationFilter, FornecedorWhereInput>
     aditivos?: AditivoListRelationFilter
   }
 
@@ -16648,7 +18415,7 @@ export namespace Prisma {
     unidadeFspId?: SortOrder
     gestorId?: SortOrder
     fiscalId?: SortOrder
-    empresaId?: SortOrder
+    fornecedorId?: SortOrder
     modalidade?: SortOrder
     objeto?: SortOrder
     valorAnualCents?: SortOrder
@@ -16658,9 +18425,9 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     unidadeFsp?: UnidadeFspOrderByWithRelationInput
-    gestor?: EntidadeGestoraOrderByWithRelationInput
-    fiscal?: EntidadeGestoraOrderByWithRelationInput
-    empresa?: EmpresaOrderByWithRelationInput
+    gestor?: ServidorOrderByWithRelationInput
+    fiscal?: ServidorOrderByWithRelationInput
+    fornecedor?: FornecedorOrderByWithRelationInput
     aditivos?: AditivoOrderByRelationAggregateInput
   }
 
@@ -16678,7 +18445,7 @@ export namespace Prisma {
     unidadeFspId?: SortOrder
     gestorId?: SortOrder
     fiscalId?: SortOrder
-    empresaId?: SortOrder
+    fornecedorId?: SortOrder
     modalidade?: SortOrder
     objeto?: SortOrder
     valorAnualCents?: SortOrder
@@ -16705,7 +18472,7 @@ export namespace Prisma {
     unidadeFspId?: StringWithAggregatesFilter | string
     gestorId?: StringWithAggregatesFilter | string
     fiscalId?: StringWithAggregatesFilter | string
-    empresaId?: StringWithAggregatesFilter | string
+    fornecedorId?: StringWithAggregatesFilter | string
     modalidade?: StringWithAggregatesFilter | string
     objeto?: StringWithAggregatesFilter | string
     valorAnualCents?: IntWithAggregatesFilter | number
@@ -16964,56 +18731,6 @@ export namespace Prisma {
     nome?: StringFieldUpdateOperationsInput | string
   }
 
-  export type EntidadeGestoraCreateInput = {
-    id?: string
-    nome: string
-    cpf: string
-    gestorContratos?: ContratoCreateNestedManyWithoutGestorInput
-    fiscalContratos?: ContratoCreateNestedManyWithoutFiscalInput
-  }
-
-  export type EntidadeGestoraUncheckedCreateInput = {
-    id?: string
-    nome: string
-    cpf: string
-    gestorContratos?: ContratoUncheckedCreateNestedManyWithoutGestorInput
-    fiscalContratos?: ContratoUncheckedCreateNestedManyWithoutFiscalInput
-  }
-
-  export type EntidadeGestoraUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    cpf?: StringFieldUpdateOperationsInput | string
-    gestorContratos?: ContratoUpdateManyWithoutGestorNestedInput
-    fiscalContratos?: ContratoUpdateManyWithoutFiscalNestedInput
-  }
-
-  export type EntidadeGestoraUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    cpf?: StringFieldUpdateOperationsInput | string
-    gestorContratos?: ContratoUncheckedUpdateManyWithoutGestorNestedInput
-    fiscalContratos?: ContratoUncheckedUpdateManyWithoutFiscalNestedInput
-  }
-
-  export type EntidadeGestoraCreateManyInput = {
-    id?: string
-    nome: string
-    cpf: string
-  }
-
-  export type EntidadeGestoraUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    cpf?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type EntidadeGestoraUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    cpf?: StringFieldUpdateOperationsInput | string
-  }
-
   export type MunicipioCreateInput = {
     id?: string
     codigoIbge: string
@@ -17021,6 +18738,7 @@ export namespace Prisma {
     uf: string
     regiaoAdministrativa?: string | null
     unidades?: UnidadeOrganizacionalCreateNestedManyWithoutMunicipioInput
+    fornecedores?: FornecedorCreateNestedManyWithoutMunicipioInput
   }
 
   export type MunicipioUncheckedCreateInput = {
@@ -17030,6 +18748,7 @@ export namespace Prisma {
     uf: string
     regiaoAdministrativa?: string | null
     unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutMunicipioInput
+    fornecedores?: FornecedorUncheckedCreateNestedManyWithoutMunicipioInput
   }
 
   export type MunicipioUpdateInput = {
@@ -17039,6 +18758,7 @@ export namespace Prisma {
     uf?: StringFieldUpdateOperationsInput | string
     regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
     unidades?: UnidadeOrganizacionalUpdateManyWithoutMunicipioNestedInput
+    fornecedores?: FornecedorUpdateManyWithoutMunicipioNestedInput
   }
 
   export type MunicipioUncheckedUpdateInput = {
@@ -17048,6 +18768,7 @@ export namespace Prisma {
     uf?: StringFieldUpdateOperationsInput | string
     regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutMunicipioNestedInput
+    fornecedores?: FornecedorUncheckedUpdateManyWithoutMunicipioNestedInput
   }
 
   export type MunicipioCreateManyInput = {
@@ -17264,6 +18985,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
+    servidores?: ServidorCreateNestedManyWithoutOrgaoInput
   }
 
   export type OrgaoUncheckedCreateInput = {
@@ -17275,6 +18997,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
+    servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
   }
 
   export type OrgaoUpdateInput = {
@@ -17286,6 +19009,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
+    servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
   }
 
   export type OrgaoUncheckedUpdateInput = {
@@ -17297,6 +19021,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
+    servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
   }
 
   export type OrgaoCreateManyInput = {
@@ -17341,6 +19066,7 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
     municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    servidores?: ServidorCreateNestedManyWithoutUnidadeInput
   }
 
   export type UnidadeOrganizacionalUncheckedCreateInput = {
@@ -17355,6 +19081,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+    servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
   }
 
   export type UnidadeOrganizacionalUpdateInput = {
@@ -17369,6 +19096,7 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
     municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateInput = {
@@ -17383,6 +19111,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+    servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
   }
 
   export type UnidadeOrganizacionalCreateManyInput = {
@@ -17421,99 +19150,390 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type EmpresaCreateInput = {
-    id?: string
-    cnpj: string
-    razaoSocial: string
-    contratos?: ContratoCreateNestedManyWithoutEmpresaInput
-  }
-
-  export type EmpresaUncheckedCreateInput = {
-    id?: string
-    cnpj: string
-    razaoSocial: string
-    contratos?: ContratoUncheckedCreateNestedManyWithoutEmpresaInput
-  }
-
-  export type EmpresaUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cnpj?: StringFieldUpdateOperationsInput | string
-    razaoSocial?: StringFieldUpdateOperationsInput | string
-    contratos?: ContratoUpdateManyWithoutEmpresaNestedInput
-  }
-
-  export type EmpresaUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cnpj?: StringFieldUpdateOperationsInput | string
-    razaoSocial?: StringFieldUpdateOperationsInput | string
-    contratos?: ContratoUncheckedUpdateManyWithoutEmpresaNestedInput
-  }
-
-  export type EmpresaCreateManyInput = {
-    id?: string
-    cnpj: string
-    razaoSocial: string
-  }
-
-  export type EmpresaUpdateManyMutationInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cnpj?: StringFieldUpdateOperationsInput | string
-    razaoSocial?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type EmpresaUncheckedUpdateManyInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    cnpj?: StringFieldUpdateOperationsInput | string
-    razaoSocial?: StringFieldUpdateOperationsInput | string
-  }
-
   export type FornecedorCreateInput = {
     id?: string
-    cnpj?: string | null
-    nome: string
+    tipoPessoa?: TipoPessoa
+    documento: string
+    razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
+    municipio?: MunicipioCreateNestedOneWithoutFornecedoresInput
+    contatos?: FornecedorContatoCreateNestedManyWithoutFornecedorInput
+    sancoes?: FornecedorSancaoCreateNestedManyWithoutFornecedorInput
+    contratos?: ContratoCreateNestedManyWithoutFornecedorInput
   }
 
   export type FornecedorUncheckedCreateInput = {
     id?: string
-    cnpj?: string | null
-    nome: string
+    tipoPessoa?: TipoPessoa
+    documento: string
+    razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    municipioId?: string | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
+    contatos?: FornecedorContatoUncheckedCreateNestedManyWithoutFornecedorInput
+    sancoes?: FornecedorSancaoUncheckedCreateNestedManyWithoutFornecedorInput
+    contratos?: ContratoUncheckedCreateNestedManyWithoutFornecedorInput
   }
 
   export type FornecedorUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
+    razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    municipio?: MunicipioUpdateOneWithoutFornecedoresNestedInput
+    contatos?: FornecedorContatoUpdateManyWithoutFornecedorNestedInput
+    sancoes?: FornecedorSancaoUpdateManyWithoutFornecedorNestedInput
+    contratos?: ContratoUpdateManyWithoutFornecedorNestedInput
   }
 
   export type FornecedorUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
+    razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contatos?: FornecedorContatoUncheckedUpdateManyWithoutFornecedorNestedInput
+    sancoes?: FornecedorSancaoUncheckedUpdateManyWithoutFornecedorNestedInput
+    contratos?: ContratoUncheckedUpdateManyWithoutFornecedorNestedInput
   }
 
   export type FornecedorCreateManyInput = {
     id?: string
-    cnpj?: string | null
-    nome: string
+    tipoPessoa?: TipoPessoa
+    documento: string
+    razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    municipioId?: string | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type FornecedorUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
+    razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FornecedorUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
-    nome?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
+    razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorContatoCreateInput = {
+    id?: string
+    nome: string
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    principal?: boolean
+    createdAt?: Date | string
+    fornecedor: FornecedorCreateNestedOneWithoutContatosInput
+  }
+
+  export type FornecedorContatoUncheckedCreateInput = {
+    id?: string
+    fornecedorId: string
+    nome: string
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    principal?: boolean
+    createdAt?: Date | string
+  }
+
+  export type FornecedorContatoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    principal?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContatosNestedInput
+  }
+
+  export type FornecedorContatoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    principal?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorContatoCreateManyInput = {
+    id?: string
+    fornecedorId: string
+    nome: string
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    principal?: boolean
+    createdAt?: Date | string
+  }
+
+  export type FornecedorContatoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    principal?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorContatoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    principal?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorSancaoCreateInput = {
+    id?: string
+    tipo: TipoSancao
+    processo?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    abrangencia?: string | null
+    fonte?: string | null
+    createdAt?: Date | string
+    fornecedor: FornecedorCreateNestedOneWithoutSancoesInput
+  }
+
+  export type FornecedorSancaoUncheckedCreateInput = {
+    id?: string
+    fornecedorId: string
+    tipo: TipoSancao
+    processo?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    abrangencia?: string | null
+    fonte?: string | null
+    createdAt?: Date | string
+  }
+
+  export type FornecedorSancaoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoSancaoFieldUpdateOperationsInput | TipoSancao
+    processo?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    abrangencia?: NullableStringFieldUpdateOperationsInput | string | null
+    fonte?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fornecedor?: FornecedorUpdateOneRequiredWithoutSancoesNestedInput
+  }
+
+  export type FornecedorSancaoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoSancaoFieldUpdateOperationsInput | TipoSancao
+    processo?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    abrangencia?: NullableStringFieldUpdateOperationsInput | string | null
+    fonte?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorSancaoCreateManyInput = {
+    id?: string
+    fornecedorId: string
+    tipo: TipoSancao
+    processo?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    abrangencia?: string | null
+    fonte?: string | null
+    createdAt?: Date | string
+  }
+
+  export type FornecedorSancaoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoSancaoFieldUpdateOperationsInput | TipoSancao
+    processo?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    abrangencia?: NullableStringFieldUpdateOperationsInput | string | null
+    fonte?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorSancaoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoSancaoFieldUpdateOperationsInput | TipoSancao
+    processo?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    abrangencia?: NullableStringFieldUpdateOperationsInput | string | null
+    fonte?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServidorCreateInput = {
+    id?: string
+    nome: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao?: OrgaoCreateNestedOneWithoutServidoresInput
+    unidade?: UnidadeOrganizacionalCreateNestedOneWithoutServidoresInput
+    gestorContratos?: ContratoCreateNestedManyWithoutGestorInput
+    fiscalContratos?: ContratoCreateNestedManyWithoutFiscalInput
+  }
+
+  export type ServidorUncheckedCreateInput = {
+    id?: string
+    nome: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    orgaoId?: string | null
+    unidadeId?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    gestorContratos?: ContratoUncheckedCreateNestedManyWithoutGestorInput
+    fiscalContratos?: ContratoUncheckedCreateNestedManyWithoutFiscalInput
+  }
+
+  export type ServidorUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneWithoutServidoresNestedInput
+    unidade?: UnidadeOrganizacionalUpdateOneWithoutServidoresNestedInput
+    gestorContratos?: ContratoUpdateManyWithoutGestorNestedInput
+    fiscalContratos?: ContratoUpdateManyWithoutFiscalNestedInput
+  }
+
+  export type ServidorUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    orgaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    unidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gestorContratos?: ContratoUncheckedUpdateManyWithoutGestorNestedInput
+    fiscalContratos?: ContratoUncheckedUpdateManyWithoutFiscalNestedInput
+  }
+
+  export type ServidorCreateManyInput = {
+    id?: string
+    nome: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    orgaoId?: string | null
+    unidadeId?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServidorUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ServidorUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    orgaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    unidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ContratoCreateInput = {
@@ -17530,9 +19550,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
-    gestor: EntidadeGestoraCreateNestedOneWithoutGestorContratosInput
-    fiscal: EntidadeGestoraCreateNestedOneWithoutFiscalContratosInput
-    empresa: EmpresaCreateNestedOneWithoutContratosInput
+    gestor: ServidorCreateNestedOneWithoutGestorContratosInput
+    fiscal: ServidorCreateNestedOneWithoutFiscalContratosInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
     aditivos?: AditivoCreateNestedManyWithoutContratoInput
   }
 
@@ -17544,7 +19564,7 @@ export namespace Prisma {
     unidadeFspId: string
     gestorId: string
     fiscalId: string
-    empresaId: string
+    fornecedorId: string
     modalidade: string
     objeto: string
     valorAnualCents: number
@@ -17570,9 +19590,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
-    gestor?: EntidadeGestoraUpdateOneRequiredWithoutGestorContratosNestedInput
-    fiscal?: EntidadeGestoraUpdateOneRequiredWithoutFiscalContratosNestedInput
-    empresa?: EmpresaUpdateOneRequiredWithoutContratosNestedInput
+    gestor?: ServidorUpdateOneRequiredWithoutGestorContratosNestedInput
+    fiscal?: ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
     aditivos?: AditivoUpdateManyWithoutContratoNestedInput
   }
 
@@ -17584,7 +19604,7 @@ export namespace Prisma {
     unidadeFspId?: StringFieldUpdateOperationsInput | string
     gestorId?: StringFieldUpdateOperationsInput | string
     fiscalId?: StringFieldUpdateOperationsInput | string
-    empresaId?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
     modalidade?: StringFieldUpdateOperationsInput | string
     objeto?: StringFieldUpdateOperationsInput | string
     valorAnualCents?: IntFieldUpdateOperationsInput | number
@@ -17604,7 +19624,7 @@ export namespace Prisma {
     unidadeFspId: string
     gestorId: string
     fiscalId: string
-    empresaId: string
+    fornecedorId: string
     modalidade: string
     objeto: string
     valorAnualCents: number
@@ -17638,7 +19658,7 @@ export namespace Prisma {
     unidadeFspId?: StringFieldUpdateOperationsInput | string
     gestorId?: StringFieldUpdateOperationsInput | string
     fiscalId?: StringFieldUpdateOperationsInput | string
-    empresaId?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
     modalidade?: StringFieldUpdateOperationsInput | string
     objeto?: StringFieldUpdateOperationsInput | string
     valorAnualCents?: IntFieldUpdateOperationsInput | number
@@ -17961,24 +19981,6 @@ export namespace Prisma {
     _max?: NestedStringFilter
   }
 
-  export type EntidadeGestoraCountOrderByAggregateInput = {
-    id?: SortOrder
-    nome?: SortOrder
-    cpf?: SortOrder
-  }
-
-  export type EntidadeGestoraMaxOrderByAggregateInput = {
-    id?: SortOrder
-    nome?: SortOrder
-    cpf?: SortOrder
-  }
-
-  export type EntidadeGestoraMinOrderByAggregateInput = {
-    id?: SortOrder
-    nome?: SortOrder
-    cpf?: SortOrder
-  }
-
   export type StringNullableFilter = {
     equals?: string | null
     in?: Enumerable<string> | string | null
@@ -18000,12 +20002,22 @@ export namespace Prisma {
     none?: UnidadeOrganizacionalWhereInput
   }
 
+  export type FornecedorListRelationFilter = {
+    every?: FornecedorWhereInput
+    some?: FornecedorWhereInput
+    none?: FornecedorWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
   }
 
   export type UnidadeOrganizacionalOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type FornecedorOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -18276,6 +20288,16 @@ export namespace Prisma {
     not?: NestedEnumTipoOrgaoFilter | TipoOrgao
   }
 
+  export type ServidorListRelationFilter = {
+    every?: ServidorWhereInput
+    some?: ServidorWhereInput
+    none?: ServidorWhereInput
+  }
+
+  export type ServidorOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type OrgaoCountOrderByAggregateInput = {
     id?: SortOrder
     sigla?: SortOrder
@@ -18392,43 +20414,165 @@ export namespace Prisma {
     _max?: NestedEnumNivelUnidadeFilter
   }
 
-  export type EmpresaCountOrderByAggregateInput = {
-    id?: SortOrder
-    cnpj?: SortOrder
-    razaoSocial?: SortOrder
+  export type EnumTipoPessoaFilter = {
+    equals?: TipoPessoa
+    in?: Enumerable<TipoPessoa>
+    notIn?: Enumerable<TipoPessoa>
+    not?: NestedEnumTipoPessoaFilter | TipoPessoa
   }
 
-  export type EmpresaMaxOrderByAggregateInput = {
-    id?: SortOrder
-    cnpj?: SortOrder
-    razaoSocial?: SortOrder
+  export type EnumPorteEmpresaNullableFilter = {
+    equals?: PorteEmpresa | null
+    in?: Enumerable<PorteEmpresa> | null
+    notIn?: Enumerable<PorteEmpresa> | null
+    not?: NestedEnumPorteEmpresaNullableFilter | PorteEmpresa | null
   }
 
-  export type EmpresaMinOrderByAggregateInput = {
-    id?: SortOrder
-    cnpj?: SortOrder
-    razaoSocial?: SortOrder
+  export type EnumSituacaoFornecedorFilter = {
+    equals?: SituacaoFornecedor
+    in?: Enumerable<SituacaoFornecedor>
+    notIn?: Enumerable<SituacaoFornecedor>
+    not?: NestedEnumSituacaoFornecedorFilter | SituacaoFornecedor
+  }
+
+  export type FornecedorContatoListRelationFilter = {
+    every?: FornecedorContatoWhereInput
+    some?: FornecedorContatoWhereInput
+    none?: FornecedorContatoWhereInput
+  }
+
+  export type FornecedorSancaoListRelationFilter = {
+    every?: FornecedorSancaoWhereInput
+    some?: FornecedorSancaoWhereInput
+    none?: FornecedorSancaoWhereInput
+  }
+
+  export type FornecedorContatoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type FornecedorSancaoOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type FornecedorCountOrderByAggregateInput = {
     id?: SortOrder
-    cnpj?: SortOrder
-    nome?: SortOrder
+    tipoPessoa?: SortOrder
+    documento?: SortOrder
+    razaoSocial?: SortOrder
+    nomeFantasia?: SortOrder
+    inscricaoEstadual?: SortOrder
+    porte?: SortOrder
+    municipioId?: SortOrder
+    situacao?: SortOrder
+    codigoLegado?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type FornecedorMaxOrderByAggregateInput = {
     id?: SortOrder
-    cnpj?: SortOrder
-    nome?: SortOrder
+    tipoPessoa?: SortOrder
+    documento?: SortOrder
+    razaoSocial?: SortOrder
+    nomeFantasia?: SortOrder
+    inscricaoEstadual?: SortOrder
+    porte?: SortOrder
+    municipioId?: SortOrder
+    situacao?: SortOrder
+    codigoLegado?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type FornecedorMinOrderByAggregateInput = {
     id?: SortOrder
-    cnpj?: SortOrder
-    nome?: SortOrder
+    tipoPessoa?: SortOrder
+    documento?: SortOrder
+    razaoSocial?: SortOrder
+    nomeFantasia?: SortOrder
+    inscricaoEstadual?: SortOrder
+    porte?: SortOrder
+    municipioId?: SortOrder
+    situacao?: SortOrder
+    codigoLegado?: SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumTipoPessoaWithAggregatesFilter = {
+    equals?: TipoPessoa
+    in?: Enumerable<TipoPessoa>
+    notIn?: Enumerable<TipoPessoa>
+    not?: NestedEnumTipoPessoaWithAggregatesFilter | TipoPessoa
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoPessoaFilter
+    _max?: NestedEnumTipoPessoaFilter
+  }
+
+  export type EnumPorteEmpresaNullableWithAggregatesFilter = {
+    equals?: PorteEmpresa | null
+    in?: Enumerable<PorteEmpresa> | null
+    notIn?: Enumerable<PorteEmpresa> | null
+    not?: NestedEnumPorteEmpresaNullableWithAggregatesFilter | PorteEmpresa | null
+    _count?: NestedIntNullableFilter
+    _min?: NestedEnumPorteEmpresaNullableFilter
+    _max?: NestedEnumPorteEmpresaNullableFilter
+  }
+
+  export type EnumSituacaoFornecedorWithAggregatesFilter = {
+    equals?: SituacaoFornecedor
+    in?: Enumerable<SituacaoFornecedor>
+    notIn?: Enumerable<SituacaoFornecedor>
+    not?: NestedEnumSituacaoFornecedorWithAggregatesFilter | SituacaoFornecedor
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoFornecedorFilter
+    _max?: NestedEnumSituacaoFornecedorFilter
+  }
+
+  export type FornecedorRelationFilter = {
+    is?: FornecedorWhereInput | null
+    isNot?: FornecedorWhereInput | null
+  }
+
+  export type FornecedorContatoCountOrderByAggregateInput = {
+    id?: SortOrder
+    fornecedorId?: SortOrder
+    nome?: SortOrder
+    cargo?: SortOrder
+    email?: SortOrder
+    telefone?: SortOrder
+    principal?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FornecedorContatoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    fornecedorId?: SortOrder
+    nome?: SortOrder
+    cargo?: SortOrder
+    email?: SortOrder
+    telefone?: SortOrder
+    principal?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FornecedorContatoMinOrderByAggregateInput = {
+    id?: SortOrder
+    fornecedorId?: SortOrder
+    nome?: SortOrder
+    cargo?: SortOrder
+    email?: SortOrder
+    telefone?: SortOrder
+    principal?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumTipoSancaoFilter = {
+    equals?: TipoSancao
+    in?: Enumerable<TipoSancao>
+    notIn?: Enumerable<TipoSancao>
+    not?: NestedEnumTipoSancaoFilter | TipoSancao
   }
 
   export type DateTimeNullableFilter = {
@@ -18442,19 +20586,119 @@ export namespace Prisma {
     not?: NestedDateTimeNullableFilter | Date | string | null
   }
 
+  export type FornecedorSancaoCountOrderByAggregateInput = {
+    id?: SortOrder
+    fornecedorId?: SortOrder
+    tipo?: SortOrder
+    processo?: SortOrder
+    dataInicio?: SortOrder
+    dataFim?: SortOrder
+    abrangencia?: SortOrder
+    fonte?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FornecedorSancaoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    fornecedorId?: SortOrder
+    tipo?: SortOrder
+    processo?: SortOrder
+    dataInicio?: SortOrder
+    dataFim?: SortOrder
+    abrangencia?: SortOrder
+    fonte?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FornecedorSancaoMinOrderByAggregateInput = {
+    id?: SortOrder
+    fornecedorId?: SortOrder
+    tipo?: SortOrder
+    processo?: SortOrder
+    dataInicio?: SortOrder
+    dataFim?: SortOrder
+    abrangencia?: SortOrder
+    fonte?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumTipoSancaoWithAggregatesFilter = {
+    equals?: TipoSancao
+    in?: Enumerable<TipoSancao>
+    notIn?: Enumerable<TipoSancao>
+    not?: NestedEnumTipoSancaoWithAggregatesFilter | TipoSancao
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoSancaoFilter
+    _max?: NestedEnumTipoSancaoFilter
+  }
+
+  export type DateTimeNullableWithAggregatesFilter = {
+    equals?: Date | string | null
+    in?: Enumerable<Date> | Enumerable<string> | Date | string | null
+    notIn?: Enumerable<Date> | Enumerable<string> | Date | string | null
+    lt?: Date | string
+    lte?: Date | string
+    gt?: Date | string
+    gte?: Date | string
+    not?: NestedDateTimeNullableWithAggregatesFilter | Date | string | null
+    _count?: NestedIntNullableFilter
+    _min?: NestedDateTimeNullableFilter
+    _max?: NestedDateTimeNullableFilter
+  }
+
+  export type ServidorCountOrderByAggregateInput = {
+    id?: SortOrder
+    nome?: SortOrder
+    cpf?: SortOrder
+    rgFuncional?: SortOrder
+    cargo?: SortOrder
+    orgaoId?: SortOrder
+    unidadeId?: SortOrder
+    email?: SortOrder
+    telefone?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ServidorMaxOrderByAggregateInput = {
+    id?: SortOrder
+    nome?: SortOrder
+    cpf?: SortOrder
+    rgFuncional?: SortOrder
+    cargo?: SortOrder
+    orgaoId?: SortOrder
+    unidadeId?: SortOrder
+    email?: SortOrder
+    telefone?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ServidorMinOrderByAggregateInput = {
+    id?: SortOrder
+    nome?: SortOrder
+    cpf?: SortOrder
+    rgFuncional?: SortOrder
+    cargo?: SortOrder
+    orgaoId?: SortOrder
+    unidadeId?: SortOrder
+    email?: SortOrder
+    telefone?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
   export type UnidadeFspRelationFilter = {
     is?: UnidadeFspWhereInput | null
     isNot?: UnidadeFspWhereInput | null
   }
 
-  export type EntidadeGestoraRelationFilter = {
-    is?: EntidadeGestoraWhereInput | null
-    isNot?: EntidadeGestoraWhereInput | null
-  }
-
-  export type EmpresaRelationFilter = {
-    is?: EmpresaWhereInput | null
-    isNot?: EmpresaWhereInput | null
+  export type ServidorRelationFilter = {
+    is?: ServidorWhereInput | null
+    isNot?: ServidorWhereInput | null
   }
 
   export type AditivoListRelationFilter = {
@@ -18480,7 +20724,7 @@ export namespace Prisma {
     unidadeFspId?: SortOrder
     gestorId?: SortOrder
     fiscalId?: SortOrder
-    empresaId?: SortOrder
+    fornecedorId?: SortOrder
     modalidade?: SortOrder
     objeto?: SortOrder
     valorAnualCents?: SortOrder
@@ -18505,7 +20749,7 @@ export namespace Prisma {
     unidadeFspId?: SortOrder
     gestorId?: SortOrder
     fiscalId?: SortOrder
-    empresaId?: SortOrder
+    fornecedorId?: SortOrder
     modalidade?: SortOrder
     objeto?: SortOrder
     valorAnualCents?: SortOrder
@@ -18524,7 +20768,7 @@ export namespace Prisma {
     unidadeFspId?: SortOrder
     gestorId?: SortOrder
     fiscalId?: SortOrder
-    empresaId?: SortOrder
+    fornecedorId?: SortOrder
     modalidade?: SortOrder
     objeto?: SortOrder
     valorAnualCents?: SortOrder
@@ -18539,20 +20783,6 @@ export namespace Prisma {
     numGms?: SortOrder
     anoGms?: SortOrder
     valorAnualCents?: SortOrder
-  }
-
-  export type DateTimeNullableWithAggregatesFilter = {
-    equals?: Date | string | null
-    in?: Enumerable<Date> | Enumerable<string> | Date | string | null
-    notIn?: Enumerable<Date> | Enumerable<string> | Date | string | null
-    lt?: Date | string
-    lte?: Date | string
-    gt?: Date | string
-    gte?: Date | string
-    not?: NestedDateTimeNullableWithAggregatesFilter | Date | string | null
-    _count?: NestedIntNullableFilter
-    _min?: NestedDateTimeNullableFilter
-    _max?: NestedDateTimeNullableFilter
   }
 
   export type IntNullableFilter = {
@@ -18796,90 +21026,6 @@ export namespace Prisma {
     deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
-  export type ContratoCreateNestedManyWithoutGestorInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
-    createMany?: ContratoCreateManyGestorInputEnvelope
-    connect?: Enumerable<ContratoWhereUniqueInput>
-  }
-
-  export type ContratoCreateNestedManyWithoutFiscalInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
-    createMany?: ContratoCreateManyFiscalInputEnvelope
-    connect?: Enumerable<ContratoWhereUniqueInput>
-  }
-
-  export type ContratoUncheckedCreateNestedManyWithoutGestorInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
-    createMany?: ContratoCreateManyGestorInputEnvelope
-    connect?: Enumerable<ContratoWhereUniqueInput>
-  }
-
-  export type ContratoUncheckedCreateNestedManyWithoutFiscalInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
-    createMany?: ContratoCreateManyFiscalInputEnvelope
-    connect?: Enumerable<ContratoWhereUniqueInput>
-  }
-
-  export type ContratoUpdateManyWithoutGestorNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutGestorInput>
-    createMany?: ContratoCreateManyGestorInputEnvelope
-    set?: Enumerable<ContratoWhereUniqueInput>
-    disconnect?: Enumerable<ContratoWhereUniqueInput>
-    delete?: Enumerable<ContratoWhereUniqueInput>
-    connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutGestorInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutGestorInput>
-    deleteMany?: Enumerable<ContratoScalarWhereInput>
-  }
-
-  export type ContratoUpdateManyWithoutFiscalNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutFiscalInput>
-    createMany?: ContratoCreateManyFiscalInputEnvelope
-    set?: Enumerable<ContratoWhereUniqueInput>
-    disconnect?: Enumerable<ContratoWhereUniqueInput>
-    delete?: Enumerable<ContratoWhereUniqueInput>
-    connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutFiscalInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutFiscalInput>
-    deleteMany?: Enumerable<ContratoScalarWhereInput>
-  }
-
-  export type ContratoUncheckedUpdateManyWithoutGestorNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutGestorInput>
-    createMany?: ContratoCreateManyGestorInputEnvelope
-    set?: Enumerable<ContratoWhereUniqueInput>
-    disconnect?: Enumerable<ContratoWhereUniqueInput>
-    delete?: Enumerable<ContratoWhereUniqueInput>
-    connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutGestorInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutGestorInput>
-    deleteMany?: Enumerable<ContratoScalarWhereInput>
-  }
-
-  export type ContratoUncheckedUpdateManyWithoutFiscalNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutFiscalInput>
-    createMany?: ContratoCreateManyFiscalInputEnvelope
-    set?: Enumerable<ContratoWhereUniqueInput>
-    disconnect?: Enumerable<ContratoWhereUniqueInput>
-    delete?: Enumerable<ContratoWhereUniqueInput>
-    connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutFiscalInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutFiscalInput>
-    deleteMany?: Enumerable<ContratoScalarWhereInput>
-  }
-
   export type UnidadeOrganizacionalCreateNestedManyWithoutMunicipioInput = {
     create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutMunicipioInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput>>
     connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutMunicipioInput>
@@ -18887,11 +21033,25 @@ export namespace Prisma {
     connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
   }
 
+  export type FornecedorCreateNestedManyWithoutMunicipioInput = {
+    create?: XOR<Enumerable<FornecedorCreateWithoutMunicipioInput>, Enumerable<FornecedorUncheckedCreateWithoutMunicipioInput>>
+    connectOrCreate?: Enumerable<FornecedorCreateOrConnectWithoutMunicipioInput>
+    createMany?: FornecedorCreateManyMunicipioInputEnvelope
+    connect?: Enumerable<FornecedorWhereUniqueInput>
+  }
+
   export type UnidadeOrganizacionalUncheckedCreateNestedManyWithoutMunicipioInput = {
     create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutMunicipioInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput>>
     connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutMunicipioInput>
     createMany?: UnidadeOrganizacionalCreateManyMunicipioInputEnvelope
     connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+  }
+
+  export type FornecedorUncheckedCreateNestedManyWithoutMunicipioInput = {
+    create?: XOR<Enumerable<FornecedorCreateWithoutMunicipioInput>, Enumerable<FornecedorUncheckedCreateWithoutMunicipioInput>>
+    connectOrCreate?: Enumerable<FornecedorCreateOrConnectWithoutMunicipioInput>
+    createMany?: FornecedorCreateManyMunicipioInputEnvelope
+    connect?: Enumerable<FornecedorWhereUniqueInput>
   }
 
   export type NullableStringFieldUpdateOperationsInput = {
@@ -18912,6 +21072,20 @@ export namespace Prisma {
     deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
   }
 
+  export type FornecedorUpdateManyWithoutMunicipioNestedInput = {
+    create?: XOR<Enumerable<FornecedorCreateWithoutMunicipioInput>, Enumerable<FornecedorUncheckedCreateWithoutMunicipioInput>>
+    connectOrCreate?: Enumerable<FornecedorCreateOrConnectWithoutMunicipioInput>
+    upsert?: Enumerable<FornecedorUpsertWithWhereUniqueWithoutMunicipioInput>
+    createMany?: FornecedorCreateManyMunicipioInputEnvelope
+    set?: Enumerable<FornecedorWhereUniqueInput>
+    disconnect?: Enumerable<FornecedorWhereUniqueInput>
+    delete?: Enumerable<FornecedorWhereUniqueInput>
+    connect?: Enumerable<FornecedorWhereUniqueInput>
+    update?: Enumerable<FornecedorUpdateWithWhereUniqueWithoutMunicipioInput>
+    updateMany?: Enumerable<FornecedorUpdateManyWithWhereWithoutMunicipioInput>
+    deleteMany?: Enumerable<FornecedorScalarWhereInput>
+  }
+
   export type UnidadeOrganizacionalUncheckedUpdateManyWithoutMunicipioNestedInput = {
     create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutMunicipioInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput>>
     connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutMunicipioInput>
@@ -18924,6 +21098,20 @@ export namespace Prisma {
     update?: Enumerable<UnidadeOrganizacionalUpdateWithWhereUniqueWithoutMunicipioInput>
     updateMany?: Enumerable<UnidadeOrganizacionalUpdateManyWithWhereWithoutMunicipioInput>
     deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+  }
+
+  export type FornecedorUncheckedUpdateManyWithoutMunicipioNestedInput = {
+    create?: XOR<Enumerable<FornecedorCreateWithoutMunicipioInput>, Enumerable<FornecedorUncheckedCreateWithoutMunicipioInput>>
+    connectOrCreate?: Enumerable<FornecedorCreateOrConnectWithoutMunicipioInput>
+    upsert?: Enumerable<FornecedorUpsertWithWhereUniqueWithoutMunicipioInput>
+    createMany?: FornecedorCreateManyMunicipioInputEnvelope
+    set?: Enumerable<FornecedorWhereUniqueInput>
+    disconnect?: Enumerable<FornecedorWhereUniqueInput>
+    delete?: Enumerable<FornecedorWhereUniqueInput>
+    connect?: Enumerable<FornecedorWhereUniqueInput>
+    update?: Enumerable<FornecedorUpdateWithWhereUniqueWithoutMunicipioInput>
+    updateMany?: Enumerable<FornecedorUpdateManyWithWhereWithoutMunicipioInput>
+    deleteMany?: Enumerable<FornecedorScalarWhereInput>
   }
 
   export type DominioValorCreateNestedManyWithoutDominioInput = {
@@ -19063,11 +21251,25 @@ export namespace Prisma {
     connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
   }
 
+  export type ServidorCreateNestedManyWithoutOrgaoInput = {
+    create?: XOR<Enumerable<ServidorCreateWithoutOrgaoInput>, Enumerable<ServidorUncheckedCreateWithoutOrgaoInput>>
+    connectOrCreate?: Enumerable<ServidorCreateOrConnectWithoutOrgaoInput>
+    createMany?: ServidorCreateManyOrgaoInputEnvelope
+    connect?: Enumerable<ServidorWhereUniqueInput>
+  }
+
   export type UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput = {
     create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutOrgaoInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput>>
     connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutOrgaoInput>
     createMany?: UnidadeOrganizacionalCreateManyOrgaoInputEnvelope
     connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+  }
+
+  export type ServidorUncheckedCreateNestedManyWithoutOrgaoInput = {
+    create?: XOR<Enumerable<ServidorCreateWithoutOrgaoInput>, Enumerable<ServidorUncheckedCreateWithoutOrgaoInput>>
+    connectOrCreate?: Enumerable<ServidorCreateOrConnectWithoutOrgaoInput>
+    createMany?: ServidorCreateManyOrgaoInputEnvelope
+    connect?: Enumerable<ServidorWhereUniqueInput>
   }
 
   export type EnumTipoOrgaoFieldUpdateOperationsInput = {
@@ -19088,6 +21290,20 @@ export namespace Prisma {
     deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
   }
 
+  export type ServidorUpdateManyWithoutOrgaoNestedInput = {
+    create?: XOR<Enumerable<ServidorCreateWithoutOrgaoInput>, Enumerable<ServidorUncheckedCreateWithoutOrgaoInput>>
+    connectOrCreate?: Enumerable<ServidorCreateOrConnectWithoutOrgaoInput>
+    upsert?: Enumerable<ServidorUpsertWithWhereUniqueWithoutOrgaoInput>
+    createMany?: ServidorCreateManyOrgaoInputEnvelope
+    set?: Enumerable<ServidorWhereUniqueInput>
+    disconnect?: Enumerable<ServidorWhereUniqueInput>
+    delete?: Enumerable<ServidorWhereUniqueInput>
+    connect?: Enumerable<ServidorWhereUniqueInput>
+    update?: Enumerable<ServidorUpdateWithWhereUniqueWithoutOrgaoInput>
+    updateMany?: Enumerable<ServidorUpdateManyWithWhereWithoutOrgaoInput>
+    deleteMany?: Enumerable<ServidorScalarWhereInput>
+  }
+
   export type UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput = {
     create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutOrgaoInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput>>
     connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutOrgaoInput>
@@ -19100,6 +21316,20 @@ export namespace Prisma {
     update?: Enumerable<UnidadeOrganizacionalUpdateWithWhereUniqueWithoutOrgaoInput>
     updateMany?: Enumerable<UnidadeOrganizacionalUpdateManyWithWhereWithoutOrgaoInput>
     deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+  }
+
+  export type ServidorUncheckedUpdateManyWithoutOrgaoNestedInput = {
+    create?: XOR<Enumerable<ServidorCreateWithoutOrgaoInput>, Enumerable<ServidorUncheckedCreateWithoutOrgaoInput>>
+    connectOrCreate?: Enumerable<ServidorCreateOrConnectWithoutOrgaoInput>
+    upsert?: Enumerable<ServidorUpsertWithWhereUniqueWithoutOrgaoInput>
+    createMany?: ServidorCreateManyOrgaoInputEnvelope
+    set?: Enumerable<ServidorWhereUniqueInput>
+    disconnect?: Enumerable<ServidorWhereUniqueInput>
+    delete?: Enumerable<ServidorWhereUniqueInput>
+    connect?: Enumerable<ServidorWhereUniqueInput>
+    update?: Enumerable<ServidorUpdateWithWhereUniqueWithoutOrgaoInput>
+    updateMany?: Enumerable<ServidorUpdateManyWithWhereWithoutOrgaoInput>
+    deleteMany?: Enumerable<ServidorScalarWhereInput>
   }
 
   export type OrgaoCreateNestedOneWithoutUnidadesInput = {
@@ -19127,11 +21357,25 @@ export namespace Prisma {
     connect?: MunicipioWhereUniqueInput
   }
 
+  export type ServidorCreateNestedManyWithoutUnidadeInput = {
+    create?: XOR<Enumerable<ServidorCreateWithoutUnidadeInput>, Enumerable<ServidorUncheckedCreateWithoutUnidadeInput>>
+    connectOrCreate?: Enumerable<ServidorCreateOrConnectWithoutUnidadeInput>
+    createMany?: ServidorCreateManyUnidadeInputEnvelope
+    connect?: Enumerable<ServidorWhereUniqueInput>
+  }
+
   export type UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput = {
     create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutParentInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutParentInput>>
     connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutParentInput>
     createMany?: UnidadeOrganizacionalCreateManyParentInputEnvelope
     connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+  }
+
+  export type ServidorUncheckedCreateNestedManyWithoutUnidadeInput = {
+    create?: XOR<Enumerable<ServidorCreateWithoutUnidadeInput>, Enumerable<ServidorUncheckedCreateWithoutUnidadeInput>>
+    connectOrCreate?: Enumerable<ServidorCreateOrConnectWithoutUnidadeInput>
+    createMany?: ServidorCreateManyUnidadeInputEnvelope
+    connect?: Enumerable<ServidorWhereUniqueInput>
   }
 
   export type EnumNivelUnidadeFieldUpdateOperationsInput = {
@@ -19178,6 +21422,20 @@ export namespace Prisma {
     update?: XOR<MunicipioUpdateWithoutUnidadesInput, MunicipioUncheckedUpdateWithoutUnidadesInput>
   }
 
+  export type ServidorUpdateManyWithoutUnidadeNestedInput = {
+    create?: XOR<Enumerable<ServidorCreateWithoutUnidadeInput>, Enumerable<ServidorUncheckedCreateWithoutUnidadeInput>>
+    connectOrCreate?: Enumerable<ServidorCreateOrConnectWithoutUnidadeInput>
+    upsert?: Enumerable<ServidorUpsertWithWhereUniqueWithoutUnidadeInput>
+    createMany?: ServidorCreateManyUnidadeInputEnvelope
+    set?: Enumerable<ServidorWhereUniqueInput>
+    disconnect?: Enumerable<ServidorWhereUniqueInput>
+    delete?: Enumerable<ServidorWhereUniqueInput>
+    connect?: Enumerable<ServidorWhereUniqueInput>
+    update?: Enumerable<ServidorUpdateWithWhereUniqueWithoutUnidadeInput>
+    updateMany?: Enumerable<ServidorUpdateManyWithWhereWithoutUnidadeInput>
+    deleteMany?: Enumerable<ServidorScalarWhereInput>
+  }
+
   export type UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput = {
     create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutParentInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutParentInput>>
     connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutParentInput>
@@ -19192,45 +21450,323 @@ export namespace Prisma {
     deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
   }
 
-  export type ContratoCreateNestedManyWithoutEmpresaInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutEmpresaInput>, Enumerable<ContratoUncheckedCreateWithoutEmpresaInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutEmpresaInput>
-    createMany?: ContratoCreateManyEmpresaInputEnvelope
+  export type ServidorUncheckedUpdateManyWithoutUnidadeNestedInput = {
+    create?: XOR<Enumerable<ServidorCreateWithoutUnidadeInput>, Enumerable<ServidorUncheckedCreateWithoutUnidadeInput>>
+    connectOrCreate?: Enumerable<ServidorCreateOrConnectWithoutUnidadeInput>
+    upsert?: Enumerable<ServidorUpsertWithWhereUniqueWithoutUnidadeInput>
+    createMany?: ServidorCreateManyUnidadeInputEnvelope
+    set?: Enumerable<ServidorWhereUniqueInput>
+    disconnect?: Enumerable<ServidorWhereUniqueInput>
+    delete?: Enumerable<ServidorWhereUniqueInput>
+    connect?: Enumerable<ServidorWhereUniqueInput>
+    update?: Enumerable<ServidorUpdateWithWhereUniqueWithoutUnidadeInput>
+    updateMany?: Enumerable<ServidorUpdateManyWithWhereWithoutUnidadeInput>
+    deleteMany?: Enumerable<ServidorScalarWhereInput>
+  }
+
+  export type MunicipioCreateNestedOneWithoutFornecedoresInput = {
+    create?: XOR<MunicipioCreateWithoutFornecedoresInput, MunicipioUncheckedCreateWithoutFornecedoresInput>
+    connectOrCreate?: MunicipioCreateOrConnectWithoutFornecedoresInput
+    connect?: MunicipioWhereUniqueInput
+  }
+
+  export type FornecedorContatoCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<Enumerable<FornecedorContatoCreateWithoutFornecedorInput>, Enumerable<FornecedorContatoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<FornecedorContatoCreateOrConnectWithoutFornecedorInput>
+    createMany?: FornecedorContatoCreateManyFornecedorInputEnvelope
+    connect?: Enumerable<FornecedorContatoWhereUniqueInput>
+  }
+
+  export type FornecedorSancaoCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<Enumerable<FornecedorSancaoCreateWithoutFornecedorInput>, Enumerable<FornecedorSancaoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<FornecedorSancaoCreateOrConnectWithoutFornecedorInput>
+    createMany?: FornecedorSancaoCreateManyFornecedorInputEnvelope
+    connect?: Enumerable<FornecedorSancaoWhereUniqueInput>
+  }
+
+  export type ContratoCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFornecedorInput>, Enumerable<ContratoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFornecedorInput>
+    createMany?: ContratoCreateManyFornecedorInputEnvelope
     connect?: Enumerable<ContratoWhereUniqueInput>
   }
 
-  export type ContratoUncheckedCreateNestedManyWithoutEmpresaInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutEmpresaInput>, Enumerable<ContratoUncheckedCreateWithoutEmpresaInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutEmpresaInput>
-    createMany?: ContratoCreateManyEmpresaInputEnvelope
+  export type FornecedorContatoUncheckedCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<Enumerable<FornecedorContatoCreateWithoutFornecedorInput>, Enumerable<FornecedorContatoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<FornecedorContatoCreateOrConnectWithoutFornecedorInput>
+    createMany?: FornecedorContatoCreateManyFornecedorInputEnvelope
+    connect?: Enumerable<FornecedorContatoWhereUniqueInput>
+  }
+
+  export type FornecedorSancaoUncheckedCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<Enumerable<FornecedorSancaoCreateWithoutFornecedorInput>, Enumerable<FornecedorSancaoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<FornecedorSancaoCreateOrConnectWithoutFornecedorInput>
+    createMany?: FornecedorSancaoCreateManyFornecedorInputEnvelope
+    connect?: Enumerable<FornecedorSancaoWhereUniqueInput>
+  }
+
+  export type ContratoUncheckedCreateNestedManyWithoutFornecedorInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFornecedorInput>, Enumerable<ContratoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFornecedorInput>
+    createMany?: ContratoCreateManyFornecedorInputEnvelope
     connect?: Enumerable<ContratoWhereUniqueInput>
   }
 
-  export type ContratoUpdateManyWithoutEmpresaNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutEmpresaInput>, Enumerable<ContratoUncheckedCreateWithoutEmpresaInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutEmpresaInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutEmpresaInput>
-    createMany?: ContratoCreateManyEmpresaInputEnvelope
+  export type EnumTipoPessoaFieldUpdateOperationsInput = {
+    set?: TipoPessoa
+  }
+
+  export type NullableEnumPorteEmpresaFieldUpdateOperationsInput = {
+    set?: PorteEmpresa | null
+  }
+
+  export type EnumSituacaoFornecedorFieldUpdateOperationsInput = {
+    set?: SituacaoFornecedor
+  }
+
+  export type MunicipioUpdateOneWithoutFornecedoresNestedInput = {
+    create?: XOR<MunicipioCreateWithoutFornecedoresInput, MunicipioUncheckedCreateWithoutFornecedoresInput>
+    connectOrCreate?: MunicipioCreateOrConnectWithoutFornecedoresInput
+    upsert?: MunicipioUpsertWithoutFornecedoresInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: MunicipioWhereUniqueInput
+    update?: XOR<MunicipioUpdateWithoutFornecedoresInput, MunicipioUncheckedUpdateWithoutFornecedoresInput>
+  }
+
+  export type FornecedorContatoUpdateManyWithoutFornecedorNestedInput = {
+    create?: XOR<Enumerable<FornecedorContatoCreateWithoutFornecedorInput>, Enumerable<FornecedorContatoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<FornecedorContatoCreateOrConnectWithoutFornecedorInput>
+    upsert?: Enumerable<FornecedorContatoUpsertWithWhereUniqueWithoutFornecedorInput>
+    createMany?: FornecedorContatoCreateManyFornecedorInputEnvelope
+    set?: Enumerable<FornecedorContatoWhereUniqueInput>
+    disconnect?: Enumerable<FornecedorContatoWhereUniqueInput>
+    delete?: Enumerable<FornecedorContatoWhereUniqueInput>
+    connect?: Enumerable<FornecedorContatoWhereUniqueInput>
+    update?: Enumerable<FornecedorContatoUpdateWithWhereUniqueWithoutFornecedorInput>
+    updateMany?: Enumerable<FornecedorContatoUpdateManyWithWhereWithoutFornecedorInput>
+    deleteMany?: Enumerable<FornecedorContatoScalarWhereInput>
+  }
+
+  export type FornecedorSancaoUpdateManyWithoutFornecedorNestedInput = {
+    create?: XOR<Enumerable<FornecedorSancaoCreateWithoutFornecedorInput>, Enumerable<FornecedorSancaoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<FornecedorSancaoCreateOrConnectWithoutFornecedorInput>
+    upsert?: Enumerable<FornecedorSancaoUpsertWithWhereUniqueWithoutFornecedorInput>
+    createMany?: FornecedorSancaoCreateManyFornecedorInputEnvelope
+    set?: Enumerable<FornecedorSancaoWhereUniqueInput>
+    disconnect?: Enumerable<FornecedorSancaoWhereUniqueInput>
+    delete?: Enumerable<FornecedorSancaoWhereUniqueInput>
+    connect?: Enumerable<FornecedorSancaoWhereUniqueInput>
+    update?: Enumerable<FornecedorSancaoUpdateWithWhereUniqueWithoutFornecedorInput>
+    updateMany?: Enumerable<FornecedorSancaoUpdateManyWithWhereWithoutFornecedorInput>
+    deleteMany?: Enumerable<FornecedorSancaoScalarWhereInput>
+  }
+
+  export type ContratoUpdateManyWithoutFornecedorNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFornecedorInput>, Enumerable<ContratoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFornecedorInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutFornecedorInput>
+    createMany?: ContratoCreateManyFornecedorInputEnvelope
     set?: Enumerable<ContratoWhereUniqueInput>
     disconnect?: Enumerable<ContratoWhereUniqueInput>
     delete?: Enumerable<ContratoWhereUniqueInput>
     connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutEmpresaInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutEmpresaInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutFornecedorInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutFornecedorInput>
     deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
-  export type ContratoUncheckedUpdateManyWithoutEmpresaNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutEmpresaInput>, Enumerable<ContratoUncheckedCreateWithoutEmpresaInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutEmpresaInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutEmpresaInput>
-    createMany?: ContratoCreateManyEmpresaInputEnvelope
+  export type FornecedorContatoUncheckedUpdateManyWithoutFornecedorNestedInput = {
+    create?: XOR<Enumerable<FornecedorContatoCreateWithoutFornecedorInput>, Enumerable<FornecedorContatoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<FornecedorContatoCreateOrConnectWithoutFornecedorInput>
+    upsert?: Enumerable<FornecedorContatoUpsertWithWhereUniqueWithoutFornecedorInput>
+    createMany?: FornecedorContatoCreateManyFornecedorInputEnvelope
+    set?: Enumerable<FornecedorContatoWhereUniqueInput>
+    disconnect?: Enumerable<FornecedorContatoWhereUniqueInput>
+    delete?: Enumerable<FornecedorContatoWhereUniqueInput>
+    connect?: Enumerable<FornecedorContatoWhereUniqueInput>
+    update?: Enumerable<FornecedorContatoUpdateWithWhereUniqueWithoutFornecedorInput>
+    updateMany?: Enumerable<FornecedorContatoUpdateManyWithWhereWithoutFornecedorInput>
+    deleteMany?: Enumerable<FornecedorContatoScalarWhereInput>
+  }
+
+  export type FornecedorSancaoUncheckedUpdateManyWithoutFornecedorNestedInput = {
+    create?: XOR<Enumerable<FornecedorSancaoCreateWithoutFornecedorInput>, Enumerable<FornecedorSancaoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<FornecedorSancaoCreateOrConnectWithoutFornecedorInput>
+    upsert?: Enumerable<FornecedorSancaoUpsertWithWhereUniqueWithoutFornecedorInput>
+    createMany?: FornecedorSancaoCreateManyFornecedorInputEnvelope
+    set?: Enumerable<FornecedorSancaoWhereUniqueInput>
+    disconnect?: Enumerable<FornecedorSancaoWhereUniqueInput>
+    delete?: Enumerable<FornecedorSancaoWhereUniqueInput>
+    connect?: Enumerable<FornecedorSancaoWhereUniqueInput>
+    update?: Enumerable<FornecedorSancaoUpdateWithWhereUniqueWithoutFornecedorInput>
+    updateMany?: Enumerable<FornecedorSancaoUpdateManyWithWhereWithoutFornecedorInput>
+    deleteMany?: Enumerable<FornecedorSancaoScalarWhereInput>
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutFornecedorNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFornecedorInput>, Enumerable<ContratoUncheckedCreateWithoutFornecedorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFornecedorInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutFornecedorInput>
+    createMany?: ContratoCreateManyFornecedorInputEnvelope
     set?: Enumerable<ContratoWhereUniqueInput>
     disconnect?: Enumerable<ContratoWhereUniqueInput>
     delete?: Enumerable<ContratoWhereUniqueInput>
     connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutEmpresaInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutEmpresaInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutFornecedorInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutFornecedorInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type FornecedorCreateNestedOneWithoutContatosInput = {
+    create?: XOR<FornecedorCreateWithoutContatosInput, FornecedorUncheckedCreateWithoutContatosInput>
+    connectOrCreate?: FornecedorCreateOrConnectWithoutContatosInput
+    connect?: FornecedorWhereUniqueInput
+  }
+
+  export type FornecedorUpdateOneRequiredWithoutContatosNestedInput = {
+    create?: XOR<FornecedorCreateWithoutContatosInput, FornecedorUncheckedCreateWithoutContatosInput>
+    connectOrCreate?: FornecedorCreateOrConnectWithoutContatosInput
+    upsert?: FornecedorUpsertWithoutContatosInput
+    connect?: FornecedorWhereUniqueInput
+    update?: XOR<FornecedorUpdateWithoutContatosInput, FornecedorUncheckedUpdateWithoutContatosInput>
+  }
+
+  export type FornecedorCreateNestedOneWithoutSancoesInput = {
+    create?: XOR<FornecedorCreateWithoutSancoesInput, FornecedorUncheckedCreateWithoutSancoesInput>
+    connectOrCreate?: FornecedorCreateOrConnectWithoutSancoesInput
+    connect?: FornecedorWhereUniqueInput
+  }
+
+  export type EnumTipoSancaoFieldUpdateOperationsInput = {
+    set?: TipoSancao
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type FornecedorUpdateOneRequiredWithoutSancoesNestedInput = {
+    create?: XOR<FornecedorCreateWithoutSancoesInput, FornecedorUncheckedCreateWithoutSancoesInput>
+    connectOrCreate?: FornecedorCreateOrConnectWithoutSancoesInput
+    upsert?: FornecedorUpsertWithoutSancoesInput
+    connect?: FornecedorWhereUniqueInput
+    update?: XOR<FornecedorUpdateWithoutSancoesInput, FornecedorUncheckedUpdateWithoutSancoesInput>
+  }
+
+  export type OrgaoCreateNestedOneWithoutServidoresInput = {
+    create?: XOR<OrgaoCreateWithoutServidoresInput, OrgaoUncheckedCreateWithoutServidoresInput>
+    connectOrCreate?: OrgaoCreateOrConnectWithoutServidoresInput
+    connect?: OrgaoWhereUniqueInput
+  }
+
+  export type UnidadeOrganizacionalCreateNestedOneWithoutServidoresInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutServidoresInput, UnidadeOrganizacionalUncheckedCreateWithoutServidoresInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutServidoresInput
+    connect?: UnidadeOrganizacionalWhereUniqueInput
+  }
+
+  export type ContratoCreateNestedManyWithoutGestorInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
+    createMany?: ContratoCreateManyGestorInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoCreateNestedManyWithoutFiscalInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
+    createMany?: ContratoCreateManyFiscalInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoUncheckedCreateNestedManyWithoutGestorInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
+    createMany?: ContratoCreateManyGestorInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoUncheckedCreateNestedManyWithoutFiscalInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
+    createMany?: ContratoCreateManyFiscalInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type OrgaoUpdateOneWithoutServidoresNestedInput = {
+    create?: XOR<OrgaoCreateWithoutServidoresInput, OrgaoUncheckedCreateWithoutServidoresInput>
+    connectOrCreate?: OrgaoCreateOrConnectWithoutServidoresInput
+    upsert?: OrgaoUpsertWithoutServidoresInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: OrgaoWhereUniqueInput
+    update?: XOR<OrgaoUpdateWithoutServidoresInput, OrgaoUncheckedUpdateWithoutServidoresInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateOneWithoutServidoresNestedInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutServidoresInput, UnidadeOrganizacionalUncheckedCreateWithoutServidoresInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutServidoresInput
+    upsert?: UnidadeOrganizacionalUpsertWithoutServidoresInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: UnidadeOrganizacionalWhereUniqueInput
+    update?: XOR<UnidadeOrganizacionalUpdateWithoutServidoresInput, UnidadeOrganizacionalUncheckedUpdateWithoutServidoresInput>
+  }
+
+  export type ContratoUpdateManyWithoutGestorNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutGestorInput>
+    createMany?: ContratoCreateManyGestorInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutGestorInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutGestorInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoUpdateManyWithoutFiscalNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutFiscalInput>
+    createMany?: ContratoCreateManyFiscalInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutFiscalInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutFiscalInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutGestorNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutGestorInput>
+    createMany?: ContratoCreateManyGestorInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutGestorInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutGestorInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutFiscalNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutFiscalInput>
+    createMany?: ContratoCreateManyFiscalInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutFiscalInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutFiscalInput>
     deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
@@ -19240,22 +21776,22 @@ export namespace Prisma {
     connect?: UnidadeFspWhereUniqueInput
   }
 
-  export type EntidadeGestoraCreateNestedOneWithoutGestorContratosInput = {
-    create?: XOR<EntidadeGestoraCreateWithoutGestorContratosInput, EntidadeGestoraUncheckedCreateWithoutGestorContratosInput>
-    connectOrCreate?: EntidadeGestoraCreateOrConnectWithoutGestorContratosInput
-    connect?: EntidadeGestoraWhereUniqueInput
+  export type ServidorCreateNestedOneWithoutGestorContratosInput = {
+    create?: XOR<ServidorCreateWithoutGestorContratosInput, ServidorUncheckedCreateWithoutGestorContratosInput>
+    connectOrCreate?: ServidorCreateOrConnectWithoutGestorContratosInput
+    connect?: ServidorWhereUniqueInput
   }
 
-  export type EntidadeGestoraCreateNestedOneWithoutFiscalContratosInput = {
-    create?: XOR<EntidadeGestoraCreateWithoutFiscalContratosInput, EntidadeGestoraUncheckedCreateWithoutFiscalContratosInput>
-    connectOrCreate?: EntidadeGestoraCreateOrConnectWithoutFiscalContratosInput
-    connect?: EntidadeGestoraWhereUniqueInput
+  export type ServidorCreateNestedOneWithoutFiscalContratosInput = {
+    create?: XOR<ServidorCreateWithoutFiscalContratosInput, ServidorUncheckedCreateWithoutFiscalContratosInput>
+    connectOrCreate?: ServidorCreateOrConnectWithoutFiscalContratosInput
+    connect?: ServidorWhereUniqueInput
   }
 
-  export type EmpresaCreateNestedOneWithoutContratosInput = {
-    create?: XOR<EmpresaCreateWithoutContratosInput, EmpresaUncheckedCreateWithoutContratosInput>
-    connectOrCreate?: EmpresaCreateOrConnectWithoutContratosInput
-    connect?: EmpresaWhereUniqueInput
+  export type FornecedorCreateNestedOneWithoutContratosInput = {
+    create?: XOR<FornecedorCreateWithoutContratosInput, FornecedorUncheckedCreateWithoutContratosInput>
+    connectOrCreate?: FornecedorCreateOrConnectWithoutContratosInput
+    connect?: FornecedorWhereUniqueInput
   }
 
   export type AditivoCreateNestedManyWithoutContratoInput = {
@@ -19272,10 +21808,6 @@ export namespace Prisma {
     connect?: Enumerable<AditivoWhereUniqueInput>
   }
 
-  export type NullableDateTimeFieldUpdateOperationsInput = {
-    set?: Date | string | null
-  }
-
   export type UnidadeFspUpdateOneRequiredWithoutContratosNestedInput = {
     create?: XOR<UnidadeFspCreateWithoutContratosInput, UnidadeFspUncheckedCreateWithoutContratosInput>
     connectOrCreate?: UnidadeFspCreateOrConnectWithoutContratosInput
@@ -19284,28 +21816,28 @@ export namespace Prisma {
     update?: XOR<UnidadeFspUpdateWithoutContratosInput, UnidadeFspUncheckedUpdateWithoutContratosInput>
   }
 
-  export type EntidadeGestoraUpdateOneRequiredWithoutGestorContratosNestedInput = {
-    create?: XOR<EntidadeGestoraCreateWithoutGestorContratosInput, EntidadeGestoraUncheckedCreateWithoutGestorContratosInput>
-    connectOrCreate?: EntidadeGestoraCreateOrConnectWithoutGestorContratosInput
-    upsert?: EntidadeGestoraUpsertWithoutGestorContratosInput
-    connect?: EntidadeGestoraWhereUniqueInput
-    update?: XOR<EntidadeGestoraUpdateWithoutGestorContratosInput, EntidadeGestoraUncheckedUpdateWithoutGestorContratosInput>
+  export type ServidorUpdateOneRequiredWithoutGestorContratosNestedInput = {
+    create?: XOR<ServidorCreateWithoutGestorContratosInput, ServidorUncheckedCreateWithoutGestorContratosInput>
+    connectOrCreate?: ServidorCreateOrConnectWithoutGestorContratosInput
+    upsert?: ServidorUpsertWithoutGestorContratosInput
+    connect?: ServidorWhereUniqueInput
+    update?: XOR<ServidorUpdateWithoutGestorContratosInput, ServidorUncheckedUpdateWithoutGestorContratosInput>
   }
 
-  export type EntidadeGestoraUpdateOneRequiredWithoutFiscalContratosNestedInput = {
-    create?: XOR<EntidadeGestoraCreateWithoutFiscalContratosInput, EntidadeGestoraUncheckedCreateWithoutFiscalContratosInput>
-    connectOrCreate?: EntidadeGestoraCreateOrConnectWithoutFiscalContratosInput
-    upsert?: EntidadeGestoraUpsertWithoutFiscalContratosInput
-    connect?: EntidadeGestoraWhereUniqueInput
-    update?: XOR<EntidadeGestoraUpdateWithoutFiscalContratosInput, EntidadeGestoraUncheckedUpdateWithoutFiscalContratosInput>
+  export type ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput = {
+    create?: XOR<ServidorCreateWithoutFiscalContratosInput, ServidorUncheckedCreateWithoutFiscalContratosInput>
+    connectOrCreate?: ServidorCreateOrConnectWithoutFiscalContratosInput
+    upsert?: ServidorUpsertWithoutFiscalContratosInput
+    connect?: ServidorWhereUniqueInput
+    update?: XOR<ServidorUpdateWithoutFiscalContratosInput, ServidorUncheckedUpdateWithoutFiscalContratosInput>
   }
 
-  export type EmpresaUpdateOneRequiredWithoutContratosNestedInput = {
-    create?: XOR<EmpresaCreateWithoutContratosInput, EmpresaUncheckedCreateWithoutContratosInput>
-    connectOrCreate?: EmpresaCreateOrConnectWithoutContratosInput
-    upsert?: EmpresaUpsertWithoutContratosInput
-    connect?: EmpresaWhereUniqueInput
-    update?: XOR<EmpresaUpdateWithoutContratosInput, EmpresaUncheckedUpdateWithoutContratosInput>
+  export type FornecedorUpdateOneRequiredWithoutContratosNestedInput = {
+    create?: XOR<FornecedorCreateWithoutContratosInput, FornecedorUncheckedCreateWithoutContratosInput>
+    connectOrCreate?: FornecedorCreateOrConnectWithoutContratosInput
+    upsert?: FornecedorUpsertWithoutContratosInput
+    connect?: FornecedorWhereUniqueInput
+    update?: XOR<FornecedorUpdateWithoutContratosInput, FornecedorUncheckedUpdateWithoutContratosInput>
   }
 
   export type AditivoUpdateManyWithoutContratoNestedInput = {
@@ -19563,6 +22095,64 @@ export namespace Prisma {
     _max?: NestedEnumNivelUnidadeFilter
   }
 
+  export type NestedEnumTipoPessoaFilter = {
+    equals?: TipoPessoa
+    in?: Enumerable<TipoPessoa>
+    notIn?: Enumerable<TipoPessoa>
+    not?: NestedEnumTipoPessoaFilter | TipoPessoa
+  }
+
+  export type NestedEnumPorteEmpresaNullableFilter = {
+    equals?: PorteEmpresa | null
+    in?: Enumerable<PorteEmpresa> | null
+    notIn?: Enumerable<PorteEmpresa> | null
+    not?: NestedEnumPorteEmpresaNullableFilter | PorteEmpresa | null
+  }
+
+  export type NestedEnumSituacaoFornecedorFilter = {
+    equals?: SituacaoFornecedor
+    in?: Enumerable<SituacaoFornecedor>
+    notIn?: Enumerable<SituacaoFornecedor>
+    not?: NestedEnumSituacaoFornecedorFilter | SituacaoFornecedor
+  }
+
+  export type NestedEnumTipoPessoaWithAggregatesFilter = {
+    equals?: TipoPessoa
+    in?: Enumerable<TipoPessoa>
+    notIn?: Enumerable<TipoPessoa>
+    not?: NestedEnumTipoPessoaWithAggregatesFilter | TipoPessoa
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoPessoaFilter
+    _max?: NestedEnumTipoPessoaFilter
+  }
+
+  export type NestedEnumPorteEmpresaNullableWithAggregatesFilter = {
+    equals?: PorteEmpresa | null
+    in?: Enumerable<PorteEmpresa> | null
+    notIn?: Enumerable<PorteEmpresa> | null
+    not?: NestedEnumPorteEmpresaNullableWithAggregatesFilter | PorteEmpresa | null
+    _count?: NestedIntNullableFilter
+    _min?: NestedEnumPorteEmpresaNullableFilter
+    _max?: NestedEnumPorteEmpresaNullableFilter
+  }
+
+  export type NestedEnumSituacaoFornecedorWithAggregatesFilter = {
+    equals?: SituacaoFornecedor
+    in?: Enumerable<SituacaoFornecedor>
+    notIn?: Enumerable<SituacaoFornecedor>
+    not?: NestedEnumSituacaoFornecedorWithAggregatesFilter | SituacaoFornecedor
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoFornecedorFilter
+    _max?: NestedEnumSituacaoFornecedorFilter
+  }
+
+  export type NestedEnumTipoSancaoFilter = {
+    equals?: TipoSancao
+    in?: Enumerable<TipoSancao>
+    notIn?: Enumerable<TipoSancao>
+    not?: NestedEnumTipoSancaoFilter | TipoSancao
+  }
+
   export type NestedDateTimeNullableFilter = {
     equals?: Date | string | null
     in?: Enumerable<Date> | Enumerable<string> | Date | string | null
@@ -19572,6 +22162,16 @@ export namespace Prisma {
     gt?: Date | string
     gte?: Date | string
     not?: NestedDateTimeNullableFilter | Date | string | null
+  }
+
+  export type NestedEnumTipoSancaoWithAggregatesFilter = {
+    equals?: TipoSancao
+    in?: Enumerable<TipoSancao>
+    notIn?: Enumerable<TipoSancao>
+    not?: NestedEnumTipoSancaoWithAggregatesFilter | TipoSancao
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoSancaoFilter
+    _max?: NestedEnumTipoSancaoFilter
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter = {
@@ -19650,9 +22250,9 @@ export namespace Prisma {
     status: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    gestor: EntidadeGestoraCreateNestedOneWithoutGestorContratosInput
-    fiscal: EntidadeGestoraCreateNestedOneWithoutFiscalContratosInput
-    empresa: EmpresaCreateNestedOneWithoutContratosInput
+    gestor: ServidorCreateNestedOneWithoutGestorContratosInput
+    fiscal: ServidorCreateNestedOneWithoutFiscalContratosInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
     aditivos?: AditivoCreateNestedManyWithoutContratoInput
   }
 
@@ -19663,7 +22263,7 @@ export namespace Prisma {
     anoGms: number
     gestorId: string
     fiscalId: string
-    empresaId: string
+    fornecedorId: string
     modalidade: string
     objeto: string
     valorAnualCents: number
@@ -19712,7 +22312,7 @@ export namespace Prisma {
     unidadeFspId?: StringFilter | string
     gestorId?: StringFilter | string
     fiscalId?: StringFilter | string
-    empresaId?: StringFilter | string
+    fornecedorId?: StringFilter | string
     modalidade?: StringFilter | string
     objeto?: StringFilter | string
     valorAnualCents?: IntFilter | number
@@ -19721,134 +22321,6 @@ export namespace Prisma {
     status?: StringFilter | string
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
-  }
-
-  export type ContratoCreateWithoutGestorInput = {
-    id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
-    fiscal: EntidadeGestoraCreateNestedOneWithoutFiscalContratosInput
-    empresa: EmpresaCreateNestedOneWithoutContratosInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
-  }
-
-  export type ContratoUncheckedCreateWithoutGestorInput = {
-    id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    unidadeFspId: string
-    fiscalId: string
-    empresaId: string
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
-  }
-
-  export type ContratoCreateOrConnectWithoutGestorInput = {
-    where: ContratoWhereUniqueInput
-    create: XOR<ContratoCreateWithoutGestorInput, ContratoUncheckedCreateWithoutGestorInput>
-  }
-
-  export type ContratoCreateManyGestorInputEnvelope = {
-    data: Enumerable<ContratoCreateManyGestorInput>
-    skipDuplicates?: boolean
-  }
-
-  export type ContratoCreateWithoutFiscalInput = {
-    id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
-    gestor: EntidadeGestoraCreateNestedOneWithoutGestorContratosInput
-    empresa: EmpresaCreateNestedOneWithoutContratosInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
-  }
-
-  export type ContratoUncheckedCreateWithoutFiscalInput = {
-    id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    unidadeFspId: string
-    gestorId: string
-    empresaId: string
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
-  }
-
-  export type ContratoCreateOrConnectWithoutFiscalInput = {
-    where: ContratoWhereUniqueInput
-    create: XOR<ContratoCreateWithoutFiscalInput, ContratoUncheckedCreateWithoutFiscalInput>
-  }
-
-  export type ContratoCreateManyFiscalInputEnvelope = {
-    data: Enumerable<ContratoCreateManyFiscalInput>
-    skipDuplicates?: boolean
-  }
-
-  export type ContratoUpsertWithWhereUniqueWithoutGestorInput = {
-    where: ContratoWhereUniqueInput
-    update: XOR<ContratoUpdateWithoutGestorInput, ContratoUncheckedUpdateWithoutGestorInput>
-    create: XOR<ContratoCreateWithoutGestorInput, ContratoUncheckedCreateWithoutGestorInput>
-  }
-
-  export type ContratoUpdateWithWhereUniqueWithoutGestorInput = {
-    where: ContratoWhereUniqueInput
-    data: XOR<ContratoUpdateWithoutGestorInput, ContratoUncheckedUpdateWithoutGestorInput>
-  }
-
-  export type ContratoUpdateManyWithWhereWithoutGestorInput = {
-    where: ContratoScalarWhereInput
-    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutGestorContratosInput>
-  }
-
-  export type ContratoUpsertWithWhereUniqueWithoutFiscalInput = {
-    where: ContratoWhereUniqueInput
-    update: XOR<ContratoUpdateWithoutFiscalInput, ContratoUncheckedUpdateWithoutFiscalInput>
-    create: XOR<ContratoCreateWithoutFiscalInput, ContratoUncheckedCreateWithoutFiscalInput>
-  }
-
-  export type ContratoUpdateWithWhereUniqueWithoutFiscalInput = {
-    where: ContratoWhereUniqueInput
-    data: XOR<ContratoUpdateWithoutFiscalInput, ContratoUncheckedUpdateWithoutFiscalInput>
-  }
-
-  export type ContratoUpdateManyWithWhereWithoutFiscalInput = {
-    where: ContratoScalarWhereInput
-    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutFiscalContratosInput>
   }
 
   export type UnidadeOrganizacionalCreateWithoutMunicipioInput = {
@@ -19862,6 +22334,7 @@ export namespace Prisma {
     orgao: OrgaoCreateNestedOneWithoutUnidadesInput
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
+    servidores?: ServidorCreateNestedManyWithoutUnidadeInput
   }
 
   export type UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput = {
@@ -19875,6 +22348,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+    servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
   }
 
   export type UnidadeOrganizacionalCreateOrConnectWithoutMunicipioInput = {
@@ -19884,6 +22358,50 @@ export namespace Prisma {
 
   export type UnidadeOrganizacionalCreateManyMunicipioInputEnvelope = {
     data: Enumerable<UnidadeOrganizacionalCreateManyMunicipioInput>
+    skipDuplicates?: boolean
+  }
+
+  export type FornecedorCreateWithoutMunicipioInput = {
+    id?: string
+    tipoPessoa?: TipoPessoa
+    documento: string
+    razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contatos?: FornecedorContatoCreateNestedManyWithoutFornecedorInput
+    sancoes?: FornecedorSancaoCreateNestedManyWithoutFornecedorInput
+    contratos?: ContratoCreateNestedManyWithoutFornecedorInput
+  }
+
+  export type FornecedorUncheckedCreateWithoutMunicipioInput = {
+    id?: string
+    tipoPessoa?: TipoPessoa
+    documento: string
+    razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contatos?: FornecedorContatoUncheckedCreateNestedManyWithoutFornecedorInput
+    sancoes?: FornecedorSancaoUncheckedCreateNestedManyWithoutFornecedorInput
+    contratos?: ContratoUncheckedCreateNestedManyWithoutFornecedorInput
+  }
+
+  export type FornecedorCreateOrConnectWithoutMunicipioInput = {
+    where: FornecedorWhereUniqueInput
+    create: XOR<FornecedorCreateWithoutMunicipioInput, FornecedorUncheckedCreateWithoutMunicipioInput>
+  }
+
+  export type FornecedorCreateManyMunicipioInputEnvelope = {
+    data: Enumerable<FornecedorCreateManyMunicipioInput>
     skipDuplicates?: boolean
   }
 
@@ -19915,6 +22433,40 @@ export namespace Prisma {
     nivel?: EnumNivelUnidadeFilter | NivelUnidade
     municipioId?: StringFilter | string
     ativo?: BoolFilter | boolean
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
+  export type FornecedorUpsertWithWhereUniqueWithoutMunicipioInput = {
+    where: FornecedorWhereUniqueInput
+    update: XOR<FornecedorUpdateWithoutMunicipioInput, FornecedorUncheckedUpdateWithoutMunicipioInput>
+    create: XOR<FornecedorCreateWithoutMunicipioInput, FornecedorUncheckedCreateWithoutMunicipioInput>
+  }
+
+  export type FornecedorUpdateWithWhereUniqueWithoutMunicipioInput = {
+    where: FornecedorWhereUniqueInput
+    data: XOR<FornecedorUpdateWithoutMunicipioInput, FornecedorUncheckedUpdateWithoutMunicipioInput>
+  }
+
+  export type FornecedorUpdateManyWithWhereWithoutMunicipioInput = {
+    where: FornecedorScalarWhereInput
+    data: XOR<FornecedorUpdateManyMutationInput, FornecedorUncheckedUpdateManyWithoutFornecedoresInput>
+  }
+
+  export type FornecedorScalarWhereInput = {
+    AND?: Enumerable<FornecedorScalarWhereInput>
+    OR?: Enumerable<FornecedorScalarWhereInput>
+    NOT?: Enumerable<FornecedorScalarWhereInput>
+    id?: StringFilter | string
+    tipoPessoa?: EnumTipoPessoaFilter | TipoPessoa
+    documento?: StringFilter | string
+    razaoSocial?: StringFilter | string
+    nomeFantasia?: StringNullableFilter | string | null
+    inscricaoEstadual?: StringNullableFilter | string | null
+    porte?: EnumPorteEmpresaNullableFilter | PorteEmpresa | null
+    municipioId?: StringNullableFilter | string | null
+    situacao?: EnumSituacaoFornecedorFilter | SituacaoFornecedor
+    codigoLegado?: StringNullableFilter | string | null
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
   }
@@ -20175,6 +22727,7 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
     municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    servidores?: ServidorCreateNestedManyWithoutUnidadeInput
   }
 
   export type UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput = {
@@ -20188,6 +22741,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+    servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
   }
 
   export type UnidadeOrganizacionalCreateOrConnectWithoutOrgaoInput = {
@@ -20197,6 +22751,48 @@ export namespace Prisma {
 
   export type UnidadeOrganizacionalCreateManyOrgaoInputEnvelope = {
     data: Enumerable<UnidadeOrganizacionalCreateManyOrgaoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ServidorCreateWithoutOrgaoInput = {
+    id?: string
+    nome: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidade?: UnidadeOrganizacionalCreateNestedOneWithoutServidoresInput
+    gestorContratos?: ContratoCreateNestedManyWithoutGestorInput
+    fiscalContratos?: ContratoCreateNestedManyWithoutFiscalInput
+  }
+
+  export type ServidorUncheckedCreateWithoutOrgaoInput = {
+    id?: string
+    nome: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    unidadeId?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    gestorContratos?: ContratoUncheckedCreateNestedManyWithoutGestorInput
+    fiscalContratos?: ContratoUncheckedCreateNestedManyWithoutFiscalInput
+  }
+
+  export type ServidorCreateOrConnectWithoutOrgaoInput = {
+    where: ServidorWhereUniqueInput
+    create: XOR<ServidorCreateWithoutOrgaoInput, ServidorUncheckedCreateWithoutOrgaoInput>
+  }
+
+  export type ServidorCreateManyOrgaoInputEnvelope = {
+    data: Enumerable<ServidorCreateManyOrgaoInput>
     skipDuplicates?: boolean
   }
 
@@ -20216,6 +22812,40 @@ export namespace Prisma {
     data: XOR<UnidadeOrganizacionalUpdateManyMutationInput, UnidadeOrganizacionalUncheckedUpdateManyWithoutUnidadesInput>
   }
 
+  export type ServidorUpsertWithWhereUniqueWithoutOrgaoInput = {
+    where: ServidorWhereUniqueInput
+    update: XOR<ServidorUpdateWithoutOrgaoInput, ServidorUncheckedUpdateWithoutOrgaoInput>
+    create: XOR<ServidorCreateWithoutOrgaoInput, ServidorUncheckedCreateWithoutOrgaoInput>
+  }
+
+  export type ServidorUpdateWithWhereUniqueWithoutOrgaoInput = {
+    where: ServidorWhereUniqueInput
+    data: XOR<ServidorUpdateWithoutOrgaoInput, ServidorUncheckedUpdateWithoutOrgaoInput>
+  }
+
+  export type ServidorUpdateManyWithWhereWithoutOrgaoInput = {
+    where: ServidorScalarWhereInput
+    data: XOR<ServidorUpdateManyMutationInput, ServidorUncheckedUpdateManyWithoutServidoresInput>
+  }
+
+  export type ServidorScalarWhereInput = {
+    AND?: Enumerable<ServidorScalarWhereInput>
+    OR?: Enumerable<ServidorScalarWhereInput>
+    NOT?: Enumerable<ServidorScalarWhereInput>
+    id?: StringFilter | string
+    nome?: StringFilter | string
+    cpf?: StringNullableFilter | string | null
+    rgFuncional?: StringNullableFilter | string | null
+    cargo?: StringNullableFilter | string | null
+    orgaoId?: StringNullableFilter | string | null
+    unidadeId?: StringNullableFilter | string | null
+    email?: StringNullableFilter | string | null
+    telefone?: StringNullableFilter | string | null
+    ativo?: BoolFilter | boolean
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
   export type OrgaoCreateWithoutUnidadesInput = {
     id?: string
     sigla: string
@@ -20224,6 +22854,7 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    servidores?: ServidorCreateNestedManyWithoutOrgaoInput
   }
 
   export type OrgaoUncheckedCreateWithoutUnidadesInput = {
@@ -20234,6 +22865,7 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
   }
 
   export type OrgaoCreateOrConnectWithoutUnidadesInput = {
@@ -20252,6 +22884,7 @@ export namespace Prisma {
     orgao: OrgaoCreateNestedOneWithoutUnidadesInput
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    servidores?: ServidorCreateNestedManyWithoutUnidadeInput
   }
 
   export type UnidadeOrganizacionalUncheckedCreateWithoutChildrenInput = {
@@ -20265,6 +22898,7 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
   }
 
   export type UnidadeOrganizacionalCreateOrConnectWithoutChildrenInput = {
@@ -20283,6 +22917,7 @@ export namespace Prisma {
     orgao: OrgaoCreateNestedOneWithoutUnidadesInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
     municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    servidores?: ServidorCreateNestedManyWithoutUnidadeInput
   }
 
   export type UnidadeOrganizacionalUncheckedCreateWithoutParentInput = {
@@ -20296,6 +22931,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+    servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
   }
 
   export type UnidadeOrganizacionalCreateOrConnectWithoutParentInput = {
@@ -20314,6 +22950,7 @@ export namespace Prisma {
     nome: string
     uf: string
     regiaoAdministrativa?: string | null
+    fornecedores?: FornecedorCreateNestedManyWithoutMunicipioInput
   }
 
   export type MunicipioUncheckedCreateWithoutUnidadesInput = {
@@ -20322,11 +22959,54 @@ export namespace Prisma {
     nome: string
     uf: string
     regiaoAdministrativa?: string | null
+    fornecedores?: FornecedorUncheckedCreateNestedManyWithoutMunicipioInput
   }
 
   export type MunicipioCreateOrConnectWithoutUnidadesInput = {
     where: MunicipioWhereUniqueInput
     create: XOR<MunicipioCreateWithoutUnidadesInput, MunicipioUncheckedCreateWithoutUnidadesInput>
+  }
+
+  export type ServidorCreateWithoutUnidadeInput = {
+    id?: string
+    nome: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao?: OrgaoCreateNestedOneWithoutServidoresInput
+    gestorContratos?: ContratoCreateNestedManyWithoutGestorInput
+    fiscalContratos?: ContratoCreateNestedManyWithoutFiscalInput
+  }
+
+  export type ServidorUncheckedCreateWithoutUnidadeInput = {
+    id?: string
+    nome: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    orgaoId?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    gestorContratos?: ContratoUncheckedCreateNestedManyWithoutGestorInput
+    fiscalContratos?: ContratoUncheckedCreateNestedManyWithoutFiscalInput
+  }
+
+  export type ServidorCreateOrConnectWithoutUnidadeInput = {
+    where: ServidorWhereUniqueInput
+    create: XOR<ServidorCreateWithoutUnidadeInput, ServidorUncheckedCreateWithoutUnidadeInput>
+  }
+
+  export type ServidorCreateManyUnidadeInputEnvelope = {
+    data: Enumerable<ServidorCreateManyUnidadeInput>
+    skipDuplicates?: boolean
   }
 
   export type OrgaoUpsertWithoutUnidadesInput = {
@@ -20342,6 +23022,7 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
   }
 
   export type OrgaoUncheckedUpdateWithoutUnidadesInput = {
@@ -20352,6 +23033,7 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
   }
 
   export type UnidadeOrganizacionalUpsertWithoutChildrenInput = {
@@ -20370,6 +23052,7 @@ export namespace Prisma {
     orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateWithoutChildrenInput = {
@@ -20383,6 +23066,7 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
   }
 
   export type UnidadeOrganizacionalUpsertWithWhereUniqueWithoutParentInput = {
@@ -20412,6 +23096,7 @@ export namespace Prisma {
     nome?: StringFieldUpdateOperationsInput | string
     uf?: StringFieldUpdateOperationsInput | string
     regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
+    fornecedores?: FornecedorUpdateManyWithoutMunicipioNestedInput
   }
 
   export type MunicipioUncheckedUpdateWithoutUnidadesInput = {
@@ -20420,9 +23105,111 @@ export namespace Prisma {
     nome?: StringFieldUpdateOperationsInput | string
     uf?: StringFieldUpdateOperationsInput | string
     regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
+    fornecedores?: FornecedorUncheckedUpdateManyWithoutMunicipioNestedInput
   }
 
-  export type ContratoCreateWithoutEmpresaInput = {
+  export type ServidorUpsertWithWhereUniqueWithoutUnidadeInput = {
+    where: ServidorWhereUniqueInput
+    update: XOR<ServidorUpdateWithoutUnidadeInput, ServidorUncheckedUpdateWithoutUnidadeInput>
+    create: XOR<ServidorCreateWithoutUnidadeInput, ServidorUncheckedCreateWithoutUnidadeInput>
+  }
+
+  export type ServidorUpdateWithWhereUniqueWithoutUnidadeInput = {
+    where: ServidorWhereUniqueInput
+    data: XOR<ServidorUpdateWithoutUnidadeInput, ServidorUncheckedUpdateWithoutUnidadeInput>
+  }
+
+  export type ServidorUpdateManyWithWhereWithoutUnidadeInput = {
+    where: ServidorScalarWhereInput
+    data: XOR<ServidorUpdateManyMutationInput, ServidorUncheckedUpdateManyWithoutServidoresInput>
+  }
+
+  export type MunicipioCreateWithoutFornecedoresInput = {
+    id?: string
+    codigoIbge: string
+    nome: string
+    uf: string
+    regiaoAdministrativa?: string | null
+    unidades?: UnidadeOrganizacionalCreateNestedManyWithoutMunicipioInput
+  }
+
+  export type MunicipioUncheckedCreateWithoutFornecedoresInput = {
+    id?: string
+    codigoIbge: string
+    nome: string
+    uf: string
+    regiaoAdministrativa?: string | null
+    unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutMunicipioInput
+  }
+
+  export type MunicipioCreateOrConnectWithoutFornecedoresInput = {
+    where: MunicipioWhereUniqueInput
+    create: XOR<MunicipioCreateWithoutFornecedoresInput, MunicipioUncheckedCreateWithoutFornecedoresInput>
+  }
+
+  export type FornecedorContatoCreateWithoutFornecedorInput = {
+    id?: string
+    nome: string
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    principal?: boolean
+    createdAt?: Date | string
+  }
+
+  export type FornecedorContatoUncheckedCreateWithoutFornecedorInput = {
+    id?: string
+    nome: string
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    principal?: boolean
+    createdAt?: Date | string
+  }
+
+  export type FornecedorContatoCreateOrConnectWithoutFornecedorInput = {
+    where: FornecedorContatoWhereUniqueInput
+    create: XOR<FornecedorContatoCreateWithoutFornecedorInput, FornecedorContatoUncheckedCreateWithoutFornecedorInput>
+  }
+
+  export type FornecedorContatoCreateManyFornecedorInputEnvelope = {
+    data: Enumerable<FornecedorContatoCreateManyFornecedorInput>
+    skipDuplicates?: boolean
+  }
+
+  export type FornecedorSancaoCreateWithoutFornecedorInput = {
+    id?: string
+    tipo: TipoSancao
+    processo?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    abrangencia?: string | null
+    fonte?: string | null
+    createdAt?: Date | string
+  }
+
+  export type FornecedorSancaoUncheckedCreateWithoutFornecedorInput = {
+    id?: string
+    tipo: TipoSancao
+    processo?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    abrangencia?: string | null
+    fonte?: string | null
+    createdAt?: Date | string
+  }
+
+  export type FornecedorSancaoCreateOrConnectWithoutFornecedorInput = {
+    where: FornecedorSancaoWhereUniqueInput
+    create: XOR<FornecedorSancaoCreateWithoutFornecedorInput, FornecedorSancaoUncheckedCreateWithoutFornecedorInput>
+  }
+
+  export type FornecedorSancaoCreateManyFornecedorInputEnvelope = {
+    data: Enumerable<FornecedorSancaoCreateManyFornecedorInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoCreateWithoutFornecedorInput = {
     id?: string
     protocoloCabeca?: string | null
     numGms: number
@@ -20436,12 +23223,12 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
-    gestor: EntidadeGestoraCreateNestedOneWithoutGestorContratosInput
-    fiscal: EntidadeGestoraCreateNestedOneWithoutFiscalContratosInput
+    gestor: ServidorCreateNestedOneWithoutGestorContratosInput
+    fiscal: ServidorCreateNestedOneWithoutFiscalContratosInput
     aditivos?: AditivoCreateNestedManyWithoutContratoInput
   }
 
-  export type ContratoUncheckedCreateWithoutEmpresaInput = {
+  export type ContratoUncheckedCreateWithoutFornecedorInput = {
     id?: string
     protocoloCabeca?: string | null
     numGms: number
@@ -20460,30 +23247,518 @@ export namespace Prisma {
     aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
   }
 
-  export type ContratoCreateOrConnectWithoutEmpresaInput = {
+  export type ContratoCreateOrConnectWithoutFornecedorInput = {
     where: ContratoWhereUniqueInput
-    create: XOR<ContratoCreateWithoutEmpresaInput, ContratoUncheckedCreateWithoutEmpresaInput>
+    create: XOR<ContratoCreateWithoutFornecedorInput, ContratoUncheckedCreateWithoutFornecedorInput>
   }
 
-  export type ContratoCreateManyEmpresaInputEnvelope = {
-    data: Enumerable<ContratoCreateManyEmpresaInput>
+  export type ContratoCreateManyFornecedorInputEnvelope = {
+    data: Enumerable<ContratoCreateManyFornecedorInput>
     skipDuplicates?: boolean
   }
 
-  export type ContratoUpsertWithWhereUniqueWithoutEmpresaInput = {
-    where: ContratoWhereUniqueInput
-    update: XOR<ContratoUpdateWithoutEmpresaInput, ContratoUncheckedUpdateWithoutEmpresaInput>
-    create: XOR<ContratoCreateWithoutEmpresaInput, ContratoUncheckedCreateWithoutEmpresaInput>
+  export type MunicipioUpsertWithoutFornecedoresInput = {
+    update: XOR<MunicipioUpdateWithoutFornecedoresInput, MunicipioUncheckedUpdateWithoutFornecedoresInput>
+    create: XOR<MunicipioCreateWithoutFornecedoresInput, MunicipioUncheckedCreateWithoutFornecedoresInput>
   }
 
-  export type ContratoUpdateWithWhereUniqueWithoutEmpresaInput = {
-    where: ContratoWhereUniqueInput
-    data: XOR<ContratoUpdateWithoutEmpresaInput, ContratoUncheckedUpdateWithoutEmpresaInput>
+  export type MunicipioUpdateWithoutFornecedoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigoIbge?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    uf?: StringFieldUpdateOperationsInput | string
+    regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
+    unidades?: UnidadeOrganizacionalUpdateManyWithoutMunicipioNestedInput
   }
 
-  export type ContratoUpdateManyWithWhereWithoutEmpresaInput = {
+  export type MunicipioUncheckedUpdateWithoutFornecedoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigoIbge?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    uf?: StringFieldUpdateOperationsInput | string
+    regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
+    unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutMunicipioNestedInput
+  }
+
+  export type FornecedorContatoUpsertWithWhereUniqueWithoutFornecedorInput = {
+    where: FornecedorContatoWhereUniqueInput
+    update: XOR<FornecedorContatoUpdateWithoutFornecedorInput, FornecedorContatoUncheckedUpdateWithoutFornecedorInput>
+    create: XOR<FornecedorContatoCreateWithoutFornecedorInput, FornecedorContatoUncheckedCreateWithoutFornecedorInput>
+  }
+
+  export type FornecedorContatoUpdateWithWhereUniqueWithoutFornecedorInput = {
+    where: FornecedorContatoWhereUniqueInput
+    data: XOR<FornecedorContatoUpdateWithoutFornecedorInput, FornecedorContatoUncheckedUpdateWithoutFornecedorInput>
+  }
+
+  export type FornecedorContatoUpdateManyWithWhereWithoutFornecedorInput = {
+    where: FornecedorContatoScalarWhereInput
+    data: XOR<FornecedorContatoUpdateManyMutationInput, FornecedorContatoUncheckedUpdateManyWithoutContatosInput>
+  }
+
+  export type FornecedorContatoScalarWhereInput = {
+    AND?: Enumerable<FornecedorContatoScalarWhereInput>
+    OR?: Enumerable<FornecedorContatoScalarWhereInput>
+    NOT?: Enumerable<FornecedorContatoScalarWhereInput>
+    id?: StringFilter | string
+    fornecedorId?: StringFilter | string
+    nome?: StringFilter | string
+    cargo?: StringNullableFilter | string | null
+    email?: StringNullableFilter | string | null
+    telefone?: StringNullableFilter | string | null
+    principal?: BoolFilter | boolean
+    createdAt?: DateTimeFilter | Date | string
+  }
+
+  export type FornecedorSancaoUpsertWithWhereUniqueWithoutFornecedorInput = {
+    where: FornecedorSancaoWhereUniqueInput
+    update: XOR<FornecedorSancaoUpdateWithoutFornecedorInput, FornecedorSancaoUncheckedUpdateWithoutFornecedorInput>
+    create: XOR<FornecedorSancaoCreateWithoutFornecedorInput, FornecedorSancaoUncheckedCreateWithoutFornecedorInput>
+  }
+
+  export type FornecedorSancaoUpdateWithWhereUniqueWithoutFornecedorInput = {
+    where: FornecedorSancaoWhereUniqueInput
+    data: XOR<FornecedorSancaoUpdateWithoutFornecedorInput, FornecedorSancaoUncheckedUpdateWithoutFornecedorInput>
+  }
+
+  export type FornecedorSancaoUpdateManyWithWhereWithoutFornecedorInput = {
+    where: FornecedorSancaoScalarWhereInput
+    data: XOR<FornecedorSancaoUpdateManyMutationInput, FornecedorSancaoUncheckedUpdateManyWithoutSancoesInput>
+  }
+
+  export type FornecedorSancaoScalarWhereInput = {
+    AND?: Enumerable<FornecedorSancaoScalarWhereInput>
+    OR?: Enumerable<FornecedorSancaoScalarWhereInput>
+    NOT?: Enumerable<FornecedorSancaoScalarWhereInput>
+    id?: StringFilter | string
+    fornecedorId?: StringFilter | string
+    tipo?: EnumTipoSancaoFilter | TipoSancao
+    processo?: StringNullableFilter | string | null
+    dataInicio?: DateTimeFilter | Date | string
+    dataFim?: DateTimeNullableFilter | Date | string | null
+    abrangencia?: StringNullableFilter | string | null
+    fonte?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+  }
+
+  export type ContratoUpsertWithWhereUniqueWithoutFornecedorInput = {
+    where: ContratoWhereUniqueInput
+    update: XOR<ContratoUpdateWithoutFornecedorInput, ContratoUncheckedUpdateWithoutFornecedorInput>
+    create: XOR<ContratoCreateWithoutFornecedorInput, ContratoUncheckedCreateWithoutFornecedorInput>
+  }
+
+  export type ContratoUpdateWithWhereUniqueWithoutFornecedorInput = {
+    where: ContratoWhereUniqueInput
+    data: XOR<ContratoUpdateWithoutFornecedorInput, ContratoUncheckedUpdateWithoutFornecedorInput>
+  }
+
+  export type ContratoUpdateManyWithWhereWithoutFornecedorInput = {
     where: ContratoScalarWhereInput
     data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosInput>
+  }
+
+  export type FornecedorCreateWithoutContatosInput = {
+    id?: string
+    tipoPessoa?: TipoPessoa
+    documento: string
+    razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    municipio?: MunicipioCreateNestedOneWithoutFornecedoresInput
+    sancoes?: FornecedorSancaoCreateNestedManyWithoutFornecedorInput
+    contratos?: ContratoCreateNestedManyWithoutFornecedorInput
+  }
+
+  export type FornecedorUncheckedCreateWithoutContatosInput = {
+    id?: string
+    tipoPessoa?: TipoPessoa
+    documento: string
+    razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    municipioId?: string | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    sancoes?: FornecedorSancaoUncheckedCreateNestedManyWithoutFornecedorInput
+    contratos?: ContratoUncheckedCreateNestedManyWithoutFornecedorInput
+  }
+
+  export type FornecedorCreateOrConnectWithoutContatosInput = {
+    where: FornecedorWhereUniqueInput
+    create: XOR<FornecedorCreateWithoutContatosInput, FornecedorUncheckedCreateWithoutContatosInput>
+  }
+
+  export type FornecedorUpsertWithoutContatosInput = {
+    update: XOR<FornecedorUpdateWithoutContatosInput, FornecedorUncheckedUpdateWithoutContatosInput>
+    create: XOR<FornecedorCreateWithoutContatosInput, FornecedorUncheckedCreateWithoutContatosInput>
+  }
+
+  export type FornecedorUpdateWithoutContatosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
+    razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    municipio?: MunicipioUpdateOneWithoutFornecedoresNestedInput
+    sancoes?: FornecedorSancaoUpdateManyWithoutFornecedorNestedInput
+    contratos?: ContratoUpdateManyWithoutFornecedorNestedInput
+  }
+
+  export type FornecedorUncheckedUpdateWithoutContatosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
+    razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    sancoes?: FornecedorSancaoUncheckedUpdateManyWithoutFornecedorNestedInput
+    contratos?: ContratoUncheckedUpdateManyWithoutFornecedorNestedInput
+  }
+
+  export type FornecedorCreateWithoutSancoesInput = {
+    id?: string
+    tipoPessoa?: TipoPessoa
+    documento: string
+    razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    municipio?: MunicipioCreateNestedOneWithoutFornecedoresInput
+    contatos?: FornecedorContatoCreateNestedManyWithoutFornecedorInput
+    contratos?: ContratoCreateNestedManyWithoutFornecedorInput
+  }
+
+  export type FornecedorUncheckedCreateWithoutSancoesInput = {
+    id?: string
+    tipoPessoa?: TipoPessoa
+    documento: string
+    razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    municipioId?: string | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contatos?: FornecedorContatoUncheckedCreateNestedManyWithoutFornecedorInput
+    contratos?: ContratoUncheckedCreateNestedManyWithoutFornecedorInput
+  }
+
+  export type FornecedorCreateOrConnectWithoutSancoesInput = {
+    where: FornecedorWhereUniqueInput
+    create: XOR<FornecedorCreateWithoutSancoesInput, FornecedorUncheckedCreateWithoutSancoesInput>
+  }
+
+  export type FornecedorUpsertWithoutSancoesInput = {
+    update: XOR<FornecedorUpdateWithoutSancoesInput, FornecedorUncheckedUpdateWithoutSancoesInput>
+    create: XOR<FornecedorCreateWithoutSancoesInput, FornecedorUncheckedCreateWithoutSancoesInput>
+  }
+
+  export type FornecedorUpdateWithoutSancoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
+    razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    municipio?: MunicipioUpdateOneWithoutFornecedoresNestedInput
+    contatos?: FornecedorContatoUpdateManyWithoutFornecedorNestedInput
+    contratos?: ContratoUpdateManyWithoutFornecedorNestedInput
+  }
+
+  export type FornecedorUncheckedUpdateWithoutSancoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
+    razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contatos?: FornecedorContatoUncheckedUpdateManyWithoutFornecedorNestedInput
+    contratos?: ContratoUncheckedUpdateManyWithoutFornecedorNestedInput
+  }
+
+  export type OrgaoCreateWithoutServidoresInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
+  }
+
+  export type OrgaoUncheckedCreateWithoutServidoresInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
+  }
+
+  export type OrgaoCreateOrConnectWithoutServidoresInput = {
+    where: OrgaoWhereUniqueInput
+    create: XOR<OrgaoCreateWithoutServidoresInput, OrgaoUncheckedCreateWithoutServidoresInput>
+  }
+
+  export type UnidadeOrganizacionalCreateWithoutServidoresInput = {
+    id?: string
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao: OrgaoCreateNestedOneWithoutUnidadesInput
+    parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
+    children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
+    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedCreateWithoutServidoresInput = {
+    id?: string
+    orgaoId: string
+    parentId?: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+  }
+
+  export type UnidadeOrganizacionalCreateOrConnectWithoutServidoresInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    create: XOR<UnidadeOrganizacionalCreateWithoutServidoresInput, UnidadeOrganizacionalUncheckedCreateWithoutServidoresInput>
+  }
+
+  export type ContratoCreateWithoutGestorInput = {
+    id?: string
+    protocoloCabeca?: string | null
+    numGms: number
+    anoGms: number
+    modalidade: string
+    objeto: string
+    valorAnualCents: number
+    dataInicio?: Date | string | null
+    dataFimOrig?: Date | string | null
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
+    fiscal: ServidorCreateNestedOneWithoutFiscalContratosInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutGestorInput = {
+    id?: string
+    protocoloCabeca?: string | null
+    numGms: number
+    anoGms: number
+    unidadeFspId: string
+    fiscalId: string
+    fornecedorId: string
+    modalidade: string
+    objeto: string
+    valorAnualCents: number
+    dataInicio?: Date | string | null
+    dataFimOrig?: Date | string | null
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutGestorInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutGestorInput, ContratoUncheckedCreateWithoutGestorInput>
+  }
+
+  export type ContratoCreateManyGestorInputEnvelope = {
+    data: Enumerable<ContratoCreateManyGestorInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoCreateWithoutFiscalInput = {
+    id?: string
+    protocoloCabeca?: string | null
+    numGms: number
+    anoGms: number
+    modalidade: string
+    objeto: string
+    valorAnualCents: number
+    dataInicio?: Date | string | null
+    dataFimOrig?: Date | string | null
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
+    gestor: ServidorCreateNestedOneWithoutGestorContratosInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutFiscalInput = {
+    id?: string
+    protocoloCabeca?: string | null
+    numGms: number
+    anoGms: number
+    unidadeFspId: string
+    gestorId: string
+    fornecedorId: string
+    modalidade: string
+    objeto: string
+    valorAnualCents: number
+    dataInicio?: Date | string | null
+    dataFimOrig?: Date | string | null
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutFiscalInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutFiscalInput, ContratoUncheckedCreateWithoutFiscalInput>
+  }
+
+  export type ContratoCreateManyFiscalInputEnvelope = {
+    data: Enumerable<ContratoCreateManyFiscalInput>
+    skipDuplicates?: boolean
+  }
+
+  export type OrgaoUpsertWithoutServidoresInput = {
+    update: XOR<OrgaoUpdateWithoutServidoresInput, OrgaoUncheckedUpdateWithoutServidoresInput>
+    create: XOR<OrgaoCreateWithoutServidoresInput, OrgaoUncheckedCreateWithoutServidoresInput>
+  }
+
+  export type OrgaoUpdateWithoutServidoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
+  }
+
+  export type OrgaoUncheckedUpdateWithoutServidoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
+  }
+
+  export type UnidadeOrganizacionalUpsertWithoutServidoresInput = {
+    update: XOR<UnidadeOrganizacionalUpdateWithoutServidoresInput, UnidadeOrganizacionalUncheckedUpdateWithoutServidoresInput>
+    create: XOR<UnidadeOrganizacionalCreateWithoutServidoresInput, UnidadeOrganizacionalUncheckedCreateWithoutServidoresInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateWithoutServidoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
+    parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
+    children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
+    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateWithoutServidoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgaoId?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    municipioId?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+  }
+
+  export type ContratoUpsertWithWhereUniqueWithoutGestorInput = {
+    where: ContratoWhereUniqueInput
+    update: XOR<ContratoUpdateWithoutGestorInput, ContratoUncheckedUpdateWithoutGestorInput>
+    create: XOR<ContratoCreateWithoutGestorInput, ContratoUncheckedCreateWithoutGestorInput>
+  }
+
+  export type ContratoUpdateWithWhereUniqueWithoutGestorInput = {
+    where: ContratoWhereUniqueInput
+    data: XOR<ContratoUpdateWithoutGestorInput, ContratoUncheckedUpdateWithoutGestorInput>
+  }
+
+  export type ContratoUpdateManyWithWhereWithoutGestorInput = {
+    where: ContratoScalarWhereInput
+    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutGestorContratosInput>
+  }
+
+  export type ContratoUpsertWithWhereUniqueWithoutFiscalInput = {
+    where: ContratoWhereUniqueInput
+    update: XOR<ContratoUpdateWithoutFiscalInput, ContratoUncheckedUpdateWithoutFiscalInput>
+    create: XOR<ContratoCreateWithoutFiscalInput, ContratoUncheckedCreateWithoutFiscalInput>
+  }
+
+  export type ContratoUpdateWithWhereUniqueWithoutFiscalInput = {
+    where: ContratoWhereUniqueInput
+    data: XOR<ContratoUpdateWithoutFiscalInput, ContratoUncheckedUpdateWithoutFiscalInput>
+  }
+
+  export type ContratoUpdateManyWithWhereWithoutFiscalInput = {
+    where: ContratoScalarWhereInput
+    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutFiscalContratosInput>
   }
 
   export type UnidadeFspCreateWithoutContratosInput = {
@@ -20503,59 +23778,117 @@ export namespace Prisma {
     create: XOR<UnidadeFspCreateWithoutContratosInput, UnidadeFspUncheckedCreateWithoutContratosInput>
   }
 
-  export type EntidadeGestoraCreateWithoutGestorContratosInput = {
+  export type ServidorCreateWithoutGestorContratosInput = {
     id?: string
     nome: string
-    cpf: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao?: OrgaoCreateNestedOneWithoutServidoresInput
+    unidade?: UnidadeOrganizacionalCreateNestedOneWithoutServidoresInput
     fiscalContratos?: ContratoCreateNestedManyWithoutFiscalInput
   }
 
-  export type EntidadeGestoraUncheckedCreateWithoutGestorContratosInput = {
+  export type ServidorUncheckedCreateWithoutGestorContratosInput = {
     id?: string
     nome: string
-    cpf: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    orgaoId?: string | null
+    unidadeId?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
     fiscalContratos?: ContratoUncheckedCreateNestedManyWithoutFiscalInput
   }
 
-  export type EntidadeGestoraCreateOrConnectWithoutGestorContratosInput = {
-    where: EntidadeGestoraWhereUniqueInput
-    create: XOR<EntidadeGestoraCreateWithoutGestorContratosInput, EntidadeGestoraUncheckedCreateWithoutGestorContratosInput>
+  export type ServidorCreateOrConnectWithoutGestorContratosInput = {
+    where: ServidorWhereUniqueInput
+    create: XOR<ServidorCreateWithoutGestorContratosInput, ServidorUncheckedCreateWithoutGestorContratosInput>
   }
 
-  export type EntidadeGestoraCreateWithoutFiscalContratosInput = {
+  export type ServidorCreateWithoutFiscalContratosInput = {
     id?: string
     nome: string
-    cpf: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao?: OrgaoCreateNestedOneWithoutServidoresInput
+    unidade?: UnidadeOrganizacionalCreateNestedOneWithoutServidoresInput
     gestorContratos?: ContratoCreateNestedManyWithoutGestorInput
   }
 
-  export type EntidadeGestoraUncheckedCreateWithoutFiscalContratosInput = {
+  export type ServidorUncheckedCreateWithoutFiscalContratosInput = {
     id?: string
     nome: string
-    cpf: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    orgaoId?: string | null
+    unidadeId?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
     gestorContratos?: ContratoUncheckedCreateNestedManyWithoutGestorInput
   }
 
-  export type EntidadeGestoraCreateOrConnectWithoutFiscalContratosInput = {
-    where: EntidadeGestoraWhereUniqueInput
-    create: XOR<EntidadeGestoraCreateWithoutFiscalContratosInput, EntidadeGestoraUncheckedCreateWithoutFiscalContratosInput>
+  export type ServidorCreateOrConnectWithoutFiscalContratosInput = {
+    where: ServidorWhereUniqueInput
+    create: XOR<ServidorCreateWithoutFiscalContratosInput, ServidorUncheckedCreateWithoutFiscalContratosInput>
   }
 
-  export type EmpresaCreateWithoutContratosInput = {
+  export type FornecedorCreateWithoutContratosInput = {
     id?: string
-    cnpj: string
+    tipoPessoa?: TipoPessoa
+    documento: string
     razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    municipio?: MunicipioCreateNestedOneWithoutFornecedoresInput
+    contatos?: FornecedorContatoCreateNestedManyWithoutFornecedorInput
+    sancoes?: FornecedorSancaoCreateNestedManyWithoutFornecedorInput
   }
 
-  export type EmpresaUncheckedCreateWithoutContratosInput = {
+  export type FornecedorUncheckedCreateWithoutContratosInput = {
     id?: string
-    cnpj: string
+    tipoPessoa?: TipoPessoa
+    documento: string
     razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    municipioId?: string | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contatos?: FornecedorContatoUncheckedCreateNestedManyWithoutFornecedorInput
+    sancoes?: FornecedorSancaoUncheckedCreateNestedManyWithoutFornecedorInput
   }
 
-  export type EmpresaCreateOrConnectWithoutContratosInput = {
-    where: EmpresaWhereUniqueInput
-    create: XOR<EmpresaCreateWithoutContratosInput, EmpresaUncheckedCreateWithoutContratosInput>
+  export type FornecedorCreateOrConnectWithoutContratosInput = {
+    where: FornecedorWhereUniqueInput
+    create: XOR<FornecedorCreateWithoutContratosInput, FornecedorUncheckedCreateWithoutContratosInput>
   }
 
   export type AditivoCreateWithoutContratoInput = {
@@ -20603,59 +23936,117 @@ export namespace Prisma {
     nome?: StringFieldUpdateOperationsInput | string
   }
 
-  export type EntidadeGestoraUpsertWithoutGestorContratosInput = {
-    update: XOR<EntidadeGestoraUpdateWithoutGestorContratosInput, EntidadeGestoraUncheckedUpdateWithoutGestorContratosInput>
-    create: XOR<EntidadeGestoraCreateWithoutGestorContratosInput, EntidadeGestoraUncheckedCreateWithoutGestorContratosInput>
+  export type ServidorUpsertWithoutGestorContratosInput = {
+    update: XOR<ServidorUpdateWithoutGestorContratosInput, ServidorUncheckedUpdateWithoutGestorContratosInput>
+    create: XOR<ServidorCreateWithoutGestorContratosInput, ServidorUncheckedCreateWithoutGestorContratosInput>
   }
 
-  export type EntidadeGestoraUpdateWithoutGestorContratosInput = {
+  export type ServidorUpdateWithoutGestorContratosInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    cpf?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneWithoutServidoresNestedInput
+    unidade?: UnidadeOrganizacionalUpdateOneWithoutServidoresNestedInput
     fiscalContratos?: ContratoUpdateManyWithoutFiscalNestedInput
   }
 
-  export type EntidadeGestoraUncheckedUpdateWithoutGestorContratosInput = {
+  export type ServidorUncheckedUpdateWithoutGestorContratosInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    cpf?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    orgaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    unidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fiscalContratos?: ContratoUncheckedUpdateManyWithoutFiscalNestedInput
   }
 
-  export type EntidadeGestoraUpsertWithoutFiscalContratosInput = {
-    update: XOR<EntidadeGestoraUpdateWithoutFiscalContratosInput, EntidadeGestoraUncheckedUpdateWithoutFiscalContratosInput>
-    create: XOR<EntidadeGestoraCreateWithoutFiscalContratosInput, EntidadeGestoraUncheckedCreateWithoutFiscalContratosInput>
+  export type ServidorUpsertWithoutFiscalContratosInput = {
+    update: XOR<ServidorUpdateWithoutFiscalContratosInput, ServidorUncheckedUpdateWithoutFiscalContratosInput>
+    create: XOR<ServidorCreateWithoutFiscalContratosInput, ServidorUncheckedCreateWithoutFiscalContratosInput>
   }
 
-  export type EntidadeGestoraUpdateWithoutFiscalContratosInput = {
+  export type ServidorUpdateWithoutFiscalContratosInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    cpf?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneWithoutServidoresNestedInput
+    unidade?: UnidadeOrganizacionalUpdateOneWithoutServidoresNestedInput
     gestorContratos?: ContratoUpdateManyWithoutGestorNestedInput
   }
 
-  export type EntidadeGestoraUncheckedUpdateWithoutFiscalContratosInput = {
+  export type ServidorUncheckedUpdateWithoutFiscalContratosInput = {
     id?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    cpf?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    orgaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    unidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gestorContratos?: ContratoUncheckedUpdateManyWithoutGestorNestedInput
   }
 
-  export type EmpresaUpsertWithoutContratosInput = {
-    update: XOR<EmpresaUpdateWithoutContratosInput, EmpresaUncheckedUpdateWithoutContratosInput>
-    create: XOR<EmpresaCreateWithoutContratosInput, EmpresaUncheckedCreateWithoutContratosInput>
+  export type FornecedorUpsertWithoutContratosInput = {
+    update: XOR<FornecedorUpdateWithoutContratosInput, FornecedorUncheckedUpdateWithoutContratosInput>
+    create: XOR<FornecedorCreateWithoutContratosInput, FornecedorUncheckedCreateWithoutContratosInput>
   }
 
-  export type EmpresaUpdateWithoutContratosInput = {
+  export type FornecedorUpdateWithoutContratosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    cnpj?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
     razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    municipio?: MunicipioUpdateOneWithoutFornecedoresNestedInput
+    contatos?: FornecedorContatoUpdateManyWithoutFornecedorNestedInput
+    sancoes?: FornecedorSancaoUpdateManyWithoutFornecedorNestedInput
   }
 
-  export type EmpresaUncheckedUpdateWithoutContratosInput = {
+  export type FornecedorUncheckedUpdateWithoutContratosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    cnpj?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
     razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contatos?: FornecedorContatoUncheckedUpdateManyWithoutFornecedorNestedInput
+    sancoes?: FornecedorSancaoUncheckedUpdateManyWithoutFornecedorNestedInput
   }
 
   export type AditivoUpsertWithWhereUniqueWithoutContratoInput = {
@@ -20701,9 +24092,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
-    gestor: EntidadeGestoraCreateNestedOneWithoutGestorContratosInput
-    fiscal: EntidadeGestoraCreateNestedOneWithoutFiscalContratosInput
-    empresa: EmpresaCreateNestedOneWithoutContratosInput
+    gestor: ServidorCreateNestedOneWithoutGestorContratosInput
+    fiscal: ServidorCreateNestedOneWithoutFiscalContratosInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
   }
 
   export type ContratoUncheckedCreateWithoutAditivosInput = {
@@ -20714,7 +24105,7 @@ export namespace Prisma {
     unidadeFspId: string
     gestorId: string
     fiscalId: string
-    empresaId: string
+    fornecedorId: string
     modalidade: string
     objeto: string
     valorAnualCents: number
@@ -20749,9 +24140,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
-    gestor?: EntidadeGestoraUpdateOneRequiredWithoutGestorContratosNestedInput
-    fiscal?: EntidadeGestoraUpdateOneRequiredWithoutFiscalContratosNestedInput
-    empresa?: EmpresaUpdateOneRequiredWithoutContratosNestedInput
+    gestor?: ServidorUpdateOneRequiredWithoutGestorContratosNestedInput
+    fiscal?: ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutAditivosInput = {
@@ -20762,7 +24153,7 @@ export namespace Prisma {
     unidadeFspId?: StringFieldUpdateOperationsInput | string
     gestorId?: StringFieldUpdateOperationsInput | string
     fiscalId?: StringFieldUpdateOperationsInput | string
-    empresaId?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
     modalidade?: StringFieldUpdateOperationsInput | string
     objeto?: StringFieldUpdateOperationsInput | string
     valorAnualCents?: IntFieldUpdateOperationsInput | number
@@ -20780,7 +24171,7 @@ export namespace Prisma {
     anoGms: number
     gestorId: string
     fiscalId: string
-    empresaId: string
+    fornecedorId: string
     modalidade: string
     objeto: string
     valorAnualCents: number
@@ -20804,9 +24195,9 @@ export namespace Prisma {
     status?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    gestor?: EntidadeGestoraUpdateOneRequiredWithoutGestorContratosNestedInput
-    fiscal?: EntidadeGestoraUpdateOneRequiredWithoutFiscalContratosNestedInput
-    empresa?: EmpresaUpdateOneRequiredWithoutContratosNestedInput
+    gestor?: ServidorUpdateOneRequiredWithoutGestorContratosNestedInput
+    fiscal?: ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
     aditivos?: AditivoUpdateManyWithoutContratoNestedInput
   }
 
@@ -20817,7 +24208,7 @@ export namespace Prisma {
     anoGms?: IntFieldUpdateOperationsInput | number
     gestorId?: StringFieldUpdateOperationsInput | string
     fiscalId?: StringFieldUpdateOperationsInput | string
-    empresaId?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
     modalidade?: StringFieldUpdateOperationsInput | string
     objeto?: StringFieldUpdateOperationsInput | string
     valorAnualCents?: IntFieldUpdateOperationsInput | number
@@ -20836,155 +24227,7 @@ export namespace Prisma {
     anoGms?: IntFieldUpdateOperationsInput | number
     gestorId?: StringFieldUpdateOperationsInput | string
     fiscalId?: StringFieldUpdateOperationsInput | string
-    empresaId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ContratoCreateManyGestorInput = {
-    id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    unidadeFspId: string
-    fiscalId: string
-    empresaId: string
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ContratoCreateManyFiscalInput = {
-    id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    unidadeFspId: string
-    gestorId: string
-    empresaId: string
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ContratoUpdateWithoutGestorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
-    fiscal?: EntidadeGestoraUpdateOneRequiredWithoutFiscalContratosNestedInput
-    empresa?: EmpresaUpdateOneRequiredWithoutContratosNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
-  }
-
-  export type ContratoUncheckedUpdateWithoutGestorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    fiscalId?: StringFieldUpdateOperationsInput | string
-    empresaId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
-  }
-
-  export type ContratoUncheckedUpdateManyWithoutGestorContratosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    fiscalId?: StringFieldUpdateOperationsInput | string
-    empresaId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ContratoUpdateWithoutFiscalInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
-    gestor?: EntidadeGestoraUpdateOneRequiredWithoutGestorContratosNestedInput
-    empresa?: EmpresaUpdateOneRequiredWithoutContratosNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
-  }
-
-  export type ContratoUncheckedUpdateWithoutFiscalInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    gestorId?: StringFieldUpdateOperationsInput | string
-    empresaId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
-  }
-
-  export type ContratoUncheckedUpdateManyWithoutFiscalContratosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    gestorId?: StringFieldUpdateOperationsInput | string
-    empresaId?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
     modalidade?: StringFieldUpdateOperationsInput | string
     objeto?: StringFieldUpdateOperationsInput | string
     valorAnualCents?: IntFieldUpdateOperationsInput | number
@@ -21007,6 +24250,20 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type FornecedorCreateManyMunicipioInput = {
+    id?: string
+    tipoPessoa?: TipoPessoa
+    documento: string
+    razaoSocial: string
+    nomeFantasia?: string | null
+    inscricaoEstadual?: string | null
+    porte?: PorteEmpresa | null
+    situacao?: SituacaoFornecedor
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type UnidadeOrganizacionalUpdateWithoutMunicipioInput = {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
@@ -21018,6 +24275,7 @@ export namespace Prisma {
     orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
+    servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateWithoutMunicipioInput = {
@@ -21031,6 +24289,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+    servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateManyWithoutUnidadesInput = {
@@ -21041,6 +24300,54 @@ export namespace Prisma {
     nome?: StringFieldUpdateOperationsInput | string
     nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
     ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorUpdateWithoutMunicipioInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
+    razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contatos?: FornecedorContatoUpdateManyWithoutFornecedorNestedInput
+    sancoes?: FornecedorSancaoUpdateManyWithoutFornecedorNestedInput
+    contratos?: ContratoUpdateManyWithoutFornecedorNestedInput
+  }
+
+  export type FornecedorUncheckedUpdateWithoutMunicipioInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
+    razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contatos?: FornecedorContatoUncheckedUpdateManyWithoutFornecedorNestedInput
+    sancoes?: FornecedorSancaoUncheckedUpdateManyWithoutFornecedorNestedInput
+    contratos?: ContratoUncheckedUpdateManyWithoutFornecedorNestedInput
+  }
+
+  export type FornecedorUncheckedUpdateManyWithoutFornecedoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipoPessoa?: EnumTipoPessoaFieldUpdateOperationsInput | TipoPessoa
+    documento?: StringFieldUpdateOperationsInput | string
+    razaoSocial?: StringFieldUpdateOperationsInput | string
+    nomeFantasia?: NullableStringFieldUpdateOperationsInput | string | null
+    inscricaoEstadual?: NullableStringFieldUpdateOperationsInput | string | null
+    porte?: NullableEnumPorteEmpresaFieldUpdateOperationsInput | PorteEmpresa | null
+    situacao?: EnumSituacaoFornecedorFieldUpdateOperationsInput | SituacaoFornecedor
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -21165,6 +24472,20 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ServidorCreateManyOrgaoInput = {
+    id?: string
+    nome: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    unidadeId?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type UnidadeOrganizacionalUpdateWithoutOrgaoInput = {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
@@ -21176,6 +24497,7 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
     municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateWithoutOrgaoInput = {
@@ -21189,6 +24511,53 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+    servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
+  }
+
+  export type ServidorUpdateWithoutOrgaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidade?: UnidadeOrganizacionalUpdateOneWithoutServidoresNestedInput
+    gestorContratos?: ContratoUpdateManyWithoutGestorNestedInput
+    fiscalContratos?: ContratoUpdateManyWithoutFiscalNestedInput
+  }
+
+  export type ServidorUncheckedUpdateWithoutOrgaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    unidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gestorContratos?: ContratoUncheckedUpdateManyWithoutGestorNestedInput
+    fiscalContratos?: ContratoUncheckedUpdateManyWithoutFiscalNestedInput
+  }
+
+  export type ServidorUncheckedUpdateManyWithoutServidoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    unidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UnidadeOrganizacionalCreateManyParentInput = {
@@ -21198,6 +24567,20 @@ export namespace Prisma {
     nome: string
     nivel: NivelUnidade
     municipioId: string
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServidorCreateManyUnidadeInput = {
+    id?: string
+    nome: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    orgaoId?: string | null
+    email?: string | null
+    telefone?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -21214,6 +24597,7 @@ export namespace Prisma {
     orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
     municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateWithoutParentInput = {
@@ -21227,6 +24611,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+    servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateManyWithoutChildrenInput = {
@@ -21241,7 +24626,60 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ContratoCreateManyEmpresaInput = {
+  export type ServidorUpdateWithoutUnidadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneWithoutServidoresNestedInput
+    gestorContratos?: ContratoUpdateManyWithoutGestorNestedInput
+    fiscalContratos?: ContratoUpdateManyWithoutFiscalNestedInput
+  }
+
+  export type ServidorUncheckedUpdateWithoutUnidadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    orgaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gestorContratos?: ContratoUncheckedUpdateManyWithoutGestorNestedInput
+    fiscalContratos?: ContratoUncheckedUpdateManyWithoutFiscalNestedInput
+  }
+
+  export type FornecedorContatoCreateManyFornecedorInput = {
+    id?: string
+    nome: string
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    principal?: boolean
+    createdAt?: Date | string
+  }
+
+  export type FornecedorSancaoCreateManyFornecedorInput = {
+    id?: string
+    tipo: TipoSancao
+    processo?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    abrangencia?: string | null
+    fonte?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ContratoCreateManyFornecedorInput = {
     id?: string
     protocoloCabeca?: string | null
     numGms: number
@@ -21259,7 +24697,70 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type ContratoUpdateWithoutEmpresaInput = {
+  export type FornecedorContatoUpdateWithoutFornecedorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    principal?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorContatoUncheckedUpdateWithoutFornecedorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    principal?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorContatoUncheckedUpdateManyWithoutContatosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    principal?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorSancaoUpdateWithoutFornecedorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoSancaoFieldUpdateOperationsInput | TipoSancao
+    processo?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    abrangencia?: NullableStringFieldUpdateOperationsInput | string | null
+    fonte?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorSancaoUncheckedUpdateWithoutFornecedorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoSancaoFieldUpdateOperationsInput | TipoSancao
+    processo?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    abrangencia?: NullableStringFieldUpdateOperationsInput | string | null
+    fonte?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type FornecedorSancaoUncheckedUpdateManyWithoutSancoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoSancaoFieldUpdateOperationsInput | TipoSancao
+    processo?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    abrangencia?: NullableStringFieldUpdateOperationsInput | string | null
+    fonte?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoUpdateWithoutFornecedorInput = {
     id?: StringFieldUpdateOperationsInput | string
     protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
     numGms?: IntFieldUpdateOperationsInput | number
@@ -21273,12 +24774,12 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
-    gestor?: EntidadeGestoraUpdateOneRequiredWithoutGestorContratosNestedInput
-    fiscal?: EntidadeGestoraUpdateOneRequiredWithoutFiscalContratosNestedInput
+    gestor?: ServidorUpdateOneRequiredWithoutGestorContratosNestedInput
+    fiscal?: ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput
     aditivos?: AditivoUpdateManyWithoutContratoNestedInput
   }
 
-  export type ContratoUncheckedUpdateWithoutEmpresaInput = {
+  export type ContratoUncheckedUpdateWithoutFornecedorInput = {
     id?: StringFieldUpdateOperationsInput | string
     protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
     numGms?: IntFieldUpdateOperationsInput | number
@@ -21295,6 +24796,154 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoCreateManyGestorInput = {
+    id?: string
+    protocoloCabeca?: string | null
+    numGms: number
+    anoGms: number
+    unidadeFspId: string
+    fiscalId: string
+    fornecedorId: string
+    modalidade: string
+    objeto: string
+    valorAnualCents: number
+    dataInicio?: Date | string | null
+    dataFimOrig?: Date | string | null
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContratoCreateManyFiscalInput = {
+    id?: string
+    protocoloCabeca?: string | null
+    numGms: number
+    anoGms: number
+    unidadeFspId: string
+    gestorId: string
+    fornecedorId: string
+    modalidade: string
+    objeto: string
+    valorAnualCents: number
+    dataInicio?: Date | string | null
+    dataFimOrig?: Date | string | null
+    status: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContratoUpdateWithoutGestorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
+    numGms?: IntFieldUpdateOperationsInput | number
+    anoGms?: IntFieldUpdateOperationsInput | number
+    modalidade?: StringFieldUpdateOperationsInput | string
+    objeto?: StringFieldUpdateOperationsInput | string
+    valorAnualCents?: IntFieldUpdateOperationsInput | number
+    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
+    fiscal?: ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutGestorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
+    numGms?: IntFieldUpdateOperationsInput | number
+    anoGms?: IntFieldUpdateOperationsInput | number
+    unidadeFspId?: StringFieldUpdateOperationsInput | string
+    fiscalId?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    modalidade?: StringFieldUpdateOperationsInput | string
+    objeto?: StringFieldUpdateOperationsInput | string
+    valorAnualCents?: IntFieldUpdateOperationsInput | number
+    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutGestorContratosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
+    numGms?: IntFieldUpdateOperationsInput | number
+    anoGms?: IntFieldUpdateOperationsInput | number
+    unidadeFspId?: StringFieldUpdateOperationsInput | string
+    fiscalId?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    modalidade?: StringFieldUpdateOperationsInput | string
+    objeto?: StringFieldUpdateOperationsInput | string
+    valorAnualCents?: IntFieldUpdateOperationsInput | number
+    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoUpdateWithoutFiscalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
+    numGms?: IntFieldUpdateOperationsInput | number
+    anoGms?: IntFieldUpdateOperationsInput | number
+    modalidade?: StringFieldUpdateOperationsInput | string
+    objeto?: StringFieldUpdateOperationsInput | string
+    valorAnualCents?: IntFieldUpdateOperationsInput | number
+    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
+    gestor?: ServidorUpdateOneRequiredWithoutGestorContratosNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutFiscalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
+    numGms?: IntFieldUpdateOperationsInput | number
+    anoGms?: IntFieldUpdateOperationsInput | number
+    unidadeFspId?: StringFieldUpdateOperationsInput | string
+    gestorId?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    modalidade?: StringFieldUpdateOperationsInput | string
+    objeto?: StringFieldUpdateOperationsInput | string
+    valorAnualCents?: IntFieldUpdateOperationsInput | number
+    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutFiscalContratosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
+    numGms?: IntFieldUpdateOperationsInput | number
+    anoGms?: IntFieldUpdateOperationsInput | number
+    unidadeFspId?: StringFieldUpdateOperationsInput | string
+    gestorId?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    modalidade?: StringFieldUpdateOperationsInput | string
+    objeto?: StringFieldUpdateOperationsInput | string
+    valorAnualCents?: IntFieldUpdateOperationsInput | number
+    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AditivoCreateManyContratoInput = {

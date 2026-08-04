@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { ContractCreateSchema } from '@painel/schema';
 import { Button, Input, Page, Textarea, useToast } from '@painel/ui';
 import { useCreateContract, useUpdateContract, useContract } from '../hooks/useContracts';
-import { useEmpresas, useEntidadesGestoras, useUnidadesFsp } from '../hooks/useReferences';
+import { useFornecedores, useServidores, useUnidadesFsp } from '../hooks/useReferences';
 import { LookupSelect } from '../components/LookupSelect';
 import { getErrorMessage } from '../lib/http';
 import { Controller } from 'react-hook-form';
@@ -18,8 +18,8 @@ export default function ContractForm() {
   const updateContract = useUpdateContract();
   const { data: existingContract, isLoading: isContractLoading, error: contractError } = useContract(id);
   const { data: unidadesFsp, isLoading: unidadesLoading } = useUnidadesFsp();
-  const { data: empresas, isLoading: empresasLoading } = useEmpresas();
-  const { data: entidadesGestoras, isLoading: entidadesLoading } = useEntidadesGestoras();
+  const { data: fornecedores, isLoading: fornecedoresLoading } = useFornecedores();
+  const { data: servidores, isLoading: servidoresLoading } = useServidores();
 
   const form = useForm({
     resolver: zodResolver(ContractCreateSchema as any),
@@ -33,7 +33,7 @@ export default function ContractForm() {
       objeto: '',
       gestorId: '',
       fiscalId: '',
-      empresaId: '',
+      fornecedorId: '',
       dataInicio: '',
       dataFimOrig: '',
       status: 'vigente',
@@ -54,7 +54,7 @@ export default function ContractForm() {
       setValue('objeto', existingContract.objeto || '');
       setValue('gestorId', existingContract.gestorId || '');
       setValue('fiscalId', existingContract.fiscalId || '');
-      setValue('empresaId', existingContract.empresaId || '');
+      setValue('fornecedorId', existingContract.fornecedorId || existingContract.empresaId || '');
       setValue('dataInicio', existingContract.dataInicio || '');
       setValue('dataFimOrig', existingContract.dataFimOrig || '');
       setValue('status', existingContract.status || 'vigente');
@@ -156,11 +156,12 @@ export default function ContractForm() {
 
             <div>
               <span className="field-label">Gestor</span>
-              <select className="select-field" {...register('gestorId')} disabled={entidadesLoading}>
+              <select className="select-field" {...register('gestorId')} disabled={servidoresLoading}>
                 <option value="">Selecione o gestor</option>
-                {entidadesGestoras?.map((item) => (
+                {servidores?.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.nome} — {item.cpf}
+                    {item.nome}
+                    {item.cargo ? ` — ${item.cargo}` : ''}
                   </option>
                 ))}
               </select>
@@ -168,23 +169,24 @@ export default function ContractForm() {
 
             <div>
               <span className="field-label">Fiscal</span>
-              <select className="select-field" {...register('fiscalId')} disabled={entidadesLoading}>
+              <select className="select-field" {...register('fiscalId')} disabled={servidoresLoading}>
                 <option value="">Selecione o fiscal</option>
-                {entidadesGestoras?.map((item) => (
+                {servidores?.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.nome} — {item.cpf}
+                    {item.nome}
+                    {item.cargo ? ` — ${item.cargo}` : ''}
                   </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <span className="field-label">Empresa</span>
-              <select className="select-field" {...register('empresaId')} disabled={empresasLoading}>
-                <option value="">Selecione a empresa</option>
-                {empresas?.map((item) => (
+              <span className="field-label">Fornecedor</span>
+              <select className="select-field" {...register('fornecedorId')} disabled={fornecedoresLoading}>
+                <option value="">Selecione o fornecedor</option>
+                {fornecedores?.map((item) => (
                   <option key={item.id} value={item.id}>
-                    {item.razaoSocial} — {item.cnpj}
+                    {item.razaoSocial || item.nome} — {item.documento || item.cnpj}
                   </option>
                 ))}
               </select>

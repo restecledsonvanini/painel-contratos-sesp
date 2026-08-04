@@ -16,19 +16,14 @@ import {
   useToast,
 } from '@painel/ui';
 import { Plus } from 'lucide-react';
-import { useFornecedores, useDeleteFornecedor } from '../hooks/useReferences';
+import { useServidores, useDeleteServidor } from '../hooks/useReferences';
 import { getErrorMessage } from '../lib/http';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
-import { maskCnpj, maskCpf } from '../lib/masks';
+import { maskCpf } from '../lib/masks';
 
-function formatDoc(documento: string, tipo?: string) {
-  if (!documento) return '—';
-  return tipo === 'FISICA' ? maskCpf(documento) : maskCnpj(documento);
-}
-
-export default function FornecedoresList() {
-  const { data: fornecedores, isLoading, error, refetch } = useFornecedores();
-  const del = useDeleteFornecedor();
+export default function ServidoresList() {
+  const { data: servidores, isLoading, error, refetch } = useServidores();
+  const del = useDeleteServidor();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
 
@@ -36,7 +31,7 @@ export default function FornecedoresList() {
     if (!confirm.pending) return;
     try {
       await del.mutateAsync(confirm.pending.payload);
-      toast.success('Fornecedor desativado.');
+      toast.success('Servidor desativado.');
     } catch (err) {
       toast.error('Falha ao excluir', getErrorMessage(err));
     }
@@ -44,7 +39,7 @@ export default function FornecedoresList() {
 
   if (isLoading) {
     return (
-      <Page title="Fornecedores" description="Carregando cadastros...">
+      <Page title="Servidores" description="Carregando cadastros...">
         <Skeleton variant="table" lines={6} />
       </Page>
     );
@@ -52,9 +47,9 @@ export default function FornecedoresList() {
 
   if (error) {
     return (
-      <Page title="Fornecedores">
+      <Page title="Servidores">
         <ErrorState
-          title="Falha ao carregar fornecedores"
+          title="Falha ao carregar servidores"
           message={getErrorMessage(error)}
           code={(error as { code?: string }).code}
           onRetry={() => refetch()}
@@ -65,10 +60,10 @@ export default function FornecedoresList() {
 
   return (
     <Page
-      title="Fornecedores"
-      description="Cadastro unificado de contratadas (PJ/PF), com contatos e sanções."
+      title="Servidores"
+      description="Gestores e fiscais de contrato (servidores públicos)."
       actions={
-        <Link to="/fornecedores/new">
+        <Link to="/servidores/new">
           <Button>
             <Plus size={16} /> Novo
           </Button>
@@ -80,22 +75,22 @@ export default function FornecedoresList() {
           <Table>
             <TableHead>
               <TableRow>
-                <TableHeader>Razão social</TableHeader>
-                <TableHeader>Documento</TableHeader>
-                <TableHeader>Situação</TableHeader>
+                <TableHeader>Nome</TableHeader>
+                <TableHeader>CPF</TableHeader>
+                <TableHeader>Cargo</TableHeader>
                 <TableHeader>Ações</TableHeader>
               </TableRow>
             </TableHead>
             <TableBody>
-              {fornecedores?.length ? (
-                fornecedores.map((f) => (
-                  <TableRow key={f.id}>
-                    <TableCell className="font-semibold">{f.razaoSocial || f.nome}</TableCell>
-                    <TableCell>{formatDoc(f.documento || f.cnpj || '', f.tipoPessoa)}</TableCell>
-                    <TableCell>{f.situacao || 'ATIVO'}</TableCell>
+              {servidores?.length ? (
+                servidores.map((s) => (
+                  <TableRow key={s.id}>
+                    <TableCell className="font-semibold">{s.nome}</TableCell>
+                    <TableCell>{s.cpf ? maskCpf(s.cpf) : '—'}</TableCell>
+                    <TableCell>{s.cargo || '—'}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Link to={`/fornecedores/${f.id}/edit`}>
+                        <Link to={`/servidores/${s.id}/edit`}>
                           <Button size="sm" variant="secondary">
                             Editar
                           </Button>
@@ -104,7 +99,7 @@ export default function FornecedoresList() {
                           size="sm"
                           variant="danger"
                           onClick={() =>
-                            confirm.ask(f.id, 'Desativar fornecedor?', 'O registro será marcado como inativo.')
+                            confirm.ask(s.id, 'Desativar servidor?', 'O registro será marcado como inativo.')
                           }
                         >
                           Desativar
@@ -116,7 +111,7 @@ export default function FornecedoresList() {
               ) : (
                 <TableRow>
                   <TableCell colSpan={4} className="text-[var(--text-muted)]">
-                    Nenhum fornecedor.
+                    Nenhum servidor.
                   </TableCell>
                 </TableRow>
               )}

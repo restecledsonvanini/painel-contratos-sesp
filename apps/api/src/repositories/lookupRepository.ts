@@ -120,6 +120,16 @@ export const lookupRepository = {
       };
     }
 
+    if (slug === 'fornecedores') {
+      const { fornecedorRepository } = await import('./fornecedorRepository');
+      return fornecedorRepository.searchLookup(query);
+    }
+
+    if (slug === 'servidores') {
+      const { servidorRepository } = await import('./servidorRepository');
+      return servidorRepository.searchLookup(query);
+    }
+
     // Domínio genérico por slug
     const dominio = await db.dominio.findUnique({ where: { slug } });
     if (!dominio) return null;

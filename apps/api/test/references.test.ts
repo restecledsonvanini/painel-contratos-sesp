@@ -36,7 +36,7 @@ describe('references API integration', () => {
     }
   });
 
-  it('persists fornecedor CRUD', async () => {
+  it('persists fornecedor CRUD on /api/v1 and references alias', async () => {
     if (!ready) {
       console.warn('Skipping references integration — DATABASE_URL unreachable');
       return;
@@ -44,25 +44,28 @@ describe('references API integration', () => {
 
     const cnpj = `${Date.now()}`.padStart(14, '9').slice(0, 14);
     const createRes = await request(app)
-      .post('/.netlify/functions/api/references/fornecedores')
-      .send({ nome: 'ACME Ltda', cnpj });
+      .post('/api/v1/fornecedores')
+      .send({ razaoSocial: 'ACME Ltda', documento: cnpj, tipoPessoa: 'JURIDICA' });
 
     expect(createRes.status).toBe(201);
     createdFornecedorIds.push(createRes.body.id);
+    expect(createRes.body.razaoSocial).toBe('ACME Ltda');
 
-    const listRes = await request(app).get('/.netlify/functions/api/references/fornecedores');
+    const listRes = await request(app).get('/api/v1/fornecedores?flat=true');
     expect(listRes.status).toBe(200);
     expect(listRes.body.some((item: any) => item.id === createRes.body.id)).toBe(true);
 
-    const updateRes = await request(app)
-      .put(`/.netlify/functions/api/references/fornecedores/${createRes.body.id}`)
-      .send({ nome: 'ACME Atualizada' });
-    expect(updateRes.status).toBe(200);
-    expect(updateRes.body.nome).toBe('ACME Atualizada');
+    const lookupRes = await request(app).get(`/api/v1/lookups/fornecedores?q=ACME`);
+    expect(lookupRes.status).toBe(200);
+    expect(lookupRes.body.data.some((item: any) => item.id === createRes.body.id)).toBe(true);
 
-    const deleteRes = await request(app).delete(
-      `/.netlify/functions/api/references/fornecedores/${createRes.body.id}`
-    );
+    const updateRes = await request(app)
+      .put(`/api/v1/fornecedores/${createRes.body.id}`)
+      .send({ razaoSocial: 'ACME Atualizada' });
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body.razaoSocial).toBe('ACME Atualizada');
+
+    const deleteRes = await request(app).delete(`/api/v1/fornecedores/${createRes.body.id}`);
     expect(deleteRes.status).toBe(200);
     createdFornecedorIds.pop();
   });

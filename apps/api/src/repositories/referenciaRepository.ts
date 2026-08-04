@@ -1,5 +1,8 @@
 import { getPrisma } from '../lib/prisma';
 import { writeAuditLog } from '../lib/audit';
+import { fornecedorRepository } from './fornecedorRepository';
+import { servidorRepository } from './servidorRepository';
+import type { FornecedorCreateInput, ServidorCreateInput } from '@painel/schema';
 
 type AuditArgs = {
   tabela: string;
@@ -18,6 +21,19 @@ async function audit(args: AuditArgs) {
     changedBy: args.changedBy,
     source: 'api',
   });
+}
+
+function asEmpresaShape(f: {
+  id: string;
+  documento: string;
+  razaoSocial: string;
+  [key: string]: unknown;
+}) {
+  return { id: f.id, cnpj: f.documento, razaoSocial: f.razaoSocial };
+}
+
+function asEntidadeShape(s: { id: string; nome: string; cpf: string | null; [key: string]: unknown }) {
+  return { id: s.id, nome: s.nome, cpf: s.cpf ?? '' };
 }
 
 export const referenciaRepository = {
@@ -46,107 +62,25 @@ export const referenciaRepository = {
     },
   },
 
+  /** Compat: Empresa → Fornecedor */
   empresas: {
-    list: () => getPrisma().empresa.findMany({ orderBy: { razaoSocial: 'asc' } }),
-    get: (id: string) => getPrisma().empresa.findUnique({ where: { id } }),
-    create: async (data: { cnpj: string; razaoSocial: string }, changedBy: string | null) => {
-      const empresa = await getPrisma().empresa.create({ data });
-      await audit({ tabela: 'empresa', registroId: empresa.id, action: 'create', changedBy, diff: empresa });
-      return empresa;
-    },
-    update: async (
-      id: string,
-      data: Partial<{ cnpj: string; razaoSocial: string }>,
-      existing: unknown,
-      changedBy: string | null,
-    ) => {
-      const updated = await getPrisma().empresa.update({ where: { id }, data });
-      await audit({
-        tabela: 'empresa',
-        registroId: updated.id,
-        action: 'update',
-        changedBy,
-        diff: { before: existing, patch: data },
-      });
-      return updated;
-    },
-    remove: async (id: string, existing: { id: string }, changedBy: string | null) => {
-      await getPrisma().empresa.delete({ where: { id } });
-      await audit({ tabela: 'empresa', registroId: existing.id, action: 'delete', changedBy, diff: existing });
-    },
-  },
-
-  entidadesGestoras: {
-    list: () => getPrisma().entidadeGestora.findMany({ orderBy: { nome: 'asc' } }),
-    get: (id: string) => getPrisma().entidadeGestora.findUnique({ where: { id } }),
-    create: async (data: { nome: string; cpf: string }, changedBy: string | null) => {
-      const entidade = await getPrisma().entidadeGestora.create({ data });
-      await audit({
-        tabela: 'entidadeGestora',
-        registroId: entidade.id,
-        action: 'create',
-        changedBy,
-        diff: entidade,
-      });
-      return entidade;
-    },
-    update: async (
-      id: string,
-      data: Partial<{ nome: string; cpf: string }>,
-      existing: unknown,
-      changedBy: string | null,
-    ) => {
-      const updated = await getPrisma().entidadeGestora.update({ where: { id }, data });
-      await audit({
-        tabela: 'entidadeGestora',
-        registroId: updated.id,
-        action: 'update',
-        changedBy,
-        diff: { before: existing, patch: data },
-      });
-      return updated;
-    },
-    remove: async (id: string, existing: { id: string }, changedBy: string | null) => {
-      await getPrisma().entidadeGestora.delete({ where: { id } });
-      await audit({
-        tabela: 'entidadeGestora',
-        registroId: existing.id,
-        action: 'delete',
-        changedBy,
-        diff: existing,
-      });
-    },
-  },
-
-  fornecedores: {
     list: async () => {
-      const rows = await getPrisma().fornecedor.findMany({ orderBy: { nome: 'asc' } });
-      return rows.map((item) => ({ ...item, cnpj: item.cnpj ?? '' }));
+      const rows = await fornecedorRepository.listAll();
+      return rows.map(asEmpresaShape);
     },
-    get: async (id: string) => {
-      const record = await getPrisma().fornecedor.findUnique({ where: { id } });
-      return record ? { ...record, cnpj: record.cnpj ?? '' } : null;
-    },
-    create: async (data: { nome: string; cnpj?: string | null }, changedBy: string | null) => {
-      const record = await getPrisma().fornecedor.create({
-        data: { nome: data.nome, cnpj: data.cnpj || null },
-      });
-      await audit({ tabela: 'fornecedor', registroId: record.id, action: 'create', changedBy, diff: record });
-      return { ...record, cnpj: record.cnpj ?? '' };
+    get: async (id: string) => asEmpresaShape(await fornecedorRepository.get(id)),
+    create: async (data: FornecedorCreateInput, changedBy: string | null) => {
+      const created = await fornecedorRepository.create(data);
+      await audit({ tabela: 'fornecedor', registroId: created.id, action: 'create', changedBy, diff: created });
+      return asEmpresaShape(created);
     },
     update: async (
       id: string,
-      data: { nome?: string; cnpj?: string | null },
-      existing: { nome: string; cnpj: string | null },
+      data: { documento?: string; razaoSocial?: string },
+      existing: unknown,
       changedBy: string | null,
     ) => {
-      const updated = await getPrisma().fornecedor.update({
-        where: { id },
-        data: {
-          nome: data.nome ?? existing.nome,
-          cnpj: data.cnpj === undefined ? existing.cnpj : data.cnpj || null,
-        },
-      });
+      const updated = await fornecedorRepository.update(id, data);
       await audit({
         tabela: 'fornecedor',
         registroId: updated.id,
@@ -154,10 +88,69 @@ export const referenciaRepository = {
         changedBy,
         diff: { before: existing, patch: data },
       });
-      return { ...updated, cnpj: updated.cnpj ?? '' };
+      return asEmpresaShape(updated);
     },
     remove: async (id: string, existing: { id: string }, changedBy: string | null) => {
-      await getPrisma().fornecedor.delete({ where: { id } });
+      await fornecedorRepository.remove(id);
+      await audit({ tabela: 'fornecedor', registroId: existing.id, action: 'delete', changedBy, diff: existing });
+    },
+  },
+
+  /** Compat: EntidadeGestora → Servidor */
+  entidadesGestoras: {
+    list: async () => {
+      const rows = await servidorRepository.listAll();
+      return rows.map(asEntidadeShape);
+    },
+    get: async (id: string) => asEntidadeShape(await servidorRepository.get(id)),
+    create: async (data: ServidorCreateInput, changedBy: string | null) => {
+      const created = await servidorRepository.create(data);
+      await audit({ tabela: 'servidor', registroId: created.id, action: 'create', changedBy, diff: created });
+      return asEntidadeShape(created);
+    },
+    update: async (
+      id: string,
+      data: { nome?: string; cpf?: string | null },
+      existing: unknown,
+      changedBy: string | null,
+    ) => {
+      const updated = await servidorRepository.update(id, data);
+      await audit({
+        tabela: 'servidor',
+        registroId: updated.id,
+        action: 'update',
+        changedBy,
+        diff: { before: existing, patch: data },
+      });
+      return asEntidadeShape(updated);
+    },
+    remove: async (id: string, existing: { id: string }, changedBy: string | null) => {
+      await servidorRepository.remove(id);
+      await audit({ tabela: 'servidor', registroId: existing.id, action: 'delete', changedBy, diff: existing });
+    },
+  },
+
+  fornecedores: {
+    list: () => fornecedorRepository.listAll(),
+    get: (id: string) => fornecedorRepository.get(id),
+    create: async (data: FornecedorCreateInput, changedBy: string | null) => {
+      const record = await fornecedorRepository.create(data);
+      await audit({ tabela: 'fornecedor', registroId: record.id, action: 'create', changedBy, diff: record });
+      return record;
+    },
+    update: async (id: string, data: Record<string, unknown>, existing: unknown, changedBy: string | null) => {
+      const updated = await fornecedorRepository.update(id, data as never);
+      await audit({
+        tabela: 'fornecedor',
+        registroId: updated.id,
+        action: 'update',
+        changedBy,
+        diff: { before: existing, patch: data },
+      });
+      return updated;
+    },
+    remove: async (id: string, existing: { id: string }, changedBy: string | null) => {
+      await fornecedorRepository.remove(id);
       await audit({ tabela: 'fornecedor', registroId: existing.id, action: 'delete', changedBy, diff: existing });
     },
   },

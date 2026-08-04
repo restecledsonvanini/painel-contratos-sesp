@@ -159,50 +159,44 @@ async function main() {
       });
     }
 
-    const empresas = [
-      { cnpj: '00000000000191', razaoSocial: 'Fornecedor Exemplo LTDA' },
-      { cnpj: '11222333000181', razaoSocial: 'Locadora Paraná Veículos S.A.' },
-      { cnpj: '44555666000172', razaoSocial: 'Alimentos Cascavel Ltda' },
-      { cnpj: '77888999000163', razaoSocial: 'Tech Segurança Sistemas ME' },
-    ];
-
-    for (const e of empresas) {
-      await tx.empresa.upsert({
-        where: { cnpj: e.cnpj },
-        update: { razaoSocial: e.razaoSocial },
-        create: e,
-      });
-    }
-
-    const gestores = [
-      { cpf: '12345678901', nome: 'Gestor Exemplo' },
-      { cpf: '98765432100', nome: 'Fiscal Exemplo' },
-      { cpf: '11122233344', nome: 'Ana Paula Ferreira' },
-      { cpf: '55566677788', nome: 'Carlos Eduardo Lima' },
-      { cpf: '99988877766', nome: 'Mariana Souza Ribeiro' },
-    ];
-
-    for (const g of gestores) {
-      await tx.entidadeGestora.upsert({
-        where: { cpf: g.cpf },
-        update: { nome: g.nome },
-        create: g,
-      });
-    }
-
     const fornecedores = [
-      { nome: 'Locadora Paraná Veículos S.A.', cnpj: '11222333000181' },
-      { nome: 'Alimentos Cascavel Ltda', cnpj: '44555666000172' },
-      { nome: 'Tech Segurança Sistemas ME', cnpj: '77888999000163' },
-      { nome: 'Serviços Gerais Curitiba EIRELI', cnpj: '33444555000190' },
+      { documento: '00000000000191', razaoSocial: 'Fornecedor Exemplo LTDA' },
+      { documento: '11222333000181', razaoSocial: 'Locadora Paraná Veículos S.A.' },
+      { documento: '44555666000172', razaoSocial: 'Alimentos Cascavel Ltda' },
+      { documento: '77888999000163', razaoSocial: 'Tech Segurança Sistemas ME' },
+      { documento: '33444555000190', razaoSocial: 'Serviços Gerais Curitiba EIRELI' },
     ];
 
     for (const f of fornecedores) {
-      const existing = await tx.fornecedor.findFirst({ where: { cnpj: f.cnpj } });
+      await tx.fornecedor.upsert({
+        where: { documento: f.documento },
+        update: { razaoSocial: f.razaoSocial, tipoPessoa: 'JURIDICA', situacao: 'ATIVO' },
+        create: {
+          tipoPessoa: 'JURIDICA',
+          documento: f.documento,
+          razaoSocial: f.razaoSocial,
+          situacao: 'ATIVO',
+        },
+      });
+    }
+
+    const servidores = [
+      { cpf: '12345678901', nome: 'Gestor Exemplo', cargo: 'Gestor de contratos' },
+      { cpf: '98765432100', nome: 'Fiscal Exemplo', cargo: 'Fiscal de contratos' },
+      { cpf: '11122233344', nome: 'Ana Paula Ferreira', cargo: 'Gestora' },
+      { cpf: '55566677788', nome: 'Carlos Eduardo Lima', cargo: 'Fiscal técnico' },
+      { cpf: '99988877766', nome: 'Mariana Souza Ribeiro', cargo: 'Fiscal administrativa' },
+    ];
+
+    for (const s of servidores) {
+      const existing = await tx.servidor.findFirst({ where: { cpf: s.cpf } });
       if (existing) {
-        await tx.fornecedor.update({ where: { id: existing.id }, data: { nome: f.nome } });
+        await tx.servidor.update({
+          where: { id: existing.id },
+          data: { nome: s.nome, cargo: s.cargo, ativo: true },
+        });
       } else {
-        await tx.fornecedor.create({ data: f });
+        await tx.servidor.create({ data: { ...s, ativo: true } });
       }
     }
 
@@ -229,14 +223,14 @@ async function main() {
     const unidadeDeppen = await tx.unidadeFsp.findUniqueOrThrow({ where: { sigla: 'DEPPEN' } });
     const unidadeSesp = await tx.unidadeFsp.findUniqueOrThrow({ where: { sigla: 'SESP' } });
 
-    const empresaExemplo = await tx.empresa.findUniqueOrThrow({ where: { cnpj: '00000000000191' } });
-    const empresaLocadora = await tx.empresa.findUniqueOrThrow({ where: { cnpj: '11222333000181' } });
-    const empresaAlimentos = await tx.empresa.findUniqueOrThrow({ where: { cnpj: '44555666000172' } });
+    const empresaExemplo = await tx.fornecedor.findUniqueOrThrow({ where: { documento: '00000000000191' } });
+    const empresaLocadora = await tx.fornecedor.findUniqueOrThrow({ where: { documento: '11222333000181' } });
+    const empresaAlimentos = await tx.fornecedor.findUniqueOrThrow({ where: { documento: '44555666000172' } });
 
-    const gestor = await tx.entidadeGestora.findUniqueOrThrow({ where: { cpf: '12345678901' } });
-    const fiscal = await tx.entidadeGestora.findUniqueOrThrow({ where: { cpf: '98765432100' } });
-    const ana = await tx.entidadeGestora.findUniqueOrThrow({ where: { cpf: '11122233344' } });
-    const carlos = await tx.entidadeGestora.findUniqueOrThrow({ where: { cpf: '55566677788' } });
+    const gestor = await tx.servidor.findFirstOrThrow({ where: { cpf: '12345678901' } });
+    const fiscal = await tx.servidor.findFirstOrThrow({ where: { cpf: '98765432100' } });
+    const ana = await tx.servidor.findFirstOrThrow({ where: { cpf: '11122233344' } });
+    const carlos = await tx.servidor.findFirstOrThrow({ where: { cpf: '55566677788' } });
 
     const contratosDemo = [
       {
@@ -246,7 +240,7 @@ async function main() {
         unidadeFspId: unidadePmpr.id,
         gestorId: gestor.id,
         fiscalId: fiscal.id,
-        empresaId: empresaExemplo.id,
+        fornecedorId: empresaExemplo.id,
         modalidade: 'DISPENSA',
         objeto: 'Serviço de exemplo — manutenção preventiva',
         valorAnualCents: 1_000_000,
@@ -267,7 +261,7 @@ async function main() {
         unidadeFspId: unidadeSesp.id,
         gestorId: ana.id,
         fiscalId: carlos.id,
-        empresaId: empresaLocadora.id,
+        fornecedorId: empresaLocadora.id,
         modalidade: 'PREGAO_ELETRONICO',
         objeto: 'Locação de 40 viaturas descaracterizadas para uso operacional',
         valorAnualCents: 4_800_000_00,
@@ -288,7 +282,7 @@ async function main() {
         unidadeFspId: unidadeDeppen.id,
         gestorId: carlos.id,
         fiscalId: ana.id,
-        empresaId: empresaAlimentos.id,
+        fornecedorId: empresaAlimentos.id,
         modalidade: 'PREGAO_ELETRONICO',
         objeto: 'Fornecimento de gêneros alimentícios para unidades prisionais',
         valorAnualCents: 12_500_000_00,
@@ -304,7 +298,7 @@ async function main() {
         unidadeFspId: unidadePmpr.id,
         gestorId: gestor.id,
         fiscalId: fiscal.id,
-        empresaId: empresaExemplo.id,
+        fornecedorId: empresaExemplo.id,
         modalidade: 'INEXIGIBILIDADE',
         objeto: 'Licenciamento de software de monitoramento (encerrado)',
         valorAnualCents: 350_000_00,
@@ -330,7 +324,7 @@ async function main() {
             unidadeFspId: c.unidadeFspId,
             gestorId: c.gestorId,
             fiscalId: c.fiscalId,
-            empresaId: c.empresaId,
+            fornecedorId: c.fornecedorId,
             modalidade: c.modalidade,
             objeto: c.objeto,
             valorAnualCents: c.valorAnualCents,
@@ -349,7 +343,7 @@ async function main() {
             unidadeFspId: c.unidadeFspId,
             gestorId: c.gestorId,
             fiscalId: c.fiscalId,
-            empresaId: c.empresaId,
+            fornecedorId: c.fornecedorId,
             modalidade: c.modalidade,
             objeto: c.objeto,
             valorAnualCents: c.valorAnualCents,
@@ -382,7 +376,8 @@ async function main() {
     orgaos: await prisma.orgao.count(),
     unidadesOrg: await prisma.unidadeOrganizacional.count(),
     unidadesFsp: await prisma.unidadeFsp.count(),
-    empresas: await prisma.empresa.count(),
+    fornecedores: await prisma.fornecedor.count(),
+    servidores: await prisma.servidor.count(),
     contratos: await prisma.contrato.count(),
   };
 

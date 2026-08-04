@@ -91,7 +91,7 @@ export default function Dashboard() {
             <div className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
               <p className="text-[var(--font-size-xs)] text-[var(--text-muted)]">Cadastros de apoio</p>
               <p className="mt-1 text-[var(--font-size-sm)] font-semibold">
-                Use o menu lateral para Empresas, Unidades FSP, Entidades e Serviços.
+                Use o menu lateral para Fornecedores, Servidores, Unidades FSP e Serviços.
               </p>
             </div>
           </div>

@@ -80,7 +80,7 @@ export default function ContractsList() {
                 <TableHeader>Protocolo</TableHeader>
                 <TableHeader>GMS/Ano</TableHeader>
                 <TableHeader>Unidade</TableHeader>
-                <TableHeader>Empresa</TableHeader>
+                <TableHeader>Fornecedor</TableHeader>
                 <TableHeader>Status</TableHeader>
                 <TableHeader>Valor anual</TableHeader>
                 <TableHeader>Ações</TableHeader>
@@ -99,7 +99,13 @@ export default function ContractsList() {
                       {contract.numGms}/{contract.anoGms}
                     </TableCell>
                     <TableCell>{contract.unidadeFsp?.sigla || contract.unidadeFspId}</TableCell>
-                    <TableCell>{contract.empresaName || contract.empresaId || '—'}</TableCell>
+                    <TableCell>
+                      {contract.fornecedorName ||
+                        contract.empresaName ||
+                        contract.fornecedorId ||
+                        contract.empresaId ||
+                        '—'}
+                    </TableCell>
                     <TableCell>
                       <StatusBadge status={contract.status} />
                     </TableCell>

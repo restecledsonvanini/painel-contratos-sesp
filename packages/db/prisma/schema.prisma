@@ -32,6 +32,32 @@ enum NivelUnidade {
   SETOR
 }
 
+enum TipoPessoa {
+  JURIDICA
+  FISICA
+}
+
+enum PorteEmpresa {
+  MEI
+  ME
+  EPP
+  DEMAIS
+}
+
+enum SituacaoFornecedor {
+  ATIVO
+  INATIVO
+  IMPEDIDO
+  INIDONEO
+}
+
+enum TipoSancao {
+  ADVERTENCIA
+  MULTA
+  IMPEDIMENTO_LICITAR
+  DECLARACAO_INIDONEIDADE
+}
+
 model UnidadeFsp {
   id        String     @id @default(uuid())
   sigla     String     @unique
@@ -39,35 +65,28 @@ model UnidadeFsp {
   contratos Contrato[]
 }
 
-model EntidadeGestora {
-  id              String     @id @default(uuid())
-  nome            String
-  cpf             String     @unique
-  gestorContratos Contrato[] @relation("gestorContratos")
-  fiscalContratos Contrato[] @relation("fiscalContratos")
-}
-
 model Municipio {
-  id                    String                  @id @default(uuid())
-  codigoIbge            String                  @unique
-  nome                  String
-  uf                    String
-  regiaoAdministrativa  String?
-  unidades              UnidadeOrganizacional[]
+  id                   String                  @id @default(uuid())
+  codigoIbge           String                  @unique
+  nome                 String
+  uf                   String
+  regiaoAdministrativa String?
+  unidades             UnidadeOrganizacional[]
+  fornecedores         Fornecedor[]
 
   @@index([uf, nome])
 }
 
 model Dominio {
-  id                 String         @id @default(uuid())
-  slug               String         @unique
-  nome               String
-  descricao          String?
-  editavelPeloUsuario Boolean       @default(true)
-  permiteHierarquia  Boolean        @default(false)
-  valores            DominioValor[]
-  createdAt          DateTime       @default(now())
-  updatedAt          DateTime       @updatedAt
+  id                  String         @id @default(uuid())
+  slug                String         @unique
+  nome                String
+  descricao           String?
+  editavelPeloUsuario Boolean        @default(true)
+  permiteHierarquia   Boolean        @default(false)
+  valores             DominioValor[]
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
 }
 
 model DominioValor {
@@ -98,6 +117,7 @@ model Orgao {
   tipo      TipoOrgao
   ativo     Boolean                 @default(true)
   unidades  UnidadeOrganizacional[]
+  servidores Servidor[]
   createdAt DateTime                @default(now())
   updatedAt DateTime                @updatedAt
 }
@@ -115,6 +135,7 @@ model UnidadeOrganizacional {
   municipioId String
   municipio   Municipio               @relation(fields: [municipioId], references: [id])
   ativo       Boolean                 @default(true)
+  servidores  Servidor[]
   createdAt   DateTime                @default(now())
   updatedAt   DateTime                @updatedAt
 
@@ -124,47 +145,107 @@ model UnidadeOrganizacional {
   @@index([orgaoId, ativo])
 }
 
-model Empresa {
-  id          String     @id @default(uuid())
-  cnpj        String     @unique
-  razaoSocial String
-  contratos   Contrato[]
+model Fornecedor {
+  id                 String              @id @default(uuid())
+  tipoPessoa         TipoPessoa          @default(JURIDICA)
+  documento          String              @unique
+  razaoSocial        String
+  nomeFantasia       String?
+  inscricaoEstadual  String?
+  porte              PorteEmpresa?
+  municipioId        String?
+  municipio          Municipio?          @relation(fields: [municipioId], references: [id])
+  situacao           SituacaoFornecedor  @default(ATIVO)
+  codigoLegado       String?
+  contatos           FornecedorContato[]
+  sancoes            FornecedorSancao[]
+  contratos          Contrato[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([razaoSocial])
+  @@index([situacao])
 }
 
-model Fornecedor {
-  id        String   @id @default(uuid())
-  cnpj      String?  @unique
-  nome      String
-  createdAt DateTime @default(now())
+model FornecedorContato {
+  id           String     @id @default(uuid())
+  fornecedorId String
+  fornecedor   Fornecedor @relation(fields: [fornecedorId], references: [id], onDelete: Cascade)
+  nome         String
+  cargo        String?
+  email        String?
+  telefone     String?
+  principal    Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+
+  @@index([fornecedorId])
+}
+
+model FornecedorSancao {
+  id           String     @id @default(uuid())
+  fornecedorId String
+  fornecedor   Fornecedor @relation(fields: [fornecedorId], references: [id], onDelete: Cascade)
+  tipo         TipoSancao
+  processo     String?
+  dataInicio   DateTime   @db.Date
+  dataFim      DateTime?  @db.Date
+  abrangencia  String?
+  fonte        String?
+  createdAt    DateTime   @default(now())
+
+  @@index([fornecedorId])
+  @@index([dataFim])
+}
+
+model Servidor {
+  id          String                 @id @default(uuid())
+  nome        String
+  cpf         String?                @unique
+  rgFuncional String?                @unique
+  cargo       String?
+  orgaoId     String?
+  orgao       Orgao?                 @relation(fields: [orgaoId], references: [id])
+  unidadeId   String?
+  unidade     UnidadeOrganizacional? @relation(fields: [unidadeId], references: [id])
+  email       String?
+  telefone    String?
+  ativo       Boolean                @default(true)
+  gestorContratos Contrato[]         @relation("gestorContratos")
+  fiscalContratos Contrato[]         @relation("fiscalContratos")
+  createdAt   DateTime               @default(now())
+  updatedAt   DateTime               @updatedAt
+
+  @@index([nome])
+  @@index([orgaoId])
 }
 
 model Contrato {
-  id              String          @id @default(uuid())
-  protocoloCabeca String?         @unique
+  id              String     @id @default(uuid())
+  protocoloCabeca String?    @unique
   numGms          Int
   anoGms          Int
   unidadeFspId    String
-  unidadeFsp      UnidadeFsp      @relation(fields: [unidadeFspId], references: [id])
+  unidadeFsp      UnidadeFsp @relation(fields: [unidadeFspId], references: [id])
   gestorId        String
-  gestor          EntidadeGestora @relation("gestorContratos", fields: [gestorId], references: [id])
+  gestor          Servidor   @relation("gestorContratos", fields: [gestorId], references: [id])
   fiscalId        String
-  fiscal          EntidadeGestora @relation("fiscalContratos", fields: [fiscalId], references: [id])
-  empresaId       String
-  empresa         Empresa         @relation(fields: [empresaId], references: [id])
+  fiscal          Servidor   @relation("fiscalContratos", fields: [fiscalId], references: [id])
+  fornecedorId    String
+  fornecedor      Fornecedor @relation(fields: [fornecedorId], references: [id])
   modalidade      String
   objeto          String
   valorAnualCents Int
-  dataInicio      DateTime?       @db.Date
-  dataFimOrig     DateTime?       @db.Date
+  dataInicio      DateTime?  @db.Date
+  dataFimOrig     DateTime?  @db.Date
   status          String
   aditivos        Aditivo[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   @@unique([numGms, anoGms])
   @@index([dataFimOrig])
   @@index([unidadeFspId])
-  @@index([empresaId])
+  @@index([fornecedorId])
 }
 
 model Aditivo {

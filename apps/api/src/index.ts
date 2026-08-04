@@ -5,6 +5,7 @@ import contractsRouter from './routes/contracts';
 import referencesRouter from './routes/references';
 import lookupsRouter from './routes/lookups';
 import organizacaoRouter from './routes/organizacao';
+import partesRouter from './routes/partes';
 import { authenticate } from './middleware/auth';
 import { errorHandler } from './lib/errors';
 import { registerBigIntJson } from './lib/bigint-json';
@@ -35,6 +36,7 @@ function mountApi(base: string) {
   app.use(`${base}/references`, referencesRouter);
   app.use(base, lookupsRouter);
   app.use(base, organizacaoRouter);
+  app.use(base, partesRouter);
   app.get(`${base}/health`, (_req, res) => res.json({ ok: true, version: 'v1' }));
 }
 

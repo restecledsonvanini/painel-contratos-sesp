@@ -30,7 +30,9 @@ export const ContractCreateSchema = z
     unidadeFspId: uuid,
     gestorId: uuid,
     fiscalId: uuid,
-    empresaId: uuid,
+    fornecedorId: uuid.optional(),
+    /** @deprecated use fornecedorId */
+    empresaId: uuid.optional(),
     modalidade: z.string().min(1),
     objeto: z.string().min(1),
     valorAnual: z.number().nonnegative(),
@@ -39,9 +41,19 @@ export const ContractCreateSchema = z
     status: z.string().optional(),
     aditivos: z.array(AditivoCreateSchema).optional(),
   })
-  .superRefine(gestorFiscalRefine)
+  .superRefine((data, ctx) => {
+    gestorFiscalRefine(data, ctx);
+    if (!data.fornecedorId && !data.empresaId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'fornecedorId é obrigatório',
+        path: ['fornecedorId'],
+      });
+    }
+  })
   .transform((raw) => ({
     ...raw,
+    fornecedorId: (raw.fornecedorId ?? raw.empresaId)!,
     valorAnualCents: Math.round(raw.valorAnual * 100),
     dataInicio: raw.dataInicio || null,
     dataFimOrig: raw.dataFimOrig || null,
@@ -55,6 +67,8 @@ export const ContractUpdateSchema = z
     unidadeFspId: uuid.optional(),
     gestorId: uuid.optional(),
     fiscalId: uuid.optional(),
+    fornecedorId: uuid.optional(),
+    /** @deprecated use fornecedorId */
     empresaId: uuid.optional(),
     modalidade: z.string().min(1).optional(),
     objeto: z.string().min(1).optional(),
@@ -70,23 +84,13 @@ export const ContractUpdateSchema = z
     if (raw.valorAnual !== undefined && raw.valorAnualCents === undefined) {
       next.valorAnualCents = Math.round(raw.valorAnual * 100);
     }
+    if (raw.empresaId && !raw.fornecedorId) {
+      next.fornecedorId = raw.empresaId;
+    }
     delete next.valorAnual;
+    delete next.empresaId;
     return next;
   });
-
-export const EmpresaCreateSchema = z.object({
-  cnpj: z.string().min(8),
-  razaoSocial: z.string().min(1),
-});
-
-export const EmpresaUpdateSchema = EmpresaCreateSchema.partial();
-
-export const EntidadeGestoraCreateSchema = z.object({
-  nome: z.string().min(1),
-  cpf: z.string().min(11),
-});
-
-export const EntidadeGestoraUpdateSchema = EntidadeGestoraCreateSchema.partial();
 
 export const UnidadeFspCreateSchema = z.object({
   sigla: z.string().min(1),
@@ -94,13 +98,6 @@ export const UnidadeFspCreateSchema = z.object({
 });
 
 export const UnidadeFspUpdateSchema = UnidadeFspCreateSchema.partial();
-
-export const FornecedorCreateSchema = z.object({
-  nome: z.string().min(1),
-  cnpj: z.string().optional().nullable(),
-});
-
-export const FornecedorUpdateSchema = FornecedorCreateSchema.partial();
 
 export const ServicoCreateSchema = z.object({
   titulo: z.string().min(1),

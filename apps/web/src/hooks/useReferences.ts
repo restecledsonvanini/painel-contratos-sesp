@@ -8,22 +8,53 @@ export interface UnidadeFsp {
   nome: string;
 }
 
-export interface Empresa {
-  id: string;
-  cnpj: string;
-  razaoSocial: string;
-}
-
-export interface EntidadeGestora {
-  id: string;
-  nome: string;
-  cpf: string;
-}
-
 export interface Fornecedor {
   id: string;
-  nome: string;
+  tipoPessoa?: 'JURIDICA' | 'FISICA';
+  documento: string;
+  razaoSocial: string;
+  nomeFantasia?: string | null;
+  inscricaoEstadual?: string | null;
+  porte?: string | null;
+  municipioId?: string | null;
+  situacao?: string;
+  /** aliases */
   cnpj?: string;
+  nome?: string;
+  contatos?: FornecedorContato[];
+  sancoes?: FornecedorSancao[];
+}
+
+export interface FornecedorContato {
+  id: string;
+  nome: string;
+  cargo?: string | null;
+  email?: string | null;
+  telefone?: string | null;
+  principal: boolean;
+}
+
+export interface FornecedorSancao {
+  id: string;
+  tipo: string;
+  processo?: string | null;
+  dataInicio: string;
+  dataFim?: string | null;
+  abrangencia?: string | null;
+  fonte?: string | null;
+}
+
+export interface Servidor {
+  id: string;
+  nome: string;
+  cpf?: string | null;
+  rgFuncional?: string | null;
+  cargo?: string | null;
+  orgaoId?: string | null;
+  unidadeId?: string | null;
+  email?: string | null;
+  telefone?: string | null;
+  ativo?: boolean;
 }
 
 export interface Servico {
@@ -31,6 +62,11 @@ export interface Servico {
   titulo: string;
   descricao?: string;
 }
+
+/** @deprecated shape compat — same as Fornecedor resumido */
+export type Empresa = { id: string; cnpj: string; razaoSocial: string };
+/** @deprecated */
+export type EntidadeGestora = { id: string; nome: string; cpf: string };
 
 export function useUnidadesFsp() {
   return useQuery({
@@ -41,6 +77,111 @@ export function useUnidadesFsp() {
   });
 }
 
+export function useFornecedores() {
+  return useQuery({
+    queryKey: qk.fornecedores,
+    queryFn: async () => (await http.get<Fornecedor[]>('/fornecedores?flat=true')).data,
+    staleTime: 1000 * 60 * 10,
+  });
+}
+
+export function useFornecedor(id?: string) {
+  return useQuery({
+    queryKey: id ? qk.fornecedor(id) : ['fornecedores', 'empty'],
+    queryFn: async () => (await http.get<Fornecedor>(`/fornecedores/${id}`)).data,
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateFornecedor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: Partial<Fornecedor>) =>
+      (await http.post('/fornecedores', payload)).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.fornecedores });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
+}
+
+export function useUpdateFornecedor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, payload }: { id: string; payload: Partial<Fornecedor> }) =>
+      (await http.put(`/fornecedores/${id}`, payload)).data,
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: qk.fornecedores });
+      qc.invalidateQueries({ queryKey: qk.fornecedor(vars.id) });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
+}
+
+export function useDeleteFornecedor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => (await http.delete(`/fornecedores/${id}`)).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.fornecedores });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
+}
+
+export function useServidores() {
+  return useQuery({
+    queryKey: qk.servidores,
+    queryFn: async () => (await http.get<Servidor[]>('/servidores?flat=true')).data,
+    staleTime: 1000 * 60 * 10,
+    retry: 1,
+  });
+}
+
+export function useServidor(id?: string) {
+  return useQuery({
+    queryKey: id ? qk.servidor(id) : ['servidores', 'empty'],
+    queryFn: async () => (await http.get<Servidor>(`/servidores/${id}`)).data,
+    enabled: Boolean(id),
+  });
+}
+
+export function useCreateServidor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: Partial<Servidor>) => (await http.post('/servidores', payload)).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.servidores });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
+}
+
+export function useUpdateServidor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, payload }: { id: string; payload: Partial<Servidor> }) =>
+      (await http.put(`/servidores/${id}`, payload)).data,
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: qk.servidores });
+      qc.invalidateQueries({ queryKey: qk.servidor(vars.id) });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
+}
+
+export function useDeleteServidor() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) => (await http.delete(`/servidores/${id}`)).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.servidores });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
+}
+
+/** Compat aliases — apontam para Fornecedor/Servidor */
 export function useEmpresas() {
   return useQuery({
     queryKey: qk.empresas,
@@ -50,56 +191,12 @@ export function useEmpresas() {
   });
 }
 
-export function useEmpresa(id?: string) {
-  return useQuery({
-    queryKey: id ? qk.empresa(id) : ['empresas', 'empty'],
-    queryFn: async () => (await http.get<Empresa>(`/references/empresas/${id}`)).data,
-    enabled: Boolean(id),
-  });
-}
-
 export function useEntidadesGestoras() {
   return useQuery({
     queryKey: qk.entidadesGestoras,
     queryFn: async () => (await http.get<EntidadeGestora[]>('/references/entidades-gestoras')).data,
     staleTime: 1000 * 60 * 10,
     retry: 1,
-  });
-}
-
-export function useCreateEmpresa() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload: Partial<Empresa>) =>
-      (await http.post('/references/empresas', payload)).data,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qk.empresas });
-      queryClient.invalidateQueries({ queryKey: qk.lookups });
-    },
-  });
-}
-
-export function useUpdateEmpresa() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, payload }: { id: string; payload: Partial<Empresa> }) =>
-      (await http.put(`/references/empresas/${id}`, payload)).data,
-    onSuccess: (_d, vars) => {
-      queryClient.invalidateQueries({ queryKey: qk.empresas });
-      queryClient.invalidateQueries({ queryKey: qk.empresa(vars.id) });
-      queryClient.invalidateQueries({ queryKey: qk.lookups });
-    },
-  });
-}
-
-export function useDeleteEmpresa() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => (await http.delete(`/references/empresas/${id}`)).data,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qk.empresas });
-      queryClient.invalidateQueries({ queryKey: qk.lookups });
-    },
   });
 }
 
@@ -143,70 +240,6 @@ export function useDeleteUnidadeFsp() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: qk.unidadesFsp });
       queryClient.invalidateQueries({ queryKey: qk.lookups });
-    },
-  });
-}
-
-export function useCreateEntidadeGestora() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload: Partial<EntidadeGestora>) =>
-      (await http.post('/references/entidades-gestoras', payload)).data,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qk.entidadesGestoras });
-      queryClient.invalidateQueries({ queryKey: qk.lookups });
-    },
-  });
-}
-
-export function useFornecedores() {
-  return useQuery({
-    queryKey: qk.fornecedores,
-    queryFn: async () => (await http.get<Fornecedor[]>('/references/fornecedores')).data,
-    staleTime: 1000 * 60 * 10,
-  });
-}
-
-export function useFornecedor(id?: string) {
-  return useQuery({
-    queryKey: id ? qk.fornecedor(id) : ['fornecedores', 'empty'],
-    queryFn: async () => (await http.get<Fornecedor>(`/references/fornecedores/${id}`)).data,
-    enabled: Boolean(id),
-  });
-}
-
-export function useCreateFornecedor() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload: Partial<Fornecedor>) =>
-      (await http.post('/references/fornecedores', payload)).data,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: qk.fornecedores });
-      qc.invalidateQueries({ queryKey: qk.lookups });
-    },
-  });
-}
-
-export function useUpdateFornecedor() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, payload }: { id: string; payload: Partial<Fornecedor> }) =>
-      (await http.put(`/references/fornecedores/${id}`, payload)).data,
-    onSuccess: (_d, vars) => {
-      qc.invalidateQueries({ queryKey: qk.fornecedores });
-      qc.invalidateQueries({ queryKey: qk.fornecedor(vars.id) });
-      qc.invalidateQueries({ queryKey: qk.lookups });
-    },
-  });
-}
-
-export function useDeleteFornecedor() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => (await http.delete(`/references/fornecedores/${id}`)).data,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: qk.fornecedores });
-      qc.invalidateQueries({ queryKey: qk.lookups });
     },
   });
 }
@@ -258,38 +291,6 @@ export function useDeleteServico() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: qk.servicos });
       qc.invalidateQueries({ queryKey: qk.lookups });
-    },
-  });
-}
-
-export function useEntidadeGestora(id?: string) {
-  return useQuery({
-    queryKey: id ? qk.entidadeGestora(id) : ['entidadesGestoras', 'empty'],
-    queryFn: async () => (await http.get<EntidadeGestora>(`/references/entidades-gestoras/${id}`)).data,
-    enabled: Boolean(id),
-  });
-}
-
-export function useUpdateEntidadeGestora() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, payload }: { id: string; payload: Partial<EntidadeGestora> }) =>
-      (await http.put(`/references/entidades-gestoras/${id}`, payload)).data,
-    onSuccess: (_d, vars) => {
-      queryClient.invalidateQueries({ queryKey: qk.entidadesGestoras });
-      queryClient.invalidateQueries({ queryKey: qk.entidadeGestora(vars.id) });
-      queryClient.invalidateQueries({ queryKey: qk.lookups });
-    },
-  });
-}
-
-export function useDeleteEntidadeGestora() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => (await http.delete(`/references/entidades-gestoras/${id}`)).data,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: qk.entidadesGestoras });
-      queryClient.invalidateQueries({ queryKey: qk.lookups });
     },
   });
 }

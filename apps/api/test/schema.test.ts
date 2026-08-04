@@ -12,7 +12,7 @@ const baseContract = {
   unidadeFspId: 'a1111111-1111-4111-8111-111111111111',
   gestorId: 'a2222222-2222-4222-8222-222222222222',
   fiscalId: 'a3333333-3333-4333-8333-333333333333',
-  empresaId: 'a4444444-4444-4444-8444-444444444444',
+  fornecedorId: 'a4444444-4444-4444-8444-444444444444',
   modalidade: 'Dispensa',
   objeto: 'Objeto teste',
   valorAnual: 1500.5,
@@ -22,6 +22,16 @@ describe('ContractCreateSchema', () => {
   it('converts valorAnual to cents', () => {
     const parsed = ContractCreateSchema.parse(baseContract);
     expect(parsed.valorAnualCents).toBe(150050);
+    expect(parsed.fornecedorId).toBe(baseContract.fornecedorId);
+  });
+
+  it('accepts empresaId as alias for fornecedorId', () => {
+    const { fornecedorId: _f, ...rest } = baseContract;
+    const parsed = ContractCreateSchema.parse({
+      ...rest,
+      empresaId: 'a4444444-4444-4444-8444-444444444444',
+    });
+    expect(parsed.fornecedorId).toBe('a4444444-4444-4444-8444-444444444444');
   });
 
   it('rejects identical gestor and fiscal', () => {
@@ -52,14 +62,24 @@ describe('ContractUpdateSchema', () => {
 });
 
 describe('reference schemas', () => {
-  it('validates empresa create', () => {
+  it('maps empresa create to fornecedor shape', () => {
     expect(EmpresaCreateSchema.parse({ cnpj: '12345678000100', razaoSocial: 'ACME' })).toEqual({
-      cnpj: '12345678000100',
+      tipoPessoa: 'JURIDICA',
+      documento: '12345678000100',
       razaoSocial: 'ACME',
     });
   });
 
-  it('requires fornecedor nome', () => {
+  it('requires fornecedor documento and razaoSocial', () => {
     expect(() => FornecedorCreateSchema.parse({ cnpj: '1' })).toThrow();
+  });
+
+  it('accepts legacy nome/cnpj aliases', () => {
+    const parsed = FornecedorCreateSchema.parse({
+      nome: 'ACME Ltda',
+      cnpj: '12345678000100',
+    });
+    expect(parsed.razaoSocial).toBe('ACME Ltda');
+    expect(parsed.documento).toBe('12345678000100');
   });
 });

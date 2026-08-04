@@ -1,7 +1,6 @@
 import clsx from 'clsx';
 import {
   Briefcase,
-  Building2,
   ChevronLeft,
   ChevronRight,
   FilePlus2,
@@ -27,9 +26,8 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', to: '/', icon: LayoutDashboard },
   { label: 'Contratos', to: '/contracts', icon: FileText },
   { label: 'Novo contrato', to: '/contracts/new', icon: FilePlus2 },
-  { label: 'Empresas', to: '/empresas', icon: Building2 },
   { label: 'Fornecedores', to: '/fornecedores', icon: Briefcase },
-  { label: 'Entidades gestoras', to: '/entidades-gestoras', icon: Users },
+  { label: 'Servidores', to: '/servidores', icon: Users },
   { label: 'Unidades FSP', to: '/unidades-fsp', icon: Shield },
   { label: 'Serviços', to: '/servicos', icon: Wrench },
   { label: 'Listas suspensas', to: '/dominios', icon: ListTree },
