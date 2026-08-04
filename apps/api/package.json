@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@painel/db": "file:../../packages/db",
+    "@painel/domain": "file:../../packages/domain",
+    "@painel/schema": "file:../../packages/schema",
     "body-parser": "^2.3.0",
     "dotenv": "^16.4.7",
     "express": "^5.2.1",

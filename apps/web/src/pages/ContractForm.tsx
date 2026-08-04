@@ -2,14 +2,16 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ContractCreateSchema } from '../../../../packages/schema/src/contracts.ts';
-import { Button, Input, Page, Textarea } from '@painel/ui';
+import { ContractCreateSchema } from '@painel/schema';
+import { Button, Input, Page, Textarea, useToast } from '@painel/ui';
 import { useCreateContract, useUpdateContract, useContract } from '../hooks/useContracts';
 import { useEmpresas, useEntidadesGestoras, useUnidadesFsp } from '../hooks/useReferences';
+import { getErrorMessage } from '../lib/http';
 
 export default function ContractForm() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const toast = useToast();
   const createContract = useCreateContract();
   const updateContract = useUpdateContract();
   const { data: existingContract, isLoading: isContractLoading, error: contractError } = useContract(id);
@@ -80,14 +82,14 @@ export default function ContractForm() {
     try {
       if (id) {
         await updateContract.mutateAsync({ id, payload: data });
-        alert('Contrato atualizado.');
+        toast.success('Contrato atualizado.');
       } else {
         await createContract.mutateAsync(data);
-        alert('Contrato criado.');
+        toast.success('Contrato criado.');
       }
       navigate('/contracts');
-    } catch {
-      alert('Erro ao salvar contrato.');
+    } catch (err) {
+      toast.error('Erro ao salvar contrato.', getErrorMessage(err));
     }
   };
 

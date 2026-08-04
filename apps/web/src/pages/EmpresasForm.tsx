@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Page } from '@painel/ui';
+import { Button, Input, Page, useToast } from '@painel/ui';
 import { useCreateEmpresa, useEmpresa, useUpdateEmpresa } from '../hooks/useReferences';
+import { getErrorMessage } from '../lib/http';
 
 export default function EmpresasForm() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function EmpresasForm() {
   const { data: existing } = useEmpresa(id);
   const create = useCreateEmpresa();
   const update = useUpdateEmpresa();
+  const toast = useToast();
   const form = useForm({ defaultValues: { razaoSocial: '', cnpj: '' } });
   const { register, handleSubmit, setValue, formState: { errors }, getValues } = form;
 
@@ -30,11 +32,16 @@ export default function EmpresasForm() {
 
   const onSubmit = async (data: any) => {
     try {
-      if (id) await update.mutateAsync({ id, payload: data });
-      else await create.mutateAsync(data);
+      if (id) {
+        await update.mutateAsync({ id, payload: data });
+        toast.success('Empresa atualizada.');
+      } else {
+        await create.mutateAsync(data);
+        toast.success('Empresa criada.');
+      }
       navigate('/empresas');
-    } catch {
-      alert('Erro ao salvar');
+    } catch (err) {
+      toast.error('Erro ao salvar', getErrorMessage(err));
     }
   };
 

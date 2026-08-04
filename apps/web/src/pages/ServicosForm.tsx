@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Page, Textarea } from '@painel/ui';
+import { Button, Input, Page, Textarea, useToast } from '@painel/ui';
 import { useCreateServico, useServico, useUpdateServico } from '../hooks/useReferences';
+import { getErrorMessage } from '../lib/http';
 
 export default function ServicosForm() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function ServicosForm() {
   const { data: existing } = useServico(id);
   const create = useCreateServico();
   const update = useUpdateServico();
+  const toast = useToast();
   const form = useForm({ defaultValues: { titulo: '', descricao: '' } });
   const { register, handleSubmit, setValue, formState: { errors } } = form;
 
@@ -22,11 +24,16 @@ export default function ServicosForm() {
 
   const onSubmit = async (data: any) => {
     try {
-      if (id) await update.mutateAsync({ id, payload: data });
-      else await create.mutateAsync(data);
+      if (id) {
+        await update.mutateAsync({ id, payload: data });
+        toast.success('Serviço atualizado.');
+      } else {
+        await create.mutateAsync(data);
+        toast.success('Serviço criado.');
+      }
       navigate('/servicos');
-    } catch {
-      alert('Erro ao salvar');
+    } catch (err) {
+      toast.error('Erro ao salvar', getErrorMessage(err));
     }
   };
 

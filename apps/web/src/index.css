@@ -5,6 +5,10 @@
 @source "./pages/**/*.{js,ts,tsx}";
 @source "./layouts/**/*.{js,ts,tsx}";
 @source "./components/**/*.{js,ts,tsx}";
+@source "./lib/**/*.{js,ts,tsx}";
+@source "./hooks/**/*.{js,ts,tsx}";
+@source "./providers/**/*.{js,ts,tsx}";
+@source "./features/**/*.{js,ts,tsx}";
 
 @theme {
   --color-background: var(--background);

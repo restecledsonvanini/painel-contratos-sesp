@@ -1,5 +1,6 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { http } from '../lib/http';
+import { qk } from '../lib/queryKeys';
 
 export interface UnidadeFsp {
   id: string;
@@ -31,199 +32,264 @@ export interface Servico {
   descricao?: string;
 }
 
-const baseUrl = '/.netlify/functions/api/references';
-const http = { timeout: 8000 };
-
-async function getUnidadesFsp() {
-  const response = await axios.get<UnidadeFsp[]>(`${baseUrl}/unidades-fsp`, http);
-  return response.data;
-}
-
-async function getEmpresas() {
-  const response = await axios.get<Empresa[]>(`${baseUrl}/empresas`, http);
-  return response.data;
-}
-
-async function getEmpresa(id: string) {
-  const res = await axios.get<Empresa>(`${baseUrl}/empresas/${id}`, http);
-  return res.data;
-}
-
-async function getEntidadesGestoras() {
-  const response = await axios.get<EntidadeGestora[]>(`${baseUrl}/entidades-gestoras`, http);
-  return response.data;
-}
-
 export function useUnidadesFsp() {
-  return useQuery({ queryKey: ['unidadesFsp'], queryFn: getUnidadesFsp, staleTime: 1000 * 60 * 10, retry: 1 });
+  return useQuery({
+    queryKey: qk.unidadesFsp,
+    queryFn: async () => (await http.get<UnidadeFsp[]>('/references/unidades-fsp')).data,
+    staleTime: 1000 * 60 * 10,
+    retry: 1,
+  });
 }
 
 export function useEmpresas() {
-  return useQuery({ queryKey: ['empresas'], queryFn: getEmpresas, staleTime: 1000 * 60 * 10, retry: 1 });
+  return useQuery({
+    queryKey: qk.empresas,
+    queryFn: async () => (await http.get<Empresa[]>('/references/empresas')).data,
+    staleTime: 1000 * 60 * 10,
+    retry: 1,
+  });
 }
 
 export function useEmpresa(id?: string) {
-  return useQuery({ queryKey: ['empresa', id], queryFn: () => getEmpresa(id!), enabled: Boolean(id) });
+  return useQuery({
+    queryKey: id ? qk.empresa(id) : ['empresas', 'empty'],
+    queryFn: async () => (await http.get<Empresa>(`/references/empresas/${id}`)).data,
+    enabled: Boolean(id),
+  });
 }
 
 export function useEntidadesGestoras() {
-  return useQuery({ queryKey: ['entidadesGestoras'], queryFn: getEntidadesGestoras, staleTime: 1000 * 60 * 10, retry: 1 });
+  return useQuery({
+    queryKey: qk.entidadesGestoras,
+    queryFn: async () => (await http.get<EntidadeGestora[]>('/references/entidades-gestoras')).data,
+    staleTime: 1000 * 60 * 10,
+    retry: 1,
+  });
 }
 
 export function useCreateEmpresa() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: Partial<Empresa>) => axios.post(`${baseUrl}/empresas`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['empresas'] }),
+    mutationFn: async (payload: Partial<Empresa>) =>
+      (await http.post('/references/empresas', payload)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.empresas });
+      queryClient.invalidateQueries({ queryKey: qk.lookups });
+    },
   });
 }
 
 export function useUpdateEmpresa() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<Empresa> }) => axios.put(`${baseUrl}/empresas/${id}`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['empresas'] }),
+    mutationFn: async ({ id, payload }: { id: string; payload: Partial<Empresa> }) =>
+      (await http.put(`/references/empresas/${id}`, payload)).data,
+    onSuccess: (_d, vars) => {
+      queryClient.invalidateQueries({ queryKey: qk.empresas });
+      queryClient.invalidateQueries({ queryKey: qk.empresa(vars.id) });
+      queryClient.invalidateQueries({ queryKey: qk.lookups });
+    },
   });
 }
 
 export function useDeleteEmpresa() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => axios.delete(`${baseUrl}/empresas/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['empresas'] }),
+    mutationFn: async (id: string) => (await http.delete(`/references/empresas/${id}`)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.empresas });
+      queryClient.invalidateQueries({ queryKey: qk.lookups });
+    },
   });
 }
 
 export function useCreateUnidadeFsp() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: Partial<UnidadeFsp>) => axios.post(`${baseUrl}/unidades-fsp`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['unidadesFsp'] }),
+    mutationFn: async (payload: Partial<UnidadeFsp>) =>
+      (await http.post('/references/unidades-fsp', payload)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.unidadesFsp });
+      queryClient.invalidateQueries({ queryKey: qk.lookups });
+    },
   });
 }
 
-async function getUnidadeById(id: string) {
-  const res = await axios.get<UnidadeFsp>(`${baseUrl}/unidades-fsp/${id}`);
-  return res.data;
-}
-
 export function useUnidadeFspById(id?: string) {
-  return useQuery({ queryKey: ['unidadeFsp', id], queryFn: () => getUnidadeById(id!), enabled: Boolean(id) });
+  return useQuery({
+    queryKey: id ? qk.unidadeFsp(id) : ['unidadesFsp', 'empty'],
+    queryFn: async () => (await http.get<UnidadeFsp>(`/references/unidades-fsp/${id}`)).data,
+    enabled: Boolean(id),
+  });
 }
 
 export function useUpdateUnidadeFsp() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<UnidadeFsp> }) => axios.put(`${baseUrl}/unidades-fsp/${id}`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['unidadesFsp'] }),
+    mutationFn: async ({ id, payload }: { id: string; payload: Partial<UnidadeFsp> }) =>
+      (await http.put(`/references/unidades-fsp/${id}`, payload)).data,
+    onSuccess: (_d, vars) => {
+      queryClient.invalidateQueries({ queryKey: qk.unidadesFsp });
+      queryClient.invalidateQueries({ queryKey: qk.unidadeFsp(vars.id) });
+      queryClient.invalidateQueries({ queryKey: qk.lookups });
+    },
   });
 }
 
 export function useDeleteUnidadeFsp() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => axios.delete(`${baseUrl}/unidades-fsp/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['unidadesFsp'] }),
+    mutationFn: async (id: string) => (await http.delete(`/references/unidades-fsp/${id}`)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.unidadesFsp });
+      queryClient.invalidateQueries({ queryKey: qk.lookups });
+    },
   });
 }
 
 export function useCreateEntidadeGestora() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: Partial<EntidadeGestora>) => axios.post(`${baseUrl}/entidades-gestoras`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['entidadesGestoras'] }),
+    mutationFn: async (payload: Partial<EntidadeGestora>) =>
+      (await http.post('/references/entidades-gestoras', payload)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.entidadesGestoras });
+      queryClient.invalidateQueries({ queryKey: qk.lookups });
+    },
   });
 }
 
-// Fornecedores
-async function getFornecedores() {
-  const res = await axios.get<Fornecedor[]>(`${baseUrl}/fornecedores`);
-  return res.data;
-}
-
-async function getFornecedorById(id: string) {
-  const res = await axios.get<Fornecedor>(`${baseUrl}/fornecedores/${id}`);
-  return res.data;
-}
-
 export function useFornecedores() {
-  return useQuery({ queryKey: ['fornecedores'], queryFn: getFornecedores, staleTime: 1000 * 60 * 10 });
+  return useQuery({
+    queryKey: qk.fornecedores,
+    queryFn: async () => (await http.get<Fornecedor[]>('/references/fornecedores')).data,
+    staleTime: 1000 * 60 * 10,
+  });
 }
 
 export function useFornecedor(id?: string) {
-  return useQuery({ queryKey: ['fornecedor', id], queryFn: () => getFornecedorById(id!), enabled: Boolean(id) });
+  return useQuery({
+    queryKey: id ? qk.fornecedor(id) : ['fornecedores', 'empty'],
+    queryFn: async () => (await http.get<Fornecedor>(`/references/fornecedores/${id}`)).data,
+    enabled: Boolean(id),
+  });
 }
 
 export function useCreateFornecedor() {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: (payload: Partial<Fornecedor>) => axios.post(`${baseUrl}/fornecedores`, payload), onSuccess: () => qc.invalidateQueries({ queryKey: ['fornecedores'] }) });
+  return useMutation({
+    mutationFn: async (payload: Partial<Fornecedor>) =>
+      (await http.post('/references/fornecedores', payload)).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.fornecedores });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
 }
 
 export function useUpdateFornecedor() {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: ({ id, payload }: { id: string; payload: Partial<Fornecedor> }) => axios.put(`${baseUrl}/fornecedores/${id}`, payload), onSuccess: () => qc.invalidateQueries({ queryKey: ['fornecedores'] }) });
+  return useMutation({
+    mutationFn: async ({ id, payload }: { id: string; payload: Partial<Fornecedor> }) =>
+      (await http.put(`/references/fornecedores/${id}`, payload)).data,
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: qk.fornecedores });
+      qc.invalidateQueries({ queryKey: qk.fornecedor(vars.id) });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
 }
 
 export function useDeleteFornecedor() {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: (id: string) => axios.delete(`${baseUrl}/fornecedores/${id}`), onSuccess: () => qc.invalidateQueries({ queryKey: ['fornecedores'] }) });
-}
-
-// Serviços
-async function getServicos() {
-  const res = await axios.get<Servico[]>(`${baseUrl}/servicos`);
-  return res.data;
-}
-
-async function getServicoById(id: string) {
-  const res = await axios.get<Servico>(`${baseUrl}/servicos/${id}`);
-  return res.data;
+  return useMutation({
+    mutationFn: async (id: string) => (await http.delete(`/references/fornecedores/${id}`)).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.fornecedores });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
 }
 
 export function useServicos() {
-  return useQuery({ queryKey: ['servicos'], queryFn: getServicos, staleTime: 1000 * 60 * 10 });
+  return useQuery({
+    queryKey: qk.servicos,
+    queryFn: async () => (await http.get<Servico[]>('/references/servicos')).data,
+    staleTime: 1000 * 60 * 10,
+  });
 }
 
 export function useServico(id?: string) {
-  return useQuery({ queryKey: ['servico', id], queryFn: () => getServicoById(id!), enabled: Boolean(id) });
+  return useQuery({
+    queryKey: id ? qk.servico(id) : ['servicos', 'empty'],
+    queryFn: async () => (await http.get<Servico>(`/references/servicos/${id}`)).data,
+    enabled: Boolean(id),
+  });
 }
 
 export function useCreateServico() {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: (payload: Partial<Servico>) => axios.post(`${baseUrl}/servicos`, payload), onSuccess: () => qc.invalidateQueries({ queryKey: ['servicos'] }) });
+  return useMutation({
+    mutationFn: async (payload: Partial<Servico>) => (await http.post('/references/servicos', payload)).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.servicos });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
 }
 
 export function useUpdateServico() {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: ({ id, payload }: { id: string; payload: Partial<Servico> }) => axios.put(`${baseUrl}/servicos/${id}`, payload), onSuccess: () => qc.invalidateQueries({ queryKey: ['servicos'] }) });
+  return useMutation({
+    mutationFn: async ({ id, payload }: { id: string; payload: Partial<Servico> }) =>
+      (await http.put(`/references/servicos/${id}`, payload)).data,
+    onSuccess: (_d, vars) => {
+      qc.invalidateQueries({ queryKey: qk.servicos });
+      qc.invalidateQueries({ queryKey: qk.servico(vars.id) });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
 }
 
 export function useDeleteServico() {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: (id: string) => axios.delete(`${baseUrl}/servicos/${id}`), onSuccess: () => qc.invalidateQueries({ queryKey: ['servicos'] }) });
-}
-
-async function getEntidadeById(id: string) {
-  const res = await axios.get<EntidadeGestora>(`${baseUrl}/entidades-gestoras/${id}`);
-  return res.data;
+  return useMutation({
+    mutationFn: async (id: string) => (await http.delete(`/references/servicos/${id}`)).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: qk.servicos });
+      qc.invalidateQueries({ queryKey: qk.lookups });
+    },
+  });
 }
 
 export function useEntidadeGestora(id?: string) {
-  return useQuery({ queryKey: ['entidadeGestora', id], queryFn: () => getEntidadeById(id!), enabled: Boolean(id) });
+  return useQuery({
+    queryKey: id ? qk.entidadeGestora(id) : ['entidadesGestoras', 'empty'],
+    queryFn: async () => (await http.get<EntidadeGestora>(`/references/entidades-gestoras/${id}`)).data,
+    enabled: Boolean(id),
+  });
 }
 
 export function useUpdateEntidadeGestora() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<EntidadeGestora> }) => axios.put(`${baseUrl}/entidades-gestoras/${id}`, payload),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['entidadesGestoras'] }),
+    mutationFn: async ({ id, payload }: { id: string; payload: Partial<EntidadeGestora> }) =>
+      (await http.put(`/references/entidades-gestoras/${id}`, payload)).data,
+    onSuccess: (_d, vars) => {
+      queryClient.invalidateQueries({ queryKey: qk.entidadesGestoras });
+      queryClient.invalidateQueries({ queryKey: qk.entidadeGestora(vars.id) });
+      queryClient.invalidateQueries({ queryKey: qk.lookups });
+    },
   });
 }
 
 export function useDeleteEntidadeGestora() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => axios.delete(`${baseUrl}/entidades-gestoras/${id}`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['entidadesGestoras'] }),
+    mutationFn: async (id: string) => (await http.delete(`/references/entidades-gestoras/${id}`)).data,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: qk.entidadesGestoras });
+      queryClient.invalidateQueries({ queryKey: qk.lookups });
+    },
   });
 }

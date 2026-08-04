@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Page } from '@painel/ui';
+import { Button, Input, Page, useToast } from '@painel/ui';
 import { useCreateUnidadeFsp, useUnidadeFspById, useUpdateUnidadeFsp } from '../hooks/useReferences';
+import { getErrorMessage } from '../lib/http';
 
 export default function UnidadesFspForm() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function UnidadesFspForm() {
   const { data: existing } = useUnidadeFspById(id);
   const create = useCreateUnidadeFsp();
   const update = useUpdateUnidadeFsp();
+  const toast = useToast();
   const form = useForm({ defaultValues: { sigla: '', nome: '' } });
   const { register, handleSubmit, setValue, formState: { errors } } = form;
 
@@ -22,11 +24,16 @@ export default function UnidadesFspForm() {
 
   const onSubmit = async (data: any) => {
     try {
-      if (id) await update.mutateAsync({ id, payload: data });
-      else await create.mutateAsync(data);
+      if (id) {
+        await update.mutateAsync({ id, payload: data });
+        toast.success('Unidade FSP atualizada.');
+      } else {
+        await create.mutateAsync(data);
+        toast.success('Unidade FSP criada.');
+      }
       navigate('/unidades-fsp');
-    } catch {
-      alert('Erro ao salvar');
+    } catch (err) {
+      toast.error('Erro ao salvar', getErrorMessage(err));
     }
   };
 

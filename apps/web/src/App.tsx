@@ -16,6 +16,7 @@ const UnidadesFspList = lazy(() => import('./pages/UnidadesFspList'));
 const UnidadesFspForm = lazy(() => import('./pages/UnidadesFspForm'));
 const FornecedoresForm = lazy(() => import('./pages/FornecedoresForm'));
 const ServicosForm = lazy(() => import('./pages/ServicosForm'));
+const DevUi = lazy(() => import('./pages/DevUi'));
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="/unidades-fsp" element={<UnidadesFspList />} />
           <Route path="/unidades-fsp/new" element={<UnidadesFspForm />} />
           <Route path="/unidades-fsp/:id/edit" element={<UnidadesFspForm />} />
+          <Route path="/dev/ui" element={<DevUi />} />
         </Routes>
       </Suspense>
     </DashboardLayout>

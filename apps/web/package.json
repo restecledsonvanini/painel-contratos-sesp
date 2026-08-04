@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.5.7",
+    "@painel/domain": "file:../../packages/domain",
+    "@painel/schema": "file:../../packages/schema",
     "@painel/ui": "file:../../packages/ui",
     "@tanstack/react-query": "^5.101.4",
     "axios": "^1.19.0",
@@ -18,7 +20,7 @@
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.83.0",
     "react-router-dom": "^6.30.0",
-    "zod": "^4.4.3"
+    "zod": "3.25.76"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.12",

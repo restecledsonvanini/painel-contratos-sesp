@@ -84,13 +84,21 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
   }
 
   const message = err instanceof Error ? err.message : 'Internal server error';
-  console.error(JSON.stringify({ code: 'INTERNAL_ERROR', message, err: String(err) }));
+  const name = err instanceof Error ? err.name : '';
+  console.error(JSON.stringify({ code: 'INTERNAL_ERROR', name, message, err: String(err) }));
 
-  if (message.includes('DATABASE_URL')) {
+  const dbDown =
+    name === 'PrismaClientInitializationError' ||
+    message.includes('DATABASE_URL') ||
+    message.includes("Can't reach database server") ||
+    message.includes('P1001') ||
+    message.includes('ECONNREFUSED');
+
+  if (dbDown) {
     const body: ApiErrorBody = {
       error: {
         code: 'SERVICE_UNAVAILABLE',
-        message: 'Database unavailable',
+        message: 'Banco de dados indisponível. Verifique se o Postgres (Docker) está rodando na porta 5434.',
       },
     };
     return res.status(503).json(body);

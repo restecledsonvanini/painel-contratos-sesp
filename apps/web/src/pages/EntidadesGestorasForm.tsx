@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Page } from '@painel/ui';
+import { Button, Input, Page, useToast } from '@painel/ui';
 import { useCreateEntidadeGestora, useEntidadeGestora, useUpdateEntidadeGestora } from '../hooks/useReferences';
+import { getErrorMessage } from '../lib/http';
 
 export default function EntidadesGestorasForm() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function EntidadesGestorasForm() {
   const { data: existing } = useEntidadeGestora(id);
   const create = useCreateEntidadeGestora();
   const update = useUpdateEntidadeGestora();
+  const toast = useToast();
   const form = useForm({ defaultValues: { nome: '', cpf: '' } });
   const { register, handleSubmit, setValue, formState: { errors }, getValues } = form;
 
@@ -30,11 +32,16 @@ export default function EntidadesGestorasForm() {
 
   const onSubmit = async (data: any) => {
     try {
-      if (id) await update.mutateAsync({ id, payload: data });
-      else await create.mutateAsync(data);
+      if (id) {
+        await update.mutateAsync({ id, payload: data });
+        toast.success('Entidade atualizada.');
+      } else {
+        await create.mutateAsync(data);
+        toast.success('Entidade criada.');
+      }
       navigate('/entidades-gestoras');
-    } catch {
-      alert('Erro ao salvar');
+    } catch (err) {
+      toast.error('Erro ao salvar', getErrorMessage(err));
     }
   };
 

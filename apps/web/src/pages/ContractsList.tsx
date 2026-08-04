@@ -3,7 +3,10 @@ import { Link } from 'react-router-dom';
 import {
   Button,
   Card,
+  ConfirmDialog,
+  ErrorState,
   Page,
+  Skeleton,
   StatusBadge,
   Table,
   TableBody,
@@ -11,28 +14,34 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  useToast,
 } from '@painel/ui';
 import { Plus } from 'lucide-react';
 import { useContracts, useDeleteContract } from '../hooks/useContracts';
+import { getErrorMessage } from '../lib/http';
+import { useConfirmDialog } from '../lib/useConfirmDialog';
 
 export default function ContractsList() {
-  const { data, isLoading, error } = useContracts();
+  const { data, isLoading, error, refetch } = useContracts();
   const deleteContract = useDeleteContract();
+  const toast = useToast();
+  const confirm = useConfirmDialog<string>();
   const contracts = Array.isArray(data) ? data.filter(Boolean) : [];
 
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Deseja realmente excluir este contrato?')) return;
+  const handleDelete = async () => {
+    if (!confirm.pending) return;
     try {
-      await deleteContract.mutateAsync(id);
-    } catch {
-      alert('Falha ao excluir contrato.');
+      await deleteContract.mutateAsync(confirm.pending.payload);
+      toast.success('Contrato excluído.');
+    } catch (err) {
+      toast.error('Falha ao excluir contrato.', getErrorMessage(err));
     }
   };
 
   if (isLoading) {
     return (
       <Page title="Contratos" description="Carregando cadastros...">
-        <Card className="p-[var(--space-lg)] text-[var(--text-muted)]">Carregando contratos...</Card>
+        <Skeleton variant="table" lines={6} />
       </Page>
     );
   }
@@ -40,9 +49,12 @@ export default function ContractsList() {
   if (error) {
     return (
       <Page title="Contratos">
-        <Card className="p-[var(--space-lg)] text-[var(--danger)]">
-          Falha ao carregar contratos. Verifique se a API está rodando (`npm run api:dev`).
-        </Card>
+        <ErrorState
+          title="Falha ao carregar contratos"
+          message={getErrorMessage(error)}
+          code={(error as { code?: string }).code}
+          onRetry={() => refetch()}
+        />
       </Page>
     );
   }
@@ -111,7 +123,13 @@ export default function ContractsList() {
                             Editar
                           </Button>
                         </Link>
-                        <Button size="sm" variant="danger" onClick={() => handleDelete(contract.id)}>
+                        <Button
+                          size="sm"
+                          variant="danger"
+                          onClick={() =>
+                            confirm.ask(contract.id, 'Excluir contrato?', 'Esta ação não pode ser desfeita.')
+                          }
+                        >
                           Excluir
                         </Button>
                       </div>
@@ -129,6 +147,17 @@ export default function ContractsList() {
           </Table>
         </div>
       </Card>
+
+      <ConfirmDialog
+        open={confirm.open}
+        onOpenChange={confirm.onOpenChange}
+        title={confirm.pending?.title ?? 'Confirmar'}
+        description={confirm.pending?.description}
+        variant="danger"
+        confirmLabel="Excluir"
+        onConfirm={handleDelete}
+        loading={deleteContract.isPending}
+      />
     </Page>
   );
 }

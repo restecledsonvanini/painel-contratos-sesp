@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Page } from '@painel/ui';
+import { Button, Input, Page, useToast } from '@painel/ui';
 import { useCreateFornecedor, useFornecedor, useUpdateFornecedor } from '../hooks/useReferences';
+import { getErrorMessage } from '../lib/http';
 
 export default function FornecedoresForm() {
   const navigate = useNavigate();
@@ -10,6 +11,7 @@ export default function FornecedoresForm() {
   const { data: existing } = useFornecedor(id);
   const create = useCreateFornecedor();
   const update = useUpdateFornecedor();
+  const toast = useToast();
   const form = useForm({ defaultValues: { nome: '', cnpj: '' } });
   const { register, handleSubmit, setValue, formState: { errors }, getValues } = form;
 
@@ -30,11 +32,16 @@ export default function FornecedoresForm() {
 
   const onSubmit = async (data: any) => {
     try {
-      if (id) await update.mutateAsync({ id, payload: data });
-      else await create.mutateAsync(data);
+      if (id) {
+        await update.mutateAsync({ id, payload: data });
+        toast.success('Fornecedor atualizado.');
+      } else {
+        await create.mutateAsync(data);
+        toast.success('Fornecedor criado.');
+      }
       navigate('/fornecedores');
-    } catch {
-      alert('Erro ao salvar');
+    } catch (err) {
+      toast.error('Erro ao salvar', getErrorMessage(err));
     }
   };
 

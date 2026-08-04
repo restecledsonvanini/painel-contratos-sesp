@@ -1,30 +1,42 @@
 import React from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useContract, useDeleteContract } from '../hooks/useContracts';
-import { Button, Card, Page, StatusBadge } from '@painel/ui';
+import {
+  Button,
+  Card,
+  ConfirmDialog,
+  ErrorState,
+  Page,
+  Skeleton,
+  StatusBadge,
+  useToast,
+} from '@painel/ui';
+import { getErrorMessage } from '../lib/http';
+import { useConfirmDialog } from '../lib/useConfirmDialog';
 
 export default function ContractDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { data: contract, isLoading, error } = useContract(id);
+  const { data: contract, isLoading, error, refetch } = useContract(id);
   const deleteContract = useDeleteContract();
-  const deleting = Boolean((deleteContract as any).isPending ?? (deleteContract as any).isLoading);
+  const toast = useToast();
+  const confirm = useConfirmDialog<string>();
 
   const handleDelete = async () => {
-    if (!id || !contract) return;
-    if (!window.confirm('Deseja excluir este contrato?')) return;
+    if (!confirm.pending) return;
     try {
-      await deleteContract.mutateAsync(id);
+      await deleteContract.mutateAsync(confirm.pending.payload);
+      toast.success('Contrato excluído.');
       navigate('/contracts');
-    } catch {
-      alert('Falha ao excluir contrato.');
+    } catch (err) {
+      toast.error('Falha ao excluir contrato.', getErrorMessage(err));
     }
   };
 
   if (isLoading) {
     return (
-      <Page title="Contrato">
-        <Card className="p-[var(--space-lg)]">Carregando...</Card>
+      <Page title="Contrato" description="Carregando...">
+        <Skeleton variant="card" />
       </Page>
     );
   }
@@ -32,7 +44,12 @@ export default function ContractDetail() {
   if (error || !contract) {
     return (
       <Page title="Contrato">
-        <Card className="p-[var(--space-lg)] text-[var(--danger)]">Contrato não encontrado.</Card>
+        <ErrorState
+          title="Contrato não encontrado"
+          message={error ? getErrorMessage(error) : 'O contrato solicitado não existe ou foi removido.'}
+          code={(error as { code?: string } | undefined)?.code}
+          onRetry={error ? () => refetch() : undefined}
+        />
       </Page>
     );
   }
@@ -51,8 +68,15 @@ export default function ContractDetail() {
               <Button variant="secondary">Editar</Button>
             </Link>
           )}
-          <Button variant="danger" type="button" onClick={handleDelete} disabled={deleting}>
-            {deleting ? 'Excluindo...' : 'Excluir'}
+          <Button
+            variant="danger"
+            type="button"
+            onClick={() =>
+              id && confirm.ask(id, 'Excluir contrato?', 'Esta ação não pode ser desfeita.')
+            }
+            disabled={deleteContract.isPending}
+          >
+            Excluir
           </Button>
         </>
       }
@@ -138,6 +162,17 @@ export default function ContractDetail() {
           </p>
         </Card>
       </div>
+
+      <ConfirmDialog
+        open={confirm.open}
+        onOpenChange={confirm.onOpenChange}
+        title={confirm.pending?.title ?? 'Confirmar'}
+        description={confirm.pending?.description}
+        variant="danger"
+        confirmLabel="Excluir"
+        onConfirm={handleDelete}
+        loading={deleteContract.isPending}
+      />
     </Page>
   );
 }

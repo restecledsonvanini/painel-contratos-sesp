@@ -13,6 +13,6 @@
     "rootDir": "../..",
     "resolveJsonModule": true
   },
-  "include": ["src/**/*", "../../packages/schema/src/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }

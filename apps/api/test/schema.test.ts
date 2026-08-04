@@ -4,7 +4,7 @@ import {
   ContractUpdateSchema,
   EmpresaCreateSchema,
   FornecedorCreateSchema,
-} from '../../packages/schema/src/contracts';
+} from '@painel/schema';
 
 const baseContract = {
   numGms: 10,

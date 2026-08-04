@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import { http } from '../lib/http';
+import { qk } from '../lib/queryKeys';
 
 export interface Contract {
   id: string;
@@ -29,22 +30,19 @@ export interface Contract {
   }>;
 }
 
-const apiUrl = '/.netlify/functions/api/contracts';
-const http = { timeout: 8000 };
-
 async function getContracts() {
-  const res = await axios.get<Contract[]>(apiUrl, http);
+  const res = await http.get<Contract[]>('/contracts');
   return res.data;
 }
 
 async function getContract(id: string) {
-  const res = await axios.get<Contract>(`${apiUrl}/${id}`, http);
+  const res = await http.get<Contract>(`/contracts/${id}`);
   return res.data;
 }
 
 export function useContracts() {
   return useQuery({
-    queryKey: ['contracts'],
+    queryKey: qk.contratos(),
     queryFn: getContracts,
     staleTime: 1000 * 60 * 2,
     retry: 1,
@@ -53,7 +51,7 @@ export function useContracts() {
 
 export function useContract(id?: string) {
   return useQuery({
-    queryKey: ['contract', id],
+    queryKey: id ? qk.contrato(id) : ['contratos', 'empty'],
     queryFn: () => getContract(id!),
     enabled: Boolean(id),
     staleTime: 1000 * 60 * 2,
@@ -64,9 +62,13 @@ export function useContract(id?: string) {
 export function useCreateContract() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: Partial<Contract>) => axios.post(apiUrl, payload, { timeout: 10000 }),
+    mutationFn: async (payload: Partial<Contract>) => {
+      const res = await http.post('/contracts', payload);
+      return res.data;
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+      queryClient.invalidateQueries({ queryKey: ['contratos'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -74,10 +76,14 @@ export function useCreateContract() {
 export function useUpdateContract() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<Contract> }) =>
-      axios.put(`${apiUrl}/${id}`, payload, { timeout: 10000 }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+    mutationFn: async ({ id, payload }: { id: string; payload: Partial<Contract> }) => {
+      const res = await http.put(`/contracts/${id}`, payload);
+      return res.data;
+    },
+    onSuccess: (_data, vars) => {
+      queryClient.invalidateQueries({ queryKey: ['contratos'] });
+      queryClient.invalidateQueries({ queryKey: qk.contrato(vars.id) });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
@@ -85,9 +91,14 @@ export function useUpdateContract() {
 export function useDeleteContract() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => axios.delete(`${apiUrl}/${id}`, { timeout: 10000 }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+    mutationFn: async (id: string) => {
+      const res = await http.delete(`/contracts/${id}`);
+      return res.data;
+    },
+    onSuccess: (_data, id) => {
+      queryClient.invalidateQueries({ queryKey: ['contratos'] });
+      queryClient.invalidateQueries({ queryKey: qk.contrato(id) });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
   });
 }
