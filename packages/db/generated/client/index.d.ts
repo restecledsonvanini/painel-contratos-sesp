@@ -51,11 +51,15 @@ export type EntidadeGestoraPayload<ExtArgs extends $Extensions.Args = $Extension
 export type EntidadeGestora = runtime.Types.DefaultSelection<EntidadeGestoraPayload>
 export type MunicipioPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
   name: "Municipio"
-  objects: {}
+  objects: {
+    unidades: UnidadeOrganizacionalPayload<ExtArgs>[]
+  }
   scalars: $Extensions.GetResult<{
     id: string
+    codigoIbge: string
     nome: string
     uf: string
+    regiaoAdministrativa: string | null
   }, ExtArgs["result"]["municipio"]>
   composites: {}
 }
@@ -65,6 +69,107 @@ export type MunicipioPayload<ExtArgs extends $Extensions.Args = $Extensions.Defa
  * 
  */
 export type Municipio = runtime.Types.DefaultSelection<MunicipioPayload>
+export type DominioPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "Dominio"
+  objects: {
+    valores: DominioValorPayload<ExtArgs>[]
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    slug: string
+    nome: string
+    descricao: string | null
+    editavelPeloUsuario: boolean
+    permiteHierarquia: boolean
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["dominio"]>
+  composites: {}
+}
+
+/**
+ * Model Dominio
+ * 
+ */
+export type Dominio = runtime.Types.DefaultSelection<DominioPayload>
+export type DominioValorPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "DominioValor"
+  objects: {
+    dominio: DominioPayload<ExtArgs>
+    parent: DominioValorPayload<ExtArgs> | null
+    children: DominioValorPayload<ExtArgs>[]
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId: string | null
+    ordem: number
+    ativo: boolean
+    metadata: Prisma.JsonValue | null
+    codigoLegado: string | null
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["dominioValor"]>
+  composites: {}
+}
+
+/**
+ * Model DominioValor
+ * 
+ */
+export type DominioValor = runtime.Types.DefaultSelection<DominioValorPayload>
+export type OrgaoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "Orgao"
+  objects: {
+    unidades: UnidadeOrganizacionalPayload<ExtArgs>[]
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo: boolean
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["orgao"]>
+  composites: {}
+}
+
+/**
+ * Model Orgao
+ * 
+ */
+export type Orgao = runtime.Types.DefaultSelection<OrgaoPayload>
+export type UnidadeOrganizacionalPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "UnidadeOrganizacional"
+  objects: {
+    orgao: OrgaoPayload<ExtArgs>
+    parent: UnidadeOrganizacionalPayload<ExtArgs> | null
+    children: UnidadeOrganizacionalPayload<ExtArgs>[]
+    municipio: MunicipioPayload<ExtArgs>
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    orgaoId: string
+    parentId: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo: boolean
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["unidadeOrganizacional"]>
+  composites: {}
+}
+
+/**
+ * Model UnidadeOrganizacional
+ * 
+ */
+export type UnidadeOrganizacional = runtime.Types.DefaultSelection<UnidadeOrganizacionalPayload>
 export type EmpresaPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
   name: "Empresa"
   objects: {
@@ -213,6 +318,37 @@ export type UserPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultAr
  * 
  */
 export type User = runtime.Types.DefaultSelection<UserPayload>
+
+/**
+ * Enums
+ */
+
+export const TipoOrgao: {
+  POLICIA_MILITAR: 'POLICIA_MILITAR',
+  POLICIA_CIVIL: 'POLICIA_CIVIL',
+  BOMBEIROS: 'BOMBEIROS',
+  POLICIA_PENAL: 'POLICIA_PENAL',
+  POLICIA_CIENTIFICA: 'POLICIA_CIENTIFICA',
+  TRANSITO: 'TRANSITO',
+  ADMINISTRACAO_DIRETA: 'ADMINISTRACAO_DIRETA'
+};
+
+export type TipoOrgao = (typeof TipoOrgao)[keyof typeof TipoOrgao]
+
+
+export const NivelUnidade: {
+  COMANDO_GERAL: 'COMANDO_GERAL',
+  DIRETORIA: 'DIRETORIA',
+  COMANDO_REGIONAL: 'COMANDO_REGIONAL',
+  BATALHAO: 'BATALHAO',
+  COMPANHIA: 'COMPANHIA',
+  DELEGACIA: 'DELEGACIA',
+  UNIDADE_PRISIONAL: 'UNIDADE_PRISIONAL',
+  SETOR: 'SETOR'
+};
+
+export type NivelUnidade = (typeof NivelUnidade)[keyof typeof NivelUnidade]
+
 
 /**
  * ##  Prisma Client ʲˢ
@@ -368,6 +504,46 @@ export class PrismaClient<
     * ```
     */
   get municipio(): Prisma.MunicipioDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.dominio`: Exposes CRUD operations for the **Dominio** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Dominios
+    * const dominios = await prisma.dominio.findMany()
+    * ```
+    */
+  get dominio(): Prisma.DominioDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.dominioValor`: Exposes CRUD operations for the **DominioValor** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DominioValors
+    * const dominioValors = await prisma.dominioValor.findMany()
+    * ```
+    */
+  get dominioValor(): Prisma.DominioValorDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.orgao`: Exposes CRUD operations for the **Orgao** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Orgaos
+    * const orgaos = await prisma.orgao.findMany()
+    * ```
+    */
+  get orgao(): Prisma.OrgaoDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.unidadeOrganizacional`: Exposes CRUD operations for the **UnidadeOrganizacional** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UnidadeOrganizacionals
+    * const unidadeOrganizacionals = await prisma.unidadeOrganizacional.findMany()
+    * ```
+    */
+  get unidadeOrganizacional(): Prisma.UnidadeOrganizacionalDelegate<GlobalReject, ExtArgs>;
 
   /**
    * `prisma.empresa`: Exposes CRUD operations for the **Empresa** model.
@@ -924,6 +1100,10 @@ export namespace Prisma {
     UnidadeFsp: 'UnidadeFsp',
     EntidadeGestora: 'EntidadeGestora',
     Municipio: 'Municipio',
+    Dominio: 'Dominio',
+    DominioValor: 'DominioValor',
+    Orgao: 'Orgao',
+    UnidadeOrganizacional: 'UnidadeOrganizacional',
     Empresa: 'Empresa',
     Fornecedor: 'Fornecedor',
     Contrato: 'Contrato',
@@ -947,7 +1127,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     meta: {
-      modelProps: 'unidadeFsp' | 'entidadeGestora' | 'municipio' | 'empresa' | 'fornecedor' | 'contrato' | 'aditivo' | 'servico' | 'auditLog' | 'user'
+      modelProps: 'unidadeFsp' | 'entidadeGestora' | 'municipio' | 'dominio' | 'dominioValor' | 'orgao' | 'unidadeOrganizacional' | 'empresa' | 'fornecedor' | 'contrato' | 'aditivo' | 'servico' | 'auditLog' | 'user'
       txIsolationLevel: Prisma.TransactionIsolationLevel
     },
     model: {
@@ -1143,6 +1323,266 @@ export namespace Prisma {
           count: {
             args: Prisma.MunicipioCountArgs<ExtArgs>,
             result: $Utils.Optional<MunicipioCountAggregateOutputType> | number
+          }
+        }
+      }
+      Dominio: {
+        payload: DominioPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.DominioFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DominioFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioPayload>
+          }
+          findFirst: {
+            args: Prisma.DominioFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DominioFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioPayload>
+          }
+          findMany: {
+            args: Prisma.DominioFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioPayload>[]
+          }
+          create: {
+            args: Prisma.DominioCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioPayload>
+          }
+          createMany: {
+            args: Prisma.DominioCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.DominioDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioPayload>
+          }
+          update: {
+            args: Prisma.DominioUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioPayload>
+          }
+          deleteMany: {
+            args: Prisma.DominioDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DominioUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.DominioUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioPayload>
+          }
+          aggregate: {
+            args: Prisma.DominioAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateDominio>
+          }
+          groupBy: {
+            args: Prisma.DominioGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<DominioGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DominioCountArgs<ExtArgs>,
+            result: $Utils.Optional<DominioCountAggregateOutputType> | number
+          }
+        }
+      }
+      DominioValor: {
+        payload: DominioValorPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.DominioValorFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioValorPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DominioValorFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioValorPayload>
+          }
+          findFirst: {
+            args: Prisma.DominioValorFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioValorPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DominioValorFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioValorPayload>
+          }
+          findMany: {
+            args: Prisma.DominioValorFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioValorPayload>[]
+          }
+          create: {
+            args: Prisma.DominioValorCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioValorPayload>
+          }
+          createMany: {
+            args: Prisma.DominioValorCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.DominioValorDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioValorPayload>
+          }
+          update: {
+            args: Prisma.DominioValorUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioValorPayload>
+          }
+          deleteMany: {
+            args: Prisma.DominioValorDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DominioValorUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.DominioValorUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DominioValorPayload>
+          }
+          aggregate: {
+            args: Prisma.DominioValorAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateDominioValor>
+          }
+          groupBy: {
+            args: Prisma.DominioValorGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<DominioValorGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DominioValorCountArgs<ExtArgs>,
+            result: $Utils.Optional<DominioValorCountAggregateOutputType> | number
+          }
+        }
+      }
+      Orgao: {
+        payload: OrgaoPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.OrgaoFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<OrgaoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.OrgaoFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<OrgaoPayload>
+          }
+          findFirst: {
+            args: Prisma.OrgaoFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<OrgaoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.OrgaoFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<OrgaoPayload>
+          }
+          findMany: {
+            args: Prisma.OrgaoFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<OrgaoPayload>[]
+          }
+          create: {
+            args: Prisma.OrgaoCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<OrgaoPayload>
+          }
+          createMany: {
+            args: Prisma.OrgaoCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.OrgaoDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<OrgaoPayload>
+          }
+          update: {
+            args: Prisma.OrgaoUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<OrgaoPayload>
+          }
+          deleteMany: {
+            args: Prisma.OrgaoDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.OrgaoUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.OrgaoUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<OrgaoPayload>
+          }
+          aggregate: {
+            args: Prisma.OrgaoAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateOrgao>
+          }
+          groupBy: {
+            args: Prisma.OrgaoGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<OrgaoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.OrgaoCountArgs<ExtArgs>,
+            result: $Utils.Optional<OrgaoCountAggregateOutputType> | number
+          }
+        }
+      }
+      UnidadeOrganizacional: {
+        payload: UnidadeOrganizacionalPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.UnidadeOrganizacionalFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<UnidadeOrganizacionalPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.UnidadeOrganizacionalFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<UnidadeOrganizacionalPayload>
+          }
+          findFirst: {
+            args: Prisma.UnidadeOrganizacionalFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<UnidadeOrganizacionalPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.UnidadeOrganizacionalFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<UnidadeOrganizacionalPayload>
+          }
+          findMany: {
+            args: Prisma.UnidadeOrganizacionalFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<UnidadeOrganizacionalPayload>[]
+          }
+          create: {
+            args: Prisma.UnidadeOrganizacionalCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<UnidadeOrganizacionalPayload>
+          }
+          createMany: {
+            args: Prisma.UnidadeOrganizacionalCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.UnidadeOrganizacionalDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<UnidadeOrganizacionalPayload>
+          }
+          update: {
+            args: Prisma.UnidadeOrganizacionalUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<UnidadeOrganizacionalPayload>
+          }
+          deleteMany: {
+            args: Prisma.UnidadeOrganizacionalDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.UnidadeOrganizacionalUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.UnidadeOrganizacionalUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<UnidadeOrganizacionalPayload>
+          }
+          aggregate: {
+            args: Prisma.UnidadeOrganizacionalAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateUnidadeOrganizacional>
+          }
+          groupBy: {
+            args: Prisma.UnidadeOrganizacionalGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<UnidadeOrganizacionalGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.UnidadeOrganizacionalCountArgs<ExtArgs>,
+            result: $Utils.Optional<UnidadeOrganizacionalCountAggregateOutputType> | number
           }
         }
       }
@@ -1853,6 +2293,181 @@ export namespace Prisma {
    */
   export type EntidadeGestoraCountOutputTypeCountFiscalContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: ContratoWhereInput
+  }
+
+
+
+  /**
+   * Count Type MunicipioCountOutputType
+   */
+
+
+  export type MunicipioCountOutputType = {
+    unidades: number
+  }
+
+  export type MunicipioCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    unidades?: boolean | MunicipioCountOutputTypeCountUnidadesArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * MunicipioCountOutputType without action
+   */
+  export type MunicipioCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the MunicipioCountOutputType
+     */
+    select?: MunicipioCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * MunicipioCountOutputType without action
+   */
+  export type MunicipioCountOutputTypeCountUnidadesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: UnidadeOrganizacionalWhereInput
+  }
+
+
+
+  /**
+   * Count Type DominioCountOutputType
+   */
+
+
+  export type DominioCountOutputType = {
+    valores: number
+  }
+
+  export type DominioCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    valores?: boolean | DominioCountOutputTypeCountValoresArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * DominioCountOutputType without action
+   */
+  export type DominioCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioCountOutputType
+     */
+    select?: DominioCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * DominioCountOutputType without action
+   */
+  export type DominioCountOutputTypeCountValoresArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DominioValorWhereInput
+  }
+
+
+
+  /**
+   * Count Type DominioValorCountOutputType
+   */
+
+
+  export type DominioValorCountOutputType = {
+    children: number
+  }
+
+  export type DominioValorCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    children?: boolean | DominioValorCountOutputTypeCountChildrenArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * DominioValorCountOutputType without action
+   */
+  export type DominioValorCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValorCountOutputType
+     */
+    select?: DominioValorCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * DominioValorCountOutputType without action
+   */
+  export type DominioValorCountOutputTypeCountChildrenArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DominioValorWhereInput
+  }
+
+
+
+  /**
+   * Count Type OrgaoCountOutputType
+   */
+
+
+  export type OrgaoCountOutputType = {
+    unidades: number
+  }
+
+  export type OrgaoCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    unidades?: boolean | OrgaoCountOutputTypeCountUnidadesArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * OrgaoCountOutputType without action
+   */
+  export type OrgaoCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the OrgaoCountOutputType
+     */
+    select?: OrgaoCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * OrgaoCountOutputType without action
+   */
+  export type OrgaoCountOutputTypeCountUnidadesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: UnidadeOrganizacionalWhereInput
+  }
+
+
+
+  /**
+   * Count Type UnidadeOrganizacionalCountOutputType
+   */
+
+
+  export type UnidadeOrganizacionalCountOutputType = {
+    children: number
+  }
+
+  export type UnidadeOrganizacionalCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    children?: boolean | UnidadeOrganizacionalCountOutputTypeCountChildrenArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * UnidadeOrganizacionalCountOutputType without action
+   */
+  export type UnidadeOrganizacionalCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacionalCountOutputType
+     */
+    select?: UnidadeOrganizacionalCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * UnidadeOrganizacionalCountOutputType without action
+   */
+  export type UnidadeOrganizacionalCountOutputTypeCountChildrenArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: UnidadeOrganizacionalWhereInput
   }
 
 
@@ -3827,40 +4442,52 @@ export namespace Prisma {
 
   export type MunicipioMinAggregateOutputType = {
     id: string | null
+    codigoIbge: string | null
     nome: string | null
     uf: string | null
+    regiaoAdministrativa: string | null
   }
 
   export type MunicipioMaxAggregateOutputType = {
     id: string | null
+    codigoIbge: string | null
     nome: string | null
     uf: string | null
+    regiaoAdministrativa: string | null
   }
 
   export type MunicipioCountAggregateOutputType = {
     id: number
+    codigoIbge: number
     nome: number
     uf: number
+    regiaoAdministrativa: number
     _all: number
   }
 
 
   export type MunicipioMinAggregateInputType = {
     id?: true
+    codigoIbge?: true
     nome?: true
     uf?: true
+    regiaoAdministrativa?: true
   }
 
   export type MunicipioMaxAggregateInputType = {
     id?: true
+    codigoIbge?: true
     nome?: true
     uf?: true
+    regiaoAdministrativa?: true
   }
 
   export type MunicipioCountAggregateInputType = {
     id?: true
+    codigoIbge?: true
     nome?: true
     uf?: true
+    regiaoAdministrativa?: true
     _all?: true
   }
 
@@ -3939,8 +4566,10 @@ export namespace Prisma {
 
   export type MunicipioGroupByOutputType = {
     id: string
+    codigoIbge: string
     nome: string
     uf: string
+    regiaoAdministrativa: string | null
     _count: MunicipioCountAggregateOutputType | null
     _min: MunicipioMinAggregateOutputType | null
     _max: MunicipioMaxAggregateOutputType | null
@@ -3962,14 +4591,25 @@ export namespace Prisma {
 
   export type MunicipioSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    codigoIbge?: boolean
     nome?: boolean
     uf?: boolean
+    regiaoAdministrativa?: boolean
+    unidades?: boolean | Municipio$unidadesArgs<ExtArgs>
+    _count?: boolean | MunicipioCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["municipio"]>
 
   export type MunicipioSelectScalar = {
     id?: boolean
+    codigoIbge?: boolean
     nome?: boolean
     uf?: boolean
+    regiaoAdministrativa?: boolean
+  }
+
+  export type MunicipioInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    unidades?: boolean | Municipio$unidadesArgs<ExtArgs>
+    _count?: boolean | MunicipioCountOutputTypeArgs<ExtArgs>
   }
 
 
@@ -4342,6 +4982,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: 'PrismaPromise';
     constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
 
+    unidades<T extends Municipio$unidadesArgs<ExtArgs> = {}>(args?: Subset<T, Municipio$unidadesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -4379,6 +5020,10 @@ export namespace Prisma {
      */
     select?: MunicipioSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: MunicipioInclude<ExtArgs> | null
+    /**
      * Filter, which Municipio to fetch.
      */
     where: MunicipioWhereUniqueInput
@@ -4405,6 +5050,10 @@ export namespace Prisma {
      */
     select?: MunicipioSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: MunicipioInclude<ExtArgs> | null
+    /**
      * Filter, which Municipio to fetch.
      */
     where: MunicipioWhereUniqueInput
@@ -4419,6 +5068,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Municipio
      */
     select?: MunicipioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: MunicipioInclude<ExtArgs> | null
     /**
      * Filter, which Municipio to fetch.
      */
@@ -4476,6 +5129,10 @@ export namespace Prisma {
      */
     select?: MunicipioSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: MunicipioInclude<ExtArgs> | null
+    /**
      * Filter, which Municipio to fetch.
      */
     where?: MunicipioWhereInput
@@ -4521,6 +5178,10 @@ export namespace Prisma {
      */
     select?: MunicipioSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: MunicipioInclude<ExtArgs> | null
+    /**
      * Filter, which Municipios to fetch.
      */
     where?: MunicipioWhereInput
@@ -4561,6 +5222,10 @@ export namespace Prisma {
      */
     select?: MunicipioSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: MunicipioInclude<ExtArgs> | null
+    /**
      * The data needed to create a Municipio.
      */
     data: XOR<MunicipioCreateInput, MunicipioUncheckedCreateInput>
@@ -4587,6 +5252,10 @@ export namespace Prisma {
      * Select specific fields to fetch from the Municipio
      */
     select?: MunicipioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: MunicipioInclude<ExtArgs> | null
     /**
      * The data needed to update a Municipio.
      */
@@ -4622,6 +5291,10 @@ export namespace Prisma {
      */
     select?: MunicipioSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: MunicipioInclude<ExtArgs> | null
+    /**
      * The filter to search for the Municipio to update in case it exists.
      */
     where: MunicipioWhereUniqueInput
@@ -4645,6 +5318,10 @@ export namespace Prisma {
      */
     select?: MunicipioSelect<ExtArgs> | null
     /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: MunicipioInclude<ExtArgs> | null
+    /**
      * Filter which Municipio to delete.
      */
     where: MunicipioWhereUniqueInput
@@ -4663,6 +5340,27 @@ export namespace Prisma {
 
 
   /**
+   * Municipio.unidades
+   */
+  export type Municipio$unidadesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    where?: UnidadeOrganizacionalWhereInput
+    orderBy?: Enumerable<UnidadeOrganizacionalOrderByWithRelationInput>
+    cursor?: UnidadeOrganizacionalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<UnidadeOrganizacionalScalarFieldEnum>
+  }
+
+
+  /**
    * Municipio without action
    */
   export type MunicipioArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -4670,6 +5368,3992 @@ export namespace Prisma {
      * Select specific fields to fetch from the Municipio
      */
     select?: MunicipioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: MunicipioInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model Dominio
+   */
+
+
+  export type AggregateDominio = {
+    _count: DominioCountAggregateOutputType | null
+    _min: DominioMinAggregateOutputType | null
+    _max: DominioMaxAggregateOutputType | null
+  }
+
+  export type DominioMinAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    nome: string | null
+    descricao: string | null
+    editavelPeloUsuario: boolean | null
+    permiteHierarquia: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DominioMaxAggregateOutputType = {
+    id: string | null
+    slug: string | null
+    nome: string | null
+    descricao: string | null
+    editavelPeloUsuario: boolean | null
+    permiteHierarquia: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DominioCountAggregateOutputType = {
+    id: number
+    slug: number
+    nome: number
+    descricao: number
+    editavelPeloUsuario: number
+    permiteHierarquia: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DominioMinAggregateInputType = {
+    id?: true
+    slug?: true
+    nome?: true
+    descricao?: true
+    editavelPeloUsuario?: true
+    permiteHierarquia?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DominioMaxAggregateInputType = {
+    id?: true
+    slug?: true
+    nome?: true
+    descricao?: true
+    editavelPeloUsuario?: true
+    permiteHierarquia?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DominioCountAggregateInputType = {
+    id?: true
+    slug?: true
+    nome?: true
+    descricao?: true
+    editavelPeloUsuario?: true
+    permiteHierarquia?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DominioAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Dominio to aggregate.
+     */
+    where?: DominioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Dominios to fetch.
+     */
+    orderBy?: Enumerable<DominioOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DominioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Dominios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Dominios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Dominios
+    **/
+    _count?: true | DominioCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DominioMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DominioMaxAggregateInputType
+  }
+
+  export type GetDominioAggregateType<T extends DominioAggregateArgs> = {
+        [P in keyof T & keyof AggregateDominio]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDominio[P]>
+      : GetScalarType<T[P], AggregateDominio[P]>
+  }
+
+
+
+
+  export type DominioGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DominioWhereInput
+    orderBy?: Enumerable<DominioOrderByWithAggregationInput>
+    by: DominioScalarFieldEnum[]
+    having?: DominioScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DominioCountAggregateInputType | true
+    _min?: DominioMinAggregateInputType
+    _max?: DominioMaxAggregateInputType
+  }
+
+
+  export type DominioGroupByOutputType = {
+    id: string
+    slug: string
+    nome: string
+    descricao: string | null
+    editavelPeloUsuario: boolean
+    permiteHierarquia: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: DominioCountAggregateOutputType | null
+    _min: DominioMinAggregateOutputType | null
+    _max: DominioMaxAggregateOutputType | null
+  }
+
+  type GetDominioGroupByPayload<T extends DominioGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<DominioGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DominioGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DominioGroupByOutputType[P]>
+            : GetScalarType<T[P], DominioGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DominioSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    slug?: boolean
+    nome?: boolean
+    descricao?: boolean
+    editavelPeloUsuario?: boolean
+    permiteHierarquia?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    valores?: boolean | Dominio$valoresArgs<ExtArgs>
+    _count?: boolean | DominioCountOutputTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["dominio"]>
+
+  export type DominioSelectScalar = {
+    id?: boolean
+    slug?: boolean
+    nome?: boolean
+    descricao?: boolean
+    editavelPeloUsuario?: boolean
+    permiteHierarquia?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DominioInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    valores?: boolean | Dominio$valoresArgs<ExtArgs>
+    _count?: boolean | DominioCountOutputTypeArgs<ExtArgs>
+  }
+
+
+  type DominioGetPayload<S extends boolean | null | undefined | DominioArgs> = $Types.GetResult<DominioPayload, S>
+
+  type DominioCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<DominioFindManyArgs, 'select' | 'include'> & {
+      select?: DominioCountAggregateInputType | true
+    }
+
+  export interface DominioDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Dominio'], meta: { name: 'Dominio' } }
+    /**
+     * Find zero or one Dominio that matches the filter.
+     * @param {DominioFindUniqueArgs} args - Arguments to find a Dominio
+     * @example
+     * // Get one Dominio
+     * const dominio = await prisma.dominio.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends DominioFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, DominioFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Dominio'> extends True ? Prisma__DominioClient<$Types.GetResult<DominioPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__DominioClient<$Types.GetResult<DominioPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one Dominio that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {DominioFindUniqueOrThrowArgs} args - Arguments to find a Dominio
+     * @example
+     * // Get one Dominio
+     * const dominio = await prisma.dominio.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends DominioFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, DominioFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__DominioClient<$Types.GetResult<DominioPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first Dominio that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioFindFirstArgs} args - Arguments to find a Dominio
+     * @example
+     * // Get one Dominio
+     * const dominio = await prisma.dominio.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends DominioFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, DominioFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Dominio'> extends True ? Prisma__DominioClient<$Types.GetResult<DominioPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__DominioClient<$Types.GetResult<DominioPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first Dominio that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioFindFirstOrThrowArgs} args - Arguments to find a Dominio
+     * @example
+     * // Get one Dominio
+     * const dominio = await prisma.dominio.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends DominioFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, DominioFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__DominioClient<$Types.GetResult<DominioPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more Dominios that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Dominios
+     * const dominios = await prisma.dominio.findMany()
+     * 
+     * // Get first 10 Dominios
+     * const dominios = await prisma.dominio.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dominioWithIdOnly = await prisma.dominio.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends DominioFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DominioFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<DominioPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a Dominio.
+     * @param {DominioCreateArgs} args - Arguments to create a Dominio.
+     * @example
+     * // Create one Dominio
+     * const Dominio = await prisma.dominio.create({
+     *   data: {
+     *     // ... data to create a Dominio
+     *   }
+     * })
+     * 
+    **/
+    create<T extends DominioCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, DominioCreateArgs<ExtArgs>>
+    ): Prisma__DominioClient<$Types.GetResult<DominioPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many Dominios.
+     *     @param {DominioCreateManyArgs} args - Arguments to create many Dominios.
+     *     @example
+     *     // Create many Dominios
+     *     const dominio = await prisma.dominio.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends DominioCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DominioCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Dominio.
+     * @param {DominioDeleteArgs} args - Arguments to delete one Dominio.
+     * @example
+     * // Delete one Dominio
+     * const Dominio = await prisma.dominio.delete({
+     *   where: {
+     *     // ... filter to delete one Dominio
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends DominioDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, DominioDeleteArgs<ExtArgs>>
+    ): Prisma__DominioClient<$Types.GetResult<DominioPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one Dominio.
+     * @param {DominioUpdateArgs} args - Arguments to update one Dominio.
+     * @example
+     * // Update one Dominio
+     * const dominio = await prisma.dominio.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends DominioUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, DominioUpdateArgs<ExtArgs>>
+    ): Prisma__DominioClient<$Types.GetResult<DominioPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more Dominios.
+     * @param {DominioDeleteManyArgs} args - Arguments to filter Dominios to delete.
+     * @example
+     * // Delete a few Dominios
+     * const { count } = await prisma.dominio.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends DominioDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DominioDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Dominios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Dominios
+     * const dominio = await prisma.dominio.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends DominioUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, DominioUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Dominio.
+     * @param {DominioUpsertArgs} args - Arguments to update or create a Dominio.
+     * @example
+     * // Update or create a Dominio
+     * const dominio = await prisma.dominio.upsert({
+     *   create: {
+     *     // ... data to create a Dominio
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Dominio we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends DominioUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, DominioUpsertArgs<ExtArgs>>
+    ): Prisma__DominioClient<$Types.GetResult<DominioPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of Dominios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioCountArgs} args - Arguments to filter Dominios to count.
+     * @example
+     * // Count the number of Dominios
+     * const count = await prisma.dominio.count({
+     *   where: {
+     *     // ... the filter for the Dominios we want to count
+     *   }
+     * })
+    **/
+    count<T extends DominioCountArgs>(
+      args?: Subset<T, DominioCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DominioCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Dominio.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DominioAggregateArgs>(args: Subset<T, DominioAggregateArgs>): Prisma.PrismaPromise<GetDominioAggregateType<T>>
+
+    /**
+     * Group by Dominio.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DominioGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DominioGroupByArgs['orderBy'] }
+        : { orderBy?: DominioGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DominioGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDominioGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Dominio.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__DominioClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    valores<T extends Dominio$valoresArgs<ExtArgs> = {}>(args?: Subset<T, Dominio$valoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * Dominio base type for findUnique actions
+   */
+  export type DominioFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dominio
+     */
+    select?: DominioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioInclude<ExtArgs> | null
+    /**
+     * Filter, which Dominio to fetch.
+     */
+    where: DominioWhereUniqueInput
+  }
+
+  /**
+   * Dominio findUnique
+   */
+  export interface DominioFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends DominioFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Dominio findUniqueOrThrow
+   */
+  export type DominioFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dominio
+     */
+    select?: DominioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioInclude<ExtArgs> | null
+    /**
+     * Filter, which Dominio to fetch.
+     */
+    where: DominioWhereUniqueInput
+  }
+
+
+  /**
+   * Dominio base type for findFirst actions
+   */
+  export type DominioFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dominio
+     */
+    select?: DominioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioInclude<ExtArgs> | null
+    /**
+     * Filter, which Dominio to fetch.
+     */
+    where?: DominioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Dominios to fetch.
+     */
+    orderBy?: Enumerable<DominioOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Dominios.
+     */
+    cursor?: DominioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Dominios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Dominios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Dominios.
+     */
+    distinct?: Enumerable<DominioScalarFieldEnum>
+  }
+
+  /**
+   * Dominio findFirst
+   */
+  export interface DominioFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends DominioFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Dominio findFirstOrThrow
+   */
+  export type DominioFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dominio
+     */
+    select?: DominioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioInclude<ExtArgs> | null
+    /**
+     * Filter, which Dominio to fetch.
+     */
+    where?: DominioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Dominios to fetch.
+     */
+    orderBy?: Enumerable<DominioOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Dominios.
+     */
+    cursor?: DominioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Dominios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Dominios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Dominios.
+     */
+    distinct?: Enumerable<DominioScalarFieldEnum>
+  }
+
+
+  /**
+   * Dominio findMany
+   */
+  export type DominioFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dominio
+     */
+    select?: DominioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioInclude<ExtArgs> | null
+    /**
+     * Filter, which Dominios to fetch.
+     */
+    where?: DominioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Dominios to fetch.
+     */
+    orderBy?: Enumerable<DominioOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Dominios.
+     */
+    cursor?: DominioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Dominios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Dominios.
+     */
+    skip?: number
+    distinct?: Enumerable<DominioScalarFieldEnum>
+  }
+
+
+  /**
+   * Dominio create
+   */
+  export type DominioCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dominio
+     */
+    select?: DominioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Dominio.
+     */
+    data: XOR<DominioCreateInput, DominioUncheckedCreateInput>
+  }
+
+
+  /**
+   * Dominio createMany
+   */
+  export type DominioCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Dominios.
+     */
+    data: Enumerable<DominioCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * Dominio update
+   */
+  export type DominioUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dominio
+     */
+    select?: DominioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Dominio.
+     */
+    data: XOR<DominioUpdateInput, DominioUncheckedUpdateInput>
+    /**
+     * Choose, which Dominio to update.
+     */
+    where: DominioWhereUniqueInput
+  }
+
+
+  /**
+   * Dominio updateMany
+   */
+  export type DominioUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Dominios.
+     */
+    data: XOR<DominioUpdateManyMutationInput, DominioUncheckedUpdateManyInput>
+    /**
+     * Filter which Dominios to update
+     */
+    where?: DominioWhereInput
+  }
+
+
+  /**
+   * Dominio upsert
+   */
+  export type DominioUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dominio
+     */
+    select?: DominioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Dominio to update in case it exists.
+     */
+    where: DominioWhereUniqueInput
+    /**
+     * In case the Dominio found by the `where` argument doesn't exist, create a new Dominio with this data.
+     */
+    create: XOR<DominioCreateInput, DominioUncheckedCreateInput>
+    /**
+     * In case the Dominio was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DominioUpdateInput, DominioUncheckedUpdateInput>
+  }
+
+
+  /**
+   * Dominio delete
+   */
+  export type DominioDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dominio
+     */
+    select?: DominioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioInclude<ExtArgs> | null
+    /**
+     * Filter which Dominio to delete.
+     */
+    where: DominioWhereUniqueInput
+  }
+
+
+  /**
+   * Dominio deleteMany
+   */
+  export type DominioDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Dominios to delete
+     */
+    where?: DominioWhereInput
+  }
+
+
+  /**
+   * Dominio.valores
+   */
+  export type Dominio$valoresArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+    where?: DominioValorWhereInput
+    orderBy?: Enumerable<DominioValorOrderByWithRelationInput>
+    cursor?: DominioValorWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<DominioValorScalarFieldEnum>
+  }
+
+
+  /**
+   * Dominio without action
+   */
+  export type DominioArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Dominio
+     */
+    select?: DominioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model DominioValor
+   */
+
+
+  export type AggregateDominioValor = {
+    _count: DominioValorCountAggregateOutputType | null
+    _avg: DominioValorAvgAggregateOutputType | null
+    _sum: DominioValorSumAggregateOutputType | null
+    _min: DominioValorMinAggregateOutputType | null
+    _max: DominioValorMaxAggregateOutputType | null
+  }
+
+  export type DominioValorAvgAggregateOutputType = {
+    ordem: number | null
+  }
+
+  export type DominioValorSumAggregateOutputType = {
+    ordem: number | null
+  }
+
+  export type DominioValorMinAggregateOutputType = {
+    id: string | null
+    dominioId: string | null
+    codigo: string | null
+    label: string | null
+    parentId: string | null
+    ordem: number | null
+    ativo: boolean | null
+    codigoLegado: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DominioValorMaxAggregateOutputType = {
+    id: string | null
+    dominioId: string | null
+    codigo: string | null
+    label: string | null
+    parentId: string | null
+    ordem: number | null
+    ativo: boolean | null
+    codigoLegado: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DominioValorCountAggregateOutputType = {
+    id: number
+    dominioId: number
+    codigo: number
+    label: number
+    parentId: number
+    ordem: number
+    ativo: number
+    metadata: number
+    codigoLegado: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DominioValorAvgAggregateInputType = {
+    ordem?: true
+  }
+
+  export type DominioValorSumAggregateInputType = {
+    ordem?: true
+  }
+
+  export type DominioValorMinAggregateInputType = {
+    id?: true
+    dominioId?: true
+    codigo?: true
+    label?: true
+    parentId?: true
+    ordem?: true
+    ativo?: true
+    codigoLegado?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DominioValorMaxAggregateInputType = {
+    id?: true
+    dominioId?: true
+    codigo?: true
+    label?: true
+    parentId?: true
+    ordem?: true
+    ativo?: true
+    codigoLegado?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DominioValorCountAggregateInputType = {
+    id?: true
+    dominioId?: true
+    codigo?: true
+    label?: true
+    parentId?: true
+    ordem?: true
+    ativo?: true
+    metadata?: true
+    codigoLegado?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DominioValorAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DominioValor to aggregate.
+     */
+    where?: DominioValorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DominioValors to fetch.
+     */
+    orderBy?: Enumerable<DominioValorOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DominioValorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DominioValors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DominioValors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DominioValors
+    **/
+    _count?: true | DominioValorCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DominioValorAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DominioValorSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DominioValorMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DominioValorMaxAggregateInputType
+  }
+
+  export type GetDominioValorAggregateType<T extends DominioValorAggregateArgs> = {
+        [P in keyof T & keyof AggregateDominioValor]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDominioValor[P]>
+      : GetScalarType<T[P], AggregateDominioValor[P]>
+  }
+
+
+
+
+  export type DominioValorGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DominioValorWhereInput
+    orderBy?: Enumerable<DominioValorOrderByWithAggregationInput>
+    by: DominioValorScalarFieldEnum[]
+    having?: DominioValorScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DominioValorCountAggregateInputType | true
+    _avg?: DominioValorAvgAggregateInputType
+    _sum?: DominioValorSumAggregateInputType
+    _min?: DominioValorMinAggregateInputType
+    _max?: DominioValorMaxAggregateInputType
+  }
+
+
+  export type DominioValorGroupByOutputType = {
+    id: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId: string | null
+    ordem: number
+    ativo: boolean
+    metadata: JsonValue | null
+    codigoLegado: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: DominioValorCountAggregateOutputType | null
+    _avg: DominioValorAvgAggregateOutputType | null
+    _sum: DominioValorSumAggregateOutputType | null
+    _min: DominioValorMinAggregateOutputType | null
+    _max: DominioValorMaxAggregateOutputType | null
+  }
+
+  type GetDominioValorGroupByPayload<T extends DominioValorGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<DominioValorGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DominioValorGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DominioValorGroupByOutputType[P]>
+            : GetScalarType<T[P], DominioValorGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DominioValorSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    dominioId?: boolean
+    codigo?: boolean
+    label?: boolean
+    parentId?: boolean
+    ordem?: boolean
+    ativo?: boolean
+    metadata?: boolean
+    codigoLegado?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    dominio?: boolean | DominioArgs<ExtArgs>
+    parent?: boolean | DominioValorArgs<ExtArgs>
+    children?: boolean | DominioValor$childrenArgs<ExtArgs>
+    _count?: boolean | DominioValorCountOutputTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["dominioValor"]>
+
+  export type DominioValorSelectScalar = {
+    id?: boolean
+    dominioId?: boolean
+    codigo?: boolean
+    label?: boolean
+    parentId?: boolean
+    ordem?: boolean
+    ativo?: boolean
+    metadata?: boolean
+    codigoLegado?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DominioValorInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    dominio?: boolean | DominioArgs<ExtArgs>
+    parent?: boolean | DominioValorArgs<ExtArgs>
+    children?: boolean | DominioValor$childrenArgs<ExtArgs>
+    _count?: boolean | DominioValorCountOutputTypeArgs<ExtArgs>
+  }
+
+
+  type DominioValorGetPayload<S extends boolean | null | undefined | DominioValorArgs> = $Types.GetResult<DominioValorPayload, S>
+
+  type DominioValorCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<DominioValorFindManyArgs, 'select' | 'include'> & {
+      select?: DominioValorCountAggregateInputType | true
+    }
+
+  export interface DominioValorDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DominioValor'], meta: { name: 'DominioValor' } }
+    /**
+     * Find zero or one DominioValor that matches the filter.
+     * @param {DominioValorFindUniqueArgs} args - Arguments to find a DominioValor
+     * @example
+     * // Get one DominioValor
+     * const dominioValor = await prisma.dominioValor.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends DominioValorFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, DominioValorFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'DominioValor'> extends True ? Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one DominioValor that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {DominioValorFindUniqueOrThrowArgs} args - Arguments to find a DominioValor
+     * @example
+     * // Get one DominioValor
+     * const dominioValor = await prisma.dominioValor.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends DominioValorFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, DominioValorFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first DominioValor that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioValorFindFirstArgs} args - Arguments to find a DominioValor
+     * @example
+     * // Get one DominioValor
+     * const dominioValor = await prisma.dominioValor.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends DominioValorFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, DominioValorFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'DominioValor'> extends True ? Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first DominioValor that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioValorFindFirstOrThrowArgs} args - Arguments to find a DominioValor
+     * @example
+     * // Get one DominioValor
+     * const dominioValor = await prisma.dominioValor.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends DominioValorFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, DominioValorFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more DominioValors that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioValorFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DominioValors
+     * const dominioValors = await prisma.dominioValor.findMany()
+     * 
+     * // Get first 10 DominioValors
+     * const dominioValors = await prisma.dominioValor.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dominioValorWithIdOnly = await prisma.dominioValor.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends DominioValorFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DominioValorFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a DominioValor.
+     * @param {DominioValorCreateArgs} args - Arguments to create a DominioValor.
+     * @example
+     * // Create one DominioValor
+     * const DominioValor = await prisma.dominioValor.create({
+     *   data: {
+     *     // ... data to create a DominioValor
+     *   }
+     * })
+     * 
+    **/
+    create<T extends DominioValorCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, DominioValorCreateArgs<ExtArgs>>
+    ): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many DominioValors.
+     *     @param {DominioValorCreateManyArgs} args - Arguments to create many DominioValors.
+     *     @example
+     *     // Create many DominioValors
+     *     const dominioValor = await prisma.dominioValor.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends DominioValorCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DominioValorCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a DominioValor.
+     * @param {DominioValorDeleteArgs} args - Arguments to delete one DominioValor.
+     * @example
+     * // Delete one DominioValor
+     * const DominioValor = await prisma.dominioValor.delete({
+     *   where: {
+     *     // ... filter to delete one DominioValor
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends DominioValorDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, DominioValorDeleteArgs<ExtArgs>>
+    ): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one DominioValor.
+     * @param {DominioValorUpdateArgs} args - Arguments to update one DominioValor.
+     * @example
+     * // Update one DominioValor
+     * const dominioValor = await prisma.dominioValor.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends DominioValorUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, DominioValorUpdateArgs<ExtArgs>>
+    ): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more DominioValors.
+     * @param {DominioValorDeleteManyArgs} args - Arguments to filter DominioValors to delete.
+     * @example
+     * // Delete a few DominioValors
+     * const { count } = await prisma.dominioValor.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends DominioValorDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DominioValorDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DominioValors.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioValorUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DominioValors
+     * const dominioValor = await prisma.dominioValor.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends DominioValorUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, DominioValorUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DominioValor.
+     * @param {DominioValorUpsertArgs} args - Arguments to update or create a DominioValor.
+     * @example
+     * // Update or create a DominioValor
+     * const dominioValor = await prisma.dominioValor.upsert({
+     *   create: {
+     *     // ... data to create a DominioValor
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DominioValor we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends DominioValorUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, DominioValorUpsertArgs<ExtArgs>>
+    ): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of DominioValors.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioValorCountArgs} args - Arguments to filter DominioValors to count.
+     * @example
+     * // Count the number of DominioValors
+     * const count = await prisma.dominioValor.count({
+     *   where: {
+     *     // ... the filter for the DominioValors we want to count
+     *   }
+     * })
+    **/
+    count<T extends DominioValorCountArgs>(
+      args?: Subset<T, DominioValorCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DominioValorCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DominioValor.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioValorAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DominioValorAggregateArgs>(args: Subset<T, DominioValorAggregateArgs>): Prisma.PrismaPromise<GetDominioValorAggregateType<T>>
+
+    /**
+     * Group by DominioValor.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DominioValorGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DominioValorGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DominioValorGroupByArgs['orderBy'] }
+        : { orderBy?: DominioValorGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DominioValorGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDominioValorGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DominioValor.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__DominioValorClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    dominio<T extends DominioArgs<ExtArgs> = {}>(args?: Subset<T, DominioArgs<ExtArgs>>): Prisma__DominioClient<$Types.GetResult<DominioPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    parent<T extends DominioValorArgs<ExtArgs> = {}>(args?: Subset<T, DominioValorArgs<ExtArgs>>): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    children<T extends DominioValor$childrenArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * DominioValor base type for findUnique actions
+   */
+  export type DominioValorFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+    /**
+     * Filter, which DominioValor to fetch.
+     */
+    where: DominioValorWhereUniqueInput
+  }
+
+  /**
+   * DominioValor findUnique
+   */
+  export interface DominioValorFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends DominioValorFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * DominioValor findUniqueOrThrow
+   */
+  export type DominioValorFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+    /**
+     * Filter, which DominioValor to fetch.
+     */
+    where: DominioValorWhereUniqueInput
+  }
+
+
+  /**
+   * DominioValor base type for findFirst actions
+   */
+  export type DominioValorFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+    /**
+     * Filter, which DominioValor to fetch.
+     */
+    where?: DominioValorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DominioValors to fetch.
+     */
+    orderBy?: Enumerable<DominioValorOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DominioValors.
+     */
+    cursor?: DominioValorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DominioValors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DominioValors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DominioValors.
+     */
+    distinct?: Enumerable<DominioValorScalarFieldEnum>
+  }
+
+  /**
+   * DominioValor findFirst
+   */
+  export interface DominioValorFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends DominioValorFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * DominioValor findFirstOrThrow
+   */
+  export type DominioValorFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+    /**
+     * Filter, which DominioValor to fetch.
+     */
+    where?: DominioValorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DominioValors to fetch.
+     */
+    orderBy?: Enumerable<DominioValorOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DominioValors.
+     */
+    cursor?: DominioValorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DominioValors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DominioValors.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DominioValors.
+     */
+    distinct?: Enumerable<DominioValorScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor findMany
+   */
+  export type DominioValorFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+    /**
+     * Filter, which DominioValors to fetch.
+     */
+    where?: DominioValorWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DominioValors to fetch.
+     */
+    orderBy?: Enumerable<DominioValorOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DominioValors.
+     */
+    cursor?: DominioValorWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DominioValors from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DominioValors.
+     */
+    skip?: number
+    distinct?: Enumerable<DominioValorScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor create
+   */
+  export type DominioValorCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DominioValor.
+     */
+    data: XOR<DominioValorCreateInput, DominioValorUncheckedCreateInput>
+  }
+
+
+  /**
+   * DominioValor createMany
+   */
+  export type DominioValorCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DominioValors.
+     */
+    data: Enumerable<DominioValorCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * DominioValor update
+   */
+  export type DominioValorUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DominioValor.
+     */
+    data: XOR<DominioValorUpdateInput, DominioValorUncheckedUpdateInput>
+    /**
+     * Choose, which DominioValor to update.
+     */
+    where: DominioValorWhereUniqueInput
+  }
+
+
+  /**
+   * DominioValor updateMany
+   */
+  export type DominioValorUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DominioValors.
+     */
+    data: XOR<DominioValorUpdateManyMutationInput, DominioValorUncheckedUpdateManyInput>
+    /**
+     * Filter which DominioValors to update
+     */
+    where?: DominioValorWhereInput
+  }
+
+
+  /**
+   * DominioValor upsert
+   */
+  export type DominioValorUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DominioValor to update in case it exists.
+     */
+    where: DominioValorWhereUniqueInput
+    /**
+     * In case the DominioValor found by the `where` argument doesn't exist, create a new DominioValor with this data.
+     */
+    create: XOR<DominioValorCreateInput, DominioValorUncheckedCreateInput>
+    /**
+     * In case the DominioValor was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DominioValorUpdateInput, DominioValorUncheckedUpdateInput>
+  }
+
+
+  /**
+   * DominioValor delete
+   */
+  export type DominioValorDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+    /**
+     * Filter which DominioValor to delete.
+     */
+    where: DominioValorWhereUniqueInput
+  }
+
+
+  /**
+   * DominioValor deleteMany
+   */
+  export type DominioValorDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DominioValors to delete
+     */
+    where?: DominioValorWhereInput
+  }
+
+
+  /**
+   * DominioValor.children
+   */
+  export type DominioValor$childrenArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+    where?: DominioValorWhereInput
+    orderBy?: Enumerable<DominioValorOrderByWithRelationInput>
+    cursor?: DominioValorWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<DominioValorScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor without action
+   */
+  export type DominioValorArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DominioValor
+     */
+    select?: DominioValorSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DominioValorInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model Orgao
+   */
+
+
+  export type AggregateOrgao = {
+    _count: OrgaoCountAggregateOutputType | null
+    _min: OrgaoMinAggregateOutputType | null
+    _max: OrgaoMaxAggregateOutputType | null
+  }
+
+  export type OrgaoMinAggregateOutputType = {
+    id: string | null
+    sigla: string | null
+    nome: string | null
+    tipo: TipoOrgao | null
+    ativo: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrgaoMaxAggregateOutputType = {
+    id: string | null
+    sigla: string | null
+    nome: string | null
+    tipo: TipoOrgao | null
+    ativo: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type OrgaoCountAggregateOutputType = {
+    id: number
+    sigla: number
+    nome: number
+    tipo: number
+    ativo: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type OrgaoMinAggregateInputType = {
+    id?: true
+    sigla?: true
+    nome?: true
+    tipo?: true
+    ativo?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrgaoMaxAggregateInputType = {
+    id?: true
+    sigla?: true
+    nome?: true
+    tipo?: true
+    ativo?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type OrgaoCountAggregateInputType = {
+    id?: true
+    sigla?: true
+    nome?: true
+    tipo?: true
+    ativo?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type OrgaoAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Orgao to aggregate.
+     */
+    where?: OrgaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orgaos to fetch.
+     */
+    orderBy?: Enumerable<OrgaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: OrgaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orgaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orgaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Orgaos
+    **/
+    _count?: true | OrgaoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: OrgaoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: OrgaoMaxAggregateInputType
+  }
+
+  export type GetOrgaoAggregateType<T extends OrgaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateOrgao]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateOrgao[P]>
+      : GetScalarType<T[P], AggregateOrgao[P]>
+  }
+
+
+
+
+  export type OrgaoGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: OrgaoWhereInput
+    orderBy?: Enumerable<OrgaoOrderByWithAggregationInput>
+    by: OrgaoScalarFieldEnum[]
+    having?: OrgaoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: OrgaoCountAggregateInputType | true
+    _min?: OrgaoMinAggregateInputType
+    _max?: OrgaoMaxAggregateInputType
+  }
+
+
+  export type OrgaoGroupByOutputType = {
+    id: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: OrgaoCountAggregateOutputType | null
+    _min: OrgaoMinAggregateOutputType | null
+    _max: OrgaoMaxAggregateOutputType | null
+  }
+
+  type GetOrgaoGroupByPayload<T extends OrgaoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<OrgaoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof OrgaoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], OrgaoGroupByOutputType[P]>
+            : GetScalarType<T[P], OrgaoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type OrgaoSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    sigla?: boolean
+    nome?: boolean
+    tipo?: boolean
+    ativo?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    unidades?: boolean | Orgao$unidadesArgs<ExtArgs>
+    _count?: boolean | OrgaoCountOutputTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["orgao"]>
+
+  export type OrgaoSelectScalar = {
+    id?: boolean
+    sigla?: boolean
+    nome?: boolean
+    tipo?: boolean
+    ativo?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type OrgaoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    unidades?: boolean | Orgao$unidadesArgs<ExtArgs>
+    _count?: boolean | OrgaoCountOutputTypeArgs<ExtArgs>
+  }
+
+
+  type OrgaoGetPayload<S extends boolean | null | undefined | OrgaoArgs> = $Types.GetResult<OrgaoPayload, S>
+
+  type OrgaoCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<OrgaoFindManyArgs, 'select' | 'include'> & {
+      select?: OrgaoCountAggregateInputType | true
+    }
+
+  export interface OrgaoDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Orgao'], meta: { name: 'Orgao' } }
+    /**
+     * Find zero or one Orgao that matches the filter.
+     * @param {OrgaoFindUniqueArgs} args - Arguments to find a Orgao
+     * @example
+     * // Get one Orgao
+     * const orgao = await prisma.orgao.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends OrgaoFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, OrgaoFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Orgao'> extends True ? Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one Orgao that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {OrgaoFindUniqueOrThrowArgs} args - Arguments to find a Orgao
+     * @example
+     * // Get one Orgao
+     * const orgao = await prisma.orgao.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends OrgaoFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, OrgaoFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first Orgao that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgaoFindFirstArgs} args - Arguments to find a Orgao
+     * @example
+     * // Get one Orgao
+     * const orgao = await prisma.orgao.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends OrgaoFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, OrgaoFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Orgao'> extends True ? Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first Orgao that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgaoFindFirstOrThrowArgs} args - Arguments to find a Orgao
+     * @example
+     * // Get one Orgao
+     * const orgao = await prisma.orgao.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends OrgaoFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, OrgaoFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more Orgaos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgaoFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Orgaos
+     * const orgaos = await prisma.orgao.findMany()
+     * 
+     * // Get first 10 Orgaos
+     * const orgaos = await prisma.orgao.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const orgaoWithIdOnly = await prisma.orgao.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends OrgaoFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, OrgaoFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a Orgao.
+     * @param {OrgaoCreateArgs} args - Arguments to create a Orgao.
+     * @example
+     * // Create one Orgao
+     * const Orgao = await prisma.orgao.create({
+     *   data: {
+     *     // ... data to create a Orgao
+     *   }
+     * })
+     * 
+    **/
+    create<T extends OrgaoCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, OrgaoCreateArgs<ExtArgs>>
+    ): Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many Orgaos.
+     *     @param {OrgaoCreateManyArgs} args - Arguments to create many Orgaos.
+     *     @example
+     *     // Create many Orgaos
+     *     const orgao = await prisma.orgao.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends OrgaoCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, OrgaoCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Orgao.
+     * @param {OrgaoDeleteArgs} args - Arguments to delete one Orgao.
+     * @example
+     * // Delete one Orgao
+     * const Orgao = await prisma.orgao.delete({
+     *   where: {
+     *     // ... filter to delete one Orgao
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends OrgaoDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, OrgaoDeleteArgs<ExtArgs>>
+    ): Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one Orgao.
+     * @param {OrgaoUpdateArgs} args - Arguments to update one Orgao.
+     * @example
+     * // Update one Orgao
+     * const orgao = await prisma.orgao.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends OrgaoUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, OrgaoUpdateArgs<ExtArgs>>
+    ): Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more Orgaos.
+     * @param {OrgaoDeleteManyArgs} args - Arguments to filter Orgaos to delete.
+     * @example
+     * // Delete a few Orgaos
+     * const { count } = await prisma.orgao.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends OrgaoDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, OrgaoDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Orgaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Orgaos
+     * const orgao = await prisma.orgao.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends OrgaoUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, OrgaoUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Orgao.
+     * @param {OrgaoUpsertArgs} args - Arguments to update or create a Orgao.
+     * @example
+     * // Update or create a Orgao
+     * const orgao = await prisma.orgao.upsert({
+     *   create: {
+     *     // ... data to create a Orgao
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Orgao we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends OrgaoUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, OrgaoUpsertArgs<ExtArgs>>
+    ): Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of Orgaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgaoCountArgs} args - Arguments to filter Orgaos to count.
+     * @example
+     * // Count the number of Orgaos
+     * const count = await prisma.orgao.count({
+     *   where: {
+     *     // ... the filter for the Orgaos we want to count
+     *   }
+     * })
+    **/
+    count<T extends OrgaoCountArgs>(
+      args?: Subset<T, OrgaoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], OrgaoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Orgao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends OrgaoAggregateArgs>(args: Subset<T, OrgaoAggregateArgs>): Prisma.PrismaPromise<GetOrgaoAggregateType<T>>
+
+    /**
+     * Group by Orgao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {OrgaoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends OrgaoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: OrgaoGroupByArgs['orderBy'] }
+        : { orderBy?: OrgaoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, OrgaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetOrgaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Orgao.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__OrgaoClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    unidades<T extends Orgao$unidadesArgs<ExtArgs> = {}>(args?: Subset<T, Orgao$unidadesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * Orgao base type for findUnique actions
+   */
+  export type OrgaoFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Orgao
+     */
+    select?: OrgaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: OrgaoInclude<ExtArgs> | null
+    /**
+     * Filter, which Orgao to fetch.
+     */
+    where: OrgaoWhereUniqueInput
+  }
+
+  /**
+   * Orgao findUnique
+   */
+  export interface OrgaoFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends OrgaoFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Orgao findUniqueOrThrow
+   */
+  export type OrgaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Orgao
+     */
+    select?: OrgaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: OrgaoInclude<ExtArgs> | null
+    /**
+     * Filter, which Orgao to fetch.
+     */
+    where: OrgaoWhereUniqueInput
+  }
+
+
+  /**
+   * Orgao base type for findFirst actions
+   */
+  export type OrgaoFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Orgao
+     */
+    select?: OrgaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: OrgaoInclude<ExtArgs> | null
+    /**
+     * Filter, which Orgao to fetch.
+     */
+    where?: OrgaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orgaos to fetch.
+     */
+    orderBy?: Enumerable<OrgaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Orgaos.
+     */
+    cursor?: OrgaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orgaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orgaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Orgaos.
+     */
+    distinct?: Enumerable<OrgaoScalarFieldEnum>
+  }
+
+  /**
+   * Orgao findFirst
+   */
+  export interface OrgaoFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends OrgaoFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Orgao findFirstOrThrow
+   */
+  export type OrgaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Orgao
+     */
+    select?: OrgaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: OrgaoInclude<ExtArgs> | null
+    /**
+     * Filter, which Orgao to fetch.
+     */
+    where?: OrgaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orgaos to fetch.
+     */
+    orderBy?: Enumerable<OrgaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Orgaos.
+     */
+    cursor?: OrgaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orgaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orgaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Orgaos.
+     */
+    distinct?: Enumerable<OrgaoScalarFieldEnum>
+  }
+
+
+  /**
+   * Orgao findMany
+   */
+  export type OrgaoFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Orgao
+     */
+    select?: OrgaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: OrgaoInclude<ExtArgs> | null
+    /**
+     * Filter, which Orgaos to fetch.
+     */
+    where?: OrgaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Orgaos to fetch.
+     */
+    orderBy?: Enumerable<OrgaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Orgaos.
+     */
+    cursor?: OrgaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Orgaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Orgaos.
+     */
+    skip?: number
+    distinct?: Enumerable<OrgaoScalarFieldEnum>
+  }
+
+
+  /**
+   * Orgao create
+   */
+  export type OrgaoCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Orgao
+     */
+    select?: OrgaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: OrgaoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Orgao.
+     */
+    data: XOR<OrgaoCreateInput, OrgaoUncheckedCreateInput>
+  }
+
+
+  /**
+   * Orgao createMany
+   */
+  export type OrgaoCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Orgaos.
+     */
+    data: Enumerable<OrgaoCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * Orgao update
+   */
+  export type OrgaoUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Orgao
+     */
+    select?: OrgaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: OrgaoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Orgao.
+     */
+    data: XOR<OrgaoUpdateInput, OrgaoUncheckedUpdateInput>
+    /**
+     * Choose, which Orgao to update.
+     */
+    where: OrgaoWhereUniqueInput
+  }
+
+
+  /**
+   * Orgao updateMany
+   */
+  export type OrgaoUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Orgaos.
+     */
+    data: XOR<OrgaoUpdateManyMutationInput, OrgaoUncheckedUpdateManyInput>
+    /**
+     * Filter which Orgaos to update
+     */
+    where?: OrgaoWhereInput
+  }
+
+
+  /**
+   * Orgao upsert
+   */
+  export type OrgaoUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Orgao
+     */
+    select?: OrgaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: OrgaoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Orgao to update in case it exists.
+     */
+    where: OrgaoWhereUniqueInput
+    /**
+     * In case the Orgao found by the `where` argument doesn't exist, create a new Orgao with this data.
+     */
+    create: XOR<OrgaoCreateInput, OrgaoUncheckedCreateInput>
+    /**
+     * In case the Orgao was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<OrgaoUpdateInput, OrgaoUncheckedUpdateInput>
+  }
+
+
+  /**
+   * Orgao delete
+   */
+  export type OrgaoDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Orgao
+     */
+    select?: OrgaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: OrgaoInclude<ExtArgs> | null
+    /**
+     * Filter which Orgao to delete.
+     */
+    where: OrgaoWhereUniqueInput
+  }
+
+
+  /**
+   * Orgao deleteMany
+   */
+  export type OrgaoDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Orgaos to delete
+     */
+    where?: OrgaoWhereInput
+  }
+
+
+  /**
+   * Orgao.unidades
+   */
+  export type Orgao$unidadesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    where?: UnidadeOrganizacionalWhereInput
+    orderBy?: Enumerable<UnidadeOrganizacionalOrderByWithRelationInput>
+    cursor?: UnidadeOrganizacionalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<UnidadeOrganizacionalScalarFieldEnum>
+  }
+
+
+  /**
+   * Orgao without action
+   */
+  export type OrgaoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Orgao
+     */
+    select?: OrgaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: OrgaoInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model UnidadeOrganizacional
+   */
+
+
+  export type AggregateUnidadeOrganizacional = {
+    _count: UnidadeOrganizacionalCountAggregateOutputType | null
+    _min: UnidadeOrganizacionalMinAggregateOutputType | null
+    _max: UnidadeOrganizacionalMaxAggregateOutputType | null
+  }
+
+  export type UnidadeOrganizacionalMinAggregateOutputType = {
+    id: string | null
+    orgaoId: string | null
+    parentId: string | null
+    sigla: string | null
+    nome: string | null
+    nivel: NivelUnidade | null
+    municipioId: string | null
+    ativo: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UnidadeOrganizacionalMaxAggregateOutputType = {
+    id: string | null
+    orgaoId: string | null
+    parentId: string | null
+    sigla: string | null
+    nome: string | null
+    nivel: NivelUnidade | null
+    municipioId: string | null
+    ativo: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type UnidadeOrganizacionalCountAggregateOutputType = {
+    id: number
+    orgaoId: number
+    parentId: number
+    sigla: number
+    nome: number
+    nivel: number
+    municipioId: number
+    ativo: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type UnidadeOrganizacionalMinAggregateInputType = {
+    id?: true
+    orgaoId?: true
+    parentId?: true
+    sigla?: true
+    nome?: true
+    nivel?: true
+    municipioId?: true
+    ativo?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UnidadeOrganizacionalMaxAggregateInputType = {
+    id?: true
+    orgaoId?: true
+    parentId?: true
+    sigla?: true
+    nome?: true
+    nivel?: true
+    municipioId?: true
+    ativo?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type UnidadeOrganizacionalCountAggregateInputType = {
+    id?: true
+    orgaoId?: true
+    parentId?: true
+    sigla?: true
+    nome?: true
+    nivel?: true
+    municipioId?: true
+    ativo?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type UnidadeOrganizacionalAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UnidadeOrganizacional to aggregate.
+     */
+    where?: UnidadeOrganizacionalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnidadeOrganizacionals to fetch.
+     */
+    orderBy?: Enumerable<UnidadeOrganizacionalOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: UnidadeOrganizacionalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnidadeOrganizacionals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnidadeOrganizacionals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned UnidadeOrganizacionals
+    **/
+    _count?: true | UnidadeOrganizacionalCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UnidadeOrganizacionalMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UnidadeOrganizacionalMaxAggregateInputType
+  }
+
+  export type GetUnidadeOrganizacionalAggregateType<T extends UnidadeOrganizacionalAggregateArgs> = {
+        [P in keyof T & keyof AggregateUnidadeOrganizacional]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUnidadeOrganizacional[P]>
+      : GetScalarType<T[P], AggregateUnidadeOrganizacional[P]>
+  }
+
+
+
+
+  export type UnidadeOrganizacionalGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: UnidadeOrganizacionalWhereInput
+    orderBy?: Enumerable<UnidadeOrganizacionalOrderByWithAggregationInput>
+    by: UnidadeOrganizacionalScalarFieldEnum[]
+    having?: UnidadeOrganizacionalScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UnidadeOrganizacionalCountAggregateInputType | true
+    _min?: UnidadeOrganizacionalMinAggregateInputType
+    _max?: UnidadeOrganizacionalMaxAggregateInputType
+  }
+
+
+  export type UnidadeOrganizacionalGroupByOutputType = {
+    id: string
+    orgaoId: string
+    parentId: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: UnidadeOrganizacionalCountAggregateOutputType | null
+    _min: UnidadeOrganizacionalMinAggregateOutputType | null
+    _max: UnidadeOrganizacionalMaxAggregateOutputType | null
+  }
+
+  type GetUnidadeOrganizacionalGroupByPayload<T extends UnidadeOrganizacionalGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<UnidadeOrganizacionalGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UnidadeOrganizacionalGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UnidadeOrganizacionalGroupByOutputType[P]>
+            : GetScalarType<T[P], UnidadeOrganizacionalGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type UnidadeOrganizacionalSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    orgaoId?: boolean
+    parentId?: boolean
+    sigla?: boolean
+    nome?: boolean
+    nivel?: boolean
+    municipioId?: boolean
+    ativo?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    orgao?: boolean | OrgaoArgs<ExtArgs>
+    parent?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+    children?: boolean | UnidadeOrganizacional$childrenArgs<ExtArgs>
+    municipio?: boolean | MunicipioArgs<ExtArgs>
+    _count?: boolean | UnidadeOrganizacionalCountOutputTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["unidadeOrganizacional"]>
+
+  export type UnidadeOrganizacionalSelectScalar = {
+    id?: boolean
+    orgaoId?: boolean
+    parentId?: boolean
+    sigla?: boolean
+    nome?: boolean
+    nivel?: boolean
+    municipioId?: boolean
+    ativo?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type UnidadeOrganizacionalInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    orgao?: boolean | OrgaoArgs<ExtArgs>
+    parent?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+    children?: boolean | UnidadeOrganizacional$childrenArgs<ExtArgs>
+    municipio?: boolean | MunicipioArgs<ExtArgs>
+    _count?: boolean | UnidadeOrganizacionalCountOutputTypeArgs<ExtArgs>
+  }
+
+
+  type UnidadeOrganizacionalGetPayload<S extends boolean | null | undefined | UnidadeOrganizacionalArgs> = $Types.GetResult<UnidadeOrganizacionalPayload, S>
+
+  type UnidadeOrganizacionalCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<UnidadeOrganizacionalFindManyArgs, 'select' | 'include'> & {
+      select?: UnidadeOrganizacionalCountAggregateInputType | true
+    }
+
+  export interface UnidadeOrganizacionalDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UnidadeOrganizacional'], meta: { name: 'UnidadeOrganizacional' } }
+    /**
+     * Find zero or one UnidadeOrganizacional that matches the filter.
+     * @param {UnidadeOrganizacionalFindUniqueArgs} args - Arguments to find a UnidadeOrganizacional
+     * @example
+     * // Get one UnidadeOrganizacional
+     * const unidadeOrganizacional = await prisma.unidadeOrganizacional.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends UnidadeOrganizacionalFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, UnidadeOrganizacionalFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'UnidadeOrganizacional'> extends True ? Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one UnidadeOrganizacional that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {UnidadeOrganizacionalFindUniqueOrThrowArgs} args - Arguments to find a UnidadeOrganizacional
+     * @example
+     * // Get one UnidadeOrganizacional
+     * const unidadeOrganizacional = await prisma.unidadeOrganizacional.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends UnidadeOrganizacionalFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, UnidadeOrganizacionalFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first UnidadeOrganizacional that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnidadeOrganizacionalFindFirstArgs} args - Arguments to find a UnidadeOrganizacional
+     * @example
+     * // Get one UnidadeOrganizacional
+     * const unidadeOrganizacional = await prisma.unidadeOrganizacional.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends UnidadeOrganizacionalFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, UnidadeOrganizacionalFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'UnidadeOrganizacional'> extends True ? Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first UnidadeOrganizacional that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnidadeOrganizacionalFindFirstOrThrowArgs} args - Arguments to find a UnidadeOrganizacional
+     * @example
+     * // Get one UnidadeOrganizacional
+     * const unidadeOrganizacional = await prisma.unidadeOrganizacional.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends UnidadeOrganizacionalFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, UnidadeOrganizacionalFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more UnidadeOrganizacionals that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnidadeOrganizacionalFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UnidadeOrganizacionals
+     * const unidadeOrganizacionals = await prisma.unidadeOrganizacional.findMany()
+     * 
+     * // Get first 10 UnidadeOrganizacionals
+     * const unidadeOrganizacionals = await prisma.unidadeOrganizacional.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const unidadeOrganizacionalWithIdOnly = await prisma.unidadeOrganizacional.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends UnidadeOrganizacionalFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, UnidadeOrganizacionalFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a UnidadeOrganizacional.
+     * @param {UnidadeOrganizacionalCreateArgs} args - Arguments to create a UnidadeOrganizacional.
+     * @example
+     * // Create one UnidadeOrganizacional
+     * const UnidadeOrganizacional = await prisma.unidadeOrganizacional.create({
+     *   data: {
+     *     // ... data to create a UnidadeOrganizacional
+     *   }
+     * })
+     * 
+    **/
+    create<T extends UnidadeOrganizacionalCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, UnidadeOrganizacionalCreateArgs<ExtArgs>>
+    ): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many UnidadeOrganizacionals.
+     *     @param {UnidadeOrganizacionalCreateManyArgs} args - Arguments to create many UnidadeOrganizacionals.
+     *     @example
+     *     // Create many UnidadeOrganizacionals
+     *     const unidadeOrganizacional = await prisma.unidadeOrganizacional.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends UnidadeOrganizacionalCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, UnidadeOrganizacionalCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a UnidadeOrganizacional.
+     * @param {UnidadeOrganizacionalDeleteArgs} args - Arguments to delete one UnidadeOrganizacional.
+     * @example
+     * // Delete one UnidadeOrganizacional
+     * const UnidadeOrganizacional = await prisma.unidadeOrganizacional.delete({
+     *   where: {
+     *     // ... filter to delete one UnidadeOrganizacional
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends UnidadeOrganizacionalDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, UnidadeOrganizacionalDeleteArgs<ExtArgs>>
+    ): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one UnidadeOrganizacional.
+     * @param {UnidadeOrganizacionalUpdateArgs} args - Arguments to update one UnidadeOrganizacional.
+     * @example
+     * // Update one UnidadeOrganizacional
+     * const unidadeOrganizacional = await prisma.unidadeOrganizacional.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends UnidadeOrganizacionalUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, UnidadeOrganizacionalUpdateArgs<ExtArgs>>
+    ): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more UnidadeOrganizacionals.
+     * @param {UnidadeOrganizacionalDeleteManyArgs} args - Arguments to filter UnidadeOrganizacionals to delete.
+     * @example
+     * // Delete a few UnidadeOrganizacionals
+     * const { count } = await prisma.unidadeOrganizacional.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends UnidadeOrganizacionalDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, UnidadeOrganizacionalDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UnidadeOrganizacionals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnidadeOrganizacionalUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UnidadeOrganizacionals
+     * const unidadeOrganizacional = await prisma.unidadeOrganizacional.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends UnidadeOrganizacionalUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, UnidadeOrganizacionalUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one UnidadeOrganizacional.
+     * @param {UnidadeOrganizacionalUpsertArgs} args - Arguments to update or create a UnidadeOrganizacional.
+     * @example
+     * // Update or create a UnidadeOrganizacional
+     * const unidadeOrganizacional = await prisma.unidadeOrganizacional.upsert({
+     *   create: {
+     *     // ... data to create a UnidadeOrganizacional
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UnidadeOrganizacional we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends UnidadeOrganizacionalUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, UnidadeOrganizacionalUpsertArgs<ExtArgs>>
+    ): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of UnidadeOrganizacionals.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnidadeOrganizacionalCountArgs} args - Arguments to filter UnidadeOrganizacionals to count.
+     * @example
+     * // Count the number of UnidadeOrganizacionals
+     * const count = await prisma.unidadeOrganizacional.count({
+     *   where: {
+     *     // ... the filter for the UnidadeOrganizacionals we want to count
+     *   }
+     * })
+    **/
+    count<T extends UnidadeOrganizacionalCountArgs>(
+      args?: Subset<T, UnidadeOrganizacionalCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UnidadeOrganizacionalCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UnidadeOrganizacional.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnidadeOrganizacionalAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UnidadeOrganizacionalAggregateArgs>(args: Subset<T, UnidadeOrganizacionalAggregateArgs>): Prisma.PrismaPromise<GetUnidadeOrganizacionalAggregateType<T>>
+
+    /**
+     * Group by UnidadeOrganizacional.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UnidadeOrganizacionalGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends UnidadeOrganizacionalGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: UnidadeOrganizacionalGroupByArgs['orderBy'] }
+        : { orderBy?: UnidadeOrganizacionalGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, UnidadeOrganizacionalGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUnidadeOrganizacionalGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for UnidadeOrganizacional.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__UnidadeOrganizacionalClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    orgao<T extends OrgaoArgs<ExtArgs> = {}>(args?: Subset<T, OrgaoArgs<ExtArgs>>): Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    parent<T extends UnidadeOrganizacionalArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacionalArgs<ExtArgs>>): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    children<T extends UnidadeOrganizacional$childrenArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacional$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    municipio<T extends MunicipioArgs<ExtArgs> = {}>(args?: Subset<T, MunicipioArgs<ExtArgs>>): Prisma__MunicipioClient<$Types.GetResult<MunicipioPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * UnidadeOrganizacional base type for findUnique actions
+   */
+  export type UnidadeOrganizacionalFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    /**
+     * Filter, which UnidadeOrganizacional to fetch.
+     */
+    where: UnidadeOrganizacionalWhereUniqueInput
+  }
+
+  /**
+   * UnidadeOrganizacional findUnique
+   */
+  export interface UnidadeOrganizacionalFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends UnidadeOrganizacionalFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * UnidadeOrganizacional findUniqueOrThrow
+   */
+  export type UnidadeOrganizacionalFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    /**
+     * Filter, which UnidadeOrganizacional to fetch.
+     */
+    where: UnidadeOrganizacionalWhereUniqueInput
+  }
+
+
+  /**
+   * UnidadeOrganizacional base type for findFirst actions
+   */
+  export type UnidadeOrganizacionalFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    /**
+     * Filter, which UnidadeOrganizacional to fetch.
+     */
+    where?: UnidadeOrganizacionalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnidadeOrganizacionals to fetch.
+     */
+    orderBy?: Enumerable<UnidadeOrganizacionalOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UnidadeOrganizacionals.
+     */
+    cursor?: UnidadeOrganizacionalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnidadeOrganizacionals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnidadeOrganizacionals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UnidadeOrganizacionals.
+     */
+    distinct?: Enumerable<UnidadeOrganizacionalScalarFieldEnum>
+  }
+
+  /**
+   * UnidadeOrganizacional findFirst
+   */
+  export interface UnidadeOrganizacionalFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends UnidadeOrganizacionalFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * UnidadeOrganizacional findFirstOrThrow
+   */
+  export type UnidadeOrganizacionalFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    /**
+     * Filter, which UnidadeOrganizacional to fetch.
+     */
+    where?: UnidadeOrganizacionalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnidadeOrganizacionals to fetch.
+     */
+    orderBy?: Enumerable<UnidadeOrganizacionalOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for UnidadeOrganizacionals.
+     */
+    cursor?: UnidadeOrganizacionalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnidadeOrganizacionals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnidadeOrganizacionals.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of UnidadeOrganizacionals.
+     */
+    distinct?: Enumerable<UnidadeOrganizacionalScalarFieldEnum>
+  }
+
+
+  /**
+   * UnidadeOrganizacional findMany
+   */
+  export type UnidadeOrganizacionalFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    /**
+     * Filter, which UnidadeOrganizacionals to fetch.
+     */
+    where?: UnidadeOrganizacionalWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of UnidadeOrganizacionals to fetch.
+     */
+    orderBy?: Enumerable<UnidadeOrganizacionalOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing UnidadeOrganizacionals.
+     */
+    cursor?: UnidadeOrganizacionalWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` UnidadeOrganizacionals from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` UnidadeOrganizacionals.
+     */
+    skip?: number
+    distinct?: Enumerable<UnidadeOrganizacionalScalarFieldEnum>
+  }
+
+
+  /**
+   * UnidadeOrganizacional create
+   */
+  export type UnidadeOrganizacionalCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    /**
+     * The data needed to create a UnidadeOrganizacional.
+     */
+    data: XOR<UnidadeOrganizacionalCreateInput, UnidadeOrganizacionalUncheckedCreateInput>
+  }
+
+
+  /**
+   * UnidadeOrganizacional createMany
+   */
+  export type UnidadeOrganizacionalCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many UnidadeOrganizacionals.
+     */
+    data: Enumerable<UnidadeOrganizacionalCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * UnidadeOrganizacional update
+   */
+  export type UnidadeOrganizacionalUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    /**
+     * The data needed to update a UnidadeOrganizacional.
+     */
+    data: XOR<UnidadeOrganizacionalUpdateInput, UnidadeOrganizacionalUncheckedUpdateInput>
+    /**
+     * Choose, which UnidadeOrganizacional to update.
+     */
+    where: UnidadeOrganizacionalWhereUniqueInput
+  }
+
+
+  /**
+   * UnidadeOrganizacional updateMany
+   */
+  export type UnidadeOrganizacionalUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update UnidadeOrganizacionals.
+     */
+    data: XOR<UnidadeOrganizacionalUpdateManyMutationInput, UnidadeOrganizacionalUncheckedUpdateManyInput>
+    /**
+     * Filter which UnidadeOrganizacionals to update
+     */
+    where?: UnidadeOrganizacionalWhereInput
+  }
+
+
+  /**
+   * UnidadeOrganizacional upsert
+   */
+  export type UnidadeOrganizacionalUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    /**
+     * The filter to search for the UnidadeOrganizacional to update in case it exists.
+     */
+    where: UnidadeOrganizacionalWhereUniqueInput
+    /**
+     * In case the UnidadeOrganizacional found by the `where` argument doesn't exist, create a new UnidadeOrganizacional with this data.
+     */
+    create: XOR<UnidadeOrganizacionalCreateInput, UnidadeOrganizacionalUncheckedCreateInput>
+    /**
+     * In case the UnidadeOrganizacional was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<UnidadeOrganizacionalUpdateInput, UnidadeOrganizacionalUncheckedUpdateInput>
+  }
+
+
+  /**
+   * UnidadeOrganizacional delete
+   */
+  export type UnidadeOrganizacionalDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    /**
+     * Filter which UnidadeOrganizacional to delete.
+     */
+    where: UnidadeOrganizacionalWhereUniqueInput
+  }
+
+
+  /**
+   * UnidadeOrganizacional deleteMany
+   */
+  export type UnidadeOrganizacionalDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which UnidadeOrganizacionals to delete
+     */
+    where?: UnidadeOrganizacionalWhereInput
+  }
+
+
+  /**
+   * UnidadeOrganizacional.children
+   */
+  export type UnidadeOrganizacional$childrenArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
+    where?: UnidadeOrganizacionalWhereInput
+    orderBy?: Enumerable<UnidadeOrganizacionalOrderByWithRelationInput>
+    cursor?: UnidadeOrganizacionalWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<UnidadeOrganizacionalScalarFieldEnum>
+  }
+
+
+  /**
+   * UnidadeOrganizacional without action
+   */
+  export type UnidadeOrganizacionalArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UnidadeOrganizacional
+     */
+    select?: UnidadeOrganizacionalSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: UnidadeOrganizacionalInclude<ExtArgs> | null
   }
 
 
@@ -11238,11 +15922,73 @@ export namespace Prisma {
 
   export const MunicipioScalarFieldEnum: {
     id: 'id',
+    codigoIbge: 'codigoIbge',
     nome: 'nome',
-    uf: 'uf'
+    uf: 'uf',
+    regiaoAdministrativa: 'regiaoAdministrativa'
   };
 
   export type MunicipioScalarFieldEnum = (typeof MunicipioScalarFieldEnum)[keyof typeof MunicipioScalarFieldEnum]
+
+
+  export const DominioScalarFieldEnum: {
+    id: 'id',
+    slug: 'slug',
+    nome: 'nome',
+    descricao: 'descricao',
+    editavelPeloUsuario: 'editavelPeloUsuario',
+    permiteHierarquia: 'permiteHierarquia',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DominioScalarFieldEnum = (typeof DominioScalarFieldEnum)[keyof typeof DominioScalarFieldEnum]
+
+
+  export const DominioValorScalarFieldEnum: {
+    id: 'id',
+    dominioId: 'dominioId',
+    codigo: 'codigo',
+    label: 'label',
+    parentId: 'parentId',
+    ordem: 'ordem',
+    ativo: 'ativo',
+    metadata: 'metadata',
+    codigoLegado: 'codigoLegado',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DominioValorScalarFieldEnum = (typeof DominioValorScalarFieldEnum)[keyof typeof DominioValorScalarFieldEnum]
+
+
+  export const OrgaoScalarFieldEnum: {
+    id: 'id',
+    sigla: 'sigla',
+    nome: 'nome',
+    tipo: 'tipo',
+    ativo: 'ativo',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type OrgaoScalarFieldEnum = (typeof OrgaoScalarFieldEnum)[keyof typeof OrgaoScalarFieldEnum]
+
+
+  export const UnidadeOrganizacionalScalarFieldEnum: {
+    id: 'id',
+    orgaoId: 'orgaoId',
+    parentId: 'parentId',
+    sigla: 'sigla',
+    nome: 'nome',
+    nivel: 'nivel',
+    municipioId: 'municipioId',
+    ativo: 'ativo',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type UnidadeOrganizacionalScalarFieldEnum = (typeof UnidadeOrganizacionalScalarFieldEnum)[keyof typeof UnidadeOrganizacionalScalarFieldEnum]
 
 
   export const EmpresaScalarFieldEnum: {
@@ -11340,6 +16086,14 @@ export namespace Prisma {
   };
 
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+  export const NullableJsonNullValueInput: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull
+  };
+
+  export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
   export const JsonNullValueInput: {
@@ -11466,24 +16220,33 @@ export namespace Prisma {
     OR?: Enumerable<MunicipioWhereInput>
     NOT?: Enumerable<MunicipioWhereInput>
     id?: StringFilter | string
+    codigoIbge?: StringFilter | string
     nome?: StringFilter | string
     uf?: StringFilter | string
+    regiaoAdministrativa?: StringNullableFilter | string | null
+    unidades?: UnidadeOrganizacionalListRelationFilter
   }
 
   export type MunicipioOrderByWithRelationInput = {
     id?: SortOrder
+    codigoIbge?: SortOrder
     nome?: SortOrder
     uf?: SortOrder
+    regiaoAdministrativa?: SortOrderInput | SortOrder
+    unidades?: UnidadeOrganizacionalOrderByRelationAggregateInput
   }
 
   export type MunicipioWhereUniqueInput = {
     id?: string
+    codigoIbge?: string
   }
 
   export type MunicipioOrderByWithAggregationInput = {
     id?: SortOrder
+    codigoIbge?: SortOrder
     nome?: SortOrder
     uf?: SortOrder
+    regiaoAdministrativa?: SortOrderInput | SortOrder
     _count?: MunicipioCountOrderByAggregateInput
     _max?: MunicipioMaxOrderByAggregateInput
     _min?: MunicipioMinOrderByAggregateInput
@@ -11494,8 +16257,278 @@ export namespace Prisma {
     OR?: Enumerable<MunicipioScalarWhereWithAggregatesInput>
     NOT?: Enumerable<MunicipioScalarWhereWithAggregatesInput>
     id?: StringWithAggregatesFilter | string
+    codigoIbge?: StringWithAggregatesFilter | string
     nome?: StringWithAggregatesFilter | string
     uf?: StringWithAggregatesFilter | string
+    regiaoAdministrativa?: StringNullableWithAggregatesFilter | string | null
+  }
+
+  export type DominioWhereInput = {
+    AND?: Enumerable<DominioWhereInput>
+    OR?: Enumerable<DominioWhereInput>
+    NOT?: Enumerable<DominioWhereInput>
+    id?: StringFilter | string
+    slug?: StringFilter | string
+    nome?: StringFilter | string
+    descricao?: StringNullableFilter | string | null
+    editavelPeloUsuario?: BoolFilter | boolean
+    permiteHierarquia?: BoolFilter | boolean
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    valores?: DominioValorListRelationFilter
+  }
+
+  export type DominioOrderByWithRelationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    nome?: SortOrder
+    descricao?: SortOrderInput | SortOrder
+    editavelPeloUsuario?: SortOrder
+    permiteHierarquia?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    valores?: DominioValorOrderByRelationAggregateInput
+  }
+
+  export type DominioWhereUniqueInput = {
+    id?: string
+    slug?: string
+  }
+
+  export type DominioOrderByWithAggregationInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    nome?: SortOrder
+    descricao?: SortOrderInput | SortOrder
+    editavelPeloUsuario?: SortOrder
+    permiteHierarquia?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DominioCountOrderByAggregateInput
+    _max?: DominioMaxOrderByAggregateInput
+    _min?: DominioMinOrderByAggregateInput
+  }
+
+  export type DominioScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<DominioScalarWhereWithAggregatesInput>
+    OR?: Enumerable<DominioScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<DominioScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    slug?: StringWithAggregatesFilter | string
+    nome?: StringWithAggregatesFilter | string
+    descricao?: StringNullableWithAggregatesFilter | string | null
+    editavelPeloUsuario?: BoolWithAggregatesFilter | boolean
+    permiteHierarquia?: BoolWithAggregatesFilter | boolean
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type DominioValorWhereInput = {
+    AND?: Enumerable<DominioValorWhereInput>
+    OR?: Enumerable<DominioValorWhereInput>
+    NOT?: Enumerable<DominioValorWhereInput>
+    id?: StringFilter | string
+    dominioId?: StringFilter | string
+    codigo?: StringFilter | string
+    label?: StringFilter | string
+    parentId?: StringNullableFilter | string | null
+    ordem?: IntFilter | number
+    ativo?: BoolFilter | boolean
+    metadata?: JsonNullableFilter
+    codigoLegado?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    dominio?: XOR<DominioRelationFilter, DominioWhereInput>
+    parent?: XOR<DominioValorRelationFilter, DominioValorWhereInput> | null
+    children?: DominioValorListRelationFilter
+  }
+
+  export type DominioValorOrderByWithRelationInput = {
+    id?: SortOrder
+    dominioId?: SortOrder
+    codigo?: SortOrder
+    label?: SortOrder
+    parentId?: SortOrderInput | SortOrder
+    ordem?: SortOrder
+    ativo?: SortOrder
+    metadata?: SortOrderInput | SortOrder
+    codigoLegado?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    dominio?: DominioOrderByWithRelationInput
+    parent?: DominioValorOrderByWithRelationInput
+    children?: DominioValorOrderByRelationAggregateInput
+  }
+
+  export type DominioValorWhereUniqueInput = {
+    id?: string
+    dominioId_codigo?: DominioValorDominioIdCodigoCompoundUniqueInput
+  }
+
+  export type DominioValorOrderByWithAggregationInput = {
+    id?: SortOrder
+    dominioId?: SortOrder
+    codigo?: SortOrder
+    label?: SortOrder
+    parentId?: SortOrderInput | SortOrder
+    ordem?: SortOrder
+    ativo?: SortOrder
+    metadata?: SortOrderInput | SortOrder
+    codigoLegado?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DominioValorCountOrderByAggregateInput
+    _avg?: DominioValorAvgOrderByAggregateInput
+    _max?: DominioValorMaxOrderByAggregateInput
+    _min?: DominioValorMinOrderByAggregateInput
+    _sum?: DominioValorSumOrderByAggregateInput
+  }
+
+  export type DominioValorScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<DominioValorScalarWhereWithAggregatesInput>
+    OR?: Enumerable<DominioValorScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<DominioValorScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    dominioId?: StringWithAggregatesFilter | string
+    codigo?: StringWithAggregatesFilter | string
+    label?: StringWithAggregatesFilter | string
+    parentId?: StringNullableWithAggregatesFilter | string | null
+    ordem?: IntWithAggregatesFilter | number
+    ativo?: BoolWithAggregatesFilter | boolean
+    metadata?: JsonNullableWithAggregatesFilter
+    codigoLegado?: StringNullableWithAggregatesFilter | string | null
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type OrgaoWhereInput = {
+    AND?: Enumerable<OrgaoWhereInput>
+    OR?: Enumerable<OrgaoWhereInput>
+    NOT?: Enumerable<OrgaoWhereInput>
+    id?: StringFilter | string
+    sigla?: StringFilter | string
+    nome?: StringFilter | string
+    tipo?: EnumTipoOrgaoFilter | TipoOrgao
+    ativo?: BoolFilter | boolean
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    unidades?: UnidadeOrganizacionalListRelationFilter
+  }
+
+  export type OrgaoOrderByWithRelationInput = {
+    id?: SortOrder
+    sigla?: SortOrder
+    nome?: SortOrder
+    tipo?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    unidades?: UnidadeOrganizacionalOrderByRelationAggregateInput
+  }
+
+  export type OrgaoWhereUniqueInput = {
+    id?: string
+    sigla?: string
+  }
+
+  export type OrgaoOrderByWithAggregationInput = {
+    id?: SortOrder
+    sigla?: SortOrder
+    nome?: SortOrder
+    tipo?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: OrgaoCountOrderByAggregateInput
+    _max?: OrgaoMaxOrderByAggregateInput
+    _min?: OrgaoMinOrderByAggregateInput
+  }
+
+  export type OrgaoScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<OrgaoScalarWhereWithAggregatesInput>
+    OR?: Enumerable<OrgaoScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<OrgaoScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    sigla?: StringWithAggregatesFilter | string
+    nome?: StringWithAggregatesFilter | string
+    tipo?: EnumTipoOrgaoWithAggregatesFilter | TipoOrgao
+    ativo?: BoolWithAggregatesFilter | boolean
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type UnidadeOrganizacionalWhereInput = {
+    AND?: Enumerable<UnidadeOrganizacionalWhereInput>
+    OR?: Enumerable<UnidadeOrganizacionalWhereInput>
+    NOT?: Enumerable<UnidadeOrganizacionalWhereInput>
+    id?: StringFilter | string
+    orgaoId?: StringFilter | string
+    parentId?: StringNullableFilter | string | null
+    sigla?: StringFilter | string
+    nome?: StringFilter | string
+    nivel?: EnumNivelUnidadeFilter | NivelUnidade
+    municipioId?: StringFilter | string
+    ativo?: BoolFilter | boolean
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    orgao?: XOR<OrgaoRelationFilter, OrgaoWhereInput>
+    parent?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput> | null
+    children?: UnidadeOrganizacionalListRelationFilter
+    municipio?: XOR<MunicipioRelationFilter, MunicipioWhereInput>
+  }
+
+  export type UnidadeOrganizacionalOrderByWithRelationInput = {
+    id?: SortOrder
+    orgaoId?: SortOrder
+    parentId?: SortOrderInput | SortOrder
+    sigla?: SortOrder
+    nome?: SortOrder
+    nivel?: SortOrder
+    municipioId?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    orgao?: OrgaoOrderByWithRelationInput
+    parent?: UnidadeOrganizacionalOrderByWithRelationInput
+    children?: UnidadeOrganizacionalOrderByRelationAggregateInput
+    municipio?: MunicipioOrderByWithRelationInput
+  }
+
+  export type UnidadeOrganizacionalWhereUniqueInput = {
+    id?: string
+    orgaoId_sigla?: UnidadeOrganizacionalOrgaoIdSiglaCompoundUniqueInput
+  }
+
+  export type UnidadeOrganizacionalOrderByWithAggregationInput = {
+    id?: SortOrder
+    orgaoId?: SortOrder
+    parentId?: SortOrderInput | SortOrder
+    sigla?: SortOrder
+    nome?: SortOrder
+    nivel?: SortOrder
+    municipioId?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: UnidadeOrganizacionalCountOrderByAggregateInput
+    _max?: UnidadeOrganizacionalMaxOrderByAggregateInput
+    _min?: UnidadeOrganizacionalMinOrderByAggregateInput
+  }
+
+  export type UnidadeOrganizacionalScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<UnidadeOrganizacionalScalarWhereWithAggregatesInput>
+    OR?: Enumerable<UnidadeOrganizacionalScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<UnidadeOrganizacionalScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    orgaoId?: StringWithAggregatesFilter | string
+    parentId?: StringNullableWithAggregatesFilter | string | null
+    sigla?: StringWithAggregatesFilter | string
+    nome?: StringWithAggregatesFilter | string
+    nivel?: EnumNivelUnidadeWithAggregatesFilter | NivelUnidade
+    municipioId?: StringWithAggregatesFilter | string
+    ativo?: BoolWithAggregatesFilter | boolean
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
   }
 
   export type EmpresaWhereInput = {
@@ -11983,44 +17016,409 @@ export namespace Prisma {
 
   export type MunicipioCreateInput = {
     id?: string
+    codigoIbge: string
     nome: string
     uf: string
+    regiaoAdministrativa?: string | null
+    unidades?: UnidadeOrganizacionalCreateNestedManyWithoutMunicipioInput
   }
 
   export type MunicipioUncheckedCreateInput = {
     id?: string
+    codigoIbge: string
     nome: string
     uf: string
+    regiaoAdministrativa?: string | null
+    unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutMunicipioInput
   }
 
   export type MunicipioUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    codigoIbge?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
     uf?: StringFieldUpdateOperationsInput | string
+    regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
+    unidades?: UnidadeOrganizacionalUpdateManyWithoutMunicipioNestedInput
   }
 
   export type MunicipioUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    codigoIbge?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
     uf?: StringFieldUpdateOperationsInput | string
+    regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
+    unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutMunicipioNestedInput
   }
 
   export type MunicipioCreateManyInput = {
     id?: string
+    codigoIbge: string
     nome: string
     uf: string
+    regiaoAdministrativa?: string | null
   }
 
   export type MunicipioUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    codigoIbge?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
     uf?: StringFieldUpdateOperationsInput | string
+    regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type MunicipioUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    codigoIbge?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
     uf?: StringFieldUpdateOperationsInput | string
+    regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type DominioCreateInput = {
+    id?: string
+    slug: string
+    nome: string
+    descricao?: string | null
+    editavelPeloUsuario?: boolean
+    permiteHierarquia?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    valores?: DominioValorCreateNestedManyWithoutDominioInput
+  }
+
+  export type DominioUncheckedCreateInput = {
+    id?: string
+    slug: string
+    nome: string
+    descricao?: string | null
+    editavelPeloUsuario?: boolean
+    permiteHierarquia?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    valores?: DominioValorUncheckedCreateNestedManyWithoutDominioInput
+  }
+
+  export type DominioUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    editavelPeloUsuario?: BoolFieldUpdateOperationsInput | boolean
+    permiteHierarquia?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    valores?: DominioValorUpdateManyWithoutDominioNestedInput
+  }
+
+  export type DominioUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    editavelPeloUsuario?: BoolFieldUpdateOperationsInput | boolean
+    permiteHierarquia?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    valores?: DominioValorUncheckedUpdateManyWithoutDominioNestedInput
+  }
+
+  export type DominioCreateManyInput = {
+    id?: string
+    slug: string
+    nome: string
+    descricao?: string | null
+    editavelPeloUsuario?: boolean
+    permiteHierarquia?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DominioUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    editavelPeloUsuario?: BoolFieldUpdateOperationsInput | boolean
+    permiteHierarquia?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DominioUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    editavelPeloUsuario?: BoolFieldUpdateOperationsInput | boolean
+    permiteHierarquia?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DominioValorCreateInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+  }
+
+  export type DominioValorUncheckedCreateInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+  }
+
+  export type DominioValorUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+  }
+
+  export type DominioValorCreateManyInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DominioValorUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DominioValorUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrgaoCreateInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
+  }
+
+  export type OrgaoUncheckedCreateInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
+  }
+
+  export type OrgaoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
+  }
+
+  export type OrgaoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
+  }
+
+  export type OrgaoCreateManyInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrgaoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrgaoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UnidadeOrganizacionalCreateInput = {
+    id?: string
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao: OrgaoCreateNestedOneWithoutUnidadesInput
+    parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
+    children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
+    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedCreateInput = {
+    id?: string
+    orgaoId: string
+    parentId?: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+  }
+
+  export type UnidadeOrganizacionalUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
+    parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
+    children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
+    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgaoId?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    municipioId?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+  }
+
+  export type UnidadeOrganizacionalCreateManyInput = {
+    id?: string
+    orgaoId: string
+    parentId?: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UnidadeOrganizacionalUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgaoId?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    municipioId?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type EmpresaCreateInput = {
@@ -12581,42 +17979,6 @@ export namespace Prisma {
     cpf?: SortOrder
   }
 
-  export type MunicipioCountOrderByAggregateInput = {
-    id?: SortOrder
-    nome?: SortOrder
-    uf?: SortOrder
-  }
-
-  export type MunicipioMaxOrderByAggregateInput = {
-    id?: SortOrder
-    nome?: SortOrder
-    uf?: SortOrder
-  }
-
-  export type MunicipioMinOrderByAggregateInput = {
-    id?: SortOrder
-    nome?: SortOrder
-    uf?: SortOrder
-  }
-
-  export type EmpresaCountOrderByAggregateInput = {
-    id?: SortOrder
-    cnpj?: SortOrder
-    razaoSocial?: SortOrder
-  }
-
-  export type EmpresaMaxOrderByAggregateInput = {
-    id?: SortOrder
-    cnpj?: SortOrder
-    razaoSocial?: SortOrder
-  }
-
-  export type EmpresaMinOrderByAggregateInput = {
-    id?: SortOrder
-    cnpj?: SortOrder
-    razaoSocial?: SortOrder
-  }
-
   export type StringNullableFilter = {
     equals?: string | null
     in?: Enumerable<string> | string | null
@@ -12632,15 +17994,10 @@ export namespace Prisma {
     not?: NestedStringNullableFilter | string | null
   }
 
-  export type DateTimeFilter = {
-    equals?: Date | string
-    in?: Enumerable<Date> | Enumerable<string> | Date | string
-    notIn?: Enumerable<Date> | Enumerable<string> | Date | string
-    lt?: Date | string
-    lte?: Date | string
-    gt?: Date | string
-    gte?: Date | string
-    not?: NestedDateTimeFilter | Date | string
+  export type UnidadeOrganizacionalListRelationFilter = {
+    every?: UnidadeOrganizacionalWhereInput
+    some?: UnidadeOrganizacionalWhereInput
+    none?: UnidadeOrganizacionalWhereInput
   }
 
   export type SortOrderInput = {
@@ -12648,25 +18005,32 @@ export namespace Prisma {
     nulls?: NullsOrder
   }
 
-  export type FornecedorCountOrderByAggregateInput = {
-    id?: SortOrder
-    cnpj?: SortOrder
-    nome?: SortOrder
-    createdAt?: SortOrder
+  export type UnidadeOrganizacionalOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
-  export type FornecedorMaxOrderByAggregateInput = {
+  export type MunicipioCountOrderByAggregateInput = {
     id?: SortOrder
-    cnpj?: SortOrder
+    codigoIbge?: SortOrder
     nome?: SortOrder
-    createdAt?: SortOrder
+    uf?: SortOrder
+    regiaoAdministrativa?: SortOrder
   }
 
-  export type FornecedorMinOrderByAggregateInput = {
+  export type MunicipioMaxOrderByAggregateInput = {
     id?: SortOrder
-    cnpj?: SortOrder
+    codigoIbge?: SortOrder
     nome?: SortOrder
-    createdAt?: SortOrder
+    uf?: SortOrder
+    regiaoAdministrativa?: SortOrder
+  }
+
+  export type MunicipioMinOrderByAggregateInput = {
+    id?: SortOrder
+    codigoIbge?: SortOrder
+    nome?: SortOrder
+    uf?: SortOrder
+    regiaoAdministrativa?: SortOrder
   }
 
   export type StringNullableWithAggregatesFilter = {
@@ -12685,6 +18049,73 @@ export namespace Prisma {
     _count?: NestedIntNullableFilter
     _min?: NestedStringNullableFilter
     _max?: NestedStringNullableFilter
+  }
+
+  export type BoolFilter = {
+    equals?: boolean
+    not?: NestedBoolFilter | boolean
+  }
+
+  export type DateTimeFilter = {
+    equals?: Date | string
+    in?: Enumerable<Date> | Enumerable<string> | Date | string
+    notIn?: Enumerable<Date> | Enumerable<string> | Date | string
+    lt?: Date | string
+    lte?: Date | string
+    gt?: Date | string
+    gte?: Date | string
+    not?: NestedDateTimeFilter | Date | string
+  }
+
+  export type DominioValorListRelationFilter = {
+    every?: DominioValorWhereInput
+    some?: DominioValorWhereInput
+    none?: DominioValorWhereInput
+  }
+
+  export type DominioValorOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DominioCountOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    nome?: SortOrder
+    descricao?: SortOrder
+    editavelPeloUsuario?: SortOrder
+    permiteHierarquia?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DominioMaxOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    nome?: SortOrder
+    descricao?: SortOrder
+    editavelPeloUsuario?: SortOrder
+    permiteHierarquia?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DominioMinOrderByAggregateInput = {
+    id?: SortOrder
+    slug?: SortOrder
+    nome?: SortOrder
+    descricao?: SortOrder
+    editavelPeloUsuario?: SortOrder
+    permiteHierarquia?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter = {
+    equals?: boolean
+    not?: NestedBoolWithAggregatesFilter | boolean
+    _count?: NestedIntFilter
+    _min?: NestedBoolFilter
+    _max?: NestedBoolFilter
   }
 
   export type DateTimeWithAggregatesFilter = {
@@ -12710,6 +18141,294 @@ export namespace Prisma {
     gt?: number
     gte?: number
     not?: NestedIntFilter | number
+  }
+  export type JsonNullableFilter = 
+    | PatchUndefined<
+        Either<Required<JsonNullableFilterBase>, Exclude<keyof Required<JsonNullableFilterBase>, 'path'>>,
+        Required<JsonNullableFilterBase>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableFilterBase>, 'path'>>
+
+  export type JsonNullableFilterBase = {
+    equals?: InputJsonValue | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string
+    string_starts_with?: string
+    string_ends_with?: string
+    array_contains?: InputJsonValue | null
+    array_starts_with?: InputJsonValue | null
+    array_ends_with?: InputJsonValue | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonNullValueFilter
+  }
+
+  export type DominioRelationFilter = {
+    is?: DominioWhereInput | null
+    isNot?: DominioWhereInput | null
+  }
+
+  export type DominioValorRelationFilter = {
+    is?: DominioValorWhereInput | null
+    isNot?: DominioValorWhereInput | null
+  }
+
+  export type DominioValorDominioIdCodigoCompoundUniqueInput = {
+    dominioId: string
+    codigo: string
+  }
+
+  export type DominioValorCountOrderByAggregateInput = {
+    id?: SortOrder
+    dominioId?: SortOrder
+    codigo?: SortOrder
+    label?: SortOrder
+    parentId?: SortOrder
+    ordem?: SortOrder
+    ativo?: SortOrder
+    metadata?: SortOrder
+    codigoLegado?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DominioValorAvgOrderByAggregateInput = {
+    ordem?: SortOrder
+  }
+
+  export type DominioValorMaxOrderByAggregateInput = {
+    id?: SortOrder
+    dominioId?: SortOrder
+    codigo?: SortOrder
+    label?: SortOrder
+    parentId?: SortOrder
+    ordem?: SortOrder
+    ativo?: SortOrder
+    codigoLegado?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DominioValorMinOrderByAggregateInput = {
+    id?: SortOrder
+    dominioId?: SortOrder
+    codigo?: SortOrder
+    label?: SortOrder
+    parentId?: SortOrder
+    ordem?: SortOrder
+    ativo?: SortOrder
+    codigoLegado?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DominioValorSumOrderByAggregateInput = {
+    ordem?: SortOrder
+  }
+
+  export type IntWithAggregatesFilter = {
+    equals?: number
+    in?: Enumerable<number> | number
+    notIn?: Enumerable<number> | number
+    lt?: number
+    lte?: number
+    gt?: number
+    gte?: number
+    not?: NestedIntWithAggregatesFilter | number
+    _count?: NestedIntFilter
+    _avg?: NestedFloatFilter
+    _sum?: NestedIntFilter
+    _min?: NestedIntFilter
+    _max?: NestedIntFilter
+  }
+  export type JsonNullableWithAggregatesFilter = 
+    | PatchUndefined<
+        Either<Required<JsonNullableWithAggregatesFilterBase>, Exclude<keyof Required<JsonNullableWithAggregatesFilterBase>, 'path'>>,
+        Required<JsonNullableWithAggregatesFilterBase>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableWithAggregatesFilterBase>, 'path'>>
+
+  export type JsonNullableWithAggregatesFilterBase = {
+    equals?: InputJsonValue | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string
+    string_starts_with?: string
+    string_ends_with?: string
+    array_contains?: InputJsonValue | null
+    array_starts_with?: InputJsonValue | null
+    array_ends_with?: InputJsonValue | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonNullValueFilter
+    _count?: NestedIntNullableFilter
+    _min?: NestedJsonNullableFilter
+    _max?: NestedJsonNullableFilter
+  }
+
+  export type EnumTipoOrgaoFilter = {
+    equals?: TipoOrgao
+    in?: Enumerable<TipoOrgao>
+    notIn?: Enumerable<TipoOrgao>
+    not?: NestedEnumTipoOrgaoFilter | TipoOrgao
+  }
+
+  export type OrgaoCountOrderByAggregateInput = {
+    id?: SortOrder
+    sigla?: SortOrder
+    nome?: SortOrder
+    tipo?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrgaoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    sigla?: SortOrder
+    nome?: SortOrder
+    tipo?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type OrgaoMinOrderByAggregateInput = {
+    id?: SortOrder
+    sigla?: SortOrder
+    nome?: SortOrder
+    tipo?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumTipoOrgaoWithAggregatesFilter = {
+    equals?: TipoOrgao
+    in?: Enumerable<TipoOrgao>
+    notIn?: Enumerable<TipoOrgao>
+    not?: NestedEnumTipoOrgaoWithAggregatesFilter | TipoOrgao
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoOrgaoFilter
+    _max?: NestedEnumTipoOrgaoFilter
+  }
+
+  export type EnumNivelUnidadeFilter = {
+    equals?: NivelUnidade
+    in?: Enumerable<NivelUnidade>
+    notIn?: Enumerable<NivelUnidade>
+    not?: NestedEnumNivelUnidadeFilter | NivelUnidade
+  }
+
+  export type OrgaoRelationFilter = {
+    is?: OrgaoWhereInput | null
+    isNot?: OrgaoWhereInput | null
+  }
+
+  export type UnidadeOrganizacionalRelationFilter = {
+    is?: UnidadeOrganizacionalWhereInput | null
+    isNot?: UnidadeOrganizacionalWhereInput | null
+  }
+
+  export type MunicipioRelationFilter = {
+    is?: MunicipioWhereInput | null
+    isNot?: MunicipioWhereInput | null
+  }
+
+  export type UnidadeOrganizacionalOrgaoIdSiglaCompoundUniqueInput = {
+    orgaoId: string
+    sigla: string
+  }
+
+  export type UnidadeOrganizacionalCountOrderByAggregateInput = {
+    id?: SortOrder
+    orgaoId?: SortOrder
+    parentId?: SortOrder
+    sigla?: SortOrder
+    nome?: SortOrder
+    nivel?: SortOrder
+    municipioId?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UnidadeOrganizacionalMaxOrderByAggregateInput = {
+    id?: SortOrder
+    orgaoId?: SortOrder
+    parentId?: SortOrder
+    sigla?: SortOrder
+    nome?: SortOrder
+    nivel?: SortOrder
+    municipioId?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type UnidadeOrganizacionalMinOrderByAggregateInput = {
+    id?: SortOrder
+    orgaoId?: SortOrder
+    parentId?: SortOrder
+    sigla?: SortOrder
+    nome?: SortOrder
+    nivel?: SortOrder
+    municipioId?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EnumNivelUnidadeWithAggregatesFilter = {
+    equals?: NivelUnidade
+    in?: Enumerable<NivelUnidade>
+    notIn?: Enumerable<NivelUnidade>
+    not?: NestedEnumNivelUnidadeWithAggregatesFilter | NivelUnidade
+    _count?: NestedIntFilter
+    _min?: NestedEnumNivelUnidadeFilter
+    _max?: NestedEnumNivelUnidadeFilter
+  }
+
+  export type EmpresaCountOrderByAggregateInput = {
+    id?: SortOrder
+    cnpj?: SortOrder
+    razaoSocial?: SortOrder
+  }
+
+  export type EmpresaMaxOrderByAggregateInput = {
+    id?: SortOrder
+    cnpj?: SortOrder
+    razaoSocial?: SortOrder
+  }
+
+  export type EmpresaMinOrderByAggregateInput = {
+    id?: SortOrder
+    cnpj?: SortOrder
+    razaoSocial?: SortOrder
+  }
+
+  export type FornecedorCountOrderByAggregateInput = {
+    id?: SortOrder
+    cnpj?: SortOrder
+    nome?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FornecedorMaxOrderByAggregateInput = {
+    id?: SortOrder
+    cnpj?: SortOrder
+    nome?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type FornecedorMinOrderByAggregateInput = {
+    id?: SortOrder
+    cnpj?: SortOrder
+    nome?: SortOrder
+    createdAt?: SortOrder
   }
 
   export type DateTimeNullableFilter = {
@@ -12820,22 +18539,6 @@ export namespace Prisma {
     numGms?: SortOrder
     anoGms?: SortOrder
     valorAnualCents?: SortOrder
-  }
-
-  export type IntWithAggregatesFilter = {
-    equals?: number
-    in?: Enumerable<number> | number
-    notIn?: Enumerable<number> | number
-    lt?: number
-    lte?: number
-    gt?: number
-    gte?: number
-    not?: NestedIntWithAggregatesFilter | number
-    _count?: NestedIntFilter
-    _avg?: NestedFloatFilter
-    _sum?: NestedIntFilter
-    _min?: NestedIntFilter
-    _max?: NestedIntFilter
   }
 
   export type DateTimeNullableWithAggregatesFilter = {
@@ -13177,6 +18880,318 @@ export namespace Prisma {
     deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
+  export type UnidadeOrganizacionalCreateNestedManyWithoutMunicipioInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutMunicipioInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutMunicipioInput>
+    createMany?: UnidadeOrganizacionalCreateManyMunicipioInputEnvelope
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+  }
+
+  export type UnidadeOrganizacionalUncheckedCreateNestedManyWithoutMunicipioInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutMunicipioInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutMunicipioInput>
+    createMany?: UnidadeOrganizacionalCreateManyMunicipioInputEnvelope
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
+  export type UnidadeOrganizacionalUpdateManyWithoutMunicipioNestedInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutMunicipioInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutMunicipioInput>
+    upsert?: Enumerable<UnidadeOrganizacionalUpsertWithWhereUniqueWithoutMunicipioInput>
+    createMany?: UnidadeOrganizacionalCreateManyMunicipioInputEnvelope
+    set?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    disconnect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    delete?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    update?: Enumerable<UnidadeOrganizacionalUpdateWithWhereUniqueWithoutMunicipioInput>
+    updateMany?: Enumerable<UnidadeOrganizacionalUpdateManyWithWhereWithoutMunicipioInput>
+    deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateManyWithoutMunicipioNestedInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutMunicipioInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutMunicipioInput>
+    upsert?: Enumerable<UnidadeOrganizacionalUpsertWithWhereUniqueWithoutMunicipioInput>
+    createMany?: UnidadeOrganizacionalCreateManyMunicipioInputEnvelope
+    set?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    disconnect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    delete?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    update?: Enumerable<UnidadeOrganizacionalUpdateWithWhereUniqueWithoutMunicipioInput>
+    updateMany?: Enumerable<UnidadeOrganizacionalUpdateManyWithWhereWithoutMunicipioInput>
+    deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+  }
+
+  export type DominioValorCreateNestedManyWithoutDominioInput = {
+    create?: XOR<Enumerable<DominioValorCreateWithoutDominioInput>, Enumerable<DominioValorUncheckedCreateWithoutDominioInput>>
+    connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutDominioInput>
+    createMany?: DominioValorCreateManyDominioInputEnvelope
+    connect?: Enumerable<DominioValorWhereUniqueInput>
+  }
+
+  export type DominioValorUncheckedCreateNestedManyWithoutDominioInput = {
+    create?: XOR<Enumerable<DominioValorCreateWithoutDominioInput>, Enumerable<DominioValorUncheckedCreateWithoutDominioInput>>
+    connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutDominioInput>
+    createMany?: DominioValorCreateManyDominioInputEnvelope
+    connect?: Enumerable<DominioValorWhereUniqueInput>
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
+  }
+
+  export type DominioValorUpdateManyWithoutDominioNestedInput = {
+    create?: XOR<Enumerable<DominioValorCreateWithoutDominioInput>, Enumerable<DominioValorUncheckedCreateWithoutDominioInput>>
+    connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutDominioInput>
+    upsert?: Enumerable<DominioValorUpsertWithWhereUniqueWithoutDominioInput>
+    createMany?: DominioValorCreateManyDominioInputEnvelope
+    set?: Enumerable<DominioValorWhereUniqueInput>
+    disconnect?: Enumerable<DominioValorWhereUniqueInput>
+    delete?: Enumerable<DominioValorWhereUniqueInput>
+    connect?: Enumerable<DominioValorWhereUniqueInput>
+    update?: Enumerable<DominioValorUpdateWithWhereUniqueWithoutDominioInput>
+    updateMany?: Enumerable<DominioValorUpdateManyWithWhereWithoutDominioInput>
+    deleteMany?: Enumerable<DominioValorScalarWhereInput>
+  }
+
+  export type DominioValorUncheckedUpdateManyWithoutDominioNestedInput = {
+    create?: XOR<Enumerable<DominioValorCreateWithoutDominioInput>, Enumerable<DominioValorUncheckedCreateWithoutDominioInput>>
+    connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutDominioInput>
+    upsert?: Enumerable<DominioValorUpsertWithWhereUniqueWithoutDominioInput>
+    createMany?: DominioValorCreateManyDominioInputEnvelope
+    set?: Enumerable<DominioValorWhereUniqueInput>
+    disconnect?: Enumerable<DominioValorWhereUniqueInput>
+    delete?: Enumerable<DominioValorWhereUniqueInput>
+    connect?: Enumerable<DominioValorWhereUniqueInput>
+    update?: Enumerable<DominioValorUpdateWithWhereUniqueWithoutDominioInput>
+    updateMany?: Enumerable<DominioValorUpdateManyWithWhereWithoutDominioInput>
+    deleteMany?: Enumerable<DominioValorScalarWhereInput>
+  }
+
+  export type DominioCreateNestedOneWithoutValoresInput = {
+    create?: XOR<DominioCreateWithoutValoresInput, DominioUncheckedCreateWithoutValoresInput>
+    connectOrCreate?: DominioCreateOrConnectWithoutValoresInput
+    connect?: DominioWhereUniqueInput
+  }
+
+  export type DominioValorCreateNestedOneWithoutChildrenInput = {
+    create?: XOR<DominioValorCreateWithoutChildrenInput, DominioValorUncheckedCreateWithoutChildrenInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutChildrenInput
+    connect?: DominioValorWhereUniqueInput
+  }
+
+  export type DominioValorCreateNestedManyWithoutParentInput = {
+    create?: XOR<Enumerable<DominioValorCreateWithoutParentInput>, Enumerable<DominioValorUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutParentInput>
+    createMany?: DominioValorCreateManyParentInputEnvelope
+    connect?: Enumerable<DominioValorWhereUniqueInput>
+  }
+
+  export type DominioValorUncheckedCreateNestedManyWithoutParentInput = {
+    create?: XOR<Enumerable<DominioValorCreateWithoutParentInput>, Enumerable<DominioValorUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutParentInput>
+    createMany?: DominioValorCreateManyParentInputEnvelope
+    connect?: Enumerable<DominioValorWhereUniqueInput>
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type DominioUpdateOneRequiredWithoutValoresNestedInput = {
+    create?: XOR<DominioCreateWithoutValoresInput, DominioUncheckedCreateWithoutValoresInput>
+    connectOrCreate?: DominioCreateOrConnectWithoutValoresInput
+    upsert?: DominioUpsertWithoutValoresInput
+    connect?: DominioWhereUniqueInput
+    update?: XOR<DominioUpdateWithoutValoresInput, DominioUncheckedUpdateWithoutValoresInput>
+  }
+
+  export type DominioValorUpdateOneWithoutChildrenNestedInput = {
+    create?: XOR<DominioValorCreateWithoutChildrenInput, DominioValorUncheckedCreateWithoutChildrenInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutChildrenInput
+    upsert?: DominioValorUpsertWithoutChildrenInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: DominioValorWhereUniqueInput
+    update?: XOR<DominioValorUpdateWithoutChildrenInput, DominioValorUncheckedUpdateWithoutChildrenInput>
+  }
+
+  export type DominioValorUpdateManyWithoutParentNestedInput = {
+    create?: XOR<Enumerable<DominioValorCreateWithoutParentInput>, Enumerable<DominioValorUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutParentInput>
+    upsert?: Enumerable<DominioValorUpsertWithWhereUniqueWithoutParentInput>
+    createMany?: DominioValorCreateManyParentInputEnvelope
+    set?: Enumerable<DominioValorWhereUniqueInput>
+    disconnect?: Enumerable<DominioValorWhereUniqueInput>
+    delete?: Enumerable<DominioValorWhereUniqueInput>
+    connect?: Enumerable<DominioValorWhereUniqueInput>
+    update?: Enumerable<DominioValorUpdateWithWhereUniqueWithoutParentInput>
+    updateMany?: Enumerable<DominioValorUpdateManyWithWhereWithoutParentInput>
+    deleteMany?: Enumerable<DominioValorScalarWhereInput>
+  }
+
+  export type DominioValorUncheckedUpdateManyWithoutParentNestedInput = {
+    create?: XOR<Enumerable<DominioValorCreateWithoutParentInput>, Enumerable<DominioValorUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutParentInput>
+    upsert?: Enumerable<DominioValorUpsertWithWhereUniqueWithoutParentInput>
+    createMany?: DominioValorCreateManyParentInputEnvelope
+    set?: Enumerable<DominioValorWhereUniqueInput>
+    disconnect?: Enumerable<DominioValorWhereUniqueInput>
+    delete?: Enumerable<DominioValorWhereUniqueInput>
+    connect?: Enumerable<DominioValorWhereUniqueInput>
+    update?: Enumerable<DominioValorUpdateWithWhereUniqueWithoutParentInput>
+    updateMany?: Enumerable<DominioValorUpdateManyWithWhereWithoutParentInput>
+    deleteMany?: Enumerable<DominioValorScalarWhereInput>
+  }
+
+  export type UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutOrgaoInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutOrgaoInput>
+    createMany?: UnidadeOrganizacionalCreateManyOrgaoInputEnvelope
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+  }
+
+  export type UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutOrgaoInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutOrgaoInput>
+    createMany?: UnidadeOrganizacionalCreateManyOrgaoInputEnvelope
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+  }
+
+  export type EnumTipoOrgaoFieldUpdateOperationsInput = {
+    set?: TipoOrgao
+  }
+
+  export type UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutOrgaoInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutOrgaoInput>
+    upsert?: Enumerable<UnidadeOrganizacionalUpsertWithWhereUniqueWithoutOrgaoInput>
+    createMany?: UnidadeOrganizacionalCreateManyOrgaoInputEnvelope
+    set?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    disconnect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    delete?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    update?: Enumerable<UnidadeOrganizacionalUpdateWithWhereUniqueWithoutOrgaoInput>
+    updateMany?: Enumerable<UnidadeOrganizacionalUpdateManyWithWhereWithoutOrgaoInput>
+    deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutOrgaoInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutOrgaoInput>
+    upsert?: Enumerable<UnidadeOrganizacionalUpsertWithWhereUniqueWithoutOrgaoInput>
+    createMany?: UnidadeOrganizacionalCreateManyOrgaoInputEnvelope
+    set?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    disconnect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    delete?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    update?: Enumerable<UnidadeOrganizacionalUpdateWithWhereUniqueWithoutOrgaoInput>
+    updateMany?: Enumerable<UnidadeOrganizacionalUpdateManyWithWhereWithoutOrgaoInput>
+    deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+  }
+
+  export type OrgaoCreateNestedOneWithoutUnidadesInput = {
+    create?: XOR<OrgaoCreateWithoutUnidadesInput, OrgaoUncheckedCreateWithoutUnidadesInput>
+    connectOrCreate?: OrgaoCreateOrConnectWithoutUnidadesInput
+    connect?: OrgaoWhereUniqueInput
+  }
+
+  export type UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutChildrenInput, UnidadeOrganizacionalUncheckedCreateWithoutChildrenInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutChildrenInput
+    connect?: UnidadeOrganizacionalWhereUniqueInput
+  }
+
+  export type UnidadeOrganizacionalCreateNestedManyWithoutParentInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutParentInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutParentInput>
+    createMany?: UnidadeOrganizacionalCreateManyParentInputEnvelope
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+  }
+
+  export type MunicipioCreateNestedOneWithoutUnidadesInput = {
+    create?: XOR<MunicipioCreateWithoutUnidadesInput, MunicipioUncheckedCreateWithoutUnidadesInput>
+    connectOrCreate?: MunicipioCreateOrConnectWithoutUnidadesInput
+    connect?: MunicipioWhereUniqueInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutParentInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutParentInput>
+    createMany?: UnidadeOrganizacionalCreateManyParentInputEnvelope
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+  }
+
+  export type EnumNivelUnidadeFieldUpdateOperationsInput = {
+    set?: NivelUnidade
+  }
+
+  export type OrgaoUpdateOneRequiredWithoutUnidadesNestedInput = {
+    create?: XOR<OrgaoCreateWithoutUnidadesInput, OrgaoUncheckedCreateWithoutUnidadesInput>
+    connectOrCreate?: OrgaoCreateOrConnectWithoutUnidadesInput
+    upsert?: OrgaoUpsertWithoutUnidadesInput
+    connect?: OrgaoWhereUniqueInput
+    update?: XOR<OrgaoUpdateWithoutUnidadesInput, OrgaoUncheckedUpdateWithoutUnidadesInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutChildrenInput, UnidadeOrganizacionalUncheckedCreateWithoutChildrenInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutChildrenInput
+    upsert?: UnidadeOrganizacionalUpsertWithoutChildrenInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: UnidadeOrganizacionalWhereUniqueInput
+    update?: XOR<UnidadeOrganizacionalUpdateWithoutChildrenInput, UnidadeOrganizacionalUncheckedUpdateWithoutChildrenInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateManyWithoutParentNestedInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutParentInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutParentInput>
+    upsert?: Enumerable<UnidadeOrganizacionalUpsertWithWhereUniqueWithoutParentInput>
+    createMany?: UnidadeOrganizacionalCreateManyParentInputEnvelope
+    set?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    disconnect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    delete?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    update?: Enumerable<UnidadeOrganizacionalUpdateWithWhereUniqueWithoutParentInput>
+    updateMany?: Enumerable<UnidadeOrganizacionalUpdateManyWithWhereWithoutParentInput>
+    deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+  }
+
+  export type MunicipioUpdateOneRequiredWithoutUnidadesNestedInput = {
+    create?: XOR<MunicipioCreateWithoutUnidadesInput, MunicipioUncheckedCreateWithoutUnidadesInput>
+    connectOrCreate?: MunicipioCreateOrConnectWithoutUnidadesInput
+    upsert?: MunicipioUpsertWithoutUnidadesInput
+    connect?: MunicipioWhereUniqueInput
+    update?: XOR<MunicipioUpdateWithoutUnidadesInput, MunicipioUncheckedUpdateWithoutUnidadesInput>
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput = {
+    create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutParentInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutParentInput>
+    upsert?: Enumerable<UnidadeOrganizacionalUpsertWithWhereUniqueWithoutParentInput>
+    createMany?: UnidadeOrganizacionalCreateManyParentInputEnvelope
+    set?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    disconnect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    delete?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+    update?: Enumerable<UnidadeOrganizacionalUpdateWithWhereUniqueWithoutParentInput>
+    updateMany?: Enumerable<UnidadeOrganizacionalUpdateManyWithWhereWithoutParentInput>
+    deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+  }
+
   export type ContratoCreateNestedManyWithoutEmpresaInput = {
     create?: XOR<Enumerable<ContratoCreateWithoutEmpresaInput>, Enumerable<ContratoUncheckedCreateWithoutEmpresaInput>>
     connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutEmpresaInput>
@@ -13219,14 +19234,6 @@ export namespace Prisma {
     deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
-  }
-
-  export type DateTimeFieldUpdateOperationsInput = {
-    set?: Date | string
-  }
-
   export type UnidadeFspCreateNestedOneWithoutContratosInput = {
     create?: XOR<UnidadeFspCreateWithoutContratosInput, UnidadeFspUncheckedCreateWithoutContratosInput>
     connectOrCreate?: UnidadeFspCreateOrConnectWithoutContratosInput
@@ -13263,14 +19270,6 @@ export namespace Prisma {
     connectOrCreate?: Enumerable<AditivoCreateOrConnectWithoutContratoInput>
     createMany?: AditivoCreateManyContratoInputEnvelope
     connect?: Enumerable<AditivoWhereUniqueInput>
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -13415,17 +19414,6 @@ export namespace Prisma {
     not?: NestedStringNullableFilter | string | null
   }
 
-  export type NestedDateTimeFilter = {
-    equals?: Date | string
-    in?: Enumerable<Date> | Enumerable<string> | Date | string
-    notIn?: Enumerable<Date> | Enumerable<string> | Date | string
-    lt?: Date | string
-    lte?: Date | string
-    gt?: Date | string
-    gte?: Date | string
-    not?: NestedDateTimeFilter | Date | string
-  }
-
   export type NestedStringNullableWithAggregatesFilter = {
     equals?: string | null
     in?: Enumerable<string> | string | null
@@ -13454,6 +19442,30 @@ export namespace Prisma {
     not?: NestedIntNullableFilter | number | null
   }
 
+  export type NestedBoolFilter = {
+    equals?: boolean
+    not?: NestedBoolFilter | boolean
+  }
+
+  export type NestedDateTimeFilter = {
+    equals?: Date | string
+    in?: Enumerable<Date> | Enumerable<string> | Date | string
+    notIn?: Enumerable<Date> | Enumerable<string> | Date | string
+    lt?: Date | string
+    lte?: Date | string
+    gt?: Date | string
+    gte?: Date | string
+    not?: NestedDateTimeFilter | Date | string
+  }
+
+  export type NestedBoolWithAggregatesFilter = {
+    equals?: boolean
+    not?: NestedBoolWithAggregatesFilter | boolean
+    _count?: NestedIntFilter
+    _min?: NestedBoolFilter
+    _max?: NestedBoolFilter
+  }
+
   export type NestedDateTimeWithAggregatesFilter = {
     equals?: Date | string
     in?: Enumerable<Date> | Enumerable<string> | Date | string
@@ -13466,17 +19478,6 @@ export namespace Prisma {
     _count?: NestedIntFilter
     _min?: NestedDateTimeFilter
     _max?: NestedDateTimeFilter
-  }
-
-  export type NestedDateTimeNullableFilter = {
-    equals?: Date | string | null
-    in?: Enumerable<Date> | Enumerable<string> | Date | string | null
-    notIn?: Enumerable<Date> | Enumerable<string> | Date | string | null
-    lt?: Date | string
-    lte?: Date | string
-    gt?: Date | string
-    gte?: Date | string
-    not?: NestedDateTimeNullableFilter | Date | string | null
   }
 
   export type NestedIntWithAggregatesFilter = {
@@ -13504,6 +19505,73 @@ export namespace Prisma {
     gt?: number
     gte?: number
     not?: NestedFloatFilter | number
+  }
+  export type NestedJsonNullableFilter = 
+    | PatchUndefined<
+        Either<Required<NestedJsonNullableFilterBase>, Exclude<keyof Required<NestedJsonNullableFilterBase>, 'path'>>,
+        Required<NestedJsonNullableFilterBase>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonNullableFilterBase>, 'path'>>
+
+  export type NestedJsonNullableFilterBase = {
+    equals?: InputJsonValue | JsonNullValueFilter
+    path?: string[]
+    string_contains?: string
+    string_starts_with?: string
+    string_ends_with?: string
+    array_contains?: InputJsonValue | null
+    array_starts_with?: InputJsonValue | null
+    array_ends_with?: InputJsonValue | null
+    lt?: InputJsonValue
+    lte?: InputJsonValue
+    gt?: InputJsonValue
+    gte?: InputJsonValue
+    not?: InputJsonValue | JsonNullValueFilter
+  }
+
+  export type NestedEnumTipoOrgaoFilter = {
+    equals?: TipoOrgao
+    in?: Enumerable<TipoOrgao>
+    notIn?: Enumerable<TipoOrgao>
+    not?: NestedEnumTipoOrgaoFilter | TipoOrgao
+  }
+
+  export type NestedEnumTipoOrgaoWithAggregatesFilter = {
+    equals?: TipoOrgao
+    in?: Enumerable<TipoOrgao>
+    notIn?: Enumerable<TipoOrgao>
+    not?: NestedEnumTipoOrgaoWithAggregatesFilter | TipoOrgao
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoOrgaoFilter
+    _max?: NestedEnumTipoOrgaoFilter
+  }
+
+  export type NestedEnumNivelUnidadeFilter = {
+    equals?: NivelUnidade
+    in?: Enumerable<NivelUnidade>
+    notIn?: Enumerable<NivelUnidade>
+    not?: NestedEnumNivelUnidadeFilter | NivelUnidade
+  }
+
+  export type NestedEnumNivelUnidadeWithAggregatesFilter = {
+    equals?: NivelUnidade
+    in?: Enumerable<NivelUnidade>
+    notIn?: Enumerable<NivelUnidade>
+    not?: NestedEnumNivelUnidadeWithAggregatesFilter | NivelUnidade
+    _count?: NestedIntFilter
+    _min?: NestedEnumNivelUnidadeFilter
+    _max?: NestedEnumNivelUnidadeFilter
+  }
+
+  export type NestedDateTimeNullableFilter = {
+    equals?: Date | string | null
+    in?: Enumerable<Date> | Enumerable<string> | Date | string | null
+    notIn?: Enumerable<Date> | Enumerable<string> | Date | string | null
+    lt?: Date | string
+    lte?: Date | string
+    gt?: Date | string
+    gte?: Date | string
+    not?: NestedDateTimeNullableFilter | Date | string | null
   }
 
   export type NestedDateTimeNullableWithAggregatesFilter = {
@@ -13781,6 +19849,577 @@ export namespace Prisma {
   export type ContratoUpdateManyWithWhereWithoutFiscalInput = {
     where: ContratoScalarWhereInput
     data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutFiscalContratosInput>
+  }
+
+  export type UnidadeOrganizacionalCreateWithoutMunicipioInput = {
+    id?: string
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao: OrgaoCreateNestedOneWithoutUnidadesInput
+    parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
+    children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput = {
+    id?: string
+    orgaoId: string
+    parentId?: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+  }
+
+  export type UnidadeOrganizacionalCreateOrConnectWithoutMunicipioInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    create: XOR<UnidadeOrganizacionalCreateWithoutMunicipioInput, UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput>
+  }
+
+  export type UnidadeOrganizacionalCreateManyMunicipioInputEnvelope = {
+    data: Enumerable<UnidadeOrganizacionalCreateManyMunicipioInput>
+    skipDuplicates?: boolean
+  }
+
+  export type UnidadeOrganizacionalUpsertWithWhereUniqueWithoutMunicipioInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    update: XOR<UnidadeOrganizacionalUpdateWithoutMunicipioInput, UnidadeOrganizacionalUncheckedUpdateWithoutMunicipioInput>
+    create: XOR<UnidadeOrganizacionalCreateWithoutMunicipioInput, UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateWithWhereUniqueWithoutMunicipioInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    data: XOR<UnidadeOrganizacionalUpdateWithoutMunicipioInput, UnidadeOrganizacionalUncheckedUpdateWithoutMunicipioInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateManyWithWhereWithoutMunicipioInput = {
+    where: UnidadeOrganizacionalScalarWhereInput
+    data: XOR<UnidadeOrganizacionalUpdateManyMutationInput, UnidadeOrganizacionalUncheckedUpdateManyWithoutUnidadesInput>
+  }
+
+  export type UnidadeOrganizacionalScalarWhereInput = {
+    AND?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+    OR?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+    NOT?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+    id?: StringFilter | string
+    orgaoId?: StringFilter | string
+    parentId?: StringNullableFilter | string | null
+    sigla?: StringFilter | string
+    nome?: StringFilter | string
+    nivel?: EnumNivelUnidadeFilter | NivelUnidade
+    municipioId?: StringFilter | string
+    ativo?: BoolFilter | boolean
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
+  export type DominioValorCreateWithoutDominioInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+  }
+
+  export type DominioValorUncheckedCreateWithoutDominioInput = {
+    id?: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+  }
+
+  export type DominioValorCreateOrConnectWithoutDominioInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutDominioInput, DominioValorUncheckedCreateWithoutDominioInput>
+  }
+
+  export type DominioValorCreateManyDominioInputEnvelope = {
+    data: Enumerable<DominioValorCreateManyDominioInput>
+    skipDuplicates?: boolean
+  }
+
+  export type DominioValorUpsertWithWhereUniqueWithoutDominioInput = {
+    where: DominioValorWhereUniqueInput
+    update: XOR<DominioValorUpdateWithoutDominioInput, DominioValorUncheckedUpdateWithoutDominioInput>
+    create: XOR<DominioValorCreateWithoutDominioInput, DominioValorUncheckedCreateWithoutDominioInput>
+  }
+
+  export type DominioValorUpdateWithWhereUniqueWithoutDominioInput = {
+    where: DominioValorWhereUniqueInput
+    data: XOR<DominioValorUpdateWithoutDominioInput, DominioValorUncheckedUpdateWithoutDominioInput>
+  }
+
+  export type DominioValorUpdateManyWithWhereWithoutDominioInput = {
+    where: DominioValorScalarWhereInput
+    data: XOR<DominioValorUpdateManyMutationInput, DominioValorUncheckedUpdateManyWithoutValoresInput>
+  }
+
+  export type DominioValorScalarWhereInput = {
+    AND?: Enumerable<DominioValorScalarWhereInput>
+    OR?: Enumerable<DominioValorScalarWhereInput>
+    NOT?: Enumerable<DominioValorScalarWhereInput>
+    id?: StringFilter | string
+    dominioId?: StringFilter | string
+    codigo?: StringFilter | string
+    label?: StringFilter | string
+    parentId?: StringNullableFilter | string | null
+    ordem?: IntFilter | number
+    ativo?: BoolFilter | boolean
+    metadata?: JsonNullableFilter
+    codigoLegado?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
+  export type DominioCreateWithoutValoresInput = {
+    id?: string
+    slug: string
+    nome: string
+    descricao?: string | null
+    editavelPeloUsuario?: boolean
+    permiteHierarquia?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DominioUncheckedCreateWithoutValoresInput = {
+    id?: string
+    slug: string
+    nome: string
+    descricao?: string | null
+    editavelPeloUsuario?: boolean
+    permiteHierarquia?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DominioCreateOrConnectWithoutValoresInput = {
+    where: DominioWhereUniqueInput
+    create: XOR<DominioCreateWithoutValoresInput, DominioUncheckedCreateWithoutValoresInput>
+  }
+
+  export type DominioValorCreateWithoutChildrenInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+  }
+
+  export type DominioValorUncheckedCreateWithoutChildrenInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DominioValorCreateOrConnectWithoutChildrenInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutChildrenInput, DominioValorUncheckedCreateWithoutChildrenInput>
+  }
+
+  export type DominioValorCreateWithoutParentInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+  }
+
+  export type DominioValorUncheckedCreateWithoutParentInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+  }
+
+  export type DominioValorCreateOrConnectWithoutParentInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutParentInput, DominioValorUncheckedCreateWithoutParentInput>
+  }
+
+  export type DominioValorCreateManyParentInputEnvelope = {
+    data: Enumerable<DominioValorCreateManyParentInput>
+    skipDuplicates?: boolean
+  }
+
+  export type DominioUpsertWithoutValoresInput = {
+    update: XOR<DominioUpdateWithoutValoresInput, DominioUncheckedUpdateWithoutValoresInput>
+    create: XOR<DominioCreateWithoutValoresInput, DominioUncheckedCreateWithoutValoresInput>
+  }
+
+  export type DominioUpdateWithoutValoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    editavelPeloUsuario?: BoolFieldUpdateOperationsInput | boolean
+    permiteHierarquia?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DominioUncheckedUpdateWithoutValoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    slug?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    editavelPeloUsuario?: BoolFieldUpdateOperationsInput | boolean
+    permiteHierarquia?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DominioValorUpsertWithoutChildrenInput = {
+    update: XOR<DominioValorUpdateWithoutChildrenInput, DominioValorUncheckedUpdateWithoutChildrenInput>
+    create: XOR<DominioValorCreateWithoutChildrenInput, DominioValorUncheckedCreateWithoutChildrenInput>
+  }
+
+  export type DominioValorUpdateWithoutChildrenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateWithoutChildrenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DominioValorUpsertWithWhereUniqueWithoutParentInput = {
+    where: DominioValorWhereUniqueInput
+    update: XOR<DominioValorUpdateWithoutParentInput, DominioValorUncheckedUpdateWithoutParentInput>
+    create: XOR<DominioValorCreateWithoutParentInput, DominioValorUncheckedCreateWithoutParentInput>
+  }
+
+  export type DominioValorUpdateWithWhereUniqueWithoutParentInput = {
+    where: DominioValorWhereUniqueInput
+    data: XOR<DominioValorUpdateWithoutParentInput, DominioValorUncheckedUpdateWithoutParentInput>
+  }
+
+  export type DominioValorUpdateManyWithWhereWithoutParentInput = {
+    where: DominioValorScalarWhereInput
+    data: XOR<DominioValorUpdateManyMutationInput, DominioValorUncheckedUpdateManyWithoutChildrenInput>
+  }
+
+  export type UnidadeOrganizacionalCreateWithoutOrgaoInput = {
+    id?: string
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
+    children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
+    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput = {
+    id?: string
+    parentId?: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+  }
+
+  export type UnidadeOrganizacionalCreateOrConnectWithoutOrgaoInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    create: XOR<UnidadeOrganizacionalCreateWithoutOrgaoInput, UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput>
+  }
+
+  export type UnidadeOrganizacionalCreateManyOrgaoInputEnvelope = {
+    data: Enumerable<UnidadeOrganizacionalCreateManyOrgaoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type UnidadeOrganizacionalUpsertWithWhereUniqueWithoutOrgaoInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    update: XOR<UnidadeOrganizacionalUpdateWithoutOrgaoInput, UnidadeOrganizacionalUncheckedUpdateWithoutOrgaoInput>
+    create: XOR<UnidadeOrganizacionalCreateWithoutOrgaoInput, UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateWithWhereUniqueWithoutOrgaoInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    data: XOR<UnidadeOrganizacionalUpdateWithoutOrgaoInput, UnidadeOrganizacionalUncheckedUpdateWithoutOrgaoInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateManyWithWhereWithoutOrgaoInput = {
+    where: UnidadeOrganizacionalScalarWhereInput
+    data: XOR<UnidadeOrganizacionalUpdateManyMutationInput, UnidadeOrganizacionalUncheckedUpdateManyWithoutUnidadesInput>
+  }
+
+  export type OrgaoCreateWithoutUnidadesInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrgaoUncheckedCreateWithoutUnidadesInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type OrgaoCreateOrConnectWithoutUnidadesInput = {
+    where: OrgaoWhereUniqueInput
+    create: XOR<OrgaoCreateWithoutUnidadesInput, OrgaoUncheckedCreateWithoutUnidadesInput>
+  }
+
+  export type UnidadeOrganizacionalCreateWithoutChildrenInput = {
+    id?: string
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao: OrgaoCreateNestedOneWithoutUnidadesInput
+    parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
+    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedCreateWithoutChildrenInput = {
+    id?: string
+    orgaoId: string
+    parentId?: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UnidadeOrganizacionalCreateOrConnectWithoutChildrenInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    create: XOR<UnidadeOrganizacionalCreateWithoutChildrenInput, UnidadeOrganizacionalUncheckedCreateWithoutChildrenInput>
+  }
+
+  export type UnidadeOrganizacionalCreateWithoutParentInput = {
+    id?: string
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao: OrgaoCreateNestedOneWithoutUnidadesInput
+    children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
+    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedCreateWithoutParentInput = {
+    id?: string
+    orgaoId: string
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+  }
+
+  export type UnidadeOrganizacionalCreateOrConnectWithoutParentInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    create: XOR<UnidadeOrganizacionalCreateWithoutParentInput, UnidadeOrganizacionalUncheckedCreateWithoutParentInput>
+  }
+
+  export type UnidadeOrganizacionalCreateManyParentInputEnvelope = {
+    data: Enumerable<UnidadeOrganizacionalCreateManyParentInput>
+    skipDuplicates?: boolean
+  }
+
+  export type MunicipioCreateWithoutUnidadesInput = {
+    id?: string
+    codigoIbge: string
+    nome: string
+    uf: string
+    regiaoAdministrativa?: string | null
+  }
+
+  export type MunicipioUncheckedCreateWithoutUnidadesInput = {
+    id?: string
+    codigoIbge: string
+    nome: string
+    uf: string
+    regiaoAdministrativa?: string | null
+  }
+
+  export type MunicipioCreateOrConnectWithoutUnidadesInput = {
+    where: MunicipioWhereUniqueInput
+    create: XOR<MunicipioCreateWithoutUnidadesInput, MunicipioUncheckedCreateWithoutUnidadesInput>
+  }
+
+  export type OrgaoUpsertWithoutUnidadesInput = {
+    update: XOR<OrgaoUpdateWithoutUnidadesInput, OrgaoUncheckedUpdateWithoutUnidadesInput>
+    create: XOR<OrgaoCreateWithoutUnidadesInput, OrgaoUncheckedCreateWithoutUnidadesInput>
+  }
+
+  export type OrgaoUpdateWithoutUnidadesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type OrgaoUncheckedUpdateWithoutUnidadesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UnidadeOrganizacionalUpsertWithoutChildrenInput = {
+    update: XOR<UnidadeOrganizacionalUpdateWithoutChildrenInput, UnidadeOrganizacionalUncheckedUpdateWithoutChildrenInput>
+    create: XOR<UnidadeOrganizacionalCreateWithoutChildrenInput, UnidadeOrganizacionalUncheckedCreateWithoutChildrenInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateWithoutChildrenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
+    parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
+    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateWithoutChildrenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgaoId?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    municipioId?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UnidadeOrganizacionalUpsertWithWhereUniqueWithoutParentInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    update: XOR<UnidadeOrganizacionalUpdateWithoutParentInput, UnidadeOrganizacionalUncheckedUpdateWithoutParentInput>
+    create: XOR<UnidadeOrganizacionalCreateWithoutParentInput, UnidadeOrganizacionalUncheckedCreateWithoutParentInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateWithWhereUniqueWithoutParentInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    data: XOR<UnidadeOrganizacionalUpdateWithoutParentInput, UnidadeOrganizacionalUncheckedUpdateWithoutParentInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateManyWithWhereWithoutParentInput = {
+    where: UnidadeOrganizacionalScalarWhereInput
+    data: XOR<UnidadeOrganizacionalUpdateManyMutationInput, UnidadeOrganizacionalUncheckedUpdateManyWithoutChildrenInput>
+  }
+
+  export type MunicipioUpsertWithoutUnidadesInput = {
+    update: XOR<MunicipioUpdateWithoutUnidadesInput, MunicipioUncheckedUpdateWithoutUnidadesInput>
+    create: XOR<MunicipioCreateWithoutUnidadesInput, MunicipioUncheckedCreateWithoutUnidadesInput>
+  }
+
+  export type MunicipioUpdateWithoutUnidadesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigoIbge?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    uf?: StringFieldUpdateOperationsInput | string
+    regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type MunicipioUncheckedUpdateWithoutUnidadesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigoIbge?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    uf?: StringFieldUpdateOperationsInput | string
+    regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type ContratoCreateWithoutEmpresaInput = {
@@ -14352,6 +20991,252 @@ export namespace Prisma {
     dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     status?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UnidadeOrganizacionalCreateManyMunicipioInput = {
+    id?: string
+    orgaoId: string
+    parentId?: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UnidadeOrganizacionalUpdateWithoutMunicipioInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
+    parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
+    children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateWithoutMunicipioInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgaoId?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateManyWithoutUnidadesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgaoId?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DominioValorCreateManyDominioInput = {
+    id?: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DominioValorUpdateWithoutDominioInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateWithoutDominioInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateManyWithoutValoresInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DominioValorCreateManyParentInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DominioValorUpdateWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateManyWithoutChildrenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type UnidadeOrganizacionalCreateManyOrgaoInput = {
+    id?: string
+    parentId?: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UnidadeOrganizacionalUpdateWithoutOrgaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
+    children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
+    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateWithoutOrgaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    municipioId?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+  }
+
+  export type UnidadeOrganizacionalCreateManyParentInput = {
+    id?: string
+    orgaoId: string
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type UnidadeOrganizacionalUpdateWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
+    children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
+    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgaoId?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    municipioId?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateManyWithoutChildrenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgaoId?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    municipioId?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

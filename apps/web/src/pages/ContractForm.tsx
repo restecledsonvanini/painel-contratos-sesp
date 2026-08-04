@@ -6,7 +6,9 @@ import { ContractCreateSchema } from '@painel/schema';
 import { Button, Input, Page, Textarea, useToast } from '@painel/ui';
 import { useCreateContract, useUpdateContract, useContract } from '../hooks/useContracts';
 import { useEmpresas, useEntidadesGestoras, useUnidadesFsp } from '../hooks/useReferences';
+import { LookupSelect } from '../components/LookupSelect';
 import { getErrorMessage } from '../lib/http';
+import { Controller } from 'react-hook-form';
 
 export default function ContractForm() {
   const navigate = useNavigate();
@@ -39,7 +41,7 @@ export default function ContractForm() {
     },
   });
 
-  const { register, handleSubmit, setValue, formState: { errors } } = form;
+  const { register, handleSubmit, setValue, control, formState: { errors } } = form;
 
   useEffect(() => {
     if (existingContract && id) {
@@ -126,7 +128,22 @@ export default function ContractForm() {
               {errors.unidadeFspId && <p className="field-error">{String(errors.unidadeFspId.message)}</p>}
             </div>
 
-            <Input label="Modalidade" {...register('modalidade')} />
+            <div>
+              <Controller
+                name="modalidade"
+                control={control}
+                render={({ field }) => (
+                  <LookupSelect
+                    slug="modalidade-licitacao"
+                    label="Modalidade"
+                    valueMode="codigo"
+                    value={field.value || ''}
+                    onChange={field.onChange}
+                    error={errors.modalidade ? String(errors.modalidade.message) : undefined}
+                  />
+                )}
+              />
+            </div>
 
             <div>
               <span className="field-label">Status</span>

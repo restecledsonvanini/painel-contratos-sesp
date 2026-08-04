@@ -1,8 +1,10 @@
+### ROTAS
 http://localhost:8888/
 Catálogo JSON da API
 http://localhost:8888/api/v1
 Mesmo catálogo
 http://localhost:8888/api/v1/contracts
+http://localhost:8888/api/v1/references/fornecedores
 Lista de contratos
 http://localhost:8888/api/v1/references/empresas
 Empresas

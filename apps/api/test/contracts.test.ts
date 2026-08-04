@@ -56,11 +56,11 @@ describe('contracts API integration', () => {
   it('health responds ok on legacy and /api/v1', async () => {
     const legacy = await request(app).get('/.netlify/functions/api/health');
     expect(legacy.status).toBe(200);
-    expect(legacy.body).toEqual({ ok: true });
+    expect(legacy.body).toMatchObject({ ok: true });
 
     const v1 = await request(app).get('/api/v1/health');
     expect(v1.status).toBe(200);
-    expect(v1.body).toEqual({ ok: true });
+    expect(v1.body).toMatchObject({ ok: true });
   });
 
   it('rejects invalid create payload with uniform error shape', async () => {

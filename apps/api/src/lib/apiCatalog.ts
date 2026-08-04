@@ -1,4 +1,4 @@
-/** Catálogo da superfície HTTP pública (fase 0). OpenAPI completo vem na fase 8. */
+/** Catálogo da superfície HTTP pública. OpenAPI completo vem na fase 8. */
 
 export const API_BASE = '/api/v1';
 
@@ -13,6 +13,21 @@ export const publicApiCatalog = {
   },
   endpoints: {
     health: { method: 'GET', path: `${API_BASE}/health` },
+    lookups: {
+      all: { method: 'GET', path: `${API_BASE}/lookups` },
+      search: { method: 'GET', path: `${API_BASE}/lookups/:slug?q=&page=` },
+    },
+    dominios: {
+      list: { method: 'GET', path: `${API_BASE}/dominios` },
+      valores: { method: 'GET', path: `${API_BASE}/dominios/:slug/valores` },
+      createValor: { method: 'POST', path: `${API_BASE}/dominios/:slug/valores` },
+    },
+    orgaos: { method: 'GET', path: `${API_BASE}/orgaos` },
+    unidades: {
+      list: { method: 'GET', path: `${API_BASE}/unidades` },
+      arvore: { method: 'GET', path: `${API_BASE}/unidades/arvore` },
+    },
+    municipios: { method: 'GET', path: `${API_BASE}/municipios?q=` },
     contracts: {
       list: { method: 'GET', path: `${API_BASE}/contracts` },
       get: { method: 'GET', path: `${API_BASE}/contracts/:id` },
@@ -30,7 +45,8 @@ export const publicApiCatalog = {
   },
   tryNow: [
     `http://localhost:${process.env.PORT || 8888}${API_BASE}/health`,
+    `http://localhost:${process.env.PORT || 8888}${API_BASE}/lookups`,
+    `http://localhost:${process.env.PORT || 8888}${API_BASE}/lookups/municipios?q=curi`,
     `http://localhost:${process.env.PORT || 8888}${API_BASE}/contracts`,
-    `http://localhost:${process.env.PORT || 8888}${API_BASE}/references/empresas`,
   ],
 } as const;

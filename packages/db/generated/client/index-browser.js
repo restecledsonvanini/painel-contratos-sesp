@@ -119,8 +119,58 @@ exports.Prisma.EntidadeGestoraScalarFieldEnum = {
 
 exports.Prisma.MunicipioScalarFieldEnum = {
   id: 'id',
+  codigoIbge: 'codigoIbge',
   nome: 'nome',
-  uf: 'uf'
+  uf: 'uf',
+  regiaoAdministrativa: 'regiaoAdministrativa'
+};
+
+exports.Prisma.DominioScalarFieldEnum = {
+  id: 'id',
+  slug: 'slug',
+  nome: 'nome',
+  descricao: 'descricao',
+  editavelPeloUsuario: 'editavelPeloUsuario',
+  permiteHierarquia: 'permiteHierarquia',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.DominioValorScalarFieldEnum = {
+  id: 'id',
+  dominioId: 'dominioId',
+  codigo: 'codigo',
+  label: 'label',
+  parentId: 'parentId',
+  ordem: 'ordem',
+  ativo: 'ativo',
+  metadata: 'metadata',
+  codigoLegado: 'codigoLegado',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OrgaoScalarFieldEnum = {
+  id: 'id',
+  sigla: 'sigla',
+  nome: 'nome',
+  tipo: 'tipo',
+  ativo: 'ativo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UnidadeOrganizacionalScalarFieldEnum = {
+  id: 'id',
+  orgaoId: 'orgaoId',
+  parentId: 'parentId',
+  sigla: 'sigla',
+  nome: 'nome',
+  nivel: 'nivel',
+  municipioId: 'municipioId',
+  ativo: 'ativo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.EmpresaScalarFieldEnum = {
@@ -196,6 +246,11 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull
+};
+
 exports.Prisma.JsonNullValueInput = {
   JsonNull: Prisma.JsonNull
 };
@@ -215,12 +270,35 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.TipoOrgao = {
+  POLICIA_MILITAR: 'POLICIA_MILITAR',
+  POLICIA_CIVIL: 'POLICIA_CIVIL',
+  BOMBEIROS: 'BOMBEIROS',
+  POLICIA_PENAL: 'POLICIA_PENAL',
+  POLICIA_CIENTIFICA: 'POLICIA_CIENTIFICA',
+  TRANSITO: 'TRANSITO',
+  ADMINISTRACAO_DIRETA: 'ADMINISTRACAO_DIRETA'
+};
 
+exports.NivelUnidade = {
+  COMANDO_GERAL: 'COMANDO_GERAL',
+  DIRETORIA: 'DIRETORIA',
+  COMANDO_REGIONAL: 'COMANDO_REGIONAL',
+  BATALHAO: 'BATALHAO',
+  COMPANHIA: 'COMPANHIA',
+  DELEGACIA: 'DELEGACIA',
+  UNIDADE_PRISIONAL: 'UNIDADE_PRISIONAL',
+  SETOR: 'SETOR'
+};
 
 exports.Prisma.ModelName = {
   UnidadeFsp: 'UnidadeFsp',
   EntidadeGestora: 'EntidadeGestora',
   Municipio: 'Municipio',
+  Dominio: 'Dominio',
+  DominioValor: 'DominioValor',
+  Orgao: 'Orgao',
+  UnidadeOrganizacional: 'UnidadeOrganizacional',
   Empresa: 'Empresa',
   Fornecedor: 'Fornecedor',
   Contrato: 'Contrato',

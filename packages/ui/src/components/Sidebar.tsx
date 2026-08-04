@@ -7,6 +7,7 @@ import {
   FilePlus2,
   FileText,
   LayoutDashboard,
+  ListTree,
   Shield,
   Users,
   Wrench,
@@ -31,6 +32,7 @@ const navItems: NavItem[] = [
   { label: 'Entidades gestoras', to: '/entidades-gestoras', icon: Users },
   { label: 'Unidades FSP', to: '/unidades-fsp', icon: Shield },
   { label: 'Serviços', to: '/servicos', icon: Wrench },
+  { label: 'Listas suspensas', to: '/dominios', icon: ListTree },
 ];
 
 export function Sidebar() {

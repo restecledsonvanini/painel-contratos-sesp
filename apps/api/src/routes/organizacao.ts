@@ -1,0 +1,37 @@
+import { Router } from 'express';
+import {
+  arvoreUnidades,
+  createOrgao,
+  createUnidade,
+  deleteOrgao,
+  deleteUnidade,
+  getOrgao,
+  getUnidade,
+  listMunicipios,
+  listOrgaos,
+  listUnidades,
+  updateOrgao,
+  updateUnidade,
+} from '../controllers/lookupsController';
+import { asyncHandler } from '../lib/errors';
+import { requireRole } from '../middleware/rbac';
+
+const router = Router();
+const writeRoles = requireRole(['colaborador', 'admin']);
+
+router.get('/orgaos', asyncHandler(listOrgaos));
+router.post('/orgaos', writeRoles, asyncHandler(createOrgao));
+router.get('/orgaos/:id', asyncHandler(getOrgao));
+router.put('/orgaos/:id', writeRoles, asyncHandler(updateOrgao));
+router.delete('/orgaos/:id', writeRoles, asyncHandler(deleteOrgao));
+
+router.get('/unidades/arvore', asyncHandler(arvoreUnidades));
+router.get('/unidades', asyncHandler(listUnidades));
+router.post('/unidades', writeRoles, asyncHandler(createUnidade));
+router.get('/unidades/:id', asyncHandler(getUnidade));
+router.put('/unidades/:id', writeRoles, asyncHandler(updateUnidade));
+router.delete('/unidades/:id', writeRoles, asyncHandler(deleteUnidade));
+
+router.get('/municipios', asyncHandler(listMunicipios));
+
+export default router;

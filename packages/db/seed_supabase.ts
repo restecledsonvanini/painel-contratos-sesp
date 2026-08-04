@@ -1,13 +1,143 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { PrismaClient } from './generated/client/index.js';
+import { DOMINIOS_SEED } from './seed/dominios.js';
+import { ORGAOS_SEED, UNIDADES_DEMO } from './seed/orgaos.js';
 
 process.env.DATABASE_URL ||= 'postgresql://painel:pass@localhost:5434/painel_db';
 
 const prisma = new PrismaClient();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+type MunicipioJson = { codigoIbge: string; nome: string; uf: string };
+
+async function seedMunicipios() {
+  const file = path.join(__dirname, 'seed/data/municipios-pr.json');
+  const municipios = JSON.parse(readFileSync(file, 'utf8')) as MunicipioJson[];
+  for (const m of municipios) {
+    await prisma.municipio.upsert({
+      where: { codigoIbge: m.codigoIbge },
+      update: { nome: m.nome, uf: m.uf },
+      create: { codigoIbge: m.codigoIbge, nome: m.nome, uf: m.uf },
+    });
+  }
+  return municipios.length;
+}
+
+async function seedDominios() {
+  const codigoToId = new Map<string, string>();
+
+  for (const d of DOMINIOS_SEED) {
+    const dominio = await prisma.dominio.upsert({
+      where: { slug: d.slug },
+      update: {
+        nome: d.nome,
+        descricao: d.descricao ?? null,
+        editavelPeloUsuario: d.editavelPeloUsuario,
+        permiteHierarquia: d.permiteHierarquia ?? false,
+      },
+      create: {
+        slug: d.slug,
+        nome: d.nome,
+        descricao: d.descricao ?? null,
+        editavelPeloUsuario: d.editavelPeloUsuario,
+        permiteHierarquia: d.permiteHierarquia ?? false,
+      },
+    });
+
+    for (const v of d.valores) {
+      let parentId: string | null = null;
+      if (v.parentCodigo) {
+        parentId =
+          codigoToId.get(`modalidade-licitacao:${v.parentCodigo}`) ??
+          codigoToId.get(`${d.slug}:${v.parentCodigo}`) ??
+          null;
+      }
+
+      const valor = await prisma.dominioValor.upsert({
+        where: { dominioId_codigo: { dominioId: dominio.id, codigo: v.codigo } },
+        update: {
+          label: v.label,
+          ordem: v.ordem,
+          parentId,
+          metadata: v.metadata ?? undefined,
+          ativo: true,
+        },
+        create: {
+          dominioId: dominio.id,
+          codigo: v.codigo,
+          label: v.label,
+          ordem: v.ordem,
+          parentId,
+          metadata: v.metadata ?? undefined,
+        },
+      });
+      codigoToId.set(`${d.slug}:${v.codigo}`, valor.id);
+    }
+  }
+}
+
+async function seedOrgaosEUnidades() {
+  const curitiba = await prisma.municipio.findUniqueOrThrow({ where: { codigoIbge: '4106902' } });
+
+  for (const o of ORGAOS_SEED) {
+    await prisma.orgao.upsert({
+      where: { sigla: o.sigla },
+      update: { nome: o.nome, tipo: o.tipo, ativo: true },
+      create: o,
+    });
+  }
+
+  for (const u of UNIDADES_DEMO) {
+    const orgao = await prisma.orgao.findUniqueOrThrow({ where: { sigla: u.orgaoSigla } });
+    await prisma.unidadeOrganizacional.upsert({
+      where: { orgaoId_sigla: { orgaoId: orgao.id, sigla: u.sigla } },
+      update: {
+        nome: u.nome,
+        nivel: u.nivel,
+        municipioId: curitiba.id,
+        ativo: true,
+      },
+      create: {
+        orgaoId: orgao.id,
+        sigla: u.sigla,
+        nome: u.nome,
+        nivel: u.nivel,
+        municipioId: curitiba.id,
+      },
+    });
+  }
+
+  // 33BPM child of CG-PMPR when both exist
+  const pmpr = await prisma.orgao.findUniqueOrThrow({ where: { sigla: 'PMPR' } });
+  const cg = await prisma.unidadeOrganizacional.findUnique({
+    where: { orgaoId_sigla: { orgaoId: pmpr.id, sigla: 'CG-PMPR' } },
+  });
+  const bpm = await prisma.unidadeOrganizacional.findUnique({
+    where: { orgaoId_sigla: { orgaoId: pmpr.id, sigla: '33BPM' } },
+  });
+  if (cg && bpm && bpm.parentId !== cg.id) {
+    await prisma.unidadeOrganizacional.update({
+      where: { id: bpm.id },
+      data: { parentId: cg.id },
+    });
+  }
+}
 
 async function main() {
   console.log('Running seed script (local Docker / staging)');
 
   const systemUserId = '00000000-0000-0000-0000-000000000000';
+
+  console.log('Seeding municípios PR...');
+  const municipiosCount = await seedMunicipios();
+
+  console.log('Seeding domínios...');
+  await seedDominios();
+
+  console.log('Seeding órgãos e unidades...');
+  await seedOrgaosEUnidades();
 
   await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SELECT set_config('app.current_user', ${systemUserId}, true)`;
@@ -117,7 +247,7 @@ async function main() {
         gestorId: gestor.id,
         fiscalId: fiscal.id,
         empresaId: empresaExemplo.id,
-        modalidade: 'Dispensa',
+        modalidade: 'DISPENSA',
         objeto: 'Serviço de exemplo — manutenção preventiva',
         valorAnualCents: 1_000_000,
         dataInicio: new Date('2026-02-01'),
@@ -138,7 +268,7 @@ async function main() {
         gestorId: ana.id,
         fiscalId: carlos.id,
         empresaId: empresaLocadora.id,
-        modalidade: 'Pregão eletrônico',
+        modalidade: 'PREGAO_ELETRONICO',
         objeto: 'Locação de 40 viaturas descaracterizadas para uso operacional',
         valorAnualCents: 4_800_000_00,
         dataInicio: new Date('2025-03-01'),
@@ -159,7 +289,7 @@ async function main() {
         gestorId: carlos.id,
         fiscalId: ana.id,
         empresaId: empresaAlimentos.id,
-        modalidade: 'Pregão eletrônico',
+        modalidade: 'PREGAO_ELETRONICO',
         objeto: 'Fornecimento de gêneros alimentícios para unidades prisionais',
         valorAnualCents: 12_500_000_00,
         dataInicio: new Date('2026-01-15'),
@@ -175,7 +305,7 @@ async function main() {
         gestorId: gestor.id,
         fiscalId: fiscal.id,
         empresaId: empresaExemplo.id,
-        modalidade: 'Inexigibilidade',
+        modalidade: 'INEXIGIBILIDADE',
         objeto: 'Licenciamento de software de monitoramento (encerrado)',
         valorAnualCents: 350_000_00,
         dataInicio: new Date('2024-01-01'),
@@ -246,11 +376,13 @@ async function main() {
   });
 
   const counts = {
-    unidades: await prisma.unidadeFsp.count(),
+    municipios: municipiosCount,
+    dominios: await prisma.dominio.count(),
+    dominioValores: await prisma.dominioValor.count(),
+    orgaos: await prisma.orgao.count(),
+    unidadesOrg: await prisma.unidadeOrganizacional.count(),
+    unidadesFsp: await prisma.unidadeFsp.count(),
     empresas: await prisma.empresa.count(),
-    entidades: await prisma.entidadeGestora.count(),
-    fornecedores: await prisma.fornecedor.count(),
-    servicos: await prisma.servico.count(),
     contratos: await prisma.contrato.count(),
   };
 

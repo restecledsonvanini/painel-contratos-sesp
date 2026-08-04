@@ -11,6 +11,27 @@ generator client {
   output   = "../generated/client"
 }
 
+enum TipoOrgao {
+  POLICIA_MILITAR
+  POLICIA_CIVIL
+  BOMBEIROS
+  POLICIA_PENAL
+  POLICIA_CIENTIFICA
+  TRANSITO
+  ADMINISTRACAO_DIRETA
+}
+
+enum NivelUnidade {
+  COMANDO_GERAL
+  DIRETORIA
+  COMANDO_REGIONAL
+  BATALHAO
+  COMPANHIA
+  DELEGACIA
+  UNIDADE_PRISIONAL
+  SETOR
+}
+
 model UnidadeFsp {
   id        String     @id @default(uuid())
   sigla     String     @unique
@@ -19,55 +40,126 @@ model UnidadeFsp {
 }
 
 model EntidadeGestora {
-  id               String     @id @default(uuid())
-  nome             String
-  cpf              String     @unique
-  gestorContratos  Contrato[] @relation("gestorContratos")
-  fiscalContratos  Contrato[] @relation("fiscalContratos")
+  id              String     @id @default(uuid())
+  nome            String
+  cpf             String     @unique
+  gestorContratos Contrato[] @relation("gestorContratos")
+  fiscalContratos Contrato[] @relation("fiscalContratos")
 }
 
 model Municipio {
-  id    String @id @default(uuid())
-  nome  String
-  uf    String
+  id                    String                  @id @default(uuid())
+  codigoIbge            String                  @unique
+  nome                  String
+  uf                    String
+  regiaoAdministrativa  String?
+  unidades              UnidadeOrganizacional[]
+
+  @@index([uf, nome])
+}
+
+model Dominio {
+  id                 String         @id @default(uuid())
+  slug               String         @unique
+  nome               String
+  descricao          String?
+  editavelPeloUsuario Boolean       @default(true)
+  permiteHierarquia  Boolean        @default(false)
+  valores            DominioValor[]
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+}
+
+model DominioValor {
+  id           String         @id @default(uuid())
+  dominioId    String
+  dominio      Dominio        @relation(fields: [dominioId], references: [id], onDelete: Cascade)
+  codigo       String
+  label        String
+  parentId     String?
+  parent       DominioValor?  @relation("DominioValorHierarquia", fields: [parentId], references: [id])
+  children     DominioValor[] @relation("DominioValorHierarquia")
+  ordem        Int            @default(0)
+  ativo        Boolean        @default(true)
+  metadata     Json?
+  codigoLegado String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([dominioId, codigo])
+  @@index([dominioId, ativo, ordem])
+  @@index([parentId])
+}
+
+model Orgao {
+  id        String                  @id @default(uuid())
+  sigla     String                  @unique
+  nome      String
+  tipo      TipoOrgao
+  ativo     Boolean                 @default(true)
+  unidades  UnidadeOrganizacional[]
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+}
+
+model UnidadeOrganizacional {
+  id          String                  @id @default(uuid())
+  orgaoId     String
+  orgao       Orgao                   @relation(fields: [orgaoId], references: [id])
+  parentId    String?
+  parent      UnidadeOrganizacional?  @relation("UnidadeHierarquia", fields: [parentId], references: [id])
+  children    UnidadeOrganizacional[] @relation("UnidadeHierarquia")
+  sigla       String
+  nome        String
+  nivel       NivelUnidade
+  municipioId String
+  municipio   Municipio               @relation(fields: [municipioId], references: [id])
+  ativo       Boolean                 @default(true)
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+
+  @@unique([orgaoId, sigla])
+  @@index([parentId])
+  @@index([municipioId])
+  @@index([orgaoId, ativo])
 }
 
 model Empresa {
-  id            String     @id @default(uuid())
-  cnpj          String     @unique
-  razaoSocial   String
-  contratos     Contrato[]
+  id          String     @id @default(uuid())
+  cnpj        String     @unique
+  razaoSocial String
+  contratos   Contrato[]
 }
 
 model Fornecedor {
-  id          String   @id @default(uuid())
-  cnpj        String?  @unique
-  nome        String
-  createdAt   DateTime @default(now())
+  id        String   @id @default(uuid())
+  cnpj      String?  @unique
+  nome      String
+  createdAt DateTime @default(now())
 }
 
 model Contrato {
-  id                 String              @id @default(uuid())
-  protocoloCabeca    String?             @unique
-  numGms             Int
-  anoGms             Int
-  unidadeFspId       String
-  unidadeFsp         UnidadeFsp          @relation(fields: [unidadeFspId], references: [id])
-  gestorId           String
-  gestor             EntidadeGestora     @relation("gestorContratos", fields: [gestorId], references: [id])
-  fiscalId           String
-  fiscal             EntidadeGestora     @relation("fiscalContratos", fields: [fiscalId], references: [id])
-  empresaId          String
-  empresa            Empresa             @relation(fields: [empresaId], references: [id])
-  modalidade         String
-  objeto             String
-  valorAnualCents    Int
-  dataInicio         DateTime?           @db.Date
-  dataFimOrig        DateTime?           @db.Date
-  status             String
-  aditivos           Aditivo[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id              String          @id @default(uuid())
+  protocoloCabeca String?         @unique
+  numGms          Int
+  anoGms          Int
+  unidadeFspId    String
+  unidadeFsp      UnidadeFsp      @relation(fields: [unidadeFspId], references: [id])
+  gestorId        String
+  gestor          EntidadeGestora @relation("gestorContratos", fields: [gestorId], references: [id])
+  fiscalId        String
+  fiscal          EntidadeGestora @relation("fiscalContratos", fields: [fiscalId], references: [id])
+  empresaId       String
+  empresa         Empresa         @relation(fields: [empresaId], references: [id])
+  modalidade      String
+  objeto          String
+  valorAnualCents Int
+  dataInicio      DateTime?       @db.Date
+  dataFimOrig     DateTime?       @db.Date
+  status          String
+  aditivos        Aditivo[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   @@unique([numGms, anoGms])
   @@index([dataFimOrig])
@@ -76,14 +168,14 @@ model Contrato {
 }
 
 model Aditivo {
-  id                  String      @id @default(uuid())
+  id                  String    @id @default(uuid())
   contratoId          String
-  contrato            Contrato    @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  contrato            Contrato  @relation(fields: [contratoId], references: [id], onDelete: Cascade)
   numAditivo          Int
   protocoloAdit       String
-  novoFimVigencia     DateTime?   @db.Date
+  novoFimVigencia     DateTime? @db.Date
   valorAdicionalCents Int?
-  createdAt           DateTime    @default(now())
+  createdAt           DateTime  @default(now())
 }
 
 model Servico {
@@ -92,6 +184,7 @@ model Servico {
   descricao String?
   createdAt DateTime @default(now())
 }
+
 model AuditLog {
   id         String   @id @default(uuid())
   tabela     String
