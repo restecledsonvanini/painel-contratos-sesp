@@ -89,6 +89,13 @@ export function CommandPalette() {
                 Ir para contratos
               </Command.Item>
               <Command.Item
+                value="ir-estrategico"
+                onSelect={() => go('/estrategico')}
+                className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"
+              >
+                Ir para painel estratégico
+              </Command.Item>
+              <Command.Item
                 value="ir-alertas"
                 onSelect={() => go('/alertas')}
                 className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"

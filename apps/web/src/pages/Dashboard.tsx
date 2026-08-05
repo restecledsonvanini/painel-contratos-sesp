@@ -1,173 +1,311 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { Button, Card, Page, Meter } from '@painel/ui';
-import { FilePlus2 } from 'lucide-react';
-import { http } from '../lib/http';
-import { useContracts } from '../hooks/useContracts';
+import React, { useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import { Button, ChartCard, KpiCard, Meter, Page, Skeleton } from '@painel/ui';
+import { Bell, FilePlus2, LineChart } from 'lucide-react';
+import { formatCents } from '../lib/format';
+import { contractsListHref, janelaToVencimentoParam } from '../lib/dashboardLinks';
+import {
+  useDashboardAlertas,
+  useDashboardFiscalizacao,
+  useDashboardKpis,
+  useDashboardPublicidade,
+  useDashboardVencimentos,
+} from '../hooks/useDashboard';
+import { useAuth } from '../providers/AuthProvider';
 
-type Kpis = {
-  totalContratos?: number;
-  vigentes?: number;
-  aVencer?: number;
-  vencidos?: number;
-  valorSobGestaoCents?: number;
-  percentualAditadoMedio?: number;
-  atualizadoEm?: string;
-};
-
-type Janela = { janela: string; qtd: number; valorCents: number };
+function num(v: unknown) {
+  return Number(v ?? 0);
+}
 
 export default function Dashboard() {
-  const { data: contractsData, isLoading: loadingContracts } = useContracts();
-  const contracts = Array.isArray(contractsData) ? contractsData : [];
+  const navigate = useNavigate();
+  const { hasMinRole, token } = useAuth();
+  const canWrite = !token || hasMinRole('COLABORADOR');
 
-  const { data: kpis, isLoading: loadingKpis } = useQuery({
-    queryKey: ['dashboard', 'kpis'],
-    queryFn: async () => (await http.get<Kpis>('/dashboard/kpis')).data,
-    staleTime: 1000 * 60,
-  });
+  const { data: kpis, isLoading: loadingKpis } = useDashboardKpis();
+  const { data: vencimentos = [], isLoading: loadingVenc } = useDashboardVencimentos();
+  const { data: publicidade = [] } = useDashboardPublicidade();
+  const { data: fiscalizacao = [] } = useDashboardFiscalizacao();
+  const { data: alertas = [] } = useDashboardAlertas();
 
-  const { data: vencimentos } = useQuery({
-    queryKey: ['dashboard', 'vencimentos'],
-    queryFn: async () => (await http.get<Janela[]>('/dashboard/vencimentos')).data,
-    staleTime: 1000 * 60,
-  });
+  const atualizadoEm = kpis?.atualizadoEm ?? vencimentos[0]?.atualizadoEm;
+  const pctAditado = num(kpis?.percentualAditadoMedio);
+  const pncp = publicidade.find((p: { veiculo?: string }) => p.veiculo === 'PNCP');
 
-  const { data: frota } = useQuery({
-    queryKey: ['dashboard', 'frota'],
-    queryFn: async () => (await http.get('/dashboard/frota')).data,
-    staleTime: 1000 * 60,
-  });
+  const vencChart = useMemo(
+    () =>
+      vencimentos.map((j) => ({
+        janela: j.janela,
+        qtd: num(j.qtd),
+        valor: num(j.valorCents) / 100,
+      })),
+    [vencimentos],
+  );
 
-  const loading = loadingKpis || loadingContracts;
-  const valorSobGestao = (kpis?.valorSobGestaoCents ?? 0) / 100;
-  const pctAditado = Number(kpis?.percentualAditadoMedio ?? 0);
+  const alertasAbertos = alertas
+    .filter((a: { reconhecidoEm?: string | null }) => !a.reconhecidoEm)
+    .slice(0, 6);
 
-  const stats = [
-    { label: 'Contratos', value: loading ? '…' : String(kpis?.totalContratos ?? contracts.length) },
-    {
-      label: 'Valor sob gestão',
-      value: loading
-        ? '…'
-        : valorSobGestao.toLocaleString('pt-BR', {
-            style: 'currency',
-            currency: 'BRL',
-            maximumFractionDigits: 0,
-          }),
-    },
-    { label: 'Vigentes', value: loading ? '…' : String(kpis?.vigentes ?? 0) },
-    { label: 'A vencer (≤60d)', value: loading ? '…' : String(kpis?.aVencer ?? 0) },
-  ];
+  const acaoNecessaria = vencimentos.filter((j) =>
+    ['vencidos', '0-30', '31-60'].includes(String(j.janela)),
+  );
+
+  if (loadingKpis && loadingVenc) {
+    return (
+      <Page title="Painel tático">
+        <Skeleton variant="card" lines={4} />
+      </Page>
+    );
+  }
 
   return (
     <Page
-      title="Painel de contratos"
+      title="Painel tático"
       description={
-        kpis?.atualizadoEm
-          ? `KPIs analíticos · atualizado em ${String(kpis.atualizadoEm).slice(0, 19).replace('T', ' ')}`
-          : 'Visão tática a partir das views materializadas.'
+        atualizadoEm
+          ? `Operação e prazos · atualizado em ${String(atualizadoEm).slice(0, 19).replace('T', ' ')}`
+          : 'Operação e prazos a partir das views materializadas.'
       }
       actions={
-        <Link to="/contracts/new">
-          <Button>
-            <FilePlus2 size={16} />
-            Novo contrato
-          </Button>
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link to="/estrategico">
+            <Button variant="secondary">
+              <LineChart size={16} />
+              Estratégico
+            </Button>
+          </Link>
+          {canWrite ? (
+            <Link to="/contracts/new">
+              <Button>
+                <FilePlus2 size={16} />
+                Novo contrato
+              </Button>
+            </Link>
+          ) : null}
+        </div>
       }
     >
-      <section className="Form-Grade grid grid-cols-1 gap-[var(--space-md)] sm:grid-cols-2 xl:grid-cols-4">
-        {stats.map((item) => (
-          <Card key={item.label} variant="bordered" className="p-[var(--space-lg)]">
-            <p className="text-[var(--font-size-xs)] font-bold uppercase tracking-[0.14em] text-[var(--text-muted)]">
-              {item.label}
-            </p>
-            <p className="mt-3 text-[var(--font-size-2xl)] font-bold text-[var(--primary)]">{item.value}</p>
-          </Card>
-        ))}
+      <section className="grid grid-cols-1 gap-[var(--space-md)] sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          title="Contratos"
+          value={loadingKpis ? '…' : String(kpis?.totalContratos ?? 0)}
+          onClick={() => navigate(contractsListHref({}))}
+        />
+        <KpiCard
+          title="Vigentes"
+          value={loadingKpis ? '…' : String(kpis?.vigentes ?? 0)}
+          onClick={() => navigate(contractsListHref({ situacao: 'VIGENTE' }))}
+        />
+        <KpiCard
+          title="A vencer (≤60d)"
+          value={loadingKpis ? '…' : String(kpis?.aVencer ?? 0)}
+          onClick={() => navigate(contractsListHref({ vencimento: '0-60' }))}
+        />
+        <KpiCard
+          title="Sem PNCP"
+          value={
+            pncp
+              ? String(num(pncp.contratosElegiveis) - num(pncp.contratosPublicados))
+              : '—'
+          }
+          onClick={() => navigate(contractsListHref({ publicacao: 'sem-pncp' }))}
+        />
       </section>
 
-      <section className="mt-[var(--space-md)] grid grid-cols-1 gap-[var(--space-md)] xl:grid-cols-[1.2fr_1fr]">
-        <Card variant="bordered" className="p-[var(--space-lg)]">
-          <h2 className="text-[var(--font-size-lg)] font-bold text-[var(--primary)]">Vencimentos</h2>
-          <p className="mb-[var(--space-md)] text-[var(--font-size-sm)] text-[var(--text-muted)]">
-            Buckets de dias até o fim da vigência atual.
-          </p>
-          <div className="space-y-3">
-            {(vencimentos ?? []).map((j) => (
-              <div key={j.janela} className="flex items-center justify-between gap-3 text-[var(--font-size-sm)]">
-                <span className="font-semibold">{j.janela}</span>
-                <span className="text-[var(--text-muted)]">
-                  {j.qtd} ·{' '}
-                  {(j.valorCents / 100).toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                    maximumFractionDigits: 0,
-                  })}
-                </span>
-              </div>
-            ))}
-            {!vencimentos?.length && (
-              <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Sem dados de vencimento.</p>
-            )}
-          </div>
-          <div className="mt-[var(--space-lg)]">
+      <section className="mt-[var(--space-md)] grid grid-cols-1 gap-[var(--space-md)] xl:grid-cols-2">
+        <ChartCard
+          title="Vencimentos por janela"
+          subtitle="Clique na barra ou na lista para filtrar contratos"
+          atualizadoEm={atualizadoEm}
+        >
+          {vencChart.length ? (
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={vencChart}
+                  onClick={(state) => {
+                    const janela = (state?.activePayload?.[0]?.payload as { janela?: string })?.janela;
+                    if (janela) {
+                      navigate(
+                        contractsListHref({ vencimento: janelaToVencimentoParam(janela) }),
+                      );
+                    }
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="janela" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip
+                    formatter={(value: number, name: string) =>
+                      name === 'valor'
+                        ? value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                        : value
+                    }
+                  />
+                  <Bar dataKey="qtd" name="Contratos" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Sem dados de vencimento.</p>
+          )}
+          <div className="mt-4">
             <Meter
-              label="% aditado médio"
+              label="% aditado médio (limite 25%)"
               value={Number(pctAditado.toFixed(1))}
               max={25}
               thresholds={{ amber: 80, red: 100 }}
             />
           </div>
-        </Card>
+        </ChartCard>
 
-        <Card variant="bordered" className="p-[var(--space-lg)]">
-          <div className="mb-[var(--space-md)] flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-[var(--font-size-lg)] font-bold text-[var(--primary)]">Contratos recentes</h2>
-              <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Últimos registros da base.</p>
-            </div>
-            <Link to="/contracts">
-              <Button variant="secondary" size="sm">
+        <ChartCard
+          title="Alertas prioritários"
+          subtitle="Não reconhecidos"
+          actions={
+            <Link to="/alertas">
+              <Button variant="ghost" size="sm">
+                <Bell size={14} />
                 Ver todos
               </Button>
             </Link>
-          </div>
+          }
+        >
           <div className="space-y-2">
-            {contracts.slice(0, 5).map((c) => (
+            {alertasAbertos.map((a: {
+              id: string;
+              severidade: string;
+              mensagem: string;
+              contrato?: { id: string; numeroGms: string; anoGms: number };
+            }) => (
               <Link
-                key={c.id}
-                to={`/contracts/${c.id}`}
-                className="flex items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--panel-bg)] px-3 py-3 hover:border-[var(--primary)]"
+                key={a.id}
+                to={`/contracts/${a.contrato?.id}`}
+                className="block rounded-[var(--radius-md)] border border-[var(--border)] px-3 py-2 hover:border-[var(--primary)]"
               >
-                <div className="min-w-0">
-                  <p className="truncate font-semibold text-[var(--text)]">
-                    {c.protocoloCabeca || `${c.numGms}/${c.anoGms}`}
-                  </p>
-                  <p className="truncate text-[var(--font-size-sm)] text-[var(--text-muted)]">{c.objeto}</p>
-                </div>
-                <span className="shrink-0 text-[var(--font-size-xs)] font-semibold text-[var(--primary)]">
-                  {c.status || '—'}
+                <p className="text-[var(--font-size-xs)] font-semibold uppercase text-[var(--text-muted)]">
+                  {a.severidade}
+                  {a.contrato ? ` · GMS ${a.contrato.numeroGms}/${a.contrato.anoGms}` : ''}
+                </p>
+                <p className="text-[var(--font-size-sm)] text-[var(--text)]">{a.mensagem}</p>
+              </Link>
+            ))}
+            {!alertasAbertos.length && (
+              <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Nenhum alerta aberto.</p>
+            )}
+          </div>
+        </ChartCard>
+      </section>
+
+      <section className="mt-[var(--space-md)] grid grid-cols-1 gap-[var(--space-md)] xl:grid-cols-2">
+        <ChartCard title="Ação necessária" subtitle="Janelas críticas de vencimento">
+          <div className="space-y-2">
+            {acaoNecessaria.map((j) => (
+              <Link
+                key={j.janela}
+                to={contractsListHref({ vencimento: janelaToVencimentoParam(j.janela) })}
+                className="flex items-center justify-between gap-3 rounded-[var(--radius-md)] border border-[var(--border)] px-3 py-3 hover:border-[var(--primary)]"
+              >
+                <span className="font-semibold">{j.janela}</span>
+                <span className="text-[var(--font-size-sm)] text-[var(--text-muted)]">
+                  {num(j.qtd)} · {formatCents(num(j.valorCents))}
                 </span>
               </Link>
             ))}
-            {!loadingContracts && contracts.length === 0 && (
-              <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Nenhum contrato ainda.</p>
+            {!acaoNecessaria.length && (
+              <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">
+                Nenhuma janela crítica no momento.
+              </p>
             )}
           </div>
+        </ChartCard>
 
-          {Array.isArray(frota) && frota.length > 0 && (
-            <div className="mt-[var(--space-lg)] rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
-              <p className="text-[var(--font-size-xs)] text-[var(--text-muted)]">Frota (KPI)</p>
-              {frota.slice(0, 3).map((f: any, idx: number) => (
-                <p key={idx} className="mt-1 text-[var(--font-size-sm)] font-semibold">
-                  {f.tipoVeiculo} · {f.caracterizacao} · {f.quantidade} un
-                </p>
-              ))}
-            </div>
-          )}
-        </Card>
+        <ChartCard title="Conformidade de publicidade" subtitle="Publicados / elegíveis por veículo">
+          <div className="space-y-3">
+            {publicidade.map((p: {
+              veiculo: string;
+              contratosPublicados: number;
+              contratosElegiveis: number;
+              percentualPublicado: number;
+            }) => (
+              <div key={p.veiculo}>
+                <div className="mb-1 flex justify-between text-[var(--font-size-sm)]">
+                  <span className="font-semibold">{p.veiculo}</span>
+                  <span className="text-[var(--text-muted)]">
+                    {num(p.contratosPublicados)}/{num(p.contratosElegiveis)} ({num(p.percentualPublicado)}%)
+                  </span>
+                </div>
+                <div
+                  className="h-2 overflow-hidden rounded-[var(--radius-sm)] bg-[var(--surface-muted)]"
+                  role="meter"
+                  aria-valuenow={num(p.percentualPublicado)}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div
+                    className="h-full rounded-[var(--radius-sm)] bg-[var(--success)]"
+                    style={{ width: `${Math.min(100, Math.max(0, num(p.percentualPublicado)))}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+            {!publicidade.length && (
+              <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Sem dados de publicidade.</p>
+            )}
+          </div>
+        </ChartCard>
+      </section>
+
+      <section className="mt-[var(--space-md)]">
+        <ChartCard title="Carga por gestor/fiscal" subtitle="Top responsabilidades ativas">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-[var(--font-size-sm)]">
+              <thead>
+                <tr className="border-b border-[var(--border)] text-[var(--text-muted)]">
+                  <th className="py-2 pr-3 font-semibold">Servidor</th>
+                  <th className="py-2 pr-3 font-semibold">Papel</th>
+                  <th className="py-2 pr-3 font-semibold">Contratos</th>
+                  <th className="py-2 font-semibold">Valor</th>
+                </tr>
+              </thead>
+              <tbody>
+                {fiscalizacao.slice(0, 8).map((row: {
+                  servidorId: string;
+                  servidorNome: string;
+                  papel: string;
+                  qtdContratos: number;
+                  valorCents: number;
+                }) => (
+                  <tr key={`${row.servidorId}-${row.papel}`} className="border-b border-[var(--border)]">
+                    <td className="py-2 pr-3">
+                      <Link
+                        className="font-semibold text-[var(--primary)] hover:underline"
+                        to={contractsListHref({ responsavelId: row.servidorId })}
+                      >
+                        {row.servidorNome}
+                      </Link>
+                    </td>
+                    <td className="py-2 pr-3">{row.papel}</td>
+                    <td className="py-2 pr-3">{num(row.qtdContratos)}</td>
+                    <td className="py-2">{formatCents(num(row.valorCents))}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {!fiscalizacao.length && (
+              <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Sem carga cadastrada.</p>
+            )}
+          </div>
+        </ChartCard>
       </section>
     </Page>
   );

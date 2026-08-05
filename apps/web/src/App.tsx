@@ -3,6 +3,7 @@ import { Navigate, Routes, Route, useParams } from 'react-router-dom';
 import { DashboardLayout } from './layouts/DashboardLayout';
 
 const Dashboard = lazy(() => import('./pages/Dashboard'));
+const DashboardEstrategico = lazy(() => import('./pages/DashboardEstrategico'));
 const ContractsList = lazy(() => import('./pages/ContractsList'));
 const ContractForm = lazy(() => import('./pages/ContractForm'));
 const ContractDetail = lazy(() => import('./pages/ContractDetail'));
@@ -33,6 +34,7 @@ export default function App() {
       <Suspense fallback={<div>Loading...</div>}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
+          <Route path="/estrategico" element={<DashboardEstrategico />} />
           <Route path="/contracts" element={<ContractsList />} />
           <Route path="/contracts/new" element={<ContractForm />} />
           <Route path="/contracts/:id/edit" element={<ContractForm />} />

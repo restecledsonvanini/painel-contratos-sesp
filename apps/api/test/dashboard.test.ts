@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { app } from '../src/index';
 import { getPrisma, disconnectPrisma } from '../src/lib/prisma';
 
@@ -29,6 +29,10 @@ describe('dashboard analitico API', () => {
     });
     if (!contrato) throw new Error('Contrato GMS 456 não encontrado');
     contratoId = contrato.id;
+  });
+
+  afterAll(async () => {
+    await disconnectPrisma();
   });
 
   it('retorna KPIs gerais da MV', async () => {
@@ -67,6 +71,28 @@ describe('dashboard analitico API', () => {
       .set('Authorization', 'Bearer admin');
     expect(res.status).toBe(200);
     expect(res.body.ok).toBe(true);
-    await disconnectPrisma();
+  });
+
+  it('cobre endpoints estratégicos das 16 perguntas', async () => {
+    if (!ready) return;
+    const paths = [
+      '/api/v1/dashboard/por-orgao',
+      '/api/v1/dashboard/custos?agrupar=fonteRecurso',
+      '/api/v1/dashboard/aditivos',
+      '/api/v1/dashboard/fornecedores',
+      '/api/v1/dashboard/fiscalizacao',
+      '/api/v1/dashboard/publicidade',
+      '/api/v1/dashboard/modalidade',
+      '/api/v1/dashboard/frota',
+      '/api/v1/dashboard/imoveis',
+      '/api/v1/dashboard/postos',
+      '/api/v1/dashboard/alimentacao',
+      '/api/v1/dashboard/itens',
+    ];
+    for (const path of paths) {
+      const res = await request(app).get(path);
+      expect(res.status, path).toBe(200);
+      expect(res.body != null, path).toBe(true);
+    }
   });
 });

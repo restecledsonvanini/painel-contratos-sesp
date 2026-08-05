@@ -7,6 +7,7 @@ import {
   FilePlus2,
   FileText,
   LayoutDashboard,
+  LineChart,
   ListTree,
   Shield,
   Upload,
@@ -26,7 +27,8 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', to: '/', icon: LayoutDashboard },
+  { label: 'Painel tático', to: '/', icon: LayoutDashboard },
+  { label: 'Estratégico', to: '/estrategico', icon: LineChart },
   { label: 'Contratos', to: '/contracts', icon: FileText },
   { label: 'Novo contrato', to: '/contracts/new', icon: FilePlus2 },
   { label: 'Fornecedores', to: '/fornecedores', icon: Briefcase },
