@@ -230,12 +230,14 @@ export default function ContractForm() {
               <span className="field-label">Gestor</span>
               <select className="select-field" {...register('gestorId')} disabled={servidoresLoading}>
                 <option value="">Selecione o gestor</option>
-                {servidores?.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.nome}
-                    {item.cargo ? ` — ${item.cargo}` : ''}
-                  </option>
-                ))}
+                {servidores
+                  ?.filter((item) => /gestor/i.test(item.cargo || item.nome || ''))
+                  .map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.nome}
+                      {item.cargo ? ` — ${item.cargo}` : ''}
+                    </option>
+                  ))}
               </select>
             </div>
 
@@ -243,12 +245,14 @@ export default function ContractForm() {
               <span className="field-label">Fiscal</span>
               <select className="select-field" {...register('fiscalId')} disabled={servidoresLoading}>
                 <option value="">Selecione o fiscal</option>
-                {servidores?.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.nome}
-                    {item.cargo ? ` — ${item.cargo}` : ''}
-                  </option>
-                ))}
+                {servidores
+                  ?.filter((item) => /fiscal/i.test(item.cargo || item.nome || ''))
+                  .map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.nome}
+                      {item.cargo ? ` — ${item.cargo}` : ''}
+                    </option>
+                  ))}
               </select>
             </div>
 
