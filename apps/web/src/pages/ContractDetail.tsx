@@ -7,6 +7,7 @@ import {
   Card,
   ConfirmDialog,
   ErrorState,
+  Meter,
   Page,
   Skeleton,
   StatusBadge,
@@ -36,6 +37,16 @@ export default function ContractDetail() {
   const { data: publicacoes } = useQuery({
     queryKey: ['contrato-publicacoes', id],
     queryFn: async () => (await http.get(`/contracts/${id}/publicacoes`)).data,
+    enabled: Boolean(id),
+  });
+  const { data: timeline } = useQuery({
+    queryKey: ['contrato-timeline', id],
+    queryFn: async () => (await http.get(`/contracts/${id}/timeline`)).data,
+    enabled: Boolean(id),
+  });
+  const { data: limites } = useQuery({
+    queryKey: ['contrato-limites', id],
+    queryFn: async () => (await http.get(`/contracts/${id}/limites`)).data,
     enabled: Boolean(id),
   });
 
@@ -278,6 +289,42 @@ export default function ContractDetail() {
               <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Nenhuma alteração.</p>
             )}
           </div>
+
+          {limites && (
+            <div className="mt-[var(--space-md)] space-y-2">
+              <Meter
+                label={`Acréscimo (limite ${limites.limiteAcrescimoPercent}%)`}
+                value={Number(Number(limites.percentualAcrescido ?? 0).toFixed(2))}
+                max={Number(limites.limiteAcrescimoPercent ?? 25)}
+                thresholds={{ amber: 80, red: 100 }}
+              />
+              <p className="text-[var(--font-size-xs)] text-[var(--text-muted)]">
+                {limites.mesesProrrogadosAcumulados ?? 0} meses prorrogados
+                {limites.prazoRestanteMeses != null
+                  ? ` · ${limites.prazoRestanteMeses} restantes no teto`
+                  : ''}
+              </p>
+            </div>
+          )}
+
+          <div className="mt-[var(--space-lg)]">
+            <h3 className="text-[var(--font-size-md)] font-bold text-[var(--primary)]">Linha do tempo</h3>
+            <div className="mt-2 max-h-64 space-y-2 overflow-y-auto">
+              {timeline?.length ? (
+                timeline.map((ev: any, idx: number) => (
+                  <div key={`${ev.origemId}-${idx}`} className="border-l-2 border-[var(--border)] pl-3">
+                    <p className="text-[var(--font-size-xs)] text-[var(--text-muted)]">
+                      {ev.data ? String(ev.data).slice(0, 10) : '—'} · {ev.tipo}
+                    </p>
+                    <p className="text-[var(--font-size-sm)] font-semibold">{ev.titulo}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Sem eventos.</p>
+              )}
+            </div>
+          </div>
+
           <p className="mt-[var(--space-md)] text-[var(--font-size-sm)] text-[var(--text-muted)]">
             Compliance Lei 14.133/2021 — simule limites antes de gravar aditivos.
           </p>

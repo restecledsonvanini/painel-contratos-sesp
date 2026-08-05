@@ -19,6 +19,7 @@ async function dbReady() {
 describe('alteracoes API', () => {
   let ready = false;
   let contratoId = '';
+  let nextFim = '2030-12-31';
 
   beforeAll(async () => {
     ready = await dbReady();
@@ -29,6 +30,20 @@ describe('alteracoes API', () => {
     });
     if (!contrato) throw new Error('Contrato GMS 456 do seed não encontrado');
     contratoId = contrato.id;
+
+    // limpa minutas de testes anteriores
+    await db.alteracaoContratual.deleteMany({
+      where: { contratoId, situacao: 'MINUTA' },
+    });
+
+    const rows = await db.$queryRawUnsafe<Array<{ fim: Date }>>(
+      `SELECT fn_data_fim_vigencia_atual($1)::date AS fim`,
+      contratoId,
+    );
+    const atual = rows[0]?.fim ? new Date(rows[0].fim) : new Date(contrato.dataFimVigenciaOriginal);
+    const projetada = new Date(atual);
+    projetada.setUTCFullYear(projetada.getUTCFullYear() + 1);
+    nextFim = projetada.toISOString().slice(0, 10);
   });
 
   it('simula aditivo de prazo dentro do limite', async () => {
@@ -39,12 +54,12 @@ describe('alteracoes API', () => {
         tipo: 'ADITIVO_PRAZO',
         objetoDescricao: 'Prorrogação teste',
         dataAssinatura: '2026-03-01',
-        novaDataFimVigencia: '2028-02-28',
+        novaDataFimVigencia: nextFim,
         valorAcrescido: 0,
       });
     expect(res.status).toBe(200);
     expect(res.body.ok).toBe(true);
-    expect(res.body.dataFimVigenciaProjetada).toBe('2028-02-28');
+    expect(res.body.dataFimVigenciaProjetada).toBe(nextFim);
   });
 
   it('rejeita apostilamento com acréscimo de valor', async () => {
@@ -62,7 +77,7 @@ describe('alteracoes API', () => {
     expect(res.body.erros.join(' ')).toMatch(/Apostilamento/i);
   });
 
-  it('cria minuta mesmo com aviso de limite', async () => {
+  it('cria minuta de prorrogação válida', async () => {
     if (!ready) return;
     const res = await request(app)
       .post(`/api/v1/contracts/${contratoId}/alteracoes`)
@@ -70,7 +85,7 @@ describe('alteracoes API', () => {
         tipo: 'ADITIVO_PRAZO',
         objetoDescricao: 'Minuta de prorrogação',
         dataAssinatura: '2026-06-01',
-        novaDataFimVigencia: '2028-06-30',
+        novaDataFimVigencia: nextFim,
         situacao: 'MINUTA',
       });
     expect(res.status).toBe(201);

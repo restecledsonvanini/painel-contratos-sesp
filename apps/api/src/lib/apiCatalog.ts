@@ -58,6 +58,14 @@ export const publicApiCatalog = {
       publicacoes: { method: 'GET', path: `${API_BASE}/contracts/:id/publicacoes` },
       documentos: { method: 'GET', path: `${API_BASE}/contracts/:id/documentos` },
     },
+    analitico: {
+      kpis: { method: 'GET', path: `${API_BASE}/dashboard/kpis` },
+      vencimentos: { method: 'GET', path: `${API_BASE}/dashboard/vencimentos` },
+      timeline: { method: 'GET', path: `${API_BASE}/contracts/:id/timeline` },
+      limites: { method: 'GET', path: `${API_BASE}/contracts/:id/limites` },
+      financeiro: { method: 'GET', path: `${API_BASE}/contracts/:id/financeiro` },
+      refresh: { method: 'POST', path: `${API_BASE}/admin/refresh-analytics` },
+    },
     contracts: {
       list: { method: 'GET', path: `${API_BASE}/contracts` },
       get: { method: 'GET', path: `${API_BASE}/contracts/:id` },

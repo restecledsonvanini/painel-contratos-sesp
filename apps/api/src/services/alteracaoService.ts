@@ -61,11 +61,17 @@ function mapAlteracao(record: any) {
 }
 
 function isPgCheck(err: any) {
+  const msg = String(err?.message || err?.meta?.message || '');
   return (
     err?.code === 'P2010' ||
     err?.meta?.code === '23514' ||
-    String(err?.message || '').includes('check_violation') ||
-    String(err?.code) === '23514'
+    err?.code === '23514' ||
+    msg.includes('check_violation') ||
+    msg.includes('SqlState(E23514)') ||
+    msg.includes('novaDataFimVigencia') ||
+    msg.includes('justificativaExcepcional') ||
+    msg.includes('Apostilamento') ||
+    msg.includes('não é prorrogável')
   );
 }
 
