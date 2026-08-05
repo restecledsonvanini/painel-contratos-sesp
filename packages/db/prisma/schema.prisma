@@ -58,11 +58,71 @@ enum TipoSancao {
   DECLARACAO_INIDONEIDADE
 }
 
+enum PilarOrcamentario {
+  CUSTEIO
+  INVESTIMENTO
+  SERVICOS
+}
+
+enum NaturezaObjeto {
+  SERVICO_CONTINUADO
+  SERVICO_NAO_CONTINUADO
+  OBRA
+  SERVICO_ENGENHARIA
+  COMPRA
+  LOCACAO_BEM_MOVEL
+  LOCACAO_IMOVEL
+  SOLUCAO_TIC
+}
+
+enum SituacaoContrato {
+  EM_ELABORACAO
+  ASSINADO
+  VIGENTE
+  SUSPENSO
+  RESCINDIDO
+  ENCERRADO
+  ANULADO
+}
+
+enum UnidadeTempo {
+  DIAS
+  MESES
+  ANOS
+}
+
+enum TipoGarantia {
+  NENHUMA
+  CAUCAO
+  SEGURO_GARANTIA
+  FIANCA_BANCARIA
+}
+
+enum PapelResponsavel {
+  GESTOR
+  GESTOR_SUBSTITUTO
+  FISCAL_TECNICO
+  FISCAL_ADMINISTRATIVO
+  FISCAL_SETORIAL
+  FISCAL_SUBSTITUTO
+  PREPOSTO_CONTRATADA
+}
+
+enum SituacaoProcesso {
+  PLANEJAMENTO
+  EM_ANALISE_JURIDICA
+  EM_LICITACAO
+  HOMOLOGADO
+  CONTRATADO
+  FRACASSADO
+  DESERTO
+  CANCELADO
+}
+
 model UnidadeFsp {
-  id        String     @id @default(uuid())
-  sigla     String     @unique
-  nome      String
-  contratos Contrato[]
+  id    String @id @default(uuid())
+  sigla String @unique
+  nome  String
 }
 
 model Municipio {
@@ -105,6 +165,11 @@ model DominioValor {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
+  contratosCategoria   Contrato[]             @relation("ContratoCategoria")
+  contratosModalidade  Contrato[]             @relation("ContratoModalidade")
+  contratosFundamento  Contrato[]             @relation("ContratoFundamento")
+  processosModalidade  ProcessoContratacao[]  @relation("ProcessoModalidade")
+
   @@unique([dominioId, codigo])
   @@index([dominioId, ativo, ordem])
   @@index([parentId])
@@ -136,6 +201,9 @@ model UnidadeOrganizacional {
   municipio   Municipio               @relation(fields: [municipioId], references: [id])
   ativo       Boolean                 @default(true)
   servidores  Servidor[]
+  contratosGestora Contrato[]         @relation("ContratoUnidadeGestora")
+  rateios     ContratoRateio[]
+  processosDemandante ProcessoContratacao[] @relation("ProcessoUnidadeDemandante")
   createdAt   DateTime                @default(now())
   updatedAt   DateTime                @updatedAt
 
@@ -198,54 +266,135 @@ model FornecedorSancao {
 }
 
 model Servidor {
-  id          String                 @id @default(uuid())
-  nome        String
-  cpf         String?                @unique
-  rgFuncional String?                @unique
-  cargo       String?
-  orgaoId     String?
-  orgao       Orgao?                 @relation(fields: [orgaoId], references: [id])
-  unidadeId   String?
-  unidade     UnidadeOrganizacional? @relation(fields: [unidadeId], references: [id])
-  email       String?
-  telefone    String?
-  ativo       Boolean                @default(true)
-  gestorContratos Contrato[]         @relation("gestorContratos")
-  fiscalContratos Contrato[]         @relation("fiscalContratos")
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @updatedAt
+  id           String               @id @default(uuid())
+  nome         String
+  cpf          String?              @unique
+  rgFuncional  String?              @unique
+  cargo        String?
+  orgaoId      String?
+  orgao        Orgao?               @relation(fields: [orgaoId], references: [id])
+  unidadeId    String?
+  unidade      UnidadeOrganizacional? @relation(fields: [unidadeId], references: [id])
+  email        String?
+  telefone     String?
+  ativo        Boolean              @default(true)
+  responsaveis ContratoResponsavel[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
 
   @@index([nome])
   @@index([orgaoId])
 }
 
-model Contrato {
-  id              String     @id @default(uuid())
-  protocoloCabeca String?    @unique
-  numGms          Int
-  anoGms          Int
-  unidadeFspId    String
-  unidadeFsp      UnidadeFsp @relation(fields: [unidadeFspId], references: [id])
-  gestorId        String
-  gestor          Servidor   @relation("gestorContratos", fields: [gestorId], references: [id])
-  fiscalId        String
-  fiscal          Servidor   @relation("fiscalContratos", fields: [fiscalId], references: [id])
-  fornecedorId    String
-  fornecedor      Fornecedor @relation(fields: [fornecedorId], references: [id])
-  modalidade      String
-  objeto          String
-  valorAnualCents Int
-  dataInicio      DateTime?  @db.Date
-  dataFimOrig     DateTime?  @db.Date
-  status          String
-  aditivos        Aditivo[]
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+model ProcessoContratacao {
+  id                       String                @id @default(uuid())
+  eProtocolo               String                @unique
+  ano                      Int
+  objetoResumo             String
+  unidadeDemandanteId      String
+  unidadeDemandante        UnidadeOrganizacional @relation("ProcessoUnidadeDemandante", fields: [unidadeDemandanteId], references: [id])
+  modalidadePretendidaId   String?
+  modalidadePretendida     DominioValor?         @relation("ProcessoModalidade", fields: [modalidadePretendidaId], references: [id])
+  valorEstimadoCents       BigInt?
+  etpConcluido             Boolean               @default(false)
+  dataEtp                  DateTime?             @db.Date
+  termoReferenciaConcluido Boolean               @default(false)
+  dataTermoReferencia      DateTime?             @db.Date
+  situacao                 SituacaoProcesso      @default(PLANEJAMENTO)
+  observacoes              String?
+  contratos                Contrato[]
+  createdAt                DateTime              @default(now())
+  updatedAt                DateTime              @updatedAt
 
-  @@unique([numGms, anoGms])
-  @@index([dataFimOrig])
-  @@index([unidadeFspId])
+  @@index([ano])
+  @@index([situacao])
+}
+
+model Contrato {
+  id                       String                 @id @default(uuid())
+  processoId               String?
+  processo                 ProcessoContratacao?   @relation(fields: [processoId], references: [id])
+  numeroGms                String
+  anoGms                   Int
+  numeroContrato           String?
+  eProtocolo               String?                @unique
+  pilar                    PilarOrcamentario
+  categoriaContratacaoId   String
+  categoriaContratacao     DominioValor           @relation("ContratoCategoria", fields: [categoriaContratacaoId], references: [id])
+  naturezaObjeto           NaturezaObjeto
+  modalidadeId             String
+  modalidadeRef            DominioValor           @relation("ContratoModalidade", fields: [modalidadeId], references: [id])
+  fundamentoLegalId        String?
+  fundamentoLegal          DominioValor?          @relation("ContratoFundamento", fields: [fundamentoLegalId], references: [id])
+  objeto                   String
+  fornecedorId             String
+  fornecedor               Fornecedor             @relation(fields: [fornecedorId], references: [id])
+  unidadeGestoraId         String
+  unidadeGestora           UnidadeOrganizacional  @relation("ContratoUnidadeGestora", fields: [unidadeGestoraId], references: [id])
+  dataAssinatura           DateTime?              @db.Date
+  dataInicioVigencia       DateTime               @db.Date
+  prazoInicialValor        Int
+  prazoInicialUnidade      UnidadeTempo           @default(MESES)
+  dataFimVigenciaOriginal  DateTime               @db.Date
+  prorrogavel              Boolean                @default(true)
+  limiteProrrogacaoMeses   Int?
+  valorGlobalOriginalCents BigInt
+  indiceReajuste           String?
+  mesAniversarioReajuste   Int?
+  situacao                 SituacaoContrato       @default(EM_ELABORACAO)
+  dataEncerramento         DateTime?              @db.Date
+  motivoEncerramento       String?
+  garantiaTipo             TipoGarantia?
+  garantiaValorCents       BigInt?
+  garantiaValidade         DateTime?              @db.Date
+  reservaObservacao        String?
+  observacoes              String?
+  codigoLegado             String?
+  responsaveis             ContratoResponsavel[]
+  rateios                  ContratoRateio[]
+  aditivos                 Aditivo[]
+  createdAt                DateTime               @default(now())
+  updatedAt                DateTime               @updatedAt
+
+  @@unique([numeroGms, anoGms])
+  @@index([situacao, dataFimVigenciaOriginal])
+  @@index([unidadeGestoraId])
   @@index([fornecedorId])
+  @@index([pilar, categoriaContratacaoId])
+  @@index([anoGms])
+  @@index([modalidadeId])
+}
+
+model ContratoResponsavel {
+  id             String           @id @default(uuid())
+  contratoId     String
+  contrato       Contrato         @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  servidorId     String
+  servidor       Servidor         @relation(fields: [servidorId], references: [id])
+  papel          PapelResponsavel
+  atoDesignacao  String?
+  dataInicio     DateTime         @db.Date
+  dataFim        DateTime?        @db.Date
+  createdAt      DateTime         @default(now())
+
+  @@index([contratoId])
+  @@index([servidorId, papel])
+}
+
+model ContratoRateio {
+  id          String                 @id @default(uuid())
+  contratoId  String
+  contrato    Contrato               @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  unidadeId   String
+  unidade     UnidadeOrganizacional  @relation(fields: [unidadeId], references: [id])
+  percentual  Decimal?               @db.Decimal(7, 4)
+  valorCents  BigInt?
+  quantidade  Decimal?               @db.Decimal(14, 4)
+  observacao  String?
+  createdAt   DateTime               @default(now())
+
+  @@unique([contratoId, unidadeId])
+  @@index([unidadeId])
 }
 
 model Aditivo {

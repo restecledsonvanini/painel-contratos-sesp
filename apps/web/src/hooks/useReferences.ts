@@ -68,6 +68,25 @@ export type Empresa = { id: string; cnpj: string; razaoSocial: string };
 /** @deprecated */
 export type EntidadeGestora = { id: string; nome: string; cpf: string };
 
+export function useUnidadesOrganizacionais() {
+  return useQuery({
+    queryKey: ['unidadesOrganizacionais'] as const,
+    queryFn: async () =>
+      (
+        await http.get<
+          Array<{
+            id: string;
+            sigla: string;
+            nome: string;
+            orgao?: { id: string; sigla: string; nome: string };
+          }>
+        >('/unidades')
+      ).data,
+    staleTime: 1000 * 60 * 10,
+    retry: 1,
+  });
+}
+
 export function useUnidadesFsp() {
   return useQuery({
     queryKey: qk.unidadesFsp,

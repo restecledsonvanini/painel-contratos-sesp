@@ -220,23 +220,82 @@ exports.Prisma.ServidorScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.ContratoScalarFieldEnum = {
+exports.Prisma.ProcessoContratacaoScalarFieldEnum = {
   id: 'id',
-  protocoloCabeca: 'protocoloCabeca',
-  numGms: 'numGms',
-  anoGms: 'anoGms',
-  unidadeFspId: 'unidadeFspId',
-  gestorId: 'gestorId',
-  fiscalId: 'fiscalId',
-  fornecedorId: 'fornecedorId',
-  modalidade: 'modalidade',
-  objeto: 'objeto',
-  valorAnualCents: 'valorAnualCents',
-  dataInicio: 'dataInicio',
-  dataFimOrig: 'dataFimOrig',
-  status: 'status',
+  eProtocolo: 'eProtocolo',
+  ano: 'ano',
+  objetoResumo: 'objetoResumo',
+  unidadeDemandanteId: 'unidadeDemandanteId',
+  modalidadePretendidaId: 'modalidadePretendidaId',
+  valorEstimadoCents: 'valorEstimadoCents',
+  etpConcluido: 'etpConcluido',
+  dataEtp: 'dataEtp',
+  termoReferenciaConcluido: 'termoReferenciaConcluido',
+  dataTermoReferencia: 'dataTermoReferencia',
+  situacao: 'situacao',
+  observacoes: 'observacoes',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ContratoScalarFieldEnum = {
+  id: 'id',
+  processoId: 'processoId',
+  numeroGms: 'numeroGms',
+  anoGms: 'anoGms',
+  numeroContrato: 'numeroContrato',
+  eProtocolo: 'eProtocolo',
+  pilar: 'pilar',
+  categoriaContratacaoId: 'categoriaContratacaoId',
+  naturezaObjeto: 'naturezaObjeto',
+  modalidadeId: 'modalidadeId',
+  fundamentoLegalId: 'fundamentoLegalId',
+  objeto: 'objeto',
+  fornecedorId: 'fornecedorId',
+  unidadeGestoraId: 'unidadeGestoraId',
+  dataAssinatura: 'dataAssinatura',
+  dataInicioVigencia: 'dataInicioVigencia',
+  prazoInicialValor: 'prazoInicialValor',
+  prazoInicialUnidade: 'prazoInicialUnidade',
+  dataFimVigenciaOriginal: 'dataFimVigenciaOriginal',
+  prorrogavel: 'prorrogavel',
+  limiteProrrogacaoMeses: 'limiteProrrogacaoMeses',
+  valorGlobalOriginalCents: 'valorGlobalOriginalCents',
+  indiceReajuste: 'indiceReajuste',
+  mesAniversarioReajuste: 'mesAniversarioReajuste',
+  situacao: 'situacao',
+  dataEncerramento: 'dataEncerramento',
+  motivoEncerramento: 'motivoEncerramento',
+  garantiaTipo: 'garantiaTipo',
+  garantiaValorCents: 'garantiaValorCents',
+  garantiaValidade: 'garantiaValidade',
+  reservaObservacao: 'reservaObservacao',
+  observacoes: 'observacoes',
+  codigoLegado: 'codigoLegado',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ContratoResponsavelScalarFieldEnum = {
+  id: 'id',
+  contratoId: 'contratoId',
+  servidorId: 'servidorId',
+  papel: 'papel',
+  atoDesignacao: 'atoDesignacao',
+  dataInicio: 'dataInicio',
+  dataFim: 'dataFim',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ContratoRateioScalarFieldEnum = {
+  id: 'id',
+  contratoId: 'contratoId',
+  unidadeId: 'unidadeId',
+  percentual: 'percentual',
+  valorCents: 'valorCents',
+  quantidade: 'quantidade',
+  observacao: 'observacao',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.AditivoScalarFieldEnum = {
@@ -351,6 +410,67 @@ exports.TipoSancao = {
   DECLARACAO_INIDONEIDADE: 'DECLARACAO_INIDONEIDADE'
 };
 
+exports.SituacaoProcesso = {
+  PLANEJAMENTO: 'PLANEJAMENTO',
+  EM_ANALISE_JURIDICA: 'EM_ANALISE_JURIDICA',
+  EM_LICITACAO: 'EM_LICITACAO',
+  HOMOLOGADO: 'HOMOLOGADO',
+  CONTRATADO: 'CONTRATADO',
+  FRACASSADO: 'FRACASSADO',
+  DESERTO: 'DESERTO',
+  CANCELADO: 'CANCELADO'
+};
+
+exports.PilarOrcamentario = {
+  CUSTEIO: 'CUSTEIO',
+  INVESTIMENTO: 'INVESTIMENTO',
+  SERVICOS: 'SERVICOS'
+};
+
+exports.NaturezaObjeto = {
+  SERVICO_CONTINUADO: 'SERVICO_CONTINUADO',
+  SERVICO_NAO_CONTINUADO: 'SERVICO_NAO_CONTINUADO',
+  OBRA: 'OBRA',
+  SERVICO_ENGENHARIA: 'SERVICO_ENGENHARIA',
+  COMPRA: 'COMPRA',
+  LOCACAO_BEM_MOVEL: 'LOCACAO_BEM_MOVEL',
+  LOCACAO_IMOVEL: 'LOCACAO_IMOVEL',
+  SOLUCAO_TIC: 'SOLUCAO_TIC'
+};
+
+exports.UnidadeTempo = {
+  DIAS: 'DIAS',
+  MESES: 'MESES',
+  ANOS: 'ANOS'
+};
+
+exports.SituacaoContrato = {
+  EM_ELABORACAO: 'EM_ELABORACAO',
+  ASSINADO: 'ASSINADO',
+  VIGENTE: 'VIGENTE',
+  SUSPENSO: 'SUSPENSO',
+  RESCINDIDO: 'RESCINDIDO',
+  ENCERRADO: 'ENCERRADO',
+  ANULADO: 'ANULADO'
+};
+
+exports.TipoGarantia = {
+  NENHUMA: 'NENHUMA',
+  CAUCAO: 'CAUCAO',
+  SEGURO_GARANTIA: 'SEGURO_GARANTIA',
+  FIANCA_BANCARIA: 'FIANCA_BANCARIA'
+};
+
+exports.PapelResponsavel = {
+  GESTOR: 'GESTOR',
+  GESTOR_SUBSTITUTO: 'GESTOR_SUBSTITUTO',
+  FISCAL_TECNICO: 'FISCAL_TECNICO',
+  FISCAL_ADMINISTRATIVO: 'FISCAL_ADMINISTRATIVO',
+  FISCAL_SETORIAL: 'FISCAL_SETORIAL',
+  FISCAL_SUBSTITUTO: 'FISCAL_SUBSTITUTO',
+  PREPOSTO_CONTRATADA: 'PREPOSTO_CONTRATADA'
+};
+
 exports.Prisma.ModelName = {
   UnidadeFsp: 'UnidadeFsp',
   Municipio: 'Municipio',
@@ -362,7 +482,10 @@ exports.Prisma.ModelName = {
   FornecedorContato: 'FornecedorContato',
   FornecedorSancao: 'FornecedorSancao',
   Servidor: 'Servidor',
+  ProcessoContratacao: 'ProcessoContratacao',
   Contrato: 'Contrato',
+  ContratoResponsavel: 'ContratoResponsavel',
+  ContratoRateio: 'ContratoRateio',
   Aditivo: 'Aditivo',
   Servico: 'Servico',
   AuditLog: 'AuditLog',

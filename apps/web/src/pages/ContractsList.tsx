@@ -98,7 +98,13 @@ export default function ContractsList() {
                     <TableCell>
                       {contract.numGms}/{contract.anoGms}
                     </TableCell>
-                    <TableCell>{contract.unidadeFsp?.sigla || contract.unidadeFspId}</TableCell>
+                    <TableCell>
+                      {contract.unidadeGestora?.sigla ||
+                        contract.unidadeFsp?.sigla ||
+                        contract.unidadeGestoraId ||
+                        contract.unidadeFspId ||
+                        '—'}
+                    </TableCell>
                     <TableCell>
                       {contract.fornecedorName ||
                         contract.empresaName ||
@@ -107,7 +113,7 @@ export default function ContractsList() {
                         '—'}
                     </TableCell>
                     <TableCell>
-                      <StatusBadge status={contract.status} />
+                      <StatusBadge status={contract.status || contract.situacao?.toLowerCase()} />
                     </TableCell>
                     <TableCell>
                       {contract.valorAnual != null

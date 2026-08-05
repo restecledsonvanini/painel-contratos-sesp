@@ -1,14 +1,17 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ContractCreateSchema } from '@painel/schema';
 import { Button, Input, Page, Textarea, useToast } from '@painel/ui';
 import { useCreateContract, useUpdateContract, useContract } from '../hooks/useContracts';
-import { useFornecedores, useServidores, useUnidadesFsp } from '../hooks/useReferences';
+import {
+  useFornecedores,
+  useServidores,
+  useUnidadesOrganizacionais,
+} from '../hooks/useReferences';
 import { LookupSelect } from '../components/LookupSelect';
 import { getErrorMessage } from '../lib/http';
-import { Controller } from 'react-hook-form';
 
 export default function ContractForm() {
   const navigate = useNavigate();
@@ -17,7 +20,7 @@ export default function ContractForm() {
   const createContract = useCreateContract();
   const updateContract = useUpdateContract();
   const { data: existingContract, isLoading: isContractLoading, error: contractError } = useContract(id);
-  const { data: unidadesFsp, isLoading: unidadesLoading } = useUnidadesFsp();
+  const { data: unidades, isLoading: unidadesLoading } = useUnidadesOrganizacionais();
   const { data: fornecedores, isLoading: fornecedoresLoading } = useFornecedores();
   const { data: servidores, isLoading: servidoresLoading } = useServidores();
 
@@ -27,9 +30,11 @@ export default function ContractForm() {
       numGms: undefined,
       anoGms: undefined,
       valorAnual: undefined,
-      unidadeFspId: '',
+      unidadeGestoraId: '',
       protocoloCabeca: '',
       modalidade: '',
+      pilar: 'SERVICOS',
+      naturezaObjeto: 'SERVICO_CONTINUADO',
       objeto: '',
       gestorId: '',
       fiscalId: '',
@@ -45,20 +50,33 @@ export default function ContractForm() {
 
   useEffect(() => {
     if (existingContract && id) {
-      setValue('protocoloCabeca', existingContract.protocoloCabeca || '');
+      setValue('protocoloCabeca', existingContract.eProtocolo || existingContract.protocoloCabeca || '');
       setValue('numGms', existingContract.numGms);
       setValue('anoGms', existingContract.anoGms);
       setValue('valorAnual', existingContract.valorAnual ?? undefined);
-      setValue('unidadeFspId', existingContract.unidadeFspId);
+      setValue(
+        'unidadeGestoraId',
+        existingContract.unidadeGestoraId || existingContract.unidadeFspId || '',
+      );
       setValue('modalidade', existingContract.modalidade || '');
+      setValue('pilar', existingContract.pilar || 'SERVICOS');
+      setValue('naturezaObjeto', existingContract.naturezaObjeto || 'SERVICO_CONTINUADO');
       setValue('objeto', existingContract.objeto || '');
       setValue('gestorId', existingContract.gestorId || '');
       setValue('fiscalId', existingContract.fiscalId || '');
       setValue('fornecedorId', existingContract.fornecedorId || existingContract.empresaId || '');
-      setValue('dataInicio', existingContract.dataInicio || '');
-      setValue('dataFimOrig', existingContract.dataFimOrig || '');
+      setValue(
+        'dataInicio',
+        (existingContract.dataInicioVigencia || existingContract.dataInicio || '').toString().slice(0, 10),
+      );
+      setValue(
+        'dataFimOrig',
+        (existingContract.dataFimVigenciaOriginal || existingContract.dataFimOrig || '')
+          .toString()
+          .slice(0, 10),
+      );
       setValue('status', existingContract.status || 'vigente');
-      setValue('observacoes', '');
+      setValue('observacoes', existingContract.observacoes || '');
     }
   }, [existingContract, id, setValue]);
 
@@ -102,30 +120,38 @@ export default function ContractForm() {
   return (
     <Page
       title={id ? 'Editar contrato' : 'Novo contrato'}
-      description="Preencha os dados principais em grade responsiva."
+      description="Identificação, partes, vigência e valor — responsáveis viram designações no servidor."
     >
       <form onSubmit={handleSubmit(onSubmit)} className="app-form Form-Grade">
         <div className="app-form__panel">
           <div className="app-form__grid is-dense">
             <div className="app-form__span-3">
-              <Input label="Protocolo de cabeça" {...register('protocoloCabeca')} />
+              <Input label="e-Protocolo" {...register('protocoloCabeca')} />
             </div>
 
             <Input label="Número GMS" type="number" {...register('numGms', { valueAsNumber: true })} />
             <Input label="Ano GMS" type="number" {...register('anoGms', { valueAsNumber: true })} />
-            <Input label="Valor anual (R$)" type="number" step="0.01" {...register('valorAnual', { valueAsNumber: true })} />
+            <Input
+              label="Valor global (R$)"
+              type="number"
+              step="0.01"
+              {...register('valorAnual', { valueAsNumber: true })}
+            />
 
             <div>
-              <span className="field-label">Unidade FSP</span>
-              <select className="select-field" {...register('unidadeFspId')} disabled={unidadesLoading}>
-                <option value="">Selecione a unidade FSP</option>
-                {unidadesFsp?.map((item) => (
+              <span className="field-label">Unidade gestora</span>
+              <select className="select-field" {...register('unidadeGestoraId')} disabled={unidadesLoading}>
+                <option value="">Selecione a unidade</option>
+                {unidades?.map((item) => (
                   <option key={item.id} value={item.id}>
+                    {item.orgao?.sigla ? `${item.orgao.sigla} / ` : ''}
                     {item.sigla} — {item.nome}
                   </option>
                 ))}
               </select>
-              {errors.unidadeFspId && <p className="field-error">{String(errors.unidadeFspId.message)}</p>}
+              {errors.unidadeGestoraId && (
+                <p className="field-error">{String(errors.unidadeGestoraId.message)}</p>
+              )}
             </div>
 
             <div>
@@ -146,7 +172,30 @@ export default function ContractForm() {
             </div>
 
             <div>
-              <span className="field-label">Status</span>
+              <span className="field-label">Pilar</span>
+              <select className="select-field" {...register('pilar')}>
+                <option value="CUSTEIO">Custeio</option>
+                <option value="INVESTIMENTO">Investimento</option>
+                <option value="SERVICOS">Serviços</option>
+              </select>
+            </div>
+
+            <div>
+              <span className="field-label">Natureza do objeto</span>
+              <select className="select-field" {...register('naturezaObjeto')}>
+                <option value="SERVICO_CONTINUADO">Serviço continuado</option>
+                <option value="SERVICO_NAO_CONTINUADO">Serviço não continuado</option>
+                <option value="COMPRA">Compra</option>
+                <option value="LOCACAO_BEM_MOVEL">Locação de bem móvel</option>
+                <option value="LOCACAO_IMOVEL">Locação de imóvel</option>
+                <option value="SOLUCAO_TIC">Solução de TIC</option>
+                <option value="OBRA">Obra</option>
+                <option value="SERVICO_ENGENHARIA">Serviço de engenharia</option>
+              </select>
+            </div>
+
+            <div>
+              <span className="field-label">Situação</span>
               <select className="select-field" {...register('status')}>
                 <option value="vigente">Vigente</option>
                 <option value="encerrado">Encerrado</option>
@@ -182,7 +231,11 @@ export default function ContractForm() {
 
             <div>
               <span className="field-label">Fornecedor</span>
-              <select className="select-field" {...register('fornecedorId')} disabled={fornecedoresLoading}>
+              <select
+                className="select-field"
+                {...register('fornecedorId')}
+                disabled={fornecedoresLoading}
+              >
                 <option value="">Selecione o fornecedor</option>
                 {fornecedores?.map((item) => (
                   <option key={item.id} value={item.id}>
@@ -192,11 +245,11 @@ export default function ContractForm() {
               </select>
             </div>
 
-            <Input label="Data início" type="date" {...register('dataInicio')} />
-            <Input label="Data fim original" type="date" {...register('dataFimOrig')} />
+            <Input label="Início da vigência" type="date" {...register('dataInicio')} />
+            <Input label="Fim original da vigência" type="date" {...register('dataFimOrig')} />
 
             <div className="app-form__span-3">
-              <Textarea label="Objetivo / objeto" rows={4} {...register('objeto')} />
+              <Textarea label="Objeto" rows={4} {...register('objeto')} />
               {errors.objeto && <p className="field-error">{String(errors.objeto.message)}</p>}
             </div>
             <div className="app-form__span-3">

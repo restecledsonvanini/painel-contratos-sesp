@@ -219,9 +219,19 @@ async function main() {
       }
     }
 
-    const unidadePmpr = await tx.unidadeFsp.findUniqueOrThrow({ where: { sigla: 'PMPR' } });
-    const unidadeDeppen = await tx.unidadeFsp.findUniqueOrThrow({ where: { sigla: 'DEPPEN' } });
-    const unidadeSesp = await tx.unidadeFsp.findUniqueOrThrow({ where: { sigla: 'SESP' } });
+    const pmprOrgao = await tx.orgao.findUniqueOrThrow({ where: { sigla: 'PMPR' } });
+    const deppenOrgao = await tx.orgao.findUniqueOrThrow({ where: { sigla: 'DEPPEN' } });
+    const sespOrgao = await tx.orgao.findUniqueOrThrow({ where: { sigla: 'SESP' } });
+
+    const unidadePmpr = await tx.unidadeOrganizacional.findUniqueOrThrow({
+      where: { orgaoId_sigla: { orgaoId: pmprOrgao.id, sigla: 'CG-PMPR' } },
+    });
+    const unidadeDeppen = await tx.unidadeOrganizacional.findUniqueOrThrow({
+      where: { orgaoId_sigla: { orgaoId: deppenOrgao.id, sigla: 'DIR-DEPPEN' } },
+    });
+    const unidadeSesp = await tx.unidadeOrganizacional.findUniqueOrThrow({
+      where: { orgaoId_sigla: { orgaoId: sespOrgao.id, sigla: 'GAB-SESP' } },
+    });
 
     const empresaExemplo = await tx.fornecedor.findUniqueOrThrow({ where: { documento: '00000000000191' } });
     const empresaLocadora = await tx.fornecedor.findUniqueOrThrow({ where: { documento: '11222333000181' } });
@@ -232,21 +242,45 @@ async function main() {
     const ana = await tx.servidor.findFirstOrThrow({ where: { cpf: '11122233344' } });
     const carlos = await tx.servidor.findFirstOrThrow({ where: { cpf: '55566677788' } });
 
+    const modalidadeByCodigo = async (codigo: string) => {
+      const d = await tx.dominio.findUniqueOrThrow({ where: { slug: 'modalidade-licitacao' } });
+      return tx.dominioValor.findUniqueOrThrow({
+        where: { dominioId_codigo: { dominioId: d.id, codigo } },
+      });
+    };
+    const categoriaByCodigo = async (codigo: string) => {
+      const d = await tx.dominio.findUniqueOrThrow({ where: { slug: 'categoria-contratacao' } });
+      return tx.dominioValor.findUniqueOrThrow({
+        where: { dominioId_codigo: { dominioId: d.id, codigo } },
+      });
+    };
+
+    const modDispensa = await modalidadeByCodigo('DISPENSA');
+    const modPregao = await modalidadeByCodigo('PREGAO_ELETRONICO');
+    const modInex = await modalidadeByCodigo('INEXIGIBILIDADE');
+    const catServico = await categoriaByCodigo('SERVICO_EVENTUAL');
+    const catLocVeic = await categoriaByCodigo('LOCACAO_VEICULOS');
+    const catAlim = await categoriaByCodigo('GENEROS_ALIMENTICIOS');
+
     const contratosDemo = [
       {
-        numGms: 123,
+        numeroGms: '123',
         anoGms: 2026,
-        protocoloCabeca: '15.848.565-6',
-        unidadeFspId: unidadePmpr.id,
+        eProtocolo: '15.848.565-6',
+        unidadeGestoraId: unidadePmpr.id,
         gestorId: gestor.id,
         fiscalId: fiscal.id,
         fornecedorId: empresaExemplo.id,
-        modalidade: 'DISPENSA',
+        modalidadeId: modDispensa.id,
+        categoriaContratacaoId: catServico.id,
+        naturezaObjeto: 'SERVICO_CONTINUADO' as const,
+        pilar: 'SERVICOS' as const,
         objeto: 'Serviço de exemplo — manutenção preventiva',
-        valorAnualCents: 1_000_000,
-        dataInicio: new Date('2026-02-01'),
-        dataFimOrig: new Date('2027-01-31'),
-        status: 'vigente',
+        valorGlobalOriginalCents: BigInt(1_000_000),
+        dataInicioVigencia: new Date('2026-02-01'),
+        dataFimVigenciaOriginal: new Date('2027-01-31'),
+        prazoInicialValor: 12,
+        situacao: 'VIGENTE' as const,
         aditivo: {
           numAditivo: 1,
           protocoloAdit: 'AD-001',
@@ -255,19 +289,23 @@ async function main() {
         },
       },
       {
-        numGms: 456,
+        numeroGms: '456',
         anoGms: 2025,
-        protocoloCabeca: '20.112.334-1',
-        unidadeFspId: unidadeSesp.id,
+        eProtocolo: '20.112.334-1',
+        unidadeGestoraId: unidadeSesp.id,
         gestorId: ana.id,
         fiscalId: carlos.id,
         fornecedorId: empresaLocadora.id,
-        modalidade: 'PREGAO_ELETRONICO',
+        modalidadeId: modPregao.id,
+        categoriaContratacaoId: catLocVeic.id,
+        naturezaObjeto: 'LOCACAO_BEM_MOVEL' as const,
+        pilar: 'CUSTEIO' as const,
         objeto: 'Locação de 40 viaturas descaracterizadas para uso operacional',
-        valorAnualCents: 4_800_000_00,
-        dataInicio: new Date('2025-03-01'),
-        dataFimOrig: new Date('2026-02-28'),
-        status: 'vigente',
+        valorGlobalOriginalCents: BigInt(480_000_000),
+        dataInicioVigencia: new Date('2025-03-01'),
+        dataFimVigenciaOriginal: new Date('2026-02-28'),
+        prazoInicialValor: 12,
+        situacao: 'VIGENTE' as const,
         aditivo: {
           numAditivo: 1,
           protocoloAdit: 'AD-LOC-01',
@@ -276,84 +314,113 @@ async function main() {
         },
       },
       {
-        numGms: 789,
+        numeroGms: '789',
         anoGms: 2026,
-        protocoloCabeca: '21.445.778-9',
-        unidadeFspId: unidadeDeppen.id,
+        eProtocolo: '21.445.778-9',
+        unidadeGestoraId: unidadeDeppen.id,
         gestorId: carlos.id,
         fiscalId: ana.id,
         fornecedorId: empresaAlimentos.id,
-        modalidade: 'PREGAO_ELETRONICO',
+        modalidadeId: modPregao.id,
+        categoriaContratacaoId: catAlim.id,
+        naturezaObjeto: 'COMPRA' as const,
+        pilar: 'CUSTEIO' as const,
         objeto: 'Fornecimento de gêneros alimentícios para unidades prisionais',
-        valorAnualCents: 12_500_000_00,
-        dataInicio: new Date('2026-01-15'),
-        dataFimOrig: new Date('2026-12-31'),
-        status: 'vigente',
+        valorGlobalOriginalCents: BigInt(1_250_000_000),
+        dataInicioVigencia: new Date('2026-01-15'),
+        dataFimVigenciaOriginal: new Date('2026-12-31'),
+        prazoInicialValor: 12,
+        situacao: 'VIGENTE' as const,
         aditivo: null,
       },
       {
-        numGms: 321,
+        numeroGms: '321',
         anoGms: 2024,
-        protocoloCabeca: '18.900.100-2',
-        unidadeFspId: unidadePmpr.id,
+        eProtocolo: '18.900.100-2',
+        unidadeGestoraId: unidadePmpr.id,
         gestorId: gestor.id,
         fiscalId: fiscal.id,
         fornecedorId: empresaExemplo.id,
-        modalidade: 'INEXIGIBILIDADE',
+        modalidadeId: modInex.id,
+        categoriaContratacaoId: catServico.id,
+        naturezaObjeto: 'SOLUCAO_TIC' as const,
+        pilar: 'INVESTIMENTO' as const,
         objeto: 'Licenciamento de software de monitoramento (encerrado)',
-        valorAnualCents: 350_000_00,
-        dataInicio: new Date('2024-01-01'),
-        dataFimOrig: new Date('2025-12-31'),
-        status: 'encerrado',
+        valorGlobalOriginalCents: BigInt(35_000_000),
+        dataInicioVigencia: new Date('2024-01-01'),
+        dataFimVigenciaOriginal: new Date('2025-12-31'),
+        prazoInicialValor: 24,
+        situacao: 'ENCERRADO' as const,
         aditivo: null,
       },
     ];
 
     for (const c of contratosDemo) {
       const existing = await tx.contrato.findUnique({
-        where: { numGms_anoGms: { numGms: c.numGms, anoGms: c.anoGms } },
+        where: { numeroGms_anoGms: { numeroGms: c.numeroGms, anoGms: c.anoGms } },
       });
 
       let contratoId: string;
+      const baseData = {
+        eProtocolo: c.eProtocolo,
+        unidadeGestoraId: c.unidadeGestoraId,
+        fornecedorId: c.fornecedorId,
+        modalidadeId: c.modalidadeId,
+        categoriaContratacaoId: c.categoriaContratacaoId,
+        naturezaObjeto: c.naturezaObjeto,
+        pilar: c.pilar,
+        objeto: c.objeto,
+        valorGlobalOriginalCents: c.valorGlobalOriginalCents,
+        dataAssinatura: c.dataInicioVigencia,
+        dataInicioVigencia: c.dataInicioVigencia,
+        dataFimVigenciaOriginal: c.dataFimVigenciaOriginal,
+        prazoInicialValor: c.prazoInicialValor,
+        prazoInicialUnidade: 'MESES' as const,
+        prorrogavel: true,
+        limiteProrrogacaoMeses: 120,
+        situacao: c.situacao,
+      };
+
       if (existing) {
         await tx.aditivo.deleteMany({ where: { contratoId: existing.id } });
-        await tx.contrato.update({
-          where: { id: existing.id },
-          data: {
-            protocoloCabeca: c.protocoloCabeca,
-            unidadeFspId: c.unidadeFspId,
-            gestorId: c.gestorId,
-            fiscalId: c.fiscalId,
-            fornecedorId: c.fornecedorId,
-            modalidade: c.modalidade,
-            objeto: c.objeto,
-            valorAnualCents: c.valorAnualCents,
-            dataInicio: c.dataInicio,
-            dataFimOrig: c.dataFimOrig,
-            status: c.status,
-          },
-        });
+        await tx.contratoResponsavel.deleteMany({ where: { contratoId: existing.id } });
+        await tx.contratoRateio.deleteMany({ where: { contratoId: existing.id } });
+        await tx.contrato.update({ where: { id: existing.id }, data: baseData });
         contratoId = existing.id;
       } else {
         const created = await tx.contrato.create({
           data: {
-            protocoloCabeca: c.protocoloCabeca,
-            numGms: c.numGms,
+            numeroGms: c.numeroGms,
             anoGms: c.anoGms,
-            unidadeFspId: c.unidadeFspId,
-            gestorId: c.gestorId,
-            fiscalId: c.fiscalId,
-            fornecedorId: c.fornecedorId,
-            modalidade: c.modalidade,
-            objeto: c.objeto,
-            valorAnualCents: c.valorAnualCents,
-            dataInicio: c.dataInicio,
-            dataFimOrig: c.dataFimOrig,
-            status: c.status,
+            ...baseData,
           },
         });
         contratoId = created.id;
       }
+
+      await tx.contratoResponsavel.create({
+        data: {
+          contratoId,
+          servidorId: c.gestorId,
+          papel: 'GESTOR',
+          dataInicio: c.dataInicioVigencia,
+        },
+      });
+      await tx.contratoResponsavel.create({
+        data: {
+          contratoId,
+          servidorId: c.fiscalId,
+          papel: 'FISCAL_TECNICO',
+          dataInicio: c.dataInicioVigencia,
+        },
+      });
+      await tx.contratoRateio.create({
+        data: {
+          contratoId,
+          unidadeId: c.unidadeGestoraId,
+          percentual: 100,
+        },
+      });
 
       if (c.aditivo) {
         await tx.aditivo.create({

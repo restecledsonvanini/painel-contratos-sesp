@@ -9,20 +9,24 @@ import {
 const baseContract = {
   numGms: 10,
   anoGms: 2026,
-  unidadeFspId: 'a1111111-1111-4111-8111-111111111111',
+  unidadeGestoraId: 'a1111111-1111-4111-8111-111111111111',
   gestorId: 'a2222222-2222-4222-8222-222222222222',
   fiscalId: 'a3333333-3333-4333-8333-333333333333',
   fornecedorId: 'a4444444-4444-4444-8444-444444444444',
   modalidade: 'Dispensa',
   objeto: 'Objeto teste',
   valorAnual: 1500.5,
+  dataInicio: '2026-01-01',
+  dataFimOrig: '2026-12-31',
 };
 
 describe('ContractCreateSchema', () => {
-  it('converts valorAnual to cents', () => {
+  it('converts valorAnual to cents and normalizes fields', () => {
     const parsed = ContractCreateSchema.parse(baseContract);
-    expect(parsed.valorAnualCents).toBe(150050);
+    expect(parsed.valorGlobalOriginalCents).toBe(150050);
     expect(parsed.fornecedorId).toBe(baseContract.fornecedorId);
+    expect(parsed.numeroGms).toBe('10');
+    expect(parsed.situacao).toBe('VIGENTE');
   });
 
   it('accepts empresaId as alias for fornecedorId', () => {
@@ -47,7 +51,7 @@ describe('ContractCreateSchema', () => {
 describe('ContractUpdateSchema', () => {
   it('accepts partial payload and converts valorAnual', () => {
     const parsed = ContractUpdateSchema.parse({ valorAnual: 10, status: 'encerrado' });
-    expect(parsed).toMatchObject({ valorAnualCents: 1000, status: 'encerrado' });
+    expect(parsed).toMatchObject({ valorGlobalOriginalCents: 1000, situacao: 'ENCERRADO' });
     expect((parsed as any).valorAnual).toBeUndefined();
   });
 

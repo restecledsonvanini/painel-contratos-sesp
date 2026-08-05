@@ -1,42 +1,131 @@
 import type { ContractCreateInput, ContractUpdateInput } from '@painel/schema';
 import { ContractUpdateSchema } from '@painel/schema';
 import { getActorId } from '../lib/audit';
-import { notFound } from '../lib/errors';
+import { badRequest, notFound } from '../lib/errors';
 import { contratoRepository } from '../repositories/contratoRepository';
 import type { Request } from 'express';
 
+const SITUACAO_TO_STATUS: Record<string, string> = {
+  EM_ELABORACAO: 'elaborado',
+  ASSINADO: 'assinado',
+  VIGENTE: 'vigente',
+  SUSPENSO: 'suspenso',
+  RESCINDIDO: 'rescindido',
+  ENCERRADO: 'encerrado',
+  ANULADO: 'anulado',
+};
+
+function centsToNumber(value: bigint | number | null | undefined) {
+  if (value == null) return undefined;
+  return Number(value);
+}
+
 function mapContractRecord(record: any) {
+  const gestor = record.responsaveis?.find(
+    (r: any) => r.papel === 'GESTOR' && !r.dataFim,
+  );
+  const fiscal = record.responsaveis?.find(
+    (r: any) =>
+      ['FISCAL_TECNICO', 'FISCAL_ADMINISTRATIVO', 'FISCAL_SETORIAL', 'FISCAL_SUBSTITUTO'].includes(
+        r.papel,
+      ) && !r.dataFim,
+  );
+  const valorCents = centsToNumber(record.valorGlobalOriginalCents);
+
   return {
     id: record.id,
-    protocoloCabeca: record.protocoloCabeca,
-    numGms: record.numGms,
+    processoId: record.processoId,
+    numeroGms: record.numeroGms,
+    numGms: Number.parseInt(String(record.numeroGms).replace(/\D/g, ''), 10) || 0,
     anoGms: record.anoGms,
-    unidadeFspId: record.unidadeFspId,
-    unidadeFsp: record.unidadeFsp
-      ? { id: record.unidadeFsp.id, sigla: record.unidadeFsp.sigla, nome: record.unidadeFsp.nome }
+    numeroContrato: record.numeroContrato,
+    eProtocolo: record.eProtocolo,
+    protocoloCabeca: record.eProtocolo,
+    pilar: record.pilar,
+    categoriaContratacaoId: record.categoriaContratacaoId,
+    categoriaContratacao: record.categoriaContratacao
+      ? {
+          id: record.categoriaContratacao.id,
+          codigo: record.categoriaContratacao.codigo,
+          label: record.categoriaContratacao.label,
+        }
       : undefined,
-    gestorId: record.gestorId,
-    gestorName: record.gestor?.nome,
-    fiscalId: record.fiscalId,
-    fiscalName: record.fiscal?.nome,
+    naturezaObjeto: record.naturezaObjeto,
+    modalidadeId: record.modalidadeId,
+    modalidade: record.modalidadeRef?.codigo ?? record.modalidade,
+    modalidadeLabel: record.modalidadeRef?.label,
+    fundamentoLegalId: record.fundamentoLegalId,
+    objeto: record.objeto,
     fornecedorId: record.fornecedorId,
     fornecedorName: record.fornecedor?.razaoSocial,
-    // aliases legados
     empresaId: record.fornecedorId,
     empresaName: record.fornecedor?.razaoSocial,
-    modalidade: record.modalidade,
-    objeto: record.objeto,
-    valorAnual: record.valorAnualCents != null ? record.valorAnualCents / 100 : undefined,
-    valorAnualCents: record.valorAnualCents,
-    dataInicio: record.dataInicio,
-    dataFimOrig: record.dataFimOrig,
-    status: record.status,
+    unidadeGestoraId: record.unidadeGestoraId,
+    unidadeGestora: record.unidadeGestora
+      ? {
+          id: record.unidadeGestora.id,
+          sigla: record.unidadeGestora.sigla,
+          nome: record.unidadeGestora.nome,
+          orgao: record.unidadeGestora.orgao,
+        }
+      : undefined,
+    unidadeFspId: record.unidadeGestoraId,
+    unidadeFsp: record.unidadeGestora
+      ? {
+          id: record.unidadeGestora.id,
+          sigla: record.unidadeGestora.sigla,
+          nome: record.unidadeGestora.nome,
+        }
+      : undefined,
+    gestorId: gestor?.servidorId,
+    gestorName: gestor?.servidor?.nome,
+    fiscalId: fiscal?.servidorId,
+    fiscalName: fiscal?.servidor?.nome,
+    dataAssinatura: record.dataAssinatura,
+    dataInicioVigencia: record.dataInicioVigencia,
+    dataInicio: record.dataInicioVigencia,
+    prazoInicialValor: record.prazoInicialValor,
+    prazoInicialUnidade: record.prazoInicialUnidade,
+    dataFimVigenciaOriginal: record.dataFimVigenciaOriginal,
+    dataFimOrig: record.dataFimVigenciaOriginal,
+    prorrogavel: record.prorrogavel,
+    limiteProrrogacaoMeses: record.limiteProrrogacaoMeses,
+    valorGlobalOriginalCents: valorCents,
+    valorAnualCents: valorCents,
+    valorAnual: valorCents != null ? valorCents / 100 : undefined,
+    valorGlobalOriginal: valorCents != null ? valorCents / 100 : undefined,
+    indiceReajuste: record.indiceReajuste,
+    mesAniversarioReajuste: record.mesAniversarioReajuste,
+    situacao: record.situacao,
+    status: SITUACAO_TO_STATUS[record.situacao] ?? String(record.situacao).toLowerCase(),
+    observacoes: record.observacoes,
+    codigoLegado: record.codigoLegado,
+    responsaveis: record.responsaveis?.map((r: any) => ({
+      id: r.id,
+      servidorId: r.servidorId,
+      servidorNome: r.servidor?.nome,
+      papel: r.papel,
+      atoDesignacao: r.atoDesignacao,
+      dataInicio: r.dataInicio,
+      dataFim: r.dataFim,
+    })),
+    rateios: record.rateios?.map((r: any) => ({
+      id: r.id,
+      unidadeId: r.unidadeId,
+      unidadeSigla: r.unidade?.sigla,
+      unidadeNome: r.unidade?.nome,
+      percentual: r.percentual != null ? Number(r.percentual) : null,
+      valorCents: centsToNumber(r.valorCents) ?? null,
+      quantidade: r.quantidade != null ? Number(r.quantidade) : null,
+      observacao: r.observacao,
+    })),
     aditivos: record.aditivos?.map((aditivo: any) => ({
       id: aditivo.id,
       numAditivo: aditivo.numAditivo,
       protocoloAdit: aditivo.protocoloAdit,
       novoFimVigencia: aditivo.novoFimVigencia,
-      valorAdicional: aditivo.valorAdicionalCents != null ? aditivo.valorAdicionalCents / 100 : undefined,
+      valorAdicional:
+        aditivo.valorAdicionalCents != null ? aditivo.valorAdicionalCents / 100 : undefined,
     })),
   };
 }
@@ -58,56 +147,45 @@ export const contratoService = {
   },
 
   async create(parsed: ContractCreateInput, req: Request) {
-    const actorId = getActorId(req);
-    const createdId = await contratoRepository.createWithAditivos(
-      {
-        protocoloCabeca: parsed.protocoloCabeca || null,
-        numGms: parsed.numGms,
-        anoGms: parsed.anoGms,
-        unidadeFspId: parsed.unidadeFspId,
-        gestorId: parsed.gestorId,
-        fiscalId: parsed.fiscalId,
-        fornecedorId: parsed.fornecedorId,
-        modalidade: parsed.modalidade,
-        objeto: parsed.objeto,
-        valorAnualCents: parsed.valorAnualCents,
-        dataInicio: parsed.dataInicio ? new Date(parsed.dataInicio) : null,
-        dataFimOrig: parsed.dataFimOrig ? new Date(parsed.dataFimOrig) : null,
-        status: parsed.status || 'vigente',
-      },
-      (parsed.aditivos ?? []).map((a) => ({
-        numAditivo: a.numAditivo,
-        protocoloAdit: a.protocoloAdit,
-        novoFimVigencia: a.novoFimVigencia ? new Date(a.novoFimVigencia) : null,
-        valorAdicionalCents: a.valorAdicional != null ? Math.round(a.valorAdicional * 100) : null,
-      })),
-      { changedBy: actorId },
-    );
-    return loadMappedContract(createdId);
+    try {
+      const createdId = await contratoRepository.createWithNested(
+        {
+          ...parsed,
+          aditivos: (parsed.aditivos ?? []).map((a) => ({
+            numAditivo: a.numAditivo,
+            protocoloAdit: a.protocoloAdit,
+            novoFimVigencia: a.novoFimVigencia ? new Date(a.novoFimVigencia) : null,
+            valorAdicionalCents:
+              a.valorAdicional != null ? Math.round(a.valorAdicional * 100) : null,
+          })),
+        },
+        { changedBy: getActorId(req) },
+      );
+      return loadMappedContract(createdId);
+    } catch (err: any) {
+      if (err?.status === 400) throw badRequest(err.message);
+      throw err;
+    }
   },
 
   async update(id: string, parsed: ContractUpdateInput, req: Request) {
     const existing = await contratoRepository.findByIdBare(id);
     if (!existing) throw notFound('Contract not found');
 
-    const gestorId = (parsed.gestorId as string | undefined) ?? existing.gestorId;
-    const fiscalId = (parsed.fiscalId as string | undefined) ?? existing.fiscalId;
-    if (gestorId === fiscalId) {
+    const gestorId = (parsed.gestorId as string | undefined) ?? undefined;
+    const fiscalId = (parsed.fiscalId as string | undefined) ?? undefined;
+    if (gestorId && fiscalId && gestorId === fiscalId) {
       ContractUpdateSchema.parse({ ...parsed, gestorId, fiscalId });
     }
 
-    const data: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(parsed)) {
-      if (value !== undefined) data[key] = value;
+    try {
+      await contratoRepository.update(id, parsed as Record<string, unknown>, existing, {
+        changedBy: getActorId(req),
+      });
+    } catch (err: any) {
+      if (err?.status === 400) throw badRequest(err.message);
+      throw err;
     }
-    if (data.dataInicio !== undefined) {
-      data.dataInicio = data.dataInicio ? new Date(String(data.dataInicio)) : null;
-    }
-    if (data.dataFimOrig !== undefined) {
-      data.dataFimOrig = data.dataFimOrig ? new Date(String(data.dataFimOrig)) : null;
-    }
-
-    await contratoRepository.update(id, data, existing, { changedBy: getActorId(req) });
     return loadMappedContract(id);
   },
 

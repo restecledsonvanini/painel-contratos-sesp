@@ -5,10 +5,14 @@ import { qk } from '../lib/queryKeys';
 export interface Contract {
   id: string;
   protocoloCabeca?: string | null;
+  eProtocolo?: string | null;
   numGms: number;
+  numeroGms?: string;
   anoGms: number;
-  unidadeFspId: string;
+  unidadeFspId?: string;
   unidadeFsp?: { id: string; sigla: string; nome: string };
+  unidadeGestoraId?: string;
+  unidadeGestora?: { id: string; sigla: string; nome: string; orgao?: { sigla: string } };
   gestorId?: string;
   gestorName?: string;
   fiscalId?: string;
@@ -20,12 +24,19 @@ export interface Contract {
   /** @deprecated */
   empresaName?: string;
   modalidade?: string;
+  pilar?: string;
+  naturezaObjeto?: string;
+  situacao?: string;
   objeto?: string;
   valorAnual?: number;
   valorAnualCents?: number;
+  valorGlobalOriginal?: number;
   dataInicio?: string | null;
+  dataInicioVigencia?: string | null;
   dataFimOrig?: string | null;
+  dataFimVigenciaOriginal?: string | null;
   status?: string;
+  observacoes?: string | null;
   aditivos?: Array<{
     numAditivo: number;
     protocoloAdit: string;

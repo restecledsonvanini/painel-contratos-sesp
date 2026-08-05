@@ -40,6 +40,7 @@ export const publicApiCatalog = {
       create: { method: 'POST', path: `${API_BASE}/contracts` },
       update: { method: 'PUT', path: `${API_BASE}/contracts/:id` },
       delete: { method: 'DELETE', path: `${API_BASE}/contracts/:id` },
+      note: 'Contrato core (pilar, natureza, responsáveis, rateio). Aliases legados no payload.',
     },
     references: {
       unidadesFsp: { method: 'GET', path: `${API_BASE}/references/unidades-fsp` },

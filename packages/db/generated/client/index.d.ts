@@ -14,9 +14,7 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
 
 export type UnidadeFspPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
   name: "UnidadeFsp"
-  objects: {
-    contratos: ContratoPayload<ExtArgs>[]
-  }
+  objects: {}
   scalars: $Extensions.GetResult<{
     id: string
     sigla: string
@@ -80,6 +78,10 @@ export type DominioValorPayload<ExtArgs extends $Extensions.Args = $Extensions.D
     dominio: DominioPayload<ExtArgs>
     parent: DominioValorPayload<ExtArgs> | null
     children: DominioValorPayload<ExtArgs>[]
+    contratosCategoria: ContratoPayload<ExtArgs>[]
+    contratosModalidade: ContratoPayload<ExtArgs>[]
+    contratosFundamento: ContratoPayload<ExtArgs>[]
+    processosModalidade: ProcessoContratacaoPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -133,6 +135,9 @@ export type UnidadeOrganizacionalPayload<ExtArgs extends $Extensions.Args = $Ext
     children: UnidadeOrganizacionalPayload<ExtArgs>[]
     municipio: MunicipioPayload<ExtArgs>
     servidores: ServidorPayload<ExtArgs>[]
+    contratosGestora: ContratoPayload<ExtArgs>[]
+    rateios: ContratoRateioPayload<ExtArgs>[]
+    processosDemandante: ProcessoContratacaoPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -236,8 +241,7 @@ export type ServidorPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
   objects: {
     orgao: OrgaoPayload<ExtArgs> | null
     unidade: UnidadeOrganizacionalPayload<ExtArgs> | null
-    gestorContratos: ContratoPayload<ExtArgs>[]
-    fiscalContratos: ContratoPayload<ExtArgs>[]
+    responsaveis: ContratoResponsavelPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -261,30 +265,85 @@ export type ServidorPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
  * 
  */
 export type Servidor = runtime.Types.DefaultSelection<ServidorPayload>
+export type ProcessoContratacaoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "ProcessoContratacao"
+  objects: {
+    unidadeDemandante: UnidadeOrganizacionalPayload<ExtArgs>
+    modalidadePretendida: DominioValorPayload<ExtArgs> | null
+    contratos: ContratoPayload<ExtArgs>[]
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    unidadeDemandanteId: string
+    modalidadePretendidaId: string | null
+    valorEstimadoCents: bigint | null
+    etpConcluido: boolean
+    dataEtp: Date | null
+    termoReferenciaConcluido: boolean
+    dataTermoReferencia: Date | null
+    situacao: SituacaoProcesso
+    observacoes: string | null
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["processoContratacao"]>
+  composites: {}
+}
+
+/**
+ * Model ProcessoContratacao
+ * 
+ */
+export type ProcessoContratacao = runtime.Types.DefaultSelection<ProcessoContratacaoPayload>
 export type ContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
   name: "Contrato"
   objects: {
-    unidadeFsp: UnidadeFspPayload<ExtArgs>
-    gestor: ServidorPayload<ExtArgs>
-    fiscal: ServidorPayload<ExtArgs>
+    processo: ProcessoContratacaoPayload<ExtArgs> | null
+    categoriaContratacao: DominioValorPayload<ExtArgs>
+    modalidadeRef: DominioValorPayload<ExtArgs>
+    fundamentoLegal: DominioValorPayload<ExtArgs> | null
     fornecedor: FornecedorPayload<ExtArgs>
+    unidadeGestora: UnidadeOrganizacionalPayload<ExtArgs>
+    responsaveis: ContratoResponsavelPayload<ExtArgs>[]
+    rateios: ContratoRateioPayload<ExtArgs>[]
     aditivos: AditivoPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
-    protocoloCabeca: string | null
-    numGms: number
+    processoId: string | null
+    numeroGms: string
     anoGms: number
-    unidadeFspId: string
-    gestorId: string
-    fiscalId: string
-    fornecedorId: string
-    modalidade: string
+    numeroContrato: string | null
+    eProtocolo: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId: string | null
     objeto: string
-    valorAnualCents: number
-    dataInicio: Date | null
-    dataFimOrig: Date | null
-    status: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura: Date | null
+    dataInicioVigencia: Date
+    prazoInicialValor: number
+    prazoInicialUnidade: UnidadeTempo
+    dataFimVigenciaOriginal: Date
+    prorrogavel: boolean
+    limiteProrrogacaoMeses: number | null
+    valorGlobalOriginalCents: bigint
+    indiceReajuste: string | null
+    mesAniversarioReajuste: number | null
+    situacao: SituacaoContrato
+    dataEncerramento: Date | null
+    motivoEncerramento: string | null
+    garantiaTipo: TipoGarantia | null
+    garantiaValorCents: bigint | null
+    garantiaValidade: Date | null
+    reservaObservacao: string | null
+    observacoes: string | null
+    codigoLegado: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["contrato"]>
@@ -296,6 +355,54 @@ export type ContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
  * 
  */
 export type Contrato = runtime.Types.DefaultSelection<ContratoPayload>
+export type ContratoResponsavelPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "ContratoResponsavel"
+  objects: {
+    contrato: ContratoPayload<ExtArgs>
+    servidor: ServidorPayload<ExtArgs>
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    contratoId: string
+    servidorId: string
+    papel: PapelResponsavel
+    atoDesignacao: string | null
+    dataInicio: Date
+    dataFim: Date | null
+    createdAt: Date
+  }, ExtArgs["result"]["contratoResponsavel"]>
+  composites: {}
+}
+
+/**
+ * Model ContratoResponsavel
+ * 
+ */
+export type ContratoResponsavel = runtime.Types.DefaultSelection<ContratoResponsavelPayload>
+export type ContratoRateioPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "ContratoRateio"
+  objects: {
+    contrato: ContratoPayload<ExtArgs>
+    unidade: UnidadeOrganizacionalPayload<ExtArgs>
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    contratoId: string
+    unidadeId: string
+    percentual: Prisma.Decimal | null
+    valorCents: bigint | null
+    quantidade: Prisma.Decimal | null
+    observacao: string | null
+    createdAt: Date
+  }, ExtArgs["result"]["contratoRateio"]>
+  composites: {}
+}
+
+/**
+ * Model ContratoRateio
+ * 
+ */
+export type ContratoRateio = runtime.Types.DefaultSelection<ContratoRateioPayload>
 export type AditivoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
   name: "Aditivo"
   objects: {
@@ -442,6 +549,88 @@ export const TipoSancao: {
 };
 
 export type TipoSancao = (typeof TipoSancao)[keyof typeof TipoSancao]
+
+
+export const SituacaoProcesso: {
+  PLANEJAMENTO: 'PLANEJAMENTO',
+  EM_ANALISE_JURIDICA: 'EM_ANALISE_JURIDICA',
+  EM_LICITACAO: 'EM_LICITACAO',
+  HOMOLOGADO: 'HOMOLOGADO',
+  CONTRATADO: 'CONTRATADO',
+  FRACASSADO: 'FRACASSADO',
+  DESERTO: 'DESERTO',
+  CANCELADO: 'CANCELADO'
+};
+
+export type SituacaoProcesso = (typeof SituacaoProcesso)[keyof typeof SituacaoProcesso]
+
+
+export const PilarOrcamentario: {
+  CUSTEIO: 'CUSTEIO',
+  INVESTIMENTO: 'INVESTIMENTO',
+  SERVICOS: 'SERVICOS'
+};
+
+export type PilarOrcamentario = (typeof PilarOrcamentario)[keyof typeof PilarOrcamentario]
+
+
+export const NaturezaObjeto: {
+  SERVICO_CONTINUADO: 'SERVICO_CONTINUADO',
+  SERVICO_NAO_CONTINUADO: 'SERVICO_NAO_CONTINUADO',
+  OBRA: 'OBRA',
+  SERVICO_ENGENHARIA: 'SERVICO_ENGENHARIA',
+  COMPRA: 'COMPRA',
+  LOCACAO_BEM_MOVEL: 'LOCACAO_BEM_MOVEL',
+  LOCACAO_IMOVEL: 'LOCACAO_IMOVEL',
+  SOLUCAO_TIC: 'SOLUCAO_TIC'
+};
+
+export type NaturezaObjeto = (typeof NaturezaObjeto)[keyof typeof NaturezaObjeto]
+
+
+export const UnidadeTempo: {
+  DIAS: 'DIAS',
+  MESES: 'MESES',
+  ANOS: 'ANOS'
+};
+
+export type UnidadeTempo = (typeof UnidadeTempo)[keyof typeof UnidadeTempo]
+
+
+export const SituacaoContrato: {
+  EM_ELABORACAO: 'EM_ELABORACAO',
+  ASSINADO: 'ASSINADO',
+  VIGENTE: 'VIGENTE',
+  SUSPENSO: 'SUSPENSO',
+  RESCINDIDO: 'RESCINDIDO',
+  ENCERRADO: 'ENCERRADO',
+  ANULADO: 'ANULADO'
+};
+
+export type SituacaoContrato = (typeof SituacaoContrato)[keyof typeof SituacaoContrato]
+
+
+export const TipoGarantia: {
+  NENHUMA: 'NENHUMA',
+  CAUCAO: 'CAUCAO',
+  SEGURO_GARANTIA: 'SEGURO_GARANTIA',
+  FIANCA_BANCARIA: 'FIANCA_BANCARIA'
+};
+
+export type TipoGarantia = (typeof TipoGarantia)[keyof typeof TipoGarantia]
+
+
+export const PapelResponsavel: {
+  GESTOR: 'GESTOR',
+  GESTOR_SUBSTITUTO: 'GESTOR_SUBSTITUTO',
+  FISCAL_TECNICO: 'FISCAL_TECNICO',
+  FISCAL_ADMINISTRATIVO: 'FISCAL_ADMINISTRATIVO',
+  FISCAL_SETORIAL: 'FISCAL_SETORIAL',
+  FISCAL_SUBSTITUTO: 'FISCAL_SUBSTITUTO',
+  PREPOSTO_CONTRATADA: 'PREPOSTO_CONTRATADA'
+};
+
+export type PapelResponsavel = (typeof PapelResponsavel)[keyof typeof PapelResponsavel]
 
 
 /**
@@ -670,6 +859,16 @@ export class PrismaClient<
   get servidor(): Prisma.ServidorDelegate<GlobalReject, ExtArgs>;
 
   /**
+   * `prisma.processoContratacao`: Exposes CRUD operations for the **ProcessoContratacao** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ProcessoContratacaos
+    * const processoContratacaos = await prisma.processoContratacao.findMany()
+    * ```
+    */
+  get processoContratacao(): Prisma.ProcessoContratacaoDelegate<GlobalReject, ExtArgs>;
+
+  /**
    * `prisma.contrato`: Exposes CRUD operations for the **Contrato** model.
     * Example usage:
     * ```ts
@@ -678,6 +877,26 @@ export class PrismaClient<
     * ```
     */
   get contrato(): Prisma.ContratoDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.contratoResponsavel`: Exposes CRUD operations for the **ContratoResponsavel** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ContratoResponsavels
+    * const contratoResponsavels = await prisma.contratoResponsavel.findMany()
+    * ```
+    */
+  get contratoResponsavel(): Prisma.ContratoResponsavelDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.contratoRateio`: Exposes CRUD operations for the **ContratoRateio** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ContratoRateios
+    * const contratoRateios = await prisma.contratoRateio.findMany()
+    * ```
+    */
+  get contratoRateio(): Prisma.ContratoRateioDelegate<GlobalReject, ExtArgs>;
 
   /**
    * `prisma.aditivo`: Exposes CRUD operations for the **Aditivo** model.
@@ -1211,7 +1430,10 @@ export namespace Prisma {
     FornecedorContato: 'FornecedorContato',
     FornecedorSancao: 'FornecedorSancao',
     Servidor: 'Servidor',
+    ProcessoContratacao: 'ProcessoContratacao',
     Contrato: 'Contrato',
+    ContratoResponsavel: 'ContratoResponsavel',
+    ContratoRateio: 'ContratoRateio',
     Aditivo: 'Aditivo',
     Servico: 'Servico',
     AuditLog: 'AuditLog',
@@ -1232,7 +1454,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     meta: {
-      modelProps: 'unidadeFsp' | 'municipio' | 'dominio' | 'dominioValor' | 'orgao' | 'unidadeOrganizacional' | 'fornecedor' | 'fornecedorContato' | 'fornecedorSancao' | 'servidor' | 'contrato' | 'aditivo' | 'servico' | 'auditLog' | 'user'
+      modelProps: 'unidadeFsp' | 'municipio' | 'dominio' | 'dominioValor' | 'orgao' | 'unidadeOrganizacional' | 'fornecedor' | 'fornecedorContato' | 'fornecedorSancao' | 'servidor' | 'processoContratacao' | 'contrato' | 'contratoResponsavel' | 'contratoRateio' | 'aditivo' | 'servico' | 'auditLog' | 'user'
       txIsolationLevel: Prisma.TransactionIsolationLevel
     },
     model: {
@@ -1886,6 +2108,71 @@ export namespace Prisma {
           }
         }
       }
+      ProcessoContratacao: {
+        payload: ProcessoContratacaoPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.ProcessoContratacaoFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ProcessoContratacaoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ProcessoContratacaoFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ProcessoContratacaoPayload>
+          }
+          findFirst: {
+            args: Prisma.ProcessoContratacaoFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ProcessoContratacaoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ProcessoContratacaoFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ProcessoContratacaoPayload>
+          }
+          findMany: {
+            args: Prisma.ProcessoContratacaoFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ProcessoContratacaoPayload>[]
+          }
+          create: {
+            args: Prisma.ProcessoContratacaoCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ProcessoContratacaoPayload>
+          }
+          createMany: {
+            args: Prisma.ProcessoContratacaoCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.ProcessoContratacaoDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ProcessoContratacaoPayload>
+          }
+          update: {
+            args: Prisma.ProcessoContratacaoUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ProcessoContratacaoPayload>
+          }
+          deleteMany: {
+            args: Prisma.ProcessoContratacaoDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ProcessoContratacaoUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.ProcessoContratacaoUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ProcessoContratacaoPayload>
+          }
+          aggregate: {
+            args: Prisma.ProcessoContratacaoAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateProcessoContratacao>
+          }
+          groupBy: {
+            args: Prisma.ProcessoContratacaoGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<ProcessoContratacaoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ProcessoContratacaoCountArgs<ExtArgs>,
+            result: $Utils.Optional<ProcessoContratacaoCountAggregateOutputType> | number
+          }
+        }
+      }
       Contrato: {
         payload: ContratoPayload<ExtArgs>
         operations: {
@@ -1948,6 +2235,136 @@ export namespace Prisma {
           count: {
             args: Prisma.ContratoCountArgs<ExtArgs>,
             result: $Utils.Optional<ContratoCountAggregateOutputType> | number
+          }
+        }
+      }
+      ContratoResponsavel: {
+        payload: ContratoResponsavelPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.ContratoResponsavelFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoResponsavelPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ContratoResponsavelFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoResponsavelPayload>
+          }
+          findFirst: {
+            args: Prisma.ContratoResponsavelFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoResponsavelPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ContratoResponsavelFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoResponsavelPayload>
+          }
+          findMany: {
+            args: Prisma.ContratoResponsavelFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoResponsavelPayload>[]
+          }
+          create: {
+            args: Prisma.ContratoResponsavelCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoResponsavelPayload>
+          }
+          createMany: {
+            args: Prisma.ContratoResponsavelCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.ContratoResponsavelDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoResponsavelPayload>
+          }
+          update: {
+            args: Prisma.ContratoResponsavelUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoResponsavelPayload>
+          }
+          deleteMany: {
+            args: Prisma.ContratoResponsavelDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ContratoResponsavelUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.ContratoResponsavelUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoResponsavelPayload>
+          }
+          aggregate: {
+            args: Prisma.ContratoResponsavelAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateContratoResponsavel>
+          }
+          groupBy: {
+            args: Prisma.ContratoResponsavelGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<ContratoResponsavelGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ContratoResponsavelCountArgs<ExtArgs>,
+            result: $Utils.Optional<ContratoResponsavelCountAggregateOutputType> | number
+          }
+        }
+      }
+      ContratoRateio: {
+        payload: ContratoRateioPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.ContratoRateioFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoRateioPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ContratoRateioFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoRateioPayload>
+          }
+          findFirst: {
+            args: Prisma.ContratoRateioFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoRateioPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ContratoRateioFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoRateioPayload>
+          }
+          findMany: {
+            args: Prisma.ContratoRateioFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoRateioPayload>[]
+          }
+          create: {
+            args: Prisma.ContratoRateioCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoRateioPayload>
+          }
+          createMany: {
+            args: Prisma.ContratoRateioCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.ContratoRateioDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoRateioPayload>
+          }
+          update: {
+            args: Prisma.ContratoRateioUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoRateioPayload>
+          }
+          deleteMany: {
+            args: Prisma.ContratoRateioDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ContratoRateioUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.ContratoRateioUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoRateioPayload>
+          }
+          aggregate: {
+            args: Prisma.ContratoRateioAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateContratoRateio>
+          }
+          groupBy: {
+            args: Prisma.ContratoRateioGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<ContratoRateioGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ContratoRateioCountArgs<ExtArgs>,
+            result: $Utils.Optional<ContratoRateioCountAggregateOutputType> | number
           }
         }
       }
@@ -2388,41 +2805,6 @@ export namespace Prisma {
 
 
   /**
-   * Count Type UnidadeFspCountOutputType
-   */
-
-
-  export type UnidadeFspCountOutputType = {
-    contratos: number
-  }
-
-  export type UnidadeFspCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    contratos?: boolean | UnidadeFspCountOutputTypeCountContratosArgs
-  }
-
-  // Custom InputTypes
-
-  /**
-   * UnidadeFspCountOutputType without action
-   */
-  export type UnidadeFspCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the UnidadeFspCountOutputType
-     */
-    select?: UnidadeFspCountOutputTypeSelect<ExtArgs> | null
-  }
-
-
-  /**
-   * UnidadeFspCountOutputType without action
-   */
-  export type UnidadeFspCountOutputTypeCountContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    where?: ContratoWhereInput
-  }
-
-
-
-  /**
    * Count Type MunicipioCountOutputType
    */
 
@@ -2509,10 +2891,18 @@ export namespace Prisma {
 
   export type DominioValorCountOutputType = {
     children: number
+    contratosCategoria: number
+    contratosModalidade: number
+    contratosFundamento: number
+    processosModalidade: number
   }
 
   export type DominioValorCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     children?: boolean | DominioValorCountOutputTypeCountChildrenArgs
+    contratosCategoria?: boolean | DominioValorCountOutputTypeCountContratosCategoriaArgs
+    contratosModalidade?: boolean | DominioValorCountOutputTypeCountContratosModalidadeArgs
+    contratosFundamento?: boolean | DominioValorCountOutputTypeCountContratosFundamentoArgs
+    processosModalidade?: boolean | DominioValorCountOutputTypeCountProcessosModalidadeArgs
   }
 
   // Custom InputTypes
@@ -2533,6 +2923,38 @@ export namespace Prisma {
    */
   export type DominioValorCountOutputTypeCountChildrenArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: DominioValorWhereInput
+  }
+
+
+  /**
+   * DominioValorCountOutputType without action
+   */
+  export type DominioValorCountOutputTypeCountContratosCategoriaArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoWhereInput
+  }
+
+
+  /**
+   * DominioValorCountOutputType without action
+   */
+  export type DominioValorCountOutputTypeCountContratosModalidadeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoWhereInput
+  }
+
+
+  /**
+   * DominioValorCountOutputType without action
+   */
+  export type DominioValorCountOutputTypeCountContratosFundamentoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoWhereInput
+  }
+
+
+  /**
+   * DominioValorCountOutputType without action
+   */
+  export type DominioValorCountOutputTypeCountProcessosModalidadeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ProcessoContratacaoWhereInput
   }
 
 
@@ -2590,11 +3012,17 @@ export namespace Prisma {
   export type UnidadeOrganizacionalCountOutputType = {
     children: number
     servidores: number
+    contratosGestora: number
+    rateios: number
+    processosDemandante: number
   }
 
   export type UnidadeOrganizacionalCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     children?: boolean | UnidadeOrganizacionalCountOutputTypeCountChildrenArgs
     servidores?: boolean | UnidadeOrganizacionalCountOutputTypeCountServidoresArgs
+    contratosGestora?: boolean | UnidadeOrganizacionalCountOutputTypeCountContratosGestoraArgs
+    rateios?: boolean | UnidadeOrganizacionalCountOutputTypeCountRateiosArgs
+    processosDemandante?: boolean | UnidadeOrganizacionalCountOutputTypeCountProcessosDemandanteArgs
   }
 
   // Custom InputTypes
@@ -2623,6 +3051,30 @@ export namespace Prisma {
    */
   export type UnidadeOrganizacionalCountOutputTypeCountServidoresArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: ServidorWhereInput
+  }
+
+
+  /**
+   * UnidadeOrganizacionalCountOutputType without action
+   */
+  export type UnidadeOrganizacionalCountOutputTypeCountContratosGestoraArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoWhereInput
+  }
+
+
+  /**
+   * UnidadeOrganizacionalCountOutputType without action
+   */
+  export type UnidadeOrganizacionalCountOutputTypeCountRateiosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoRateioWhereInput
+  }
+
+
+  /**
+   * UnidadeOrganizacionalCountOutputType without action
+   */
+  export type UnidadeOrganizacionalCountOutputTypeCountProcessosDemandanteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ProcessoContratacaoWhereInput
   }
 
 
@@ -2688,13 +3140,11 @@ export namespace Prisma {
 
 
   export type ServidorCountOutputType = {
-    gestorContratos: number
-    fiscalContratos: number
+    responsaveis: number
   }
 
   export type ServidorCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    gestorContratos?: boolean | ServidorCountOutputTypeCountGestorContratosArgs
-    fiscalContratos?: boolean | ServidorCountOutputTypeCountFiscalContratosArgs
+    responsaveis?: boolean | ServidorCountOutputTypeCountResponsaveisArgs
   }
 
   // Custom InputTypes
@@ -2713,15 +3163,42 @@ export namespace Prisma {
   /**
    * ServidorCountOutputType without action
    */
-  export type ServidorCountOutputTypeCountGestorContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    where?: ContratoWhereInput
+  export type ServidorCountOutputTypeCountResponsaveisArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoResponsavelWhereInput
+  }
+
+
+
+  /**
+   * Count Type ProcessoContratacaoCountOutputType
+   */
+
+
+  export type ProcessoContratacaoCountOutputType = {
+    contratos: number
+  }
+
+  export type ProcessoContratacaoCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contratos?: boolean | ProcessoContratacaoCountOutputTypeCountContratosArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * ProcessoContratacaoCountOutputType without action
+   */
+  export type ProcessoContratacaoCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacaoCountOutputType
+     */
+    select?: ProcessoContratacaoCountOutputTypeSelect<ExtArgs> | null
   }
 
 
   /**
-   * ServidorCountOutputType without action
+   * ProcessoContratacaoCountOutputType without action
    */
-  export type ServidorCountOutputTypeCountFiscalContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type ProcessoContratacaoCountOutputTypeCountContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: ContratoWhereInput
   }
 
@@ -2733,10 +3210,14 @@ export namespace Prisma {
 
 
   export type ContratoCountOutputType = {
+    responsaveis: number
+    rateios: number
     aditivos: number
   }
 
   export type ContratoCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    responsaveis?: boolean | ContratoCountOutputTypeCountResponsaveisArgs
+    rateios?: boolean | ContratoCountOutputTypeCountRateiosArgs
     aditivos?: boolean | ContratoCountOutputTypeCountAditivosArgs
   }
 
@@ -2750,6 +3231,22 @@ export namespace Prisma {
      * Select specific fields to fetch from the ContratoCountOutputType
      */
     select?: ContratoCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * ContratoCountOutputType without action
+   */
+  export type ContratoCountOutputTypeCountResponsaveisArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoResponsavelWhereInput
+  }
+
+
+  /**
+   * ContratoCountOutputType without action
+   */
+  export type ContratoCountOutputTypeCountRateiosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoRateioWhereInput
   }
 
 
@@ -2916,19 +3413,12 @@ export namespace Prisma {
     id?: boolean
     sigla?: boolean
     nome?: boolean
-    contratos?: boolean | UnidadeFsp$contratosArgs<ExtArgs>
-    _count?: boolean | UnidadeFspCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["unidadeFsp"]>
 
   export type UnidadeFspSelectScalar = {
     id?: boolean
     sigla?: boolean
     nome?: boolean
-  }
-
-  export type UnidadeFspInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    contratos?: boolean | UnidadeFsp$contratosArgs<ExtArgs>
-    _count?: boolean | UnidadeFspCountOutputTypeArgs<ExtArgs>
   }
 
 
@@ -3301,7 +3791,6 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: 'PrismaPromise';
     constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
 
-    contratos<T extends UnidadeFsp$contratosArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeFsp$contratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -3339,10 +3828,6 @@ export namespace Prisma {
      */
     select?: UnidadeFspSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: UnidadeFspInclude<ExtArgs> | null
-    /**
      * Filter, which UnidadeFsp to fetch.
      */
     where: UnidadeFspWhereUniqueInput
@@ -3369,10 +3854,6 @@ export namespace Prisma {
      */
     select?: UnidadeFspSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: UnidadeFspInclude<ExtArgs> | null
-    /**
      * Filter, which UnidadeFsp to fetch.
      */
     where: UnidadeFspWhereUniqueInput
@@ -3387,10 +3868,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the UnidadeFsp
      */
     select?: UnidadeFspSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: UnidadeFspInclude<ExtArgs> | null
     /**
      * Filter, which UnidadeFsp to fetch.
      */
@@ -3448,10 +3925,6 @@ export namespace Prisma {
      */
     select?: UnidadeFspSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: UnidadeFspInclude<ExtArgs> | null
-    /**
      * Filter, which UnidadeFsp to fetch.
      */
     where?: UnidadeFspWhereInput
@@ -3497,10 +3970,6 @@ export namespace Prisma {
      */
     select?: UnidadeFspSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: UnidadeFspInclude<ExtArgs> | null
-    /**
      * Filter, which UnidadeFsps to fetch.
      */
     where?: UnidadeFspWhereInput
@@ -3541,10 +4010,6 @@ export namespace Prisma {
      */
     select?: UnidadeFspSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: UnidadeFspInclude<ExtArgs> | null
-    /**
      * The data needed to create a UnidadeFsp.
      */
     data: XOR<UnidadeFspCreateInput, UnidadeFspUncheckedCreateInput>
@@ -3571,10 +4036,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the UnidadeFsp
      */
     select?: UnidadeFspSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: UnidadeFspInclude<ExtArgs> | null
     /**
      * The data needed to update a UnidadeFsp.
      */
@@ -3610,10 +4071,6 @@ export namespace Prisma {
      */
     select?: UnidadeFspSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: UnidadeFspInclude<ExtArgs> | null
-    /**
      * The filter to search for the UnidadeFsp to update in case it exists.
      */
     where: UnidadeFspWhereUniqueInput
@@ -3637,10 +4094,6 @@ export namespace Prisma {
      */
     select?: UnidadeFspSelect<ExtArgs> | null
     /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: UnidadeFspInclude<ExtArgs> | null
-    /**
      * Filter which UnidadeFsp to delete.
      */
     where: UnidadeFspWhereUniqueInput
@@ -3659,27 +4112,6 @@ export namespace Prisma {
 
 
   /**
-   * UnidadeFsp.contratos
-   */
-  export type UnidadeFsp$contratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contrato
-     */
-    select?: ContratoSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: ContratoInclude<ExtArgs> | null
-    where?: ContratoWhereInput
-    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
-    cursor?: ContratoWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: Enumerable<ContratoScalarFieldEnum>
-  }
-
-
-  /**
    * UnidadeFsp without action
    */
   export type UnidadeFspArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -3687,10 +4119,6 @@ export namespace Prisma {
      * Select specific fields to fetch from the UnidadeFsp
      */
     select?: UnidadeFspSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: UnidadeFspInclude<ExtArgs> | null
   }
 
 
@@ -5888,6 +6316,10 @@ export namespace Prisma {
     dominio?: boolean | DominioArgs<ExtArgs>
     parent?: boolean | DominioValorArgs<ExtArgs>
     children?: boolean | DominioValor$childrenArgs<ExtArgs>
+    contratosCategoria?: boolean | DominioValor$contratosCategoriaArgs<ExtArgs>
+    contratosModalidade?: boolean | DominioValor$contratosModalidadeArgs<ExtArgs>
+    contratosFundamento?: boolean | DominioValor$contratosFundamentoArgs<ExtArgs>
+    processosModalidade?: boolean | DominioValor$processosModalidadeArgs<ExtArgs>
     _count?: boolean | DominioValorCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["dominioValor"]>
 
@@ -5909,6 +6341,10 @@ export namespace Prisma {
     dominio?: boolean | DominioArgs<ExtArgs>
     parent?: boolean | DominioValorArgs<ExtArgs>
     children?: boolean | DominioValor$childrenArgs<ExtArgs>
+    contratosCategoria?: boolean | DominioValor$contratosCategoriaArgs<ExtArgs>
+    contratosModalidade?: boolean | DominioValor$contratosModalidadeArgs<ExtArgs>
+    contratosFundamento?: boolean | DominioValor$contratosFundamentoArgs<ExtArgs>
+    processosModalidade?: boolean | DominioValor$processosModalidadeArgs<ExtArgs>
     _count?: boolean | DominioValorCountOutputTypeArgs<ExtArgs>
   }
 
@@ -6288,6 +6724,14 @@ export namespace Prisma {
 
     children<T extends DominioValor$childrenArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
+    contratosCategoria<T extends DominioValor$contratosCategoriaArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$contratosCategoriaArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    contratosModalidade<T extends DominioValor$contratosModalidadeArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$contratosModalidadeArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    contratosFundamento<T extends DominioValor$contratosFundamentoArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$contratosFundamentoArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    processosModalidade<T extends DominioValor$processosModalidadeArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$processosModalidadeArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
     private get _document();
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -6661,6 +7105,90 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Enumerable<DominioValorScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor.contratosCategoria
+   */
+  export type DominioValor$contratosCategoriaArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contrato
+     */
+    select?: ContratoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoInclude<ExtArgs> | null
+    where?: ContratoWhereInput
+    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
+    cursor?: ContratoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor.contratosModalidade
+   */
+  export type DominioValor$contratosModalidadeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contrato
+     */
+    select?: ContratoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoInclude<ExtArgs> | null
+    where?: ContratoWhereInput
+    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
+    cursor?: ContratoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor.contratosFundamento
+   */
+  export type DominioValor$contratosFundamentoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contrato
+     */
+    select?: ContratoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoInclude<ExtArgs> | null
+    where?: ContratoWhereInput
+    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
+    cursor?: ContratoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor.processosModalidade
+   */
+  export type DominioValor$processosModalidadeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+    where?: ProcessoContratacaoWhereInput
+    orderBy?: Enumerable<ProcessoContratacaoOrderByWithRelationInput>
+    cursor?: ProcessoContratacaoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ProcessoContratacaoScalarFieldEnum>
   }
 
 
@@ -7881,6 +8409,9 @@ export namespace Prisma {
     children?: boolean | UnidadeOrganizacional$childrenArgs<ExtArgs>
     municipio?: boolean | MunicipioArgs<ExtArgs>
     servidores?: boolean | UnidadeOrganizacional$servidoresArgs<ExtArgs>
+    contratosGestora?: boolean | UnidadeOrganizacional$contratosGestoraArgs<ExtArgs>
+    rateios?: boolean | UnidadeOrganizacional$rateiosArgs<ExtArgs>
+    processosDemandante?: boolean | UnidadeOrganizacional$processosDemandanteArgs<ExtArgs>
     _count?: boolean | UnidadeOrganizacionalCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["unidadeOrganizacional"]>
 
@@ -7903,6 +8434,9 @@ export namespace Prisma {
     children?: boolean | UnidadeOrganizacional$childrenArgs<ExtArgs>
     municipio?: boolean | MunicipioArgs<ExtArgs>
     servidores?: boolean | UnidadeOrganizacional$servidoresArgs<ExtArgs>
+    contratosGestora?: boolean | UnidadeOrganizacional$contratosGestoraArgs<ExtArgs>
+    rateios?: boolean | UnidadeOrganizacional$rateiosArgs<ExtArgs>
+    processosDemandante?: boolean | UnidadeOrganizacional$processosDemandanteArgs<ExtArgs>
     _count?: boolean | UnidadeOrganizacionalCountOutputTypeArgs<ExtArgs>
   }
 
@@ -8285,6 +8819,12 @@ export namespace Prisma {
     municipio<T extends MunicipioArgs<ExtArgs> = {}>(args?: Subset<T, MunicipioArgs<ExtArgs>>): Prisma__MunicipioClient<$Types.GetResult<MunicipioPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
     servidores<T extends UnidadeOrganizacional$servidoresArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacional$servidoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    contratosGestora<T extends UnidadeOrganizacional$contratosGestoraArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacional$contratosGestoraArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    rateios<T extends UnidadeOrganizacional$rateiosArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacional$rateiosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    processosDemandante<T extends UnidadeOrganizacional$processosDemandanteArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacional$processosDemandanteArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -8680,6 +9220,69 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Enumerable<ServidorScalarFieldEnum>
+  }
+
+
+  /**
+   * UnidadeOrganizacional.contratosGestora
+   */
+  export type UnidadeOrganizacional$contratosGestoraArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contrato
+     */
+    select?: ContratoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoInclude<ExtArgs> | null
+    where?: ContratoWhereInput
+    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
+    cursor?: ContratoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
+   * UnidadeOrganizacional.rateios
+   */
+  export type UnidadeOrganizacional$rateiosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
+    where?: ContratoRateioWhereInput
+    orderBy?: Enumerable<ContratoRateioOrderByWithRelationInput>
+    cursor?: ContratoRateioWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoRateioScalarFieldEnum>
+  }
+
+
+  /**
+   * UnidadeOrganizacional.processosDemandante
+   */
+  export type UnidadeOrganizacional$processosDemandanteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+    where?: ProcessoContratacaoWhereInput
+    orderBy?: Enumerable<ProcessoContratacaoOrderByWithRelationInput>
+    cursor?: ProcessoContratacaoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ProcessoContratacaoScalarFieldEnum>
   }
 
 
@@ -11898,8 +12501,7 @@ export namespace Prisma {
     updatedAt?: boolean
     orgao?: boolean | OrgaoArgs<ExtArgs>
     unidade?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
-    gestorContratos?: boolean | Servidor$gestorContratosArgs<ExtArgs>
-    fiscalContratos?: boolean | Servidor$fiscalContratosArgs<ExtArgs>
+    responsaveis?: boolean | Servidor$responsaveisArgs<ExtArgs>
     _count?: boolean | ServidorCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["servidor"]>
 
@@ -11921,8 +12523,7 @@ export namespace Prisma {
   export type ServidorInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     orgao?: boolean | OrgaoArgs<ExtArgs>
     unidade?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
-    gestorContratos?: boolean | Servidor$gestorContratosArgs<ExtArgs>
-    fiscalContratos?: boolean | Servidor$fiscalContratosArgs<ExtArgs>
+    responsaveis?: boolean | Servidor$responsaveisArgs<ExtArgs>
     _count?: boolean | ServidorCountOutputTypeArgs<ExtArgs>
   }
 
@@ -12300,9 +12901,7 @@ export namespace Prisma {
 
     unidade<T extends UnidadeOrganizacionalArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacionalArgs<ExtArgs>>): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
-    gestorContratos<T extends Servidor$gestorContratosArgs<ExtArgs> = {}>(args?: Subset<T, Servidor$gestorContratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
-
-    fiscalContratos<T extends Servidor$fiscalContratosArgs<ExtArgs> = {}>(args?: Subset<T, Servidor$fiscalContratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+    responsaveis<T extends Servidor$responsaveisArgs<ExtArgs> = {}>(args?: Subset<T, Servidor$responsaveisArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -12660,44 +13259,23 @@ export namespace Prisma {
 
 
   /**
-   * Servidor.gestorContratos
+   * Servidor.responsaveis
    */
-  export type Servidor$gestorContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type Servidor$responsaveisArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Contrato
+     * Select specific fields to fetch from the ContratoResponsavel
      */
-    select?: ContratoSelect<ExtArgs> | null
+    select?: ContratoResponsavelSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: ContratoInclude<ExtArgs> | null
-    where?: ContratoWhereInput
-    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
-    cursor?: ContratoWhereUniqueInput
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+    where?: ContratoResponsavelWhereInput
+    orderBy?: Enumerable<ContratoResponsavelOrderByWithRelationInput>
+    cursor?: ContratoResponsavelWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: Enumerable<ContratoScalarFieldEnum>
-  }
-
-
-  /**
-   * Servidor.fiscalContratos
-   */
-  export type Servidor$fiscalContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Contrato
-     */
-    select?: ContratoSelect<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well.
-     */
-    include?: ContratoInclude<ExtArgs> | null
-    where?: ContratoWhereInput
-    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
-    cursor?: ContratoWhereUniqueInput
-    take?: number
-    skip?: number
-    distinct?: Enumerable<ContratoScalarFieldEnum>
+    distinct?: Enumerable<ContratoResponsavelScalarFieldEnum>
   }
 
 
@@ -12718,6 +13296,1089 @@ export namespace Prisma {
 
 
   /**
+   * Model ProcessoContratacao
+   */
+
+
+  export type AggregateProcessoContratacao = {
+    _count: ProcessoContratacaoCountAggregateOutputType | null
+    _avg: ProcessoContratacaoAvgAggregateOutputType | null
+    _sum: ProcessoContratacaoSumAggregateOutputType | null
+    _min: ProcessoContratacaoMinAggregateOutputType | null
+    _max: ProcessoContratacaoMaxAggregateOutputType | null
+  }
+
+  export type ProcessoContratacaoAvgAggregateOutputType = {
+    ano: number | null
+    valorEstimadoCents: number | null
+  }
+
+  export type ProcessoContratacaoSumAggregateOutputType = {
+    ano: number | null
+    valorEstimadoCents: bigint | null
+  }
+
+  export type ProcessoContratacaoMinAggregateOutputType = {
+    id: string | null
+    eProtocolo: string | null
+    ano: number | null
+    objetoResumo: string | null
+    unidadeDemandanteId: string | null
+    modalidadePretendidaId: string | null
+    valorEstimadoCents: bigint | null
+    etpConcluido: boolean | null
+    dataEtp: Date | null
+    termoReferenciaConcluido: boolean | null
+    dataTermoReferencia: Date | null
+    situacao: SituacaoProcesso | null
+    observacoes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProcessoContratacaoMaxAggregateOutputType = {
+    id: string | null
+    eProtocolo: string | null
+    ano: number | null
+    objetoResumo: string | null
+    unidadeDemandanteId: string | null
+    modalidadePretendidaId: string | null
+    valorEstimadoCents: bigint | null
+    etpConcluido: boolean | null
+    dataEtp: Date | null
+    termoReferenciaConcluido: boolean | null
+    dataTermoReferencia: Date | null
+    situacao: SituacaoProcesso | null
+    observacoes: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ProcessoContratacaoCountAggregateOutputType = {
+    id: number
+    eProtocolo: number
+    ano: number
+    objetoResumo: number
+    unidadeDemandanteId: number
+    modalidadePretendidaId: number
+    valorEstimadoCents: number
+    etpConcluido: number
+    dataEtp: number
+    termoReferenciaConcluido: number
+    dataTermoReferencia: number
+    situacao: number
+    observacoes: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ProcessoContratacaoAvgAggregateInputType = {
+    ano?: true
+    valorEstimadoCents?: true
+  }
+
+  export type ProcessoContratacaoSumAggregateInputType = {
+    ano?: true
+    valorEstimadoCents?: true
+  }
+
+  export type ProcessoContratacaoMinAggregateInputType = {
+    id?: true
+    eProtocolo?: true
+    ano?: true
+    objetoResumo?: true
+    unidadeDemandanteId?: true
+    modalidadePretendidaId?: true
+    valorEstimadoCents?: true
+    etpConcluido?: true
+    dataEtp?: true
+    termoReferenciaConcluido?: true
+    dataTermoReferencia?: true
+    situacao?: true
+    observacoes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProcessoContratacaoMaxAggregateInputType = {
+    id?: true
+    eProtocolo?: true
+    ano?: true
+    objetoResumo?: true
+    unidadeDemandanteId?: true
+    modalidadePretendidaId?: true
+    valorEstimadoCents?: true
+    etpConcluido?: true
+    dataEtp?: true
+    termoReferenciaConcluido?: true
+    dataTermoReferencia?: true
+    situacao?: true
+    observacoes?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ProcessoContratacaoCountAggregateInputType = {
+    id?: true
+    eProtocolo?: true
+    ano?: true
+    objetoResumo?: true
+    unidadeDemandanteId?: true
+    modalidadePretendidaId?: true
+    valorEstimadoCents?: true
+    etpConcluido?: true
+    dataEtp?: true
+    termoReferenciaConcluido?: true
+    dataTermoReferencia?: true
+    situacao?: true
+    observacoes?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ProcessoContratacaoAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProcessoContratacao to aggregate.
+     */
+    where?: ProcessoContratacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProcessoContratacaos to fetch.
+     */
+    orderBy?: Enumerable<ProcessoContratacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ProcessoContratacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProcessoContratacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProcessoContratacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ProcessoContratacaos
+    **/
+    _count?: true | ProcessoContratacaoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ProcessoContratacaoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ProcessoContratacaoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ProcessoContratacaoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ProcessoContratacaoMaxAggregateInputType
+  }
+
+  export type GetProcessoContratacaoAggregateType<T extends ProcessoContratacaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateProcessoContratacao]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateProcessoContratacao[P]>
+      : GetScalarType<T[P], AggregateProcessoContratacao[P]>
+  }
+
+
+
+
+  export type ProcessoContratacaoGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ProcessoContratacaoWhereInput
+    orderBy?: Enumerable<ProcessoContratacaoOrderByWithAggregationInput>
+    by: ProcessoContratacaoScalarFieldEnum[]
+    having?: ProcessoContratacaoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ProcessoContratacaoCountAggregateInputType | true
+    _avg?: ProcessoContratacaoAvgAggregateInputType
+    _sum?: ProcessoContratacaoSumAggregateInputType
+    _min?: ProcessoContratacaoMinAggregateInputType
+    _max?: ProcessoContratacaoMaxAggregateInputType
+  }
+
+
+  export type ProcessoContratacaoGroupByOutputType = {
+    id: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    unidadeDemandanteId: string
+    modalidadePretendidaId: string | null
+    valorEstimadoCents: bigint | null
+    etpConcluido: boolean
+    dataEtp: Date | null
+    termoReferenciaConcluido: boolean
+    dataTermoReferencia: Date | null
+    situacao: SituacaoProcesso
+    observacoes: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ProcessoContratacaoCountAggregateOutputType | null
+    _avg: ProcessoContratacaoAvgAggregateOutputType | null
+    _sum: ProcessoContratacaoSumAggregateOutputType | null
+    _min: ProcessoContratacaoMinAggregateOutputType | null
+    _max: ProcessoContratacaoMaxAggregateOutputType | null
+  }
+
+  type GetProcessoContratacaoGroupByPayload<T extends ProcessoContratacaoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<ProcessoContratacaoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ProcessoContratacaoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ProcessoContratacaoGroupByOutputType[P]>
+            : GetScalarType<T[P], ProcessoContratacaoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ProcessoContratacaoSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    eProtocolo?: boolean
+    ano?: boolean
+    objetoResumo?: boolean
+    unidadeDemandanteId?: boolean
+    modalidadePretendidaId?: boolean
+    valorEstimadoCents?: boolean
+    etpConcluido?: boolean
+    dataEtp?: boolean
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: boolean
+    situacao?: boolean
+    observacoes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    unidadeDemandante?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+    modalidadePretendida?: boolean | DominioValorArgs<ExtArgs>
+    contratos?: boolean | ProcessoContratacao$contratosArgs<ExtArgs>
+    _count?: boolean | ProcessoContratacaoCountOutputTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["processoContratacao"]>
+
+  export type ProcessoContratacaoSelectScalar = {
+    id?: boolean
+    eProtocolo?: boolean
+    ano?: boolean
+    objetoResumo?: boolean
+    unidadeDemandanteId?: boolean
+    modalidadePretendidaId?: boolean
+    valorEstimadoCents?: boolean
+    etpConcluido?: boolean
+    dataEtp?: boolean
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: boolean
+    situacao?: boolean
+    observacoes?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ProcessoContratacaoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    unidadeDemandante?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+    modalidadePretendida?: boolean | DominioValorArgs<ExtArgs>
+    contratos?: boolean | ProcessoContratacao$contratosArgs<ExtArgs>
+    _count?: boolean | ProcessoContratacaoCountOutputTypeArgs<ExtArgs>
+  }
+
+
+  type ProcessoContratacaoGetPayload<S extends boolean | null | undefined | ProcessoContratacaoArgs> = $Types.GetResult<ProcessoContratacaoPayload, S>
+
+  type ProcessoContratacaoCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<ProcessoContratacaoFindManyArgs, 'select' | 'include'> & {
+      select?: ProcessoContratacaoCountAggregateInputType | true
+    }
+
+  export interface ProcessoContratacaoDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ProcessoContratacao'], meta: { name: 'ProcessoContratacao' } }
+    /**
+     * Find zero or one ProcessoContratacao that matches the filter.
+     * @param {ProcessoContratacaoFindUniqueArgs} args - Arguments to find a ProcessoContratacao
+     * @example
+     * // Get one ProcessoContratacao
+     * const processoContratacao = await prisma.processoContratacao.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends ProcessoContratacaoFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, ProcessoContratacaoFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'ProcessoContratacao'> extends True ? Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one ProcessoContratacao that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {ProcessoContratacaoFindUniqueOrThrowArgs} args - Arguments to find a ProcessoContratacao
+     * @example
+     * // Get one ProcessoContratacao
+     * const processoContratacao = await prisma.processoContratacao.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends ProcessoContratacaoFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ProcessoContratacaoFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first ProcessoContratacao that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProcessoContratacaoFindFirstArgs} args - Arguments to find a ProcessoContratacao
+     * @example
+     * // Get one ProcessoContratacao
+     * const processoContratacao = await prisma.processoContratacao.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends ProcessoContratacaoFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, ProcessoContratacaoFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'ProcessoContratacao'> extends True ? Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first ProcessoContratacao that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProcessoContratacaoFindFirstOrThrowArgs} args - Arguments to find a ProcessoContratacao
+     * @example
+     * // Get one ProcessoContratacao
+     * const processoContratacao = await prisma.processoContratacao.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends ProcessoContratacaoFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ProcessoContratacaoFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more ProcessoContratacaos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProcessoContratacaoFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ProcessoContratacaos
+     * const processoContratacaos = await prisma.processoContratacao.findMany()
+     * 
+     * // Get first 10 ProcessoContratacaos
+     * const processoContratacaos = await prisma.processoContratacao.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const processoContratacaoWithIdOnly = await prisma.processoContratacao.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends ProcessoContratacaoFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ProcessoContratacaoFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a ProcessoContratacao.
+     * @param {ProcessoContratacaoCreateArgs} args - Arguments to create a ProcessoContratacao.
+     * @example
+     * // Create one ProcessoContratacao
+     * const ProcessoContratacao = await prisma.processoContratacao.create({
+     *   data: {
+     *     // ... data to create a ProcessoContratacao
+     *   }
+     * })
+     * 
+    **/
+    create<T extends ProcessoContratacaoCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, ProcessoContratacaoCreateArgs<ExtArgs>>
+    ): Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many ProcessoContratacaos.
+     *     @param {ProcessoContratacaoCreateManyArgs} args - Arguments to create many ProcessoContratacaos.
+     *     @example
+     *     // Create many ProcessoContratacaos
+     *     const processoContratacao = await prisma.processoContratacao.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends ProcessoContratacaoCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ProcessoContratacaoCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ProcessoContratacao.
+     * @param {ProcessoContratacaoDeleteArgs} args - Arguments to delete one ProcessoContratacao.
+     * @example
+     * // Delete one ProcessoContratacao
+     * const ProcessoContratacao = await prisma.processoContratacao.delete({
+     *   where: {
+     *     // ... filter to delete one ProcessoContratacao
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends ProcessoContratacaoDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, ProcessoContratacaoDeleteArgs<ExtArgs>>
+    ): Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one ProcessoContratacao.
+     * @param {ProcessoContratacaoUpdateArgs} args - Arguments to update one ProcessoContratacao.
+     * @example
+     * // Update one ProcessoContratacao
+     * const processoContratacao = await prisma.processoContratacao.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends ProcessoContratacaoUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, ProcessoContratacaoUpdateArgs<ExtArgs>>
+    ): Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more ProcessoContratacaos.
+     * @param {ProcessoContratacaoDeleteManyArgs} args - Arguments to filter ProcessoContratacaos to delete.
+     * @example
+     * // Delete a few ProcessoContratacaos
+     * const { count } = await prisma.processoContratacao.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends ProcessoContratacaoDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ProcessoContratacaoDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ProcessoContratacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProcessoContratacaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ProcessoContratacaos
+     * const processoContratacao = await prisma.processoContratacao.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends ProcessoContratacaoUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, ProcessoContratacaoUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ProcessoContratacao.
+     * @param {ProcessoContratacaoUpsertArgs} args - Arguments to update or create a ProcessoContratacao.
+     * @example
+     * // Update or create a ProcessoContratacao
+     * const processoContratacao = await prisma.processoContratacao.upsert({
+     *   create: {
+     *     // ... data to create a ProcessoContratacao
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ProcessoContratacao we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends ProcessoContratacaoUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, ProcessoContratacaoUpsertArgs<ExtArgs>>
+    ): Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of ProcessoContratacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProcessoContratacaoCountArgs} args - Arguments to filter ProcessoContratacaos to count.
+     * @example
+     * // Count the number of ProcessoContratacaos
+     * const count = await prisma.processoContratacao.count({
+     *   where: {
+     *     // ... the filter for the ProcessoContratacaos we want to count
+     *   }
+     * })
+    **/
+    count<T extends ProcessoContratacaoCountArgs>(
+      args?: Subset<T, ProcessoContratacaoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ProcessoContratacaoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ProcessoContratacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProcessoContratacaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ProcessoContratacaoAggregateArgs>(args: Subset<T, ProcessoContratacaoAggregateArgs>): Prisma.PrismaPromise<GetProcessoContratacaoAggregateType<T>>
+
+    /**
+     * Group by ProcessoContratacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ProcessoContratacaoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ProcessoContratacaoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ProcessoContratacaoGroupByArgs['orderBy'] }
+        : { orderBy?: ProcessoContratacaoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ProcessoContratacaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetProcessoContratacaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ProcessoContratacao.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__ProcessoContratacaoClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    unidadeDemandante<T extends UnidadeOrganizacionalArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacionalArgs<ExtArgs>>): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    modalidadePretendida<T extends DominioValorArgs<ExtArgs> = {}>(args?: Subset<T, DominioValorArgs<ExtArgs>>): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    contratos<T extends ProcessoContratacao$contratosArgs<ExtArgs> = {}>(args?: Subset<T, ProcessoContratacao$contratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * ProcessoContratacao base type for findUnique actions
+   */
+  export type ProcessoContratacaoFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which ProcessoContratacao to fetch.
+     */
+    where: ProcessoContratacaoWhereUniqueInput
+  }
+
+  /**
+   * ProcessoContratacao findUnique
+   */
+  export interface ProcessoContratacaoFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ProcessoContratacaoFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ProcessoContratacao findUniqueOrThrow
+   */
+  export type ProcessoContratacaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which ProcessoContratacao to fetch.
+     */
+    where: ProcessoContratacaoWhereUniqueInput
+  }
+
+
+  /**
+   * ProcessoContratacao base type for findFirst actions
+   */
+  export type ProcessoContratacaoFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which ProcessoContratacao to fetch.
+     */
+    where?: ProcessoContratacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProcessoContratacaos to fetch.
+     */
+    orderBy?: Enumerable<ProcessoContratacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProcessoContratacaos.
+     */
+    cursor?: ProcessoContratacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProcessoContratacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProcessoContratacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProcessoContratacaos.
+     */
+    distinct?: Enumerable<ProcessoContratacaoScalarFieldEnum>
+  }
+
+  /**
+   * ProcessoContratacao findFirst
+   */
+  export interface ProcessoContratacaoFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ProcessoContratacaoFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ProcessoContratacao findFirstOrThrow
+   */
+  export type ProcessoContratacaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which ProcessoContratacao to fetch.
+     */
+    where?: ProcessoContratacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProcessoContratacaos to fetch.
+     */
+    orderBy?: Enumerable<ProcessoContratacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ProcessoContratacaos.
+     */
+    cursor?: ProcessoContratacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProcessoContratacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProcessoContratacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ProcessoContratacaos.
+     */
+    distinct?: Enumerable<ProcessoContratacaoScalarFieldEnum>
+  }
+
+
+  /**
+   * ProcessoContratacao findMany
+   */
+  export type ProcessoContratacaoFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which ProcessoContratacaos to fetch.
+     */
+    where?: ProcessoContratacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ProcessoContratacaos to fetch.
+     */
+    orderBy?: Enumerable<ProcessoContratacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ProcessoContratacaos.
+     */
+    cursor?: ProcessoContratacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ProcessoContratacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ProcessoContratacaos.
+     */
+    skip?: number
+    distinct?: Enumerable<ProcessoContratacaoScalarFieldEnum>
+  }
+
+
+  /**
+   * ProcessoContratacao create
+   */
+  export type ProcessoContratacaoCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ProcessoContratacao.
+     */
+    data: XOR<ProcessoContratacaoCreateInput, ProcessoContratacaoUncheckedCreateInput>
+  }
+
+
+  /**
+   * ProcessoContratacao createMany
+   */
+  export type ProcessoContratacaoCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ProcessoContratacaos.
+     */
+    data: Enumerable<ProcessoContratacaoCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * ProcessoContratacao update
+   */
+  export type ProcessoContratacaoUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ProcessoContratacao.
+     */
+    data: XOR<ProcessoContratacaoUpdateInput, ProcessoContratacaoUncheckedUpdateInput>
+    /**
+     * Choose, which ProcessoContratacao to update.
+     */
+    where: ProcessoContratacaoWhereUniqueInput
+  }
+
+
+  /**
+   * ProcessoContratacao updateMany
+   */
+  export type ProcessoContratacaoUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ProcessoContratacaos.
+     */
+    data: XOR<ProcessoContratacaoUpdateManyMutationInput, ProcessoContratacaoUncheckedUpdateManyInput>
+    /**
+     * Filter which ProcessoContratacaos to update
+     */
+    where?: ProcessoContratacaoWhereInput
+  }
+
+
+  /**
+   * ProcessoContratacao upsert
+   */
+  export type ProcessoContratacaoUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ProcessoContratacao to update in case it exists.
+     */
+    where: ProcessoContratacaoWhereUniqueInput
+    /**
+     * In case the ProcessoContratacao found by the `where` argument doesn't exist, create a new ProcessoContratacao with this data.
+     */
+    create: XOR<ProcessoContratacaoCreateInput, ProcessoContratacaoUncheckedCreateInput>
+    /**
+     * In case the ProcessoContratacao was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ProcessoContratacaoUpdateInput, ProcessoContratacaoUncheckedUpdateInput>
+  }
+
+
+  /**
+   * ProcessoContratacao delete
+   */
+  export type ProcessoContratacaoDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+    /**
+     * Filter which ProcessoContratacao to delete.
+     */
+    where: ProcessoContratacaoWhereUniqueInput
+  }
+
+
+  /**
+   * ProcessoContratacao deleteMany
+   */
+  export type ProcessoContratacaoDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ProcessoContratacaos to delete
+     */
+    where?: ProcessoContratacaoWhereInput
+  }
+
+
+  /**
+   * ProcessoContratacao.contratos
+   */
+  export type ProcessoContratacao$contratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contrato
+     */
+    select?: ContratoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoInclude<ExtArgs> | null
+    where?: ContratoWhereInput
+    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
+    cursor?: ContratoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
+   * ProcessoContratacao without action
+   */
+  export type ProcessoContratacaoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ProcessoContratacao
+     */
+    select?: ProcessoContratacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ProcessoContratacaoInclude<ExtArgs> | null
+  }
+
+
+
+  /**
    * Model Contrato
    */
 
@@ -12731,70 +14392,133 @@ export namespace Prisma {
   }
 
   export type ContratoAvgAggregateOutputType = {
-    numGms: number | null
     anoGms: number | null
-    valorAnualCents: number | null
+    prazoInicialValor: number | null
+    limiteProrrogacaoMeses: number | null
+    valorGlobalOriginalCents: number | null
+    mesAniversarioReajuste: number | null
+    garantiaValorCents: number | null
   }
 
   export type ContratoSumAggregateOutputType = {
-    numGms: number | null
     anoGms: number | null
-    valorAnualCents: number | null
+    prazoInicialValor: number | null
+    limiteProrrogacaoMeses: number | null
+    valorGlobalOriginalCents: bigint | null
+    mesAniversarioReajuste: number | null
+    garantiaValorCents: bigint | null
   }
 
   export type ContratoMinAggregateOutputType = {
     id: string | null
-    protocoloCabeca: string | null
-    numGms: number | null
+    processoId: string | null
+    numeroGms: string | null
     anoGms: number | null
-    unidadeFspId: string | null
-    gestorId: string | null
-    fiscalId: string | null
-    fornecedorId: string | null
-    modalidade: string | null
+    numeroContrato: string | null
+    eProtocolo: string | null
+    pilar: PilarOrcamentario | null
+    categoriaContratacaoId: string | null
+    naturezaObjeto: NaturezaObjeto | null
+    modalidadeId: string | null
+    fundamentoLegalId: string | null
     objeto: string | null
-    valorAnualCents: number | null
-    dataInicio: Date | null
-    dataFimOrig: Date | null
-    status: string | null
+    fornecedorId: string | null
+    unidadeGestoraId: string | null
+    dataAssinatura: Date | null
+    dataInicioVigencia: Date | null
+    prazoInicialValor: number | null
+    prazoInicialUnidade: UnidadeTempo | null
+    dataFimVigenciaOriginal: Date | null
+    prorrogavel: boolean | null
+    limiteProrrogacaoMeses: number | null
+    valorGlobalOriginalCents: bigint | null
+    indiceReajuste: string | null
+    mesAniversarioReajuste: number | null
+    situacao: SituacaoContrato | null
+    dataEncerramento: Date | null
+    motivoEncerramento: string | null
+    garantiaTipo: TipoGarantia | null
+    garantiaValorCents: bigint | null
+    garantiaValidade: Date | null
+    reservaObservacao: string | null
+    observacoes: string | null
+    codigoLegado: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type ContratoMaxAggregateOutputType = {
     id: string | null
-    protocoloCabeca: string | null
-    numGms: number | null
+    processoId: string | null
+    numeroGms: string | null
     anoGms: number | null
-    unidadeFspId: string | null
-    gestorId: string | null
-    fiscalId: string | null
-    fornecedorId: string | null
-    modalidade: string | null
+    numeroContrato: string | null
+    eProtocolo: string | null
+    pilar: PilarOrcamentario | null
+    categoriaContratacaoId: string | null
+    naturezaObjeto: NaturezaObjeto | null
+    modalidadeId: string | null
+    fundamentoLegalId: string | null
     objeto: string | null
-    valorAnualCents: number | null
-    dataInicio: Date | null
-    dataFimOrig: Date | null
-    status: string | null
+    fornecedorId: string | null
+    unidadeGestoraId: string | null
+    dataAssinatura: Date | null
+    dataInicioVigencia: Date | null
+    prazoInicialValor: number | null
+    prazoInicialUnidade: UnidadeTempo | null
+    dataFimVigenciaOriginal: Date | null
+    prorrogavel: boolean | null
+    limiteProrrogacaoMeses: number | null
+    valorGlobalOriginalCents: bigint | null
+    indiceReajuste: string | null
+    mesAniversarioReajuste: number | null
+    situacao: SituacaoContrato | null
+    dataEncerramento: Date | null
+    motivoEncerramento: string | null
+    garantiaTipo: TipoGarantia | null
+    garantiaValorCents: bigint | null
+    garantiaValidade: Date | null
+    reservaObservacao: string | null
+    observacoes: string | null
+    codigoLegado: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
 
   export type ContratoCountAggregateOutputType = {
     id: number
-    protocoloCabeca: number
-    numGms: number
+    processoId: number
+    numeroGms: number
     anoGms: number
-    unidadeFspId: number
-    gestorId: number
-    fiscalId: number
-    fornecedorId: number
-    modalidade: number
+    numeroContrato: number
+    eProtocolo: number
+    pilar: number
+    categoriaContratacaoId: number
+    naturezaObjeto: number
+    modalidadeId: number
+    fundamentoLegalId: number
     objeto: number
-    valorAnualCents: number
-    dataInicio: number
-    dataFimOrig: number
-    status: number
+    fornecedorId: number
+    unidadeGestoraId: number
+    dataAssinatura: number
+    dataInicioVigencia: number
+    prazoInicialValor: number
+    prazoInicialUnidade: number
+    dataFimVigenciaOriginal: number
+    prorrogavel: number
+    limiteProrrogacaoMeses: number
+    valorGlobalOriginalCents: number
+    indiceReajuste: number
+    mesAniversarioReajuste: number
+    situacao: number
+    dataEncerramento: number
+    motivoEncerramento: number
+    garantiaTipo: number
+    garantiaValorCents: number
+    garantiaValidade: number
+    reservaObservacao: number
+    observacoes: number
+    codigoLegado: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -12802,70 +14526,133 @@ export namespace Prisma {
 
 
   export type ContratoAvgAggregateInputType = {
-    numGms?: true
     anoGms?: true
-    valorAnualCents?: true
+    prazoInicialValor?: true
+    limiteProrrogacaoMeses?: true
+    valorGlobalOriginalCents?: true
+    mesAniversarioReajuste?: true
+    garantiaValorCents?: true
   }
 
   export type ContratoSumAggregateInputType = {
-    numGms?: true
     anoGms?: true
-    valorAnualCents?: true
+    prazoInicialValor?: true
+    limiteProrrogacaoMeses?: true
+    valorGlobalOriginalCents?: true
+    mesAniversarioReajuste?: true
+    garantiaValorCents?: true
   }
 
   export type ContratoMinAggregateInputType = {
     id?: true
-    protocoloCabeca?: true
-    numGms?: true
+    processoId?: true
+    numeroGms?: true
     anoGms?: true
-    unidadeFspId?: true
-    gestorId?: true
-    fiscalId?: true
-    fornecedorId?: true
-    modalidade?: true
+    numeroContrato?: true
+    eProtocolo?: true
+    pilar?: true
+    categoriaContratacaoId?: true
+    naturezaObjeto?: true
+    modalidadeId?: true
+    fundamentoLegalId?: true
     objeto?: true
-    valorAnualCents?: true
-    dataInicio?: true
-    dataFimOrig?: true
-    status?: true
+    fornecedorId?: true
+    unidadeGestoraId?: true
+    dataAssinatura?: true
+    dataInicioVigencia?: true
+    prazoInicialValor?: true
+    prazoInicialUnidade?: true
+    dataFimVigenciaOriginal?: true
+    prorrogavel?: true
+    limiteProrrogacaoMeses?: true
+    valorGlobalOriginalCents?: true
+    indiceReajuste?: true
+    mesAniversarioReajuste?: true
+    situacao?: true
+    dataEncerramento?: true
+    motivoEncerramento?: true
+    garantiaTipo?: true
+    garantiaValorCents?: true
+    garantiaValidade?: true
+    reservaObservacao?: true
+    observacoes?: true
+    codigoLegado?: true
     createdAt?: true
     updatedAt?: true
   }
 
   export type ContratoMaxAggregateInputType = {
     id?: true
-    protocoloCabeca?: true
-    numGms?: true
+    processoId?: true
+    numeroGms?: true
     anoGms?: true
-    unidadeFspId?: true
-    gestorId?: true
-    fiscalId?: true
-    fornecedorId?: true
-    modalidade?: true
+    numeroContrato?: true
+    eProtocolo?: true
+    pilar?: true
+    categoriaContratacaoId?: true
+    naturezaObjeto?: true
+    modalidadeId?: true
+    fundamentoLegalId?: true
     objeto?: true
-    valorAnualCents?: true
-    dataInicio?: true
-    dataFimOrig?: true
-    status?: true
+    fornecedorId?: true
+    unidadeGestoraId?: true
+    dataAssinatura?: true
+    dataInicioVigencia?: true
+    prazoInicialValor?: true
+    prazoInicialUnidade?: true
+    dataFimVigenciaOriginal?: true
+    prorrogavel?: true
+    limiteProrrogacaoMeses?: true
+    valorGlobalOriginalCents?: true
+    indiceReajuste?: true
+    mesAniversarioReajuste?: true
+    situacao?: true
+    dataEncerramento?: true
+    motivoEncerramento?: true
+    garantiaTipo?: true
+    garantiaValorCents?: true
+    garantiaValidade?: true
+    reservaObservacao?: true
+    observacoes?: true
+    codigoLegado?: true
     createdAt?: true
     updatedAt?: true
   }
 
   export type ContratoCountAggregateInputType = {
     id?: true
-    protocoloCabeca?: true
-    numGms?: true
+    processoId?: true
+    numeroGms?: true
     anoGms?: true
-    unidadeFspId?: true
-    gestorId?: true
-    fiscalId?: true
-    fornecedorId?: true
-    modalidade?: true
+    numeroContrato?: true
+    eProtocolo?: true
+    pilar?: true
+    categoriaContratacaoId?: true
+    naturezaObjeto?: true
+    modalidadeId?: true
+    fundamentoLegalId?: true
     objeto?: true
-    valorAnualCents?: true
-    dataInicio?: true
-    dataFimOrig?: true
-    status?: true
+    fornecedorId?: true
+    unidadeGestoraId?: true
+    dataAssinatura?: true
+    dataInicioVigencia?: true
+    prazoInicialValor?: true
+    prazoInicialUnidade?: true
+    dataFimVigenciaOriginal?: true
+    prorrogavel?: true
+    limiteProrrogacaoMeses?: true
+    valorGlobalOriginalCents?: true
+    indiceReajuste?: true
+    mesAniversarioReajuste?: true
+    situacao?: true
+    dataEncerramento?: true
+    motivoEncerramento?: true
+    garantiaTipo?: true
+    garantiaValorCents?: true
+    garantiaValidade?: true
+    reservaObservacao?: true
+    observacoes?: true
+    codigoLegado?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -12960,19 +14747,38 @@ export namespace Prisma {
 
   export type ContratoGroupByOutputType = {
     id: string
-    protocoloCabeca: string | null
-    numGms: number
+    processoId: string | null
+    numeroGms: string
     anoGms: number
-    unidadeFspId: string
-    gestorId: string
-    fiscalId: string
-    fornecedorId: string
-    modalidade: string
+    numeroContrato: string | null
+    eProtocolo: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId: string | null
     objeto: string
-    valorAnualCents: number
-    dataInicio: Date | null
-    dataFimOrig: Date | null
-    status: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura: Date | null
+    dataInicioVigencia: Date
+    prazoInicialValor: number
+    prazoInicialUnidade: UnidadeTempo
+    dataFimVigenciaOriginal: Date
+    prorrogavel: boolean
+    limiteProrrogacaoMeses: number | null
+    valorGlobalOriginalCents: bigint
+    indiceReajuste: string | null
+    mesAniversarioReajuste: number | null
+    situacao: SituacaoContrato
+    dataEncerramento: Date | null
+    motivoEncerramento: string | null
+    garantiaTipo: TipoGarantia | null
+    garantiaValorCents: bigint | null
+    garantiaValidade: Date | null
+    reservaObservacao: string | null
+    observacoes: string | null
+    codigoLegado: string | null
     createdAt: Date
     updatedAt: Date
     _count: ContratoCountAggregateOutputType | null
@@ -12998,53 +14804,99 @@ export namespace Prisma {
 
   export type ContratoSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    protocoloCabeca?: boolean
-    numGms?: boolean
+    processoId?: boolean
+    numeroGms?: boolean
     anoGms?: boolean
-    unidadeFspId?: boolean
-    gestorId?: boolean
-    fiscalId?: boolean
-    fornecedorId?: boolean
-    modalidade?: boolean
+    numeroContrato?: boolean
+    eProtocolo?: boolean
+    pilar?: boolean
+    categoriaContratacaoId?: boolean
+    naturezaObjeto?: boolean
+    modalidadeId?: boolean
+    fundamentoLegalId?: boolean
     objeto?: boolean
-    valorAnualCents?: boolean
-    dataInicio?: boolean
-    dataFimOrig?: boolean
-    status?: boolean
+    fornecedorId?: boolean
+    unidadeGestoraId?: boolean
+    dataAssinatura?: boolean
+    dataInicioVigencia?: boolean
+    prazoInicialValor?: boolean
+    prazoInicialUnidade?: boolean
+    dataFimVigenciaOriginal?: boolean
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: boolean
+    valorGlobalOriginalCents?: boolean
+    indiceReajuste?: boolean
+    mesAniversarioReajuste?: boolean
+    situacao?: boolean
+    dataEncerramento?: boolean
+    motivoEncerramento?: boolean
+    garantiaTipo?: boolean
+    garantiaValorCents?: boolean
+    garantiaValidade?: boolean
+    reservaObservacao?: boolean
+    observacoes?: boolean
+    codigoLegado?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    unidadeFsp?: boolean | UnidadeFspArgs<ExtArgs>
-    gestor?: boolean | ServidorArgs<ExtArgs>
-    fiscal?: boolean | ServidorArgs<ExtArgs>
+    processo?: boolean | ProcessoContratacaoArgs<ExtArgs>
+    categoriaContratacao?: boolean | DominioValorArgs<ExtArgs>
+    modalidadeRef?: boolean | DominioValorArgs<ExtArgs>
+    fundamentoLegal?: boolean | DominioValorArgs<ExtArgs>
     fornecedor?: boolean | FornecedorArgs<ExtArgs>
+    unidadeGestora?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+    responsaveis?: boolean | Contrato$responsaveisArgs<ExtArgs>
+    rateios?: boolean | Contrato$rateiosArgs<ExtArgs>
     aditivos?: boolean | Contrato$aditivosArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["contrato"]>
 
   export type ContratoSelectScalar = {
     id?: boolean
-    protocoloCabeca?: boolean
-    numGms?: boolean
+    processoId?: boolean
+    numeroGms?: boolean
     anoGms?: boolean
-    unidadeFspId?: boolean
-    gestorId?: boolean
-    fiscalId?: boolean
-    fornecedorId?: boolean
-    modalidade?: boolean
+    numeroContrato?: boolean
+    eProtocolo?: boolean
+    pilar?: boolean
+    categoriaContratacaoId?: boolean
+    naturezaObjeto?: boolean
+    modalidadeId?: boolean
+    fundamentoLegalId?: boolean
     objeto?: boolean
-    valorAnualCents?: boolean
-    dataInicio?: boolean
-    dataFimOrig?: boolean
-    status?: boolean
+    fornecedorId?: boolean
+    unidadeGestoraId?: boolean
+    dataAssinatura?: boolean
+    dataInicioVigencia?: boolean
+    prazoInicialValor?: boolean
+    prazoInicialUnidade?: boolean
+    dataFimVigenciaOriginal?: boolean
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: boolean
+    valorGlobalOriginalCents?: boolean
+    indiceReajuste?: boolean
+    mesAniversarioReajuste?: boolean
+    situacao?: boolean
+    dataEncerramento?: boolean
+    motivoEncerramento?: boolean
+    garantiaTipo?: boolean
+    garantiaValorCents?: boolean
+    garantiaValidade?: boolean
+    reservaObservacao?: boolean
+    observacoes?: boolean
+    codigoLegado?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
   export type ContratoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    unidadeFsp?: boolean | UnidadeFspArgs<ExtArgs>
-    gestor?: boolean | ServidorArgs<ExtArgs>
-    fiscal?: boolean | ServidorArgs<ExtArgs>
+    processo?: boolean | ProcessoContratacaoArgs<ExtArgs>
+    categoriaContratacao?: boolean | DominioValorArgs<ExtArgs>
+    modalidadeRef?: boolean | DominioValorArgs<ExtArgs>
+    fundamentoLegal?: boolean | DominioValorArgs<ExtArgs>
     fornecedor?: boolean | FornecedorArgs<ExtArgs>
+    unidadeGestora?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+    responsaveis?: boolean | Contrato$responsaveisArgs<ExtArgs>
+    rateios?: boolean | Contrato$rateiosArgs<ExtArgs>
     aditivos?: boolean | Contrato$aditivosArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }
@@ -13419,13 +15271,21 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: 'PrismaPromise';
     constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
 
-    unidadeFsp<T extends UnidadeFspArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeFspArgs<ExtArgs>>): Prisma__UnidadeFspClient<$Types.GetResult<UnidadeFspPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+    processo<T extends ProcessoContratacaoArgs<ExtArgs> = {}>(args?: Subset<T, ProcessoContratacaoArgs<ExtArgs>>): Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
-    gestor<T extends ServidorArgs<ExtArgs> = {}>(args?: Subset<T, ServidorArgs<ExtArgs>>): Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+    categoriaContratacao<T extends DominioValorArgs<ExtArgs> = {}>(args?: Subset<T, DominioValorArgs<ExtArgs>>): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
-    fiscal<T extends ServidorArgs<ExtArgs> = {}>(args?: Subset<T, ServidorArgs<ExtArgs>>): Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+    modalidadeRef<T extends DominioValorArgs<ExtArgs> = {}>(args?: Subset<T, DominioValorArgs<ExtArgs>>): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    fundamentoLegal<T extends DominioValorArgs<ExtArgs> = {}>(args?: Subset<T, DominioValorArgs<ExtArgs>>): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
     fornecedor<T extends FornecedorArgs<ExtArgs> = {}>(args?: Subset<T, FornecedorArgs<ExtArgs>>): Prisma__FornecedorClient<$Types.GetResult<FornecedorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    unidadeGestora<T extends UnidadeOrganizacionalArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacionalArgs<ExtArgs>>): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    responsaveis<T extends Contrato$responsaveisArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$responsaveisArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    rateios<T extends Contrato$rateiosArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$rateiosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     aditivos<T extends Contrato$aditivosArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$aditivosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
@@ -13785,6 +15645,48 @@ export namespace Prisma {
 
 
   /**
+   * Contrato.responsaveis
+   */
+  export type Contrato$responsaveisArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoResponsavel
+     */
+    select?: ContratoResponsavelSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+    where?: ContratoResponsavelWhereInput
+    orderBy?: Enumerable<ContratoResponsavelOrderByWithRelationInput>
+    cursor?: ContratoResponsavelWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoResponsavelScalarFieldEnum>
+  }
+
+
+  /**
+   * Contrato.rateios
+   */
+  export type Contrato$rateiosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
+    where?: ContratoRateioWhereInput
+    orderBy?: Enumerable<ContratoRateioOrderByWithRelationInput>
+    cursor?: ContratoRateioWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoRateioScalarFieldEnum>
+  }
+
+
+  /**
    * Contrato.aditivos
    */
   export type Contrato$aditivosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -13817,6 +15719,1958 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well.
      */
     include?: ContratoInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model ContratoResponsavel
+   */
+
+
+  export type AggregateContratoResponsavel = {
+    _count: ContratoResponsavelCountAggregateOutputType | null
+    _min: ContratoResponsavelMinAggregateOutputType | null
+    _max: ContratoResponsavelMaxAggregateOutputType | null
+  }
+
+  export type ContratoResponsavelMinAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    servidorId: string | null
+    papel: PapelResponsavel | null
+    atoDesignacao: string | null
+    dataInicio: Date | null
+    dataFim: Date | null
+    createdAt: Date | null
+  }
+
+  export type ContratoResponsavelMaxAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    servidorId: string | null
+    papel: PapelResponsavel | null
+    atoDesignacao: string | null
+    dataInicio: Date | null
+    dataFim: Date | null
+    createdAt: Date | null
+  }
+
+  export type ContratoResponsavelCountAggregateOutputType = {
+    id: number
+    contratoId: number
+    servidorId: number
+    papel: number
+    atoDesignacao: number
+    dataInicio: number
+    dataFim: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ContratoResponsavelMinAggregateInputType = {
+    id?: true
+    contratoId?: true
+    servidorId?: true
+    papel?: true
+    atoDesignacao?: true
+    dataInicio?: true
+    dataFim?: true
+    createdAt?: true
+  }
+
+  export type ContratoResponsavelMaxAggregateInputType = {
+    id?: true
+    contratoId?: true
+    servidorId?: true
+    papel?: true
+    atoDesignacao?: true
+    dataInicio?: true
+    dataFim?: true
+    createdAt?: true
+  }
+
+  export type ContratoResponsavelCountAggregateInputType = {
+    id?: true
+    contratoId?: true
+    servidorId?: true
+    papel?: true
+    atoDesignacao?: true
+    dataInicio?: true
+    dataFim?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ContratoResponsavelAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ContratoResponsavel to aggregate.
+     */
+    where?: ContratoResponsavelWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoResponsavels to fetch.
+     */
+    orderBy?: Enumerable<ContratoResponsavelOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ContratoResponsavelWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoResponsavels from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoResponsavels.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ContratoResponsavels
+    **/
+    _count?: true | ContratoResponsavelCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ContratoResponsavelMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ContratoResponsavelMaxAggregateInputType
+  }
+
+  export type GetContratoResponsavelAggregateType<T extends ContratoResponsavelAggregateArgs> = {
+        [P in keyof T & keyof AggregateContratoResponsavel]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateContratoResponsavel[P]>
+      : GetScalarType<T[P], AggregateContratoResponsavel[P]>
+  }
+
+
+
+
+  export type ContratoResponsavelGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoResponsavelWhereInput
+    orderBy?: Enumerable<ContratoResponsavelOrderByWithAggregationInput>
+    by: ContratoResponsavelScalarFieldEnum[]
+    having?: ContratoResponsavelScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ContratoResponsavelCountAggregateInputType | true
+    _min?: ContratoResponsavelMinAggregateInputType
+    _max?: ContratoResponsavelMaxAggregateInputType
+  }
+
+
+  export type ContratoResponsavelGroupByOutputType = {
+    id: string
+    contratoId: string
+    servidorId: string
+    papel: PapelResponsavel
+    atoDesignacao: string | null
+    dataInicio: Date
+    dataFim: Date | null
+    createdAt: Date
+    _count: ContratoResponsavelCountAggregateOutputType | null
+    _min: ContratoResponsavelMinAggregateOutputType | null
+    _max: ContratoResponsavelMaxAggregateOutputType | null
+  }
+
+  type GetContratoResponsavelGroupByPayload<T extends ContratoResponsavelGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<ContratoResponsavelGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ContratoResponsavelGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ContratoResponsavelGroupByOutputType[P]>
+            : GetScalarType<T[P], ContratoResponsavelGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ContratoResponsavelSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    contratoId?: boolean
+    servidorId?: boolean
+    papel?: boolean
+    atoDesignacao?: boolean
+    dataInicio?: boolean
+    dataFim?: boolean
+    createdAt?: boolean
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    servidor?: boolean | ServidorArgs<ExtArgs>
+  }, ExtArgs["result"]["contratoResponsavel"]>
+
+  export type ContratoResponsavelSelectScalar = {
+    id?: boolean
+    contratoId?: boolean
+    servidorId?: boolean
+    papel?: boolean
+    atoDesignacao?: boolean
+    dataInicio?: boolean
+    dataFim?: boolean
+    createdAt?: boolean
+  }
+
+  export type ContratoResponsavelInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    servidor?: boolean | ServidorArgs<ExtArgs>
+  }
+
+
+  type ContratoResponsavelGetPayload<S extends boolean | null | undefined | ContratoResponsavelArgs> = $Types.GetResult<ContratoResponsavelPayload, S>
+
+  type ContratoResponsavelCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<ContratoResponsavelFindManyArgs, 'select' | 'include'> & {
+      select?: ContratoResponsavelCountAggregateInputType | true
+    }
+
+  export interface ContratoResponsavelDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ContratoResponsavel'], meta: { name: 'ContratoResponsavel' } }
+    /**
+     * Find zero or one ContratoResponsavel that matches the filter.
+     * @param {ContratoResponsavelFindUniqueArgs} args - Arguments to find a ContratoResponsavel
+     * @example
+     * // Get one ContratoResponsavel
+     * const contratoResponsavel = await prisma.contratoResponsavel.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends ContratoResponsavelFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, ContratoResponsavelFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'ContratoResponsavel'> extends True ? Prisma__ContratoResponsavelClient<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__ContratoResponsavelClient<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one ContratoResponsavel that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {ContratoResponsavelFindUniqueOrThrowArgs} args - Arguments to find a ContratoResponsavel
+     * @example
+     * // Get one ContratoResponsavel
+     * const contratoResponsavel = await prisma.contratoResponsavel.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends ContratoResponsavelFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoResponsavelFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__ContratoResponsavelClient<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first ContratoResponsavel that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoResponsavelFindFirstArgs} args - Arguments to find a ContratoResponsavel
+     * @example
+     * // Get one ContratoResponsavel
+     * const contratoResponsavel = await prisma.contratoResponsavel.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends ContratoResponsavelFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, ContratoResponsavelFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'ContratoResponsavel'> extends True ? Prisma__ContratoResponsavelClient<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__ContratoResponsavelClient<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first ContratoResponsavel that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoResponsavelFindFirstOrThrowArgs} args - Arguments to find a ContratoResponsavel
+     * @example
+     * // Get one ContratoResponsavel
+     * const contratoResponsavel = await prisma.contratoResponsavel.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends ContratoResponsavelFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoResponsavelFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__ContratoResponsavelClient<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more ContratoResponsavels that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoResponsavelFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ContratoResponsavels
+     * const contratoResponsavels = await prisma.contratoResponsavel.findMany()
+     * 
+     * // Get first 10 ContratoResponsavels
+     * const contratoResponsavels = await prisma.contratoResponsavel.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const contratoResponsavelWithIdOnly = await prisma.contratoResponsavel.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends ContratoResponsavelFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoResponsavelFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a ContratoResponsavel.
+     * @param {ContratoResponsavelCreateArgs} args - Arguments to create a ContratoResponsavel.
+     * @example
+     * // Create one ContratoResponsavel
+     * const ContratoResponsavel = await prisma.contratoResponsavel.create({
+     *   data: {
+     *     // ... data to create a ContratoResponsavel
+     *   }
+     * })
+     * 
+    **/
+    create<T extends ContratoResponsavelCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoResponsavelCreateArgs<ExtArgs>>
+    ): Prisma__ContratoResponsavelClient<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many ContratoResponsavels.
+     *     @param {ContratoResponsavelCreateManyArgs} args - Arguments to create many ContratoResponsavels.
+     *     @example
+     *     // Create many ContratoResponsavels
+     *     const contratoResponsavel = await prisma.contratoResponsavel.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends ContratoResponsavelCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoResponsavelCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ContratoResponsavel.
+     * @param {ContratoResponsavelDeleteArgs} args - Arguments to delete one ContratoResponsavel.
+     * @example
+     * // Delete one ContratoResponsavel
+     * const ContratoResponsavel = await prisma.contratoResponsavel.delete({
+     *   where: {
+     *     // ... filter to delete one ContratoResponsavel
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends ContratoResponsavelDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoResponsavelDeleteArgs<ExtArgs>>
+    ): Prisma__ContratoResponsavelClient<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one ContratoResponsavel.
+     * @param {ContratoResponsavelUpdateArgs} args - Arguments to update one ContratoResponsavel.
+     * @example
+     * // Update one ContratoResponsavel
+     * const contratoResponsavel = await prisma.contratoResponsavel.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends ContratoResponsavelUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoResponsavelUpdateArgs<ExtArgs>>
+    ): Prisma__ContratoResponsavelClient<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more ContratoResponsavels.
+     * @param {ContratoResponsavelDeleteManyArgs} args - Arguments to filter ContratoResponsavels to delete.
+     * @example
+     * // Delete a few ContratoResponsavels
+     * const { count } = await prisma.contratoResponsavel.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends ContratoResponsavelDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoResponsavelDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ContratoResponsavels.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoResponsavelUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ContratoResponsavels
+     * const contratoResponsavel = await prisma.contratoResponsavel.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends ContratoResponsavelUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoResponsavelUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ContratoResponsavel.
+     * @param {ContratoResponsavelUpsertArgs} args - Arguments to update or create a ContratoResponsavel.
+     * @example
+     * // Update or create a ContratoResponsavel
+     * const contratoResponsavel = await prisma.contratoResponsavel.upsert({
+     *   create: {
+     *     // ... data to create a ContratoResponsavel
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ContratoResponsavel we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends ContratoResponsavelUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoResponsavelUpsertArgs<ExtArgs>>
+    ): Prisma__ContratoResponsavelClient<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of ContratoResponsavels.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoResponsavelCountArgs} args - Arguments to filter ContratoResponsavels to count.
+     * @example
+     * // Count the number of ContratoResponsavels
+     * const count = await prisma.contratoResponsavel.count({
+     *   where: {
+     *     // ... the filter for the ContratoResponsavels we want to count
+     *   }
+     * })
+    **/
+    count<T extends ContratoResponsavelCountArgs>(
+      args?: Subset<T, ContratoResponsavelCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ContratoResponsavelCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ContratoResponsavel.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoResponsavelAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ContratoResponsavelAggregateArgs>(args: Subset<T, ContratoResponsavelAggregateArgs>): Prisma.PrismaPromise<GetContratoResponsavelAggregateType<T>>
+
+    /**
+     * Group by ContratoResponsavel.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoResponsavelGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ContratoResponsavelGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ContratoResponsavelGroupByArgs['orderBy'] }
+        : { orderBy?: ContratoResponsavelGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ContratoResponsavelGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetContratoResponsavelGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ContratoResponsavel.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__ContratoResponsavelClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    contrato<T extends ContratoArgs<ExtArgs> = {}>(args?: Subset<T, ContratoArgs<ExtArgs>>): Prisma__ContratoClient<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    servidor<T extends ServidorArgs<ExtArgs> = {}>(args?: Subset<T, ServidorArgs<ExtArgs>>): Prisma__ServidorClient<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * ContratoResponsavel base type for findUnique actions
+   */
+  export type ContratoResponsavelFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoResponsavel
+     */
+    select?: ContratoResponsavelSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoResponsavel to fetch.
+     */
+    where: ContratoResponsavelWhereUniqueInput
+  }
+
+  /**
+   * ContratoResponsavel findUnique
+   */
+  export interface ContratoResponsavelFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ContratoResponsavelFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ContratoResponsavel findUniqueOrThrow
+   */
+  export type ContratoResponsavelFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoResponsavel
+     */
+    select?: ContratoResponsavelSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoResponsavel to fetch.
+     */
+    where: ContratoResponsavelWhereUniqueInput
+  }
+
+
+  /**
+   * ContratoResponsavel base type for findFirst actions
+   */
+  export type ContratoResponsavelFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoResponsavel
+     */
+    select?: ContratoResponsavelSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoResponsavel to fetch.
+     */
+    where?: ContratoResponsavelWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoResponsavels to fetch.
+     */
+    orderBy?: Enumerable<ContratoResponsavelOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ContratoResponsavels.
+     */
+    cursor?: ContratoResponsavelWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoResponsavels from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoResponsavels.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ContratoResponsavels.
+     */
+    distinct?: Enumerable<ContratoResponsavelScalarFieldEnum>
+  }
+
+  /**
+   * ContratoResponsavel findFirst
+   */
+  export interface ContratoResponsavelFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ContratoResponsavelFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ContratoResponsavel findFirstOrThrow
+   */
+  export type ContratoResponsavelFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoResponsavel
+     */
+    select?: ContratoResponsavelSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoResponsavel to fetch.
+     */
+    where?: ContratoResponsavelWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoResponsavels to fetch.
+     */
+    orderBy?: Enumerable<ContratoResponsavelOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ContratoResponsavels.
+     */
+    cursor?: ContratoResponsavelWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoResponsavels from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoResponsavels.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ContratoResponsavels.
+     */
+    distinct?: Enumerable<ContratoResponsavelScalarFieldEnum>
+  }
+
+
+  /**
+   * ContratoResponsavel findMany
+   */
+  export type ContratoResponsavelFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoResponsavel
+     */
+    select?: ContratoResponsavelSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoResponsavels to fetch.
+     */
+    where?: ContratoResponsavelWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoResponsavels to fetch.
+     */
+    orderBy?: Enumerable<ContratoResponsavelOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ContratoResponsavels.
+     */
+    cursor?: ContratoResponsavelWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoResponsavels from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoResponsavels.
+     */
+    skip?: number
+    distinct?: Enumerable<ContratoResponsavelScalarFieldEnum>
+  }
+
+
+  /**
+   * ContratoResponsavel create
+   */
+  export type ContratoResponsavelCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoResponsavel
+     */
+    select?: ContratoResponsavelSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ContratoResponsavel.
+     */
+    data: XOR<ContratoResponsavelCreateInput, ContratoResponsavelUncheckedCreateInput>
+  }
+
+
+  /**
+   * ContratoResponsavel createMany
+   */
+  export type ContratoResponsavelCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ContratoResponsavels.
+     */
+    data: Enumerable<ContratoResponsavelCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * ContratoResponsavel update
+   */
+  export type ContratoResponsavelUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoResponsavel
+     */
+    select?: ContratoResponsavelSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ContratoResponsavel.
+     */
+    data: XOR<ContratoResponsavelUpdateInput, ContratoResponsavelUncheckedUpdateInput>
+    /**
+     * Choose, which ContratoResponsavel to update.
+     */
+    where: ContratoResponsavelWhereUniqueInput
+  }
+
+
+  /**
+   * ContratoResponsavel updateMany
+   */
+  export type ContratoResponsavelUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ContratoResponsavels.
+     */
+    data: XOR<ContratoResponsavelUpdateManyMutationInput, ContratoResponsavelUncheckedUpdateManyInput>
+    /**
+     * Filter which ContratoResponsavels to update
+     */
+    where?: ContratoResponsavelWhereInput
+  }
+
+
+  /**
+   * ContratoResponsavel upsert
+   */
+  export type ContratoResponsavelUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoResponsavel
+     */
+    select?: ContratoResponsavelSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ContratoResponsavel to update in case it exists.
+     */
+    where: ContratoResponsavelWhereUniqueInput
+    /**
+     * In case the ContratoResponsavel found by the `where` argument doesn't exist, create a new ContratoResponsavel with this data.
+     */
+    create: XOR<ContratoResponsavelCreateInput, ContratoResponsavelUncheckedCreateInput>
+    /**
+     * In case the ContratoResponsavel was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ContratoResponsavelUpdateInput, ContratoResponsavelUncheckedUpdateInput>
+  }
+
+
+  /**
+   * ContratoResponsavel delete
+   */
+  export type ContratoResponsavelDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoResponsavel
+     */
+    select?: ContratoResponsavelSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+    /**
+     * Filter which ContratoResponsavel to delete.
+     */
+    where: ContratoResponsavelWhereUniqueInput
+  }
+
+
+  /**
+   * ContratoResponsavel deleteMany
+   */
+  export type ContratoResponsavelDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ContratoResponsavels to delete
+     */
+    where?: ContratoResponsavelWhereInput
+  }
+
+
+  /**
+   * ContratoResponsavel without action
+   */
+  export type ContratoResponsavelArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoResponsavel
+     */
+    select?: ContratoResponsavelSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoResponsavelInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model ContratoRateio
+   */
+
+
+  export type AggregateContratoRateio = {
+    _count: ContratoRateioCountAggregateOutputType | null
+    _avg: ContratoRateioAvgAggregateOutputType | null
+    _sum: ContratoRateioSumAggregateOutputType | null
+    _min: ContratoRateioMinAggregateOutputType | null
+    _max: ContratoRateioMaxAggregateOutputType | null
+  }
+
+  export type ContratoRateioAvgAggregateOutputType = {
+    percentual: Decimal | null
+    valorCents: number | null
+    quantidade: Decimal | null
+  }
+
+  export type ContratoRateioSumAggregateOutputType = {
+    percentual: Decimal | null
+    valorCents: bigint | null
+    quantidade: Decimal | null
+  }
+
+  export type ContratoRateioMinAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    unidadeId: string | null
+    percentual: Decimal | null
+    valorCents: bigint | null
+    quantidade: Decimal | null
+    observacao: string | null
+    createdAt: Date | null
+  }
+
+  export type ContratoRateioMaxAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    unidadeId: string | null
+    percentual: Decimal | null
+    valorCents: bigint | null
+    quantidade: Decimal | null
+    observacao: string | null
+    createdAt: Date | null
+  }
+
+  export type ContratoRateioCountAggregateOutputType = {
+    id: number
+    contratoId: number
+    unidadeId: number
+    percentual: number
+    valorCents: number
+    quantidade: number
+    observacao: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ContratoRateioAvgAggregateInputType = {
+    percentual?: true
+    valorCents?: true
+    quantidade?: true
+  }
+
+  export type ContratoRateioSumAggregateInputType = {
+    percentual?: true
+    valorCents?: true
+    quantidade?: true
+  }
+
+  export type ContratoRateioMinAggregateInputType = {
+    id?: true
+    contratoId?: true
+    unidadeId?: true
+    percentual?: true
+    valorCents?: true
+    quantidade?: true
+    observacao?: true
+    createdAt?: true
+  }
+
+  export type ContratoRateioMaxAggregateInputType = {
+    id?: true
+    contratoId?: true
+    unidadeId?: true
+    percentual?: true
+    valorCents?: true
+    quantidade?: true
+    observacao?: true
+    createdAt?: true
+  }
+
+  export type ContratoRateioCountAggregateInputType = {
+    id?: true
+    contratoId?: true
+    unidadeId?: true
+    percentual?: true
+    valorCents?: true
+    quantidade?: true
+    observacao?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ContratoRateioAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ContratoRateio to aggregate.
+     */
+    where?: ContratoRateioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoRateios to fetch.
+     */
+    orderBy?: Enumerable<ContratoRateioOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ContratoRateioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoRateios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoRateios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ContratoRateios
+    **/
+    _count?: true | ContratoRateioCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ContratoRateioAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ContratoRateioSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ContratoRateioMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ContratoRateioMaxAggregateInputType
+  }
+
+  export type GetContratoRateioAggregateType<T extends ContratoRateioAggregateArgs> = {
+        [P in keyof T & keyof AggregateContratoRateio]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateContratoRateio[P]>
+      : GetScalarType<T[P], AggregateContratoRateio[P]>
+  }
+
+
+
+
+  export type ContratoRateioGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoRateioWhereInput
+    orderBy?: Enumerable<ContratoRateioOrderByWithAggregationInput>
+    by: ContratoRateioScalarFieldEnum[]
+    having?: ContratoRateioScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ContratoRateioCountAggregateInputType | true
+    _avg?: ContratoRateioAvgAggregateInputType
+    _sum?: ContratoRateioSumAggregateInputType
+    _min?: ContratoRateioMinAggregateInputType
+    _max?: ContratoRateioMaxAggregateInputType
+  }
+
+
+  export type ContratoRateioGroupByOutputType = {
+    id: string
+    contratoId: string
+    unidadeId: string
+    percentual: Decimal | null
+    valorCents: bigint | null
+    quantidade: Decimal | null
+    observacao: string | null
+    createdAt: Date
+    _count: ContratoRateioCountAggregateOutputType | null
+    _avg: ContratoRateioAvgAggregateOutputType | null
+    _sum: ContratoRateioSumAggregateOutputType | null
+    _min: ContratoRateioMinAggregateOutputType | null
+    _max: ContratoRateioMaxAggregateOutputType | null
+  }
+
+  type GetContratoRateioGroupByPayload<T extends ContratoRateioGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<ContratoRateioGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ContratoRateioGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ContratoRateioGroupByOutputType[P]>
+            : GetScalarType<T[P], ContratoRateioGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ContratoRateioSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    contratoId?: boolean
+    unidadeId?: boolean
+    percentual?: boolean
+    valorCents?: boolean
+    quantidade?: boolean
+    observacao?: boolean
+    createdAt?: boolean
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    unidade?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+  }, ExtArgs["result"]["contratoRateio"]>
+
+  export type ContratoRateioSelectScalar = {
+    id?: boolean
+    contratoId?: boolean
+    unidadeId?: boolean
+    percentual?: boolean
+    valorCents?: boolean
+    quantidade?: boolean
+    observacao?: boolean
+    createdAt?: boolean
+  }
+
+  export type ContratoRateioInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    unidade?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+  }
+
+
+  type ContratoRateioGetPayload<S extends boolean | null | undefined | ContratoRateioArgs> = $Types.GetResult<ContratoRateioPayload, S>
+
+  type ContratoRateioCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<ContratoRateioFindManyArgs, 'select' | 'include'> & {
+      select?: ContratoRateioCountAggregateInputType | true
+    }
+
+  export interface ContratoRateioDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ContratoRateio'], meta: { name: 'ContratoRateio' } }
+    /**
+     * Find zero or one ContratoRateio that matches the filter.
+     * @param {ContratoRateioFindUniqueArgs} args - Arguments to find a ContratoRateio
+     * @example
+     * // Get one ContratoRateio
+     * const contratoRateio = await prisma.contratoRateio.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends ContratoRateioFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, ContratoRateioFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'ContratoRateio'> extends True ? Prisma__ContratoRateioClient<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__ContratoRateioClient<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one ContratoRateio that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {ContratoRateioFindUniqueOrThrowArgs} args - Arguments to find a ContratoRateio
+     * @example
+     * // Get one ContratoRateio
+     * const contratoRateio = await prisma.contratoRateio.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends ContratoRateioFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoRateioFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__ContratoRateioClient<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first ContratoRateio that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoRateioFindFirstArgs} args - Arguments to find a ContratoRateio
+     * @example
+     * // Get one ContratoRateio
+     * const contratoRateio = await prisma.contratoRateio.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends ContratoRateioFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, ContratoRateioFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'ContratoRateio'> extends True ? Prisma__ContratoRateioClient<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__ContratoRateioClient<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first ContratoRateio that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoRateioFindFirstOrThrowArgs} args - Arguments to find a ContratoRateio
+     * @example
+     * // Get one ContratoRateio
+     * const contratoRateio = await prisma.contratoRateio.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends ContratoRateioFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoRateioFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__ContratoRateioClient<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more ContratoRateios that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoRateioFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ContratoRateios
+     * const contratoRateios = await prisma.contratoRateio.findMany()
+     * 
+     * // Get first 10 ContratoRateios
+     * const contratoRateios = await prisma.contratoRateio.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const contratoRateioWithIdOnly = await prisma.contratoRateio.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends ContratoRateioFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoRateioFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a ContratoRateio.
+     * @param {ContratoRateioCreateArgs} args - Arguments to create a ContratoRateio.
+     * @example
+     * // Create one ContratoRateio
+     * const ContratoRateio = await prisma.contratoRateio.create({
+     *   data: {
+     *     // ... data to create a ContratoRateio
+     *   }
+     * })
+     * 
+    **/
+    create<T extends ContratoRateioCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoRateioCreateArgs<ExtArgs>>
+    ): Prisma__ContratoRateioClient<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many ContratoRateios.
+     *     @param {ContratoRateioCreateManyArgs} args - Arguments to create many ContratoRateios.
+     *     @example
+     *     // Create many ContratoRateios
+     *     const contratoRateio = await prisma.contratoRateio.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends ContratoRateioCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoRateioCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ContratoRateio.
+     * @param {ContratoRateioDeleteArgs} args - Arguments to delete one ContratoRateio.
+     * @example
+     * // Delete one ContratoRateio
+     * const ContratoRateio = await prisma.contratoRateio.delete({
+     *   where: {
+     *     // ... filter to delete one ContratoRateio
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends ContratoRateioDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoRateioDeleteArgs<ExtArgs>>
+    ): Prisma__ContratoRateioClient<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one ContratoRateio.
+     * @param {ContratoRateioUpdateArgs} args - Arguments to update one ContratoRateio.
+     * @example
+     * // Update one ContratoRateio
+     * const contratoRateio = await prisma.contratoRateio.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends ContratoRateioUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoRateioUpdateArgs<ExtArgs>>
+    ): Prisma__ContratoRateioClient<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more ContratoRateios.
+     * @param {ContratoRateioDeleteManyArgs} args - Arguments to filter ContratoRateios to delete.
+     * @example
+     * // Delete a few ContratoRateios
+     * const { count } = await prisma.contratoRateio.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends ContratoRateioDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoRateioDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ContratoRateios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoRateioUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ContratoRateios
+     * const contratoRateio = await prisma.contratoRateio.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends ContratoRateioUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoRateioUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ContratoRateio.
+     * @param {ContratoRateioUpsertArgs} args - Arguments to update or create a ContratoRateio.
+     * @example
+     * // Update or create a ContratoRateio
+     * const contratoRateio = await prisma.contratoRateio.upsert({
+     *   create: {
+     *     // ... data to create a ContratoRateio
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ContratoRateio we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends ContratoRateioUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoRateioUpsertArgs<ExtArgs>>
+    ): Prisma__ContratoRateioClient<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of ContratoRateios.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoRateioCountArgs} args - Arguments to filter ContratoRateios to count.
+     * @example
+     * // Count the number of ContratoRateios
+     * const count = await prisma.contratoRateio.count({
+     *   where: {
+     *     // ... the filter for the ContratoRateios we want to count
+     *   }
+     * })
+    **/
+    count<T extends ContratoRateioCountArgs>(
+      args?: Subset<T, ContratoRateioCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ContratoRateioCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ContratoRateio.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoRateioAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ContratoRateioAggregateArgs>(args: Subset<T, ContratoRateioAggregateArgs>): Prisma.PrismaPromise<GetContratoRateioAggregateType<T>>
+
+    /**
+     * Group by ContratoRateio.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoRateioGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ContratoRateioGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ContratoRateioGroupByArgs['orderBy'] }
+        : { orderBy?: ContratoRateioGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ContratoRateioGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetContratoRateioGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ContratoRateio.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__ContratoRateioClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    contrato<T extends ContratoArgs<ExtArgs> = {}>(args?: Subset<T, ContratoArgs<ExtArgs>>): Prisma__ContratoClient<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    unidade<T extends UnidadeOrganizacionalArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacionalArgs<ExtArgs>>): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * ContratoRateio base type for findUnique actions
+   */
+  export type ContratoRateioFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoRateio to fetch.
+     */
+    where: ContratoRateioWhereUniqueInput
+  }
+
+  /**
+   * ContratoRateio findUnique
+   */
+  export interface ContratoRateioFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ContratoRateioFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ContratoRateio findUniqueOrThrow
+   */
+  export type ContratoRateioFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoRateio to fetch.
+     */
+    where: ContratoRateioWhereUniqueInput
+  }
+
+
+  /**
+   * ContratoRateio base type for findFirst actions
+   */
+  export type ContratoRateioFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoRateio to fetch.
+     */
+    where?: ContratoRateioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoRateios to fetch.
+     */
+    orderBy?: Enumerable<ContratoRateioOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ContratoRateios.
+     */
+    cursor?: ContratoRateioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoRateios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoRateios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ContratoRateios.
+     */
+    distinct?: Enumerable<ContratoRateioScalarFieldEnum>
+  }
+
+  /**
+   * ContratoRateio findFirst
+   */
+  export interface ContratoRateioFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ContratoRateioFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ContratoRateio findFirstOrThrow
+   */
+  export type ContratoRateioFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoRateio to fetch.
+     */
+    where?: ContratoRateioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoRateios to fetch.
+     */
+    orderBy?: Enumerable<ContratoRateioOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ContratoRateios.
+     */
+    cursor?: ContratoRateioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoRateios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoRateios.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ContratoRateios.
+     */
+    distinct?: Enumerable<ContratoRateioScalarFieldEnum>
+  }
+
+
+  /**
+   * ContratoRateio findMany
+   */
+  export type ContratoRateioFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoRateios to fetch.
+     */
+    where?: ContratoRateioWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoRateios to fetch.
+     */
+    orderBy?: Enumerable<ContratoRateioOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ContratoRateios.
+     */
+    cursor?: ContratoRateioWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoRateios from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoRateios.
+     */
+    skip?: number
+    distinct?: Enumerable<ContratoRateioScalarFieldEnum>
+  }
+
+
+  /**
+   * ContratoRateio create
+   */
+  export type ContratoRateioCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ContratoRateio.
+     */
+    data: XOR<ContratoRateioCreateInput, ContratoRateioUncheckedCreateInput>
+  }
+
+
+  /**
+   * ContratoRateio createMany
+   */
+  export type ContratoRateioCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ContratoRateios.
+     */
+    data: Enumerable<ContratoRateioCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * ContratoRateio update
+   */
+  export type ContratoRateioUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ContratoRateio.
+     */
+    data: XOR<ContratoRateioUpdateInput, ContratoRateioUncheckedUpdateInput>
+    /**
+     * Choose, which ContratoRateio to update.
+     */
+    where: ContratoRateioWhereUniqueInput
+  }
+
+
+  /**
+   * ContratoRateio updateMany
+   */
+  export type ContratoRateioUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ContratoRateios.
+     */
+    data: XOR<ContratoRateioUpdateManyMutationInput, ContratoRateioUncheckedUpdateManyInput>
+    /**
+     * Filter which ContratoRateios to update
+     */
+    where?: ContratoRateioWhereInput
+  }
+
+
+  /**
+   * ContratoRateio upsert
+   */
+  export type ContratoRateioUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ContratoRateio to update in case it exists.
+     */
+    where: ContratoRateioWhereUniqueInput
+    /**
+     * In case the ContratoRateio found by the `where` argument doesn't exist, create a new ContratoRateio with this data.
+     */
+    create: XOR<ContratoRateioCreateInput, ContratoRateioUncheckedCreateInput>
+    /**
+     * In case the ContratoRateio was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ContratoRateioUpdateInput, ContratoRateioUncheckedUpdateInput>
+  }
+
+
+  /**
+   * ContratoRateio delete
+   */
+  export type ContratoRateioDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
+    /**
+     * Filter which ContratoRateio to delete.
+     */
+    where: ContratoRateioWhereUniqueInput
+  }
+
+
+  /**
+   * ContratoRateio deleteMany
+   */
+  export type ContratoRateioDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ContratoRateios to delete
+     */
+    where?: ContratoRateioWhereInput
+  }
+
+
+  /**
+   * ContratoRateio without action
+   */
+  export type ContratoRateioArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoRateio
+     */
+    select?: ContratoRateioSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoRateioInclude<ExtArgs> | null
   }
 
 
@@ -17608,26 +21462,94 @@ export namespace Prisma {
   export type ServidorScalarFieldEnum = (typeof ServidorScalarFieldEnum)[keyof typeof ServidorScalarFieldEnum]
 
 
+  export const ProcessoContratacaoScalarFieldEnum: {
+    id: 'id',
+    eProtocolo: 'eProtocolo',
+    ano: 'ano',
+    objetoResumo: 'objetoResumo',
+    unidadeDemandanteId: 'unidadeDemandanteId',
+    modalidadePretendidaId: 'modalidadePretendidaId',
+    valorEstimadoCents: 'valorEstimadoCents',
+    etpConcluido: 'etpConcluido',
+    dataEtp: 'dataEtp',
+    termoReferenciaConcluido: 'termoReferenciaConcluido',
+    dataTermoReferencia: 'dataTermoReferencia',
+    situacao: 'situacao',
+    observacoes: 'observacoes',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ProcessoContratacaoScalarFieldEnum = (typeof ProcessoContratacaoScalarFieldEnum)[keyof typeof ProcessoContratacaoScalarFieldEnum]
+
+
   export const ContratoScalarFieldEnum: {
     id: 'id',
-    protocoloCabeca: 'protocoloCabeca',
-    numGms: 'numGms',
+    processoId: 'processoId',
+    numeroGms: 'numeroGms',
     anoGms: 'anoGms',
-    unidadeFspId: 'unidadeFspId',
-    gestorId: 'gestorId',
-    fiscalId: 'fiscalId',
-    fornecedorId: 'fornecedorId',
-    modalidade: 'modalidade',
+    numeroContrato: 'numeroContrato',
+    eProtocolo: 'eProtocolo',
+    pilar: 'pilar',
+    categoriaContratacaoId: 'categoriaContratacaoId',
+    naturezaObjeto: 'naturezaObjeto',
+    modalidadeId: 'modalidadeId',
+    fundamentoLegalId: 'fundamentoLegalId',
     objeto: 'objeto',
-    valorAnualCents: 'valorAnualCents',
-    dataInicio: 'dataInicio',
-    dataFimOrig: 'dataFimOrig',
-    status: 'status',
+    fornecedorId: 'fornecedorId',
+    unidadeGestoraId: 'unidadeGestoraId',
+    dataAssinatura: 'dataAssinatura',
+    dataInicioVigencia: 'dataInicioVigencia',
+    prazoInicialValor: 'prazoInicialValor',
+    prazoInicialUnidade: 'prazoInicialUnidade',
+    dataFimVigenciaOriginal: 'dataFimVigenciaOriginal',
+    prorrogavel: 'prorrogavel',
+    limiteProrrogacaoMeses: 'limiteProrrogacaoMeses',
+    valorGlobalOriginalCents: 'valorGlobalOriginalCents',
+    indiceReajuste: 'indiceReajuste',
+    mesAniversarioReajuste: 'mesAniversarioReajuste',
+    situacao: 'situacao',
+    dataEncerramento: 'dataEncerramento',
+    motivoEncerramento: 'motivoEncerramento',
+    garantiaTipo: 'garantiaTipo',
+    garantiaValorCents: 'garantiaValorCents',
+    garantiaValidade: 'garantiaValidade',
+    reservaObservacao: 'reservaObservacao',
+    observacoes: 'observacoes',
+    codigoLegado: 'codigoLegado',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
 
   export type ContratoScalarFieldEnum = (typeof ContratoScalarFieldEnum)[keyof typeof ContratoScalarFieldEnum]
+
+
+  export const ContratoResponsavelScalarFieldEnum: {
+    id: 'id',
+    contratoId: 'contratoId',
+    servidorId: 'servidorId',
+    papel: 'papel',
+    atoDesignacao: 'atoDesignacao',
+    dataInicio: 'dataInicio',
+    dataFim: 'dataFim',
+    createdAt: 'createdAt'
+  };
+
+  export type ContratoResponsavelScalarFieldEnum = (typeof ContratoResponsavelScalarFieldEnum)[keyof typeof ContratoResponsavelScalarFieldEnum]
+
+
+  export const ContratoRateioScalarFieldEnum: {
+    id: 'id',
+    contratoId: 'contratoId',
+    unidadeId: 'unidadeId',
+    percentual: 'percentual',
+    valorCents: 'valorCents',
+    quantidade: 'quantidade',
+    observacao: 'observacao',
+    createdAt: 'createdAt'
+  };
+
+  export type ContratoRateioScalarFieldEnum = (typeof ContratoRateioScalarFieldEnum)[keyof typeof ContratoRateioScalarFieldEnum]
 
 
   export const AditivoScalarFieldEnum: {
@@ -17738,14 +21660,12 @@ export namespace Prisma {
     id?: StringFilter | string
     sigla?: StringFilter | string
     nome?: StringFilter | string
-    contratos?: ContratoListRelationFilter
   }
 
   export type UnidadeFspOrderByWithRelationInput = {
     id?: SortOrder
     sigla?: SortOrder
     nome?: SortOrder
-    contratos?: ContratoOrderByRelationAggregateInput
   }
 
   export type UnidadeFspWhereUniqueInput = {
@@ -17899,6 +21819,10 @@ export namespace Prisma {
     dominio?: XOR<DominioRelationFilter, DominioWhereInput>
     parent?: XOR<DominioValorRelationFilter, DominioValorWhereInput> | null
     children?: DominioValorListRelationFilter
+    contratosCategoria?: ContratoListRelationFilter
+    contratosModalidade?: ContratoListRelationFilter
+    contratosFundamento?: ContratoListRelationFilter
+    processosModalidade?: ProcessoContratacaoListRelationFilter
   }
 
   export type DominioValorOrderByWithRelationInput = {
@@ -17916,6 +21840,10 @@ export namespace Prisma {
     dominio?: DominioOrderByWithRelationInput
     parent?: DominioValorOrderByWithRelationInput
     children?: DominioValorOrderByRelationAggregateInput
+    contratosCategoria?: ContratoOrderByRelationAggregateInput
+    contratosModalidade?: ContratoOrderByRelationAggregateInput
+    contratosFundamento?: ContratoOrderByRelationAggregateInput
+    processosModalidade?: ProcessoContratacaoOrderByRelationAggregateInput
   }
 
   export type DominioValorWhereUniqueInput = {
@@ -18036,6 +21964,9 @@ export namespace Prisma {
     children?: UnidadeOrganizacionalListRelationFilter
     municipio?: XOR<MunicipioRelationFilter, MunicipioWhereInput>
     servidores?: ServidorListRelationFilter
+    contratosGestora?: ContratoListRelationFilter
+    rateios?: ContratoRateioListRelationFilter
+    processosDemandante?: ProcessoContratacaoListRelationFilter
   }
 
   export type UnidadeOrganizacionalOrderByWithRelationInput = {
@@ -18054,6 +21985,9 @@ export namespace Prisma {
     children?: UnidadeOrganizacionalOrderByRelationAggregateInput
     municipio?: MunicipioOrderByWithRelationInput
     servidores?: ServidorOrderByRelationAggregateInput
+    contratosGestora?: ContratoOrderByRelationAggregateInput
+    rateios?: ContratoRateioOrderByRelationAggregateInput
+    processosDemandante?: ProcessoContratacaoOrderByRelationAggregateInput
   }
 
   export type UnidadeOrganizacionalWhereUniqueInput = {
@@ -18315,8 +22249,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter | Date | string
     orgao?: XOR<OrgaoRelationFilter, OrgaoWhereInput> | null
     unidade?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput> | null
-    gestorContratos?: ContratoListRelationFilter
-    fiscalContratos?: ContratoListRelationFilter
+    responsaveis?: ContratoResponsavelListRelationFilter
   }
 
   export type ServidorOrderByWithRelationInput = {
@@ -18334,8 +22267,7 @@ export namespace Prisma {
     updatedAt?: SortOrder
     orgao?: OrgaoOrderByWithRelationInput
     unidade?: UnidadeOrganizacionalOrderByWithRelationInput
-    gestorContratos?: ContratoOrderByRelationAggregateInput
-    fiscalContratos?: ContratoOrderByRelationAggregateInput
+    responsaveis?: ContratoResponsavelOrderByRelationAggregateInput
   }
 
   export type ServidorWhereUniqueInput = {
@@ -18380,78 +22312,237 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter | Date | string
   }
 
+  export type ProcessoContratacaoWhereInput = {
+    AND?: Enumerable<ProcessoContratacaoWhereInput>
+    OR?: Enumerable<ProcessoContratacaoWhereInput>
+    NOT?: Enumerable<ProcessoContratacaoWhereInput>
+    id?: StringFilter | string
+    eProtocolo?: StringFilter | string
+    ano?: IntFilter | number
+    objetoResumo?: StringFilter | string
+    unidadeDemandanteId?: StringFilter | string
+    modalidadePretendidaId?: StringNullableFilter | string | null
+    valorEstimadoCents?: BigIntNullableFilter | bigint | number | null
+    etpConcluido?: BoolFilter | boolean
+    dataEtp?: DateTimeNullableFilter | Date | string | null
+    termoReferenciaConcluido?: BoolFilter | boolean
+    dataTermoReferencia?: DateTimeNullableFilter | Date | string | null
+    situacao?: EnumSituacaoProcessoFilter | SituacaoProcesso
+    observacoes?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    unidadeDemandante?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput>
+    modalidadePretendida?: XOR<DominioValorRelationFilter, DominioValorWhereInput> | null
+    contratos?: ContratoListRelationFilter
+  }
+
+  export type ProcessoContratacaoOrderByWithRelationInput = {
+    id?: SortOrder
+    eProtocolo?: SortOrder
+    ano?: SortOrder
+    objetoResumo?: SortOrder
+    unidadeDemandanteId?: SortOrder
+    modalidadePretendidaId?: SortOrderInput | SortOrder
+    valorEstimadoCents?: SortOrderInput | SortOrder
+    etpConcluido?: SortOrder
+    dataEtp?: SortOrderInput | SortOrder
+    termoReferenciaConcluido?: SortOrder
+    dataTermoReferencia?: SortOrderInput | SortOrder
+    situacao?: SortOrder
+    observacoes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    unidadeDemandante?: UnidadeOrganizacionalOrderByWithRelationInput
+    modalidadePretendida?: DominioValorOrderByWithRelationInput
+    contratos?: ContratoOrderByRelationAggregateInput
+  }
+
+  export type ProcessoContratacaoWhereUniqueInput = {
+    id?: string
+    eProtocolo?: string
+  }
+
+  export type ProcessoContratacaoOrderByWithAggregationInput = {
+    id?: SortOrder
+    eProtocolo?: SortOrder
+    ano?: SortOrder
+    objetoResumo?: SortOrder
+    unidadeDemandanteId?: SortOrder
+    modalidadePretendidaId?: SortOrderInput | SortOrder
+    valorEstimadoCents?: SortOrderInput | SortOrder
+    etpConcluido?: SortOrder
+    dataEtp?: SortOrderInput | SortOrder
+    termoReferenciaConcluido?: SortOrder
+    dataTermoReferencia?: SortOrderInput | SortOrder
+    situacao?: SortOrder
+    observacoes?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ProcessoContratacaoCountOrderByAggregateInput
+    _avg?: ProcessoContratacaoAvgOrderByAggregateInput
+    _max?: ProcessoContratacaoMaxOrderByAggregateInput
+    _min?: ProcessoContratacaoMinOrderByAggregateInput
+    _sum?: ProcessoContratacaoSumOrderByAggregateInput
+  }
+
+  export type ProcessoContratacaoScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<ProcessoContratacaoScalarWhereWithAggregatesInput>
+    OR?: Enumerable<ProcessoContratacaoScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<ProcessoContratacaoScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    eProtocolo?: StringWithAggregatesFilter | string
+    ano?: IntWithAggregatesFilter | number
+    objetoResumo?: StringWithAggregatesFilter | string
+    unidadeDemandanteId?: StringWithAggregatesFilter | string
+    modalidadePretendidaId?: StringNullableWithAggregatesFilter | string | null
+    valorEstimadoCents?: BigIntNullableWithAggregatesFilter | bigint | number | null
+    etpConcluido?: BoolWithAggregatesFilter | boolean
+    dataEtp?: DateTimeNullableWithAggregatesFilter | Date | string | null
+    termoReferenciaConcluido?: BoolWithAggregatesFilter | boolean
+    dataTermoReferencia?: DateTimeNullableWithAggregatesFilter | Date | string | null
+    situacao?: EnumSituacaoProcessoWithAggregatesFilter | SituacaoProcesso
+    observacoes?: StringNullableWithAggregatesFilter | string | null
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
   export type ContratoWhereInput = {
     AND?: Enumerable<ContratoWhereInput>
     OR?: Enumerable<ContratoWhereInput>
     NOT?: Enumerable<ContratoWhereInput>
     id?: StringFilter | string
-    protocoloCabeca?: StringNullableFilter | string | null
-    numGms?: IntFilter | number
+    processoId?: StringNullableFilter | string | null
+    numeroGms?: StringFilter | string
     anoGms?: IntFilter | number
-    unidadeFspId?: StringFilter | string
-    gestorId?: StringFilter | string
-    fiscalId?: StringFilter | string
-    fornecedorId?: StringFilter | string
-    modalidade?: StringFilter | string
+    numeroContrato?: StringNullableFilter | string | null
+    eProtocolo?: StringNullableFilter | string | null
+    pilar?: EnumPilarOrcamentarioFilter | PilarOrcamentario
+    categoriaContratacaoId?: StringFilter | string
+    naturezaObjeto?: EnumNaturezaObjetoFilter | NaturezaObjeto
+    modalidadeId?: StringFilter | string
+    fundamentoLegalId?: StringNullableFilter | string | null
     objeto?: StringFilter | string
-    valorAnualCents?: IntFilter | number
-    dataInicio?: DateTimeNullableFilter | Date | string | null
-    dataFimOrig?: DateTimeNullableFilter | Date | string | null
-    status?: StringFilter | string
+    fornecedorId?: StringFilter | string
+    unidadeGestoraId?: StringFilter | string
+    dataAssinatura?: DateTimeNullableFilter | Date | string | null
+    dataInicioVigencia?: DateTimeFilter | Date | string
+    prazoInicialValor?: IntFilter | number
+    prazoInicialUnidade?: EnumUnidadeTempoFilter | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFilter | Date | string
+    prorrogavel?: BoolFilter | boolean
+    limiteProrrogacaoMeses?: IntNullableFilter | number | null
+    valorGlobalOriginalCents?: BigIntFilter | bigint | number
+    indiceReajuste?: StringNullableFilter | string | null
+    mesAniversarioReajuste?: IntNullableFilter | number | null
+    situacao?: EnumSituacaoContratoFilter | SituacaoContrato
+    dataEncerramento?: DateTimeNullableFilter | Date | string | null
+    motivoEncerramento?: StringNullableFilter | string | null
+    garantiaTipo?: EnumTipoGarantiaNullableFilter | TipoGarantia | null
+    garantiaValorCents?: BigIntNullableFilter | bigint | number | null
+    garantiaValidade?: DateTimeNullableFilter | Date | string | null
+    reservaObservacao?: StringNullableFilter | string | null
+    observacoes?: StringNullableFilter | string | null
+    codigoLegado?: StringNullableFilter | string | null
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
-    unidadeFsp?: XOR<UnidadeFspRelationFilter, UnidadeFspWhereInput>
-    gestor?: XOR<ServidorRelationFilter, ServidorWhereInput>
-    fiscal?: XOR<ServidorRelationFilter, ServidorWhereInput>
+    processo?: XOR<ProcessoContratacaoRelationFilter, ProcessoContratacaoWhereInput> | null
+    categoriaContratacao?: XOR<DominioValorRelationFilter, DominioValorWhereInput>
+    modalidadeRef?: XOR<DominioValorRelationFilter, DominioValorWhereInput>
+    fundamentoLegal?: XOR<DominioValorRelationFilter, DominioValorWhereInput> | null
     fornecedor?: XOR<FornecedorRelationFilter, FornecedorWhereInput>
+    unidadeGestora?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput>
+    responsaveis?: ContratoResponsavelListRelationFilter
+    rateios?: ContratoRateioListRelationFilter
     aditivos?: AditivoListRelationFilter
   }
 
   export type ContratoOrderByWithRelationInput = {
     id?: SortOrder
-    protocoloCabeca?: SortOrderInput | SortOrder
-    numGms?: SortOrder
+    processoId?: SortOrderInput | SortOrder
+    numeroGms?: SortOrder
     anoGms?: SortOrder
-    unidadeFspId?: SortOrder
-    gestorId?: SortOrder
-    fiscalId?: SortOrder
-    fornecedorId?: SortOrder
-    modalidade?: SortOrder
+    numeroContrato?: SortOrderInput | SortOrder
+    eProtocolo?: SortOrderInput | SortOrder
+    pilar?: SortOrder
+    categoriaContratacaoId?: SortOrder
+    naturezaObjeto?: SortOrder
+    modalidadeId?: SortOrder
+    fundamentoLegalId?: SortOrderInput | SortOrder
     objeto?: SortOrder
-    valorAnualCents?: SortOrder
-    dataInicio?: SortOrderInput | SortOrder
-    dataFimOrig?: SortOrderInput | SortOrder
-    status?: SortOrder
+    fornecedorId?: SortOrder
+    unidadeGestoraId?: SortOrder
+    dataAssinatura?: SortOrderInput | SortOrder
+    dataInicioVigencia?: SortOrder
+    prazoInicialValor?: SortOrder
+    prazoInicialUnidade?: SortOrder
+    dataFimVigenciaOriginal?: SortOrder
+    prorrogavel?: SortOrder
+    limiteProrrogacaoMeses?: SortOrderInput | SortOrder
+    valorGlobalOriginalCents?: SortOrder
+    indiceReajuste?: SortOrderInput | SortOrder
+    mesAniversarioReajuste?: SortOrderInput | SortOrder
+    situacao?: SortOrder
+    dataEncerramento?: SortOrderInput | SortOrder
+    motivoEncerramento?: SortOrderInput | SortOrder
+    garantiaTipo?: SortOrderInput | SortOrder
+    garantiaValorCents?: SortOrderInput | SortOrder
+    garantiaValidade?: SortOrderInput | SortOrder
+    reservaObservacao?: SortOrderInput | SortOrder
+    observacoes?: SortOrderInput | SortOrder
+    codigoLegado?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    unidadeFsp?: UnidadeFspOrderByWithRelationInput
-    gestor?: ServidorOrderByWithRelationInput
-    fiscal?: ServidorOrderByWithRelationInput
+    processo?: ProcessoContratacaoOrderByWithRelationInput
+    categoriaContratacao?: DominioValorOrderByWithRelationInput
+    modalidadeRef?: DominioValorOrderByWithRelationInput
+    fundamentoLegal?: DominioValorOrderByWithRelationInput
     fornecedor?: FornecedorOrderByWithRelationInput
+    unidadeGestora?: UnidadeOrganizacionalOrderByWithRelationInput
+    responsaveis?: ContratoResponsavelOrderByRelationAggregateInput
+    rateios?: ContratoRateioOrderByRelationAggregateInput
     aditivos?: AditivoOrderByRelationAggregateInput
   }
 
   export type ContratoWhereUniqueInput = {
     id?: string
-    protocoloCabeca?: string
-    numGms_anoGms?: ContratoNumGmsAnoGmsCompoundUniqueInput
+    eProtocolo?: string
+    numeroGms_anoGms?: ContratoNumeroGmsAnoGmsCompoundUniqueInput
   }
 
   export type ContratoOrderByWithAggregationInput = {
     id?: SortOrder
-    protocoloCabeca?: SortOrderInput | SortOrder
-    numGms?: SortOrder
+    processoId?: SortOrderInput | SortOrder
+    numeroGms?: SortOrder
     anoGms?: SortOrder
-    unidadeFspId?: SortOrder
-    gestorId?: SortOrder
-    fiscalId?: SortOrder
-    fornecedorId?: SortOrder
-    modalidade?: SortOrder
+    numeroContrato?: SortOrderInput | SortOrder
+    eProtocolo?: SortOrderInput | SortOrder
+    pilar?: SortOrder
+    categoriaContratacaoId?: SortOrder
+    naturezaObjeto?: SortOrder
+    modalidadeId?: SortOrder
+    fundamentoLegalId?: SortOrderInput | SortOrder
     objeto?: SortOrder
-    valorAnualCents?: SortOrder
-    dataInicio?: SortOrderInput | SortOrder
-    dataFimOrig?: SortOrderInput | SortOrder
-    status?: SortOrder
+    fornecedorId?: SortOrder
+    unidadeGestoraId?: SortOrder
+    dataAssinatura?: SortOrderInput | SortOrder
+    dataInicioVigencia?: SortOrder
+    prazoInicialValor?: SortOrder
+    prazoInicialUnidade?: SortOrder
+    dataFimVigenciaOriginal?: SortOrder
+    prorrogavel?: SortOrder
+    limiteProrrogacaoMeses?: SortOrderInput | SortOrder
+    valorGlobalOriginalCents?: SortOrder
+    indiceReajuste?: SortOrderInput | SortOrder
+    mesAniversarioReajuste?: SortOrderInput | SortOrder
+    situacao?: SortOrder
+    dataEncerramento?: SortOrderInput | SortOrder
+    motivoEncerramento?: SortOrderInput | SortOrder
+    garantiaTipo?: SortOrderInput | SortOrder
+    garantiaValorCents?: SortOrderInput | SortOrder
+    garantiaValidade?: SortOrderInput | SortOrder
+    reservaObservacao?: SortOrderInput | SortOrder
+    observacoes?: SortOrderInput | SortOrder
+    codigoLegado?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ContratoCountOrderByAggregateInput
@@ -18466,21 +22557,165 @@ export namespace Prisma {
     OR?: Enumerable<ContratoScalarWhereWithAggregatesInput>
     NOT?: Enumerable<ContratoScalarWhereWithAggregatesInput>
     id?: StringWithAggregatesFilter | string
-    protocoloCabeca?: StringNullableWithAggregatesFilter | string | null
-    numGms?: IntWithAggregatesFilter | number
+    processoId?: StringNullableWithAggregatesFilter | string | null
+    numeroGms?: StringWithAggregatesFilter | string
     anoGms?: IntWithAggregatesFilter | number
-    unidadeFspId?: StringWithAggregatesFilter | string
-    gestorId?: StringWithAggregatesFilter | string
-    fiscalId?: StringWithAggregatesFilter | string
-    fornecedorId?: StringWithAggregatesFilter | string
-    modalidade?: StringWithAggregatesFilter | string
+    numeroContrato?: StringNullableWithAggregatesFilter | string | null
+    eProtocolo?: StringNullableWithAggregatesFilter | string | null
+    pilar?: EnumPilarOrcamentarioWithAggregatesFilter | PilarOrcamentario
+    categoriaContratacaoId?: StringWithAggregatesFilter | string
+    naturezaObjeto?: EnumNaturezaObjetoWithAggregatesFilter | NaturezaObjeto
+    modalidadeId?: StringWithAggregatesFilter | string
+    fundamentoLegalId?: StringNullableWithAggregatesFilter | string | null
     objeto?: StringWithAggregatesFilter | string
-    valorAnualCents?: IntWithAggregatesFilter | number
-    dataInicio?: DateTimeNullableWithAggregatesFilter | Date | string | null
-    dataFimOrig?: DateTimeNullableWithAggregatesFilter | Date | string | null
-    status?: StringWithAggregatesFilter | string
+    fornecedorId?: StringWithAggregatesFilter | string
+    unidadeGestoraId?: StringWithAggregatesFilter | string
+    dataAssinatura?: DateTimeNullableWithAggregatesFilter | Date | string | null
+    dataInicioVigencia?: DateTimeWithAggregatesFilter | Date | string
+    prazoInicialValor?: IntWithAggregatesFilter | number
+    prazoInicialUnidade?: EnumUnidadeTempoWithAggregatesFilter | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeWithAggregatesFilter | Date | string
+    prorrogavel?: BoolWithAggregatesFilter | boolean
+    limiteProrrogacaoMeses?: IntNullableWithAggregatesFilter | number | null
+    valorGlobalOriginalCents?: BigIntWithAggregatesFilter | bigint | number
+    indiceReajuste?: StringNullableWithAggregatesFilter | string | null
+    mesAniversarioReajuste?: IntNullableWithAggregatesFilter | number | null
+    situacao?: EnumSituacaoContratoWithAggregatesFilter | SituacaoContrato
+    dataEncerramento?: DateTimeNullableWithAggregatesFilter | Date | string | null
+    motivoEncerramento?: StringNullableWithAggregatesFilter | string | null
+    garantiaTipo?: EnumTipoGarantiaNullableWithAggregatesFilter | TipoGarantia | null
+    garantiaValorCents?: BigIntNullableWithAggregatesFilter | bigint | number | null
+    garantiaValidade?: DateTimeNullableWithAggregatesFilter | Date | string | null
+    reservaObservacao?: StringNullableWithAggregatesFilter | string | null
+    observacoes?: StringNullableWithAggregatesFilter | string | null
+    codigoLegado?: StringNullableWithAggregatesFilter | string | null
     createdAt?: DateTimeWithAggregatesFilter | Date | string
     updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type ContratoResponsavelWhereInput = {
+    AND?: Enumerable<ContratoResponsavelWhereInput>
+    OR?: Enumerable<ContratoResponsavelWhereInput>
+    NOT?: Enumerable<ContratoResponsavelWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringFilter | string
+    servidorId?: StringFilter | string
+    papel?: EnumPapelResponsavelFilter | PapelResponsavel
+    atoDesignacao?: StringNullableFilter | string | null
+    dataInicio?: DateTimeFilter | Date | string
+    dataFim?: DateTimeNullableFilter | Date | string | null
+    createdAt?: DateTimeFilter | Date | string
+    contrato?: XOR<ContratoRelationFilter, ContratoWhereInput>
+    servidor?: XOR<ServidorRelationFilter, ServidorWhereInput>
+  }
+
+  export type ContratoResponsavelOrderByWithRelationInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    servidorId?: SortOrder
+    papel?: SortOrder
+    atoDesignacao?: SortOrderInput | SortOrder
+    dataInicio?: SortOrder
+    dataFim?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    contrato?: ContratoOrderByWithRelationInput
+    servidor?: ServidorOrderByWithRelationInput
+  }
+
+  export type ContratoResponsavelWhereUniqueInput = {
+    id?: string
+  }
+
+  export type ContratoResponsavelOrderByWithAggregationInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    servidorId?: SortOrder
+    papel?: SortOrder
+    atoDesignacao?: SortOrderInput | SortOrder
+    dataInicio?: SortOrder
+    dataFim?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ContratoResponsavelCountOrderByAggregateInput
+    _max?: ContratoResponsavelMaxOrderByAggregateInput
+    _min?: ContratoResponsavelMinOrderByAggregateInput
+  }
+
+  export type ContratoResponsavelScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<ContratoResponsavelScalarWhereWithAggregatesInput>
+    OR?: Enumerable<ContratoResponsavelScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<ContratoResponsavelScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    contratoId?: StringWithAggregatesFilter | string
+    servidorId?: StringWithAggregatesFilter | string
+    papel?: EnumPapelResponsavelWithAggregatesFilter | PapelResponsavel
+    atoDesignacao?: StringNullableWithAggregatesFilter | string | null
+    dataInicio?: DateTimeWithAggregatesFilter | Date | string
+    dataFim?: DateTimeNullableWithAggregatesFilter | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type ContratoRateioWhereInput = {
+    AND?: Enumerable<ContratoRateioWhereInput>
+    OR?: Enumerable<ContratoRateioWhereInput>
+    NOT?: Enumerable<ContratoRateioWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringFilter | string
+    unidadeId?: StringFilter | string
+    percentual?: DecimalNullableFilter | Decimal | DecimalJsLike | number | string | null
+    valorCents?: BigIntNullableFilter | bigint | number | null
+    quantidade?: DecimalNullableFilter | Decimal | DecimalJsLike | number | string | null
+    observacao?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    contrato?: XOR<ContratoRelationFilter, ContratoWhereInput>
+    unidade?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput>
+  }
+
+  export type ContratoRateioOrderByWithRelationInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    unidadeId?: SortOrder
+    percentual?: SortOrderInput | SortOrder
+    valorCents?: SortOrderInput | SortOrder
+    quantidade?: SortOrderInput | SortOrder
+    observacao?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    contrato?: ContratoOrderByWithRelationInput
+    unidade?: UnidadeOrganizacionalOrderByWithRelationInput
+  }
+
+  export type ContratoRateioWhereUniqueInput = {
+    id?: string
+    contratoId_unidadeId?: ContratoRateioContratoIdUnidadeIdCompoundUniqueInput
+  }
+
+  export type ContratoRateioOrderByWithAggregationInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    unidadeId?: SortOrder
+    percentual?: SortOrderInput | SortOrder
+    valorCents?: SortOrderInput | SortOrder
+    quantidade?: SortOrderInput | SortOrder
+    observacao?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ContratoRateioCountOrderByAggregateInput
+    _avg?: ContratoRateioAvgOrderByAggregateInput
+    _max?: ContratoRateioMaxOrderByAggregateInput
+    _min?: ContratoRateioMinOrderByAggregateInput
+    _sum?: ContratoRateioSumOrderByAggregateInput
+  }
+
+  export type ContratoRateioScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<ContratoRateioScalarWhereWithAggregatesInput>
+    OR?: Enumerable<ContratoRateioScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<ContratoRateioScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    contratoId?: StringWithAggregatesFilter | string
+    unidadeId?: StringWithAggregatesFilter | string
+    percentual?: DecimalNullableWithAggregatesFilter | Decimal | DecimalJsLike | number | string | null
+    valorCents?: BigIntNullableWithAggregatesFilter | bigint | number | null
+    quantidade?: DecimalNullableWithAggregatesFilter | Decimal | DecimalJsLike | number | string | null
+    observacao?: StringNullableWithAggregatesFilter | string | null
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
   }
 
   export type AditivoWhereInput = {
@@ -18689,28 +22924,24 @@ export namespace Prisma {
     id?: string
     sigla: string
     nome: string
-    contratos?: ContratoCreateNestedManyWithoutUnidadeFspInput
   }
 
   export type UnidadeFspUncheckedCreateInput = {
     id?: string
     sigla: string
     nome: string
-    contratos?: ContratoUncheckedCreateNestedManyWithoutUnidadeFspInput
   }
 
   export type UnidadeFspUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    contratos?: ContratoUpdateManyWithoutUnidadeFspNestedInput
   }
 
   export type UnidadeFspUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    contratos?: ContratoUncheckedUpdateManyWithoutUnidadeFspNestedInput
   }
 
   export type UnidadeFspCreateManyInput = {
@@ -18889,6 +23120,10 @@ export namespace Prisma {
     dominio: DominioCreateNestedOneWithoutValoresInput
     parent?: DominioValorCreateNestedOneWithoutChildrenInput
     children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
   }
 
   export type DominioValorUncheckedCreateInput = {
@@ -18904,6 +23139,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
   }
 
   export type DominioValorUpdateInput = {
@@ -18919,6 +23158,10 @@ export namespace Prisma {
     dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
     parent?: DominioValorUpdateOneWithoutChildrenNestedInput
     children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
   }
 
   export type DominioValorUncheckedUpdateInput = {
@@ -18934,6 +23177,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
   }
 
   export type DominioValorCreateManyInput = {
@@ -19067,6 +23314,9 @@ export namespace Prisma {
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
     municipio: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalUncheckedCreateInput = {
@@ -19082,6 +23332,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalUpdateInput = {
@@ -19097,6 +23350,9 @@ export namespace Prisma {
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
     municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateInput = {
@@ -19112,6 +23368,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
   export type UnidadeOrganizacionalCreateManyInput = {
@@ -19438,8 +23697,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     orgao?: OrgaoCreateNestedOneWithoutServidoresInput
     unidade?: UnidadeOrganizacionalCreateNestedOneWithoutServidoresInput
-    gestorContratos?: ContratoCreateNestedManyWithoutGestorInput
-    fiscalContratos?: ContratoCreateNestedManyWithoutFiscalInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutServidorInput
   }
 
   export type ServidorUncheckedCreateInput = {
@@ -19455,8 +23713,7 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    gestorContratos?: ContratoUncheckedCreateNestedManyWithoutGestorInput
-    fiscalContratos?: ContratoUncheckedCreateNestedManyWithoutFiscalInput
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutServidorInput
   }
 
   export type ServidorUpdateInput = {
@@ -19472,8 +23729,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orgao?: OrgaoUpdateOneWithoutServidoresNestedInput
     unidade?: UnidadeOrganizacionalUpdateOneWithoutServidoresNestedInput
-    gestorContratos?: ContratoUpdateManyWithoutGestorNestedInput
-    fiscalContratos?: ContratoUpdateManyWithoutFiscalNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutServidorNestedInput
   }
 
   export type ServidorUncheckedUpdateInput = {
@@ -19489,8 +23745,7 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    gestorContratos?: ContratoUncheckedUpdateManyWithoutGestorNestedInput
-    fiscalContratos?: ContratoUncheckedUpdateManyWithoutFiscalNestedInput
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutServidorNestedInput
   }
 
   export type ServidorCreateManyInput = {
@@ -19536,137 +23791,554 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type ContratoCreateInput = {
+  export type ProcessoContratacaoCreateInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
-    gestor: ServidorCreateNestedOneWithoutGestorContratosInput
-    fiscal: ServidorCreateNestedOneWithoutFiscalContratosInput
+    unidadeDemandante: UnidadeOrganizacionalCreateNestedOneWithoutProcessosDemandanteInput
+    modalidadePretendida?: DominioValorCreateNestedOneWithoutProcessosModalidadeInput
+    contratos?: ContratoCreateNestedManyWithoutProcessoInput
+  }
+
+  export type ProcessoContratacaoUncheckedCreateInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    unidadeDemandanteId: string
+    modalidadePretendidaId?: string | null
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contratos?: ContratoUncheckedCreateNestedManyWithoutProcessoInput
+  }
+
+  export type ProcessoContratacaoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidadeDemandante?: UnidadeOrganizacionalUpdateOneRequiredWithoutProcessosDemandanteNestedInput
+    modalidadePretendida?: DominioValorUpdateOneWithoutProcessosModalidadeNestedInput
+    contratos?: ContratoUpdateManyWithoutProcessoNestedInput
+  }
+
+  export type ProcessoContratacaoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    unidadeDemandanteId?: StringFieldUpdateOperationsInput | string
+    modalidadePretendidaId?: NullableStringFieldUpdateOperationsInput | string | null
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratos?: ContratoUncheckedUpdateManyWithoutProcessoNestedInput
+  }
+
+  export type ProcessoContratacaoCreateManyInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    unidadeDemandanteId: string
+    modalidadePretendidaId?: string | null
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProcessoContratacaoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProcessoContratacaoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    unidadeDemandanteId?: StringFieldUpdateOperationsInput | string
+    modalidadePretendidaId?: NullableStringFieldUpdateOperationsInput | string | null
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoCreateInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     aditivos?: AditivoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
+    processoId?: string | null
+    numeroGms: string
     anoGms: number
-    unidadeFspId: string
-    gestorId: string
-    fiscalId: string
-    fornecedorId: string
-    modalidade: string
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
     objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
+    numeroGms?: StringFieldUpdateOperationsInput | string
     anoGms?: IntFieldUpdateOperationsInput | number
-    modalidade?: StringFieldUpdateOperationsInput | string
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
     objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
-    gestor?: ServidorUpdateOneRequiredWithoutGestorContratosNestedInput
-    fiscal?: ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     aditivos?: AditivoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
     anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    gestorId?: StringFieldUpdateOperationsInput | string
-    fiscalId?: StringFieldUpdateOperationsInput | string
-    fornecedorId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
     objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoCreateManyInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
+    processoId?: string | null
+    numeroGms: string
     anoGms: number
-    unidadeFspId: string
-    gestorId: string
-    fiscalId: string
-    fornecedorId: string
-    modalidade: string
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
     objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type ContratoUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
+    numeroGms?: StringFieldUpdateOperationsInput | string
     anoGms?: IntFieldUpdateOperationsInput | number
-    modalidade?: StringFieldUpdateOperationsInput | string
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
     objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ContratoUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
     anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    gestorId?: StringFieldUpdateOperationsInput | string
-    fiscalId?: StringFieldUpdateOperationsInput | string
-    fornecedorId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
     objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoResponsavelCreateInput = {
+    id?: string
+    papel: PapelResponsavel
+    atoDesignacao?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    createdAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutResponsaveisInput
+    servidor: ServidorCreateNestedOneWithoutResponsaveisInput
+  }
+
+  export type ContratoResponsavelUncheckedCreateInput = {
+    id?: string
+    contratoId: string
+    servidorId: string
+    papel: PapelResponsavel
+    atoDesignacao?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ContratoResponsavelUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    papel?: EnumPapelResponsavelFieldUpdateOperationsInput | PapelResponsavel
+    atoDesignacao?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutResponsaveisNestedInput
+    servidor?: ServidorUpdateOneRequiredWithoutResponsaveisNestedInput
+  }
+
+  export type ContratoResponsavelUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    servidorId?: StringFieldUpdateOperationsInput | string
+    papel?: EnumPapelResponsavelFieldUpdateOperationsInput | PapelResponsavel
+    atoDesignacao?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoResponsavelCreateManyInput = {
+    id?: string
+    contratoId: string
+    servidorId: string
+    papel: PapelResponsavel
+    atoDesignacao?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ContratoResponsavelUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    papel?: EnumPapelResponsavelFieldUpdateOperationsInput | PapelResponsavel
+    atoDesignacao?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoResponsavelUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    servidorId?: StringFieldUpdateOperationsInput | string
+    papel?: EnumPapelResponsavelFieldUpdateOperationsInput | PapelResponsavel
+    atoDesignacao?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoRateioCreateInput = {
+    id?: string
+    percentual?: Decimal | DecimalJsLike | number | string | null
+    valorCents?: bigint | number | null
+    quantidade?: Decimal | DecimalJsLike | number | string | null
+    observacao?: string | null
+    createdAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutRateiosInput
+    unidade: UnidadeOrganizacionalCreateNestedOneWithoutRateiosInput
+  }
+
+  export type ContratoRateioUncheckedCreateInput = {
+    id?: string
+    contratoId: string
+    unidadeId: string
+    percentual?: Decimal | DecimalJsLike | number | string | null
+    valorCents?: bigint | number | null
+    quantidade?: Decimal | DecimalJsLike | number | string | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ContratoRateioUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    percentual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    quantidade?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutRateiosNestedInput
+    unidade?: UnidadeOrganizacionalUpdateOneRequiredWithoutRateiosNestedInput
+  }
+
+  export type ContratoRateioUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    unidadeId?: StringFieldUpdateOperationsInput | string
+    percentual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    quantidade?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoRateioCreateManyInput = {
+    id?: string
+    contratoId: string
+    unidadeId: string
+    percentual?: Decimal | DecimalJsLike | number | string | null
+    valorCents?: bigint | number | null
+    quantidade?: Decimal | DecimalJsLike | number | string | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ContratoRateioUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    percentual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    quantidade?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoRateioUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    unidadeId?: StringFieldUpdateOperationsInput | string
+    percentual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    quantidade?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AditivoCreateInput = {
@@ -19935,16 +24607,6 @@ export namespace Prisma {
     not?: NestedStringFilter | string
   }
 
-  export type ContratoListRelationFilter = {
-    every?: ContratoWhereInput
-    some?: ContratoWhereInput
-    none?: ContratoWhereInput
-  }
-
-  export type ContratoOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type UnidadeFspCountOrderByAggregateInput = {
     id?: SortOrder
     sigla?: SortOrder
@@ -20187,6 +24849,26 @@ export namespace Prisma {
     isNot?: DominioValorWhereInput | null
   }
 
+  export type ContratoListRelationFilter = {
+    every?: ContratoWhereInput
+    some?: ContratoWhereInput
+    none?: ContratoWhereInput
+  }
+
+  export type ProcessoContratacaoListRelationFilter = {
+    every?: ProcessoContratacaoWhereInput
+    some?: ProcessoContratacaoWhereInput
+    none?: ProcessoContratacaoWhereInput
+  }
+
+  export type ContratoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ProcessoContratacaoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type DominioValorDominioIdCodigoCompoundUniqueInput = {
     dominioId: string
     codigo: string
@@ -20358,6 +25040,16 @@ export namespace Prisma {
   export type MunicipioRelationFilter = {
     is?: MunicipioWhereInput | null
     isNot?: MunicipioWhereInput | null
+  }
+
+  export type ContratoRateioListRelationFilter = {
+    every?: ContratoRateioWhereInput
+    some?: ContratoRateioWhereInput
+    none?: ContratoRateioWhereInput
+  }
+
+  export type ContratoRateioOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type UnidadeOrganizacionalOrgaoIdSiglaCompoundUniqueInput = {
@@ -20646,6 +25338,16 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter
   }
 
+  export type ContratoResponsavelListRelationFilter = {
+    every?: ContratoResponsavelWhereInput
+    some?: ContratoResponsavelWhereInput
+    none?: ContratoResponsavelWhereInput
+  }
+
+  export type ContratoResponsavelOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type ServidorCountOrderByAggregateInput = {
     id?: SortOrder
     nome?: SortOrder
@@ -20691,98 +25393,133 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type UnidadeFspRelationFilter = {
-    is?: UnidadeFspWhereInput | null
-    isNot?: UnidadeFspWhereInput | null
+  export type BigIntNullableFilter = {
+    equals?: bigint | number | null
+    in?: Enumerable<bigint> | Enumerable<number> | bigint | number | null
+    notIn?: Enumerable<bigint> | Enumerable<number> | bigint | number | null
+    lt?: bigint | number
+    lte?: bigint | number
+    gt?: bigint | number
+    gte?: bigint | number
+    not?: NestedBigIntNullableFilter | bigint | number | null
   }
 
-  export type ServidorRelationFilter = {
-    is?: ServidorWhereInput | null
-    isNot?: ServidorWhereInput | null
+  export type EnumSituacaoProcessoFilter = {
+    equals?: SituacaoProcesso
+    in?: Enumerable<SituacaoProcesso>
+    notIn?: Enumerable<SituacaoProcesso>
+    not?: NestedEnumSituacaoProcessoFilter | SituacaoProcesso
   }
 
-  export type AditivoListRelationFilter = {
-    every?: AditivoWhereInput
-    some?: AditivoWhereInput
-    none?: AditivoWhereInput
-  }
-
-  export type AditivoOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
-  export type ContratoNumGmsAnoGmsCompoundUniqueInput = {
-    numGms: number
-    anoGms: number
-  }
-
-  export type ContratoCountOrderByAggregateInput = {
+  export type ProcessoContratacaoCountOrderByAggregateInput = {
     id?: SortOrder
-    protocoloCabeca?: SortOrder
-    numGms?: SortOrder
-    anoGms?: SortOrder
-    unidadeFspId?: SortOrder
-    gestorId?: SortOrder
-    fiscalId?: SortOrder
-    fornecedorId?: SortOrder
-    modalidade?: SortOrder
-    objeto?: SortOrder
-    valorAnualCents?: SortOrder
-    dataInicio?: SortOrder
-    dataFimOrig?: SortOrder
-    status?: SortOrder
+    eProtocolo?: SortOrder
+    ano?: SortOrder
+    objetoResumo?: SortOrder
+    unidadeDemandanteId?: SortOrder
+    modalidadePretendidaId?: SortOrder
+    valorEstimadoCents?: SortOrder
+    etpConcluido?: SortOrder
+    dataEtp?: SortOrder
+    termoReferenciaConcluido?: SortOrder
+    dataTermoReferencia?: SortOrder
+    situacao?: SortOrder
+    observacoes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type ContratoAvgOrderByAggregateInput = {
-    numGms?: SortOrder
-    anoGms?: SortOrder
-    valorAnualCents?: SortOrder
+  export type ProcessoContratacaoAvgOrderByAggregateInput = {
+    ano?: SortOrder
+    valorEstimadoCents?: SortOrder
   }
 
-  export type ContratoMaxOrderByAggregateInput = {
+  export type ProcessoContratacaoMaxOrderByAggregateInput = {
     id?: SortOrder
-    protocoloCabeca?: SortOrder
-    numGms?: SortOrder
-    anoGms?: SortOrder
-    unidadeFspId?: SortOrder
-    gestorId?: SortOrder
-    fiscalId?: SortOrder
-    fornecedorId?: SortOrder
-    modalidade?: SortOrder
-    objeto?: SortOrder
-    valorAnualCents?: SortOrder
-    dataInicio?: SortOrder
-    dataFimOrig?: SortOrder
-    status?: SortOrder
+    eProtocolo?: SortOrder
+    ano?: SortOrder
+    objetoResumo?: SortOrder
+    unidadeDemandanteId?: SortOrder
+    modalidadePretendidaId?: SortOrder
+    valorEstimadoCents?: SortOrder
+    etpConcluido?: SortOrder
+    dataEtp?: SortOrder
+    termoReferenciaConcluido?: SortOrder
+    dataTermoReferencia?: SortOrder
+    situacao?: SortOrder
+    observacoes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type ContratoMinOrderByAggregateInput = {
+  export type ProcessoContratacaoMinOrderByAggregateInput = {
     id?: SortOrder
-    protocoloCabeca?: SortOrder
-    numGms?: SortOrder
-    anoGms?: SortOrder
-    unidadeFspId?: SortOrder
-    gestorId?: SortOrder
-    fiscalId?: SortOrder
-    fornecedorId?: SortOrder
-    modalidade?: SortOrder
-    objeto?: SortOrder
-    valorAnualCents?: SortOrder
-    dataInicio?: SortOrder
-    dataFimOrig?: SortOrder
-    status?: SortOrder
+    eProtocolo?: SortOrder
+    ano?: SortOrder
+    objetoResumo?: SortOrder
+    unidadeDemandanteId?: SortOrder
+    modalidadePretendidaId?: SortOrder
+    valorEstimadoCents?: SortOrder
+    etpConcluido?: SortOrder
+    dataEtp?: SortOrder
+    termoReferenciaConcluido?: SortOrder
+    dataTermoReferencia?: SortOrder
+    situacao?: SortOrder
+    observacoes?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
-  export type ContratoSumOrderByAggregateInput = {
-    numGms?: SortOrder
-    anoGms?: SortOrder
-    valorAnualCents?: SortOrder
+  export type ProcessoContratacaoSumOrderByAggregateInput = {
+    ano?: SortOrder
+    valorEstimadoCents?: SortOrder
+  }
+
+  export type BigIntNullableWithAggregatesFilter = {
+    equals?: bigint | number | null
+    in?: Enumerable<bigint> | Enumerable<number> | bigint | number | null
+    notIn?: Enumerable<bigint> | Enumerable<number> | bigint | number | null
+    lt?: bigint | number
+    lte?: bigint | number
+    gt?: bigint | number
+    gte?: bigint | number
+    not?: NestedBigIntNullableWithAggregatesFilter | bigint | number | null
+    _count?: NestedIntNullableFilter
+    _avg?: NestedFloatNullableFilter
+    _sum?: NestedBigIntNullableFilter
+    _min?: NestedBigIntNullableFilter
+    _max?: NestedBigIntNullableFilter
+  }
+
+  export type EnumSituacaoProcessoWithAggregatesFilter = {
+    equals?: SituacaoProcesso
+    in?: Enumerable<SituacaoProcesso>
+    notIn?: Enumerable<SituacaoProcesso>
+    not?: NestedEnumSituacaoProcessoWithAggregatesFilter | SituacaoProcesso
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoProcessoFilter
+    _max?: NestedEnumSituacaoProcessoFilter
+  }
+
+  export type EnumPilarOrcamentarioFilter = {
+    equals?: PilarOrcamentario
+    in?: Enumerable<PilarOrcamentario>
+    notIn?: Enumerable<PilarOrcamentario>
+    not?: NestedEnumPilarOrcamentarioFilter | PilarOrcamentario
+  }
+
+  export type EnumNaturezaObjetoFilter = {
+    equals?: NaturezaObjeto
+    in?: Enumerable<NaturezaObjeto>
+    notIn?: Enumerable<NaturezaObjeto>
+    not?: NestedEnumNaturezaObjetoFilter | NaturezaObjeto
+  }
+
+  export type EnumUnidadeTempoFilter = {
+    equals?: UnidadeTempo
+    in?: Enumerable<UnidadeTempo>
+    notIn?: Enumerable<UnidadeTempo>
+    not?: NestedEnumUnidadeTempoFilter | UnidadeTempo
   }
 
   export type IntNullableFilter = {
@@ -20796,9 +25533,400 @@ export namespace Prisma {
     not?: NestedIntNullableFilter | number | null
   }
 
+  export type BigIntFilter = {
+    equals?: bigint | number
+    in?: Enumerable<bigint> | Enumerable<number> | bigint | number
+    notIn?: Enumerable<bigint> | Enumerable<number> | bigint | number
+    lt?: bigint | number
+    lte?: bigint | number
+    gt?: bigint | number
+    gte?: bigint | number
+    not?: NestedBigIntFilter | bigint | number
+  }
+
+  export type EnumSituacaoContratoFilter = {
+    equals?: SituacaoContrato
+    in?: Enumerable<SituacaoContrato>
+    notIn?: Enumerable<SituacaoContrato>
+    not?: NestedEnumSituacaoContratoFilter | SituacaoContrato
+  }
+
+  export type EnumTipoGarantiaNullableFilter = {
+    equals?: TipoGarantia | null
+    in?: Enumerable<TipoGarantia> | null
+    notIn?: Enumerable<TipoGarantia> | null
+    not?: NestedEnumTipoGarantiaNullableFilter | TipoGarantia | null
+  }
+
+  export type ProcessoContratacaoRelationFilter = {
+    is?: ProcessoContratacaoWhereInput | null
+    isNot?: ProcessoContratacaoWhereInput | null
+  }
+
+  export type AditivoListRelationFilter = {
+    every?: AditivoWhereInput
+    some?: AditivoWhereInput
+    none?: AditivoWhereInput
+  }
+
+  export type AditivoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ContratoNumeroGmsAnoGmsCompoundUniqueInput = {
+    numeroGms: string
+    anoGms: number
+  }
+
+  export type ContratoCountOrderByAggregateInput = {
+    id?: SortOrder
+    processoId?: SortOrder
+    numeroGms?: SortOrder
+    anoGms?: SortOrder
+    numeroContrato?: SortOrder
+    eProtocolo?: SortOrder
+    pilar?: SortOrder
+    categoriaContratacaoId?: SortOrder
+    naturezaObjeto?: SortOrder
+    modalidadeId?: SortOrder
+    fundamentoLegalId?: SortOrder
+    objeto?: SortOrder
+    fornecedorId?: SortOrder
+    unidadeGestoraId?: SortOrder
+    dataAssinatura?: SortOrder
+    dataInicioVigencia?: SortOrder
+    prazoInicialValor?: SortOrder
+    prazoInicialUnidade?: SortOrder
+    dataFimVigenciaOriginal?: SortOrder
+    prorrogavel?: SortOrder
+    limiteProrrogacaoMeses?: SortOrder
+    valorGlobalOriginalCents?: SortOrder
+    indiceReajuste?: SortOrder
+    mesAniversarioReajuste?: SortOrder
+    situacao?: SortOrder
+    dataEncerramento?: SortOrder
+    motivoEncerramento?: SortOrder
+    garantiaTipo?: SortOrder
+    garantiaValorCents?: SortOrder
+    garantiaValidade?: SortOrder
+    reservaObservacao?: SortOrder
+    observacoes?: SortOrder
+    codigoLegado?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ContratoAvgOrderByAggregateInput = {
+    anoGms?: SortOrder
+    prazoInicialValor?: SortOrder
+    limiteProrrogacaoMeses?: SortOrder
+    valorGlobalOriginalCents?: SortOrder
+    mesAniversarioReajuste?: SortOrder
+    garantiaValorCents?: SortOrder
+  }
+
+  export type ContratoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    processoId?: SortOrder
+    numeroGms?: SortOrder
+    anoGms?: SortOrder
+    numeroContrato?: SortOrder
+    eProtocolo?: SortOrder
+    pilar?: SortOrder
+    categoriaContratacaoId?: SortOrder
+    naturezaObjeto?: SortOrder
+    modalidadeId?: SortOrder
+    fundamentoLegalId?: SortOrder
+    objeto?: SortOrder
+    fornecedorId?: SortOrder
+    unidadeGestoraId?: SortOrder
+    dataAssinatura?: SortOrder
+    dataInicioVigencia?: SortOrder
+    prazoInicialValor?: SortOrder
+    prazoInicialUnidade?: SortOrder
+    dataFimVigenciaOriginal?: SortOrder
+    prorrogavel?: SortOrder
+    limiteProrrogacaoMeses?: SortOrder
+    valorGlobalOriginalCents?: SortOrder
+    indiceReajuste?: SortOrder
+    mesAniversarioReajuste?: SortOrder
+    situacao?: SortOrder
+    dataEncerramento?: SortOrder
+    motivoEncerramento?: SortOrder
+    garantiaTipo?: SortOrder
+    garantiaValorCents?: SortOrder
+    garantiaValidade?: SortOrder
+    reservaObservacao?: SortOrder
+    observacoes?: SortOrder
+    codigoLegado?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ContratoMinOrderByAggregateInput = {
+    id?: SortOrder
+    processoId?: SortOrder
+    numeroGms?: SortOrder
+    anoGms?: SortOrder
+    numeroContrato?: SortOrder
+    eProtocolo?: SortOrder
+    pilar?: SortOrder
+    categoriaContratacaoId?: SortOrder
+    naturezaObjeto?: SortOrder
+    modalidadeId?: SortOrder
+    fundamentoLegalId?: SortOrder
+    objeto?: SortOrder
+    fornecedorId?: SortOrder
+    unidadeGestoraId?: SortOrder
+    dataAssinatura?: SortOrder
+    dataInicioVigencia?: SortOrder
+    prazoInicialValor?: SortOrder
+    prazoInicialUnidade?: SortOrder
+    dataFimVigenciaOriginal?: SortOrder
+    prorrogavel?: SortOrder
+    limiteProrrogacaoMeses?: SortOrder
+    valorGlobalOriginalCents?: SortOrder
+    indiceReajuste?: SortOrder
+    mesAniversarioReajuste?: SortOrder
+    situacao?: SortOrder
+    dataEncerramento?: SortOrder
+    motivoEncerramento?: SortOrder
+    garantiaTipo?: SortOrder
+    garantiaValorCents?: SortOrder
+    garantiaValidade?: SortOrder
+    reservaObservacao?: SortOrder
+    observacoes?: SortOrder
+    codigoLegado?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ContratoSumOrderByAggregateInput = {
+    anoGms?: SortOrder
+    prazoInicialValor?: SortOrder
+    limiteProrrogacaoMeses?: SortOrder
+    valorGlobalOriginalCents?: SortOrder
+    mesAniversarioReajuste?: SortOrder
+    garantiaValorCents?: SortOrder
+  }
+
+  export type EnumPilarOrcamentarioWithAggregatesFilter = {
+    equals?: PilarOrcamentario
+    in?: Enumerable<PilarOrcamentario>
+    notIn?: Enumerable<PilarOrcamentario>
+    not?: NestedEnumPilarOrcamentarioWithAggregatesFilter | PilarOrcamentario
+    _count?: NestedIntFilter
+    _min?: NestedEnumPilarOrcamentarioFilter
+    _max?: NestedEnumPilarOrcamentarioFilter
+  }
+
+  export type EnumNaturezaObjetoWithAggregatesFilter = {
+    equals?: NaturezaObjeto
+    in?: Enumerable<NaturezaObjeto>
+    notIn?: Enumerable<NaturezaObjeto>
+    not?: NestedEnumNaturezaObjetoWithAggregatesFilter | NaturezaObjeto
+    _count?: NestedIntFilter
+    _min?: NestedEnumNaturezaObjetoFilter
+    _max?: NestedEnumNaturezaObjetoFilter
+  }
+
+  export type EnumUnidadeTempoWithAggregatesFilter = {
+    equals?: UnidadeTempo
+    in?: Enumerable<UnidadeTempo>
+    notIn?: Enumerable<UnidadeTempo>
+    not?: NestedEnumUnidadeTempoWithAggregatesFilter | UnidadeTempo
+    _count?: NestedIntFilter
+    _min?: NestedEnumUnidadeTempoFilter
+    _max?: NestedEnumUnidadeTempoFilter
+  }
+
+  export type IntNullableWithAggregatesFilter = {
+    equals?: number | null
+    in?: Enumerable<number> | number | null
+    notIn?: Enumerable<number> | number | null
+    lt?: number
+    lte?: number
+    gt?: number
+    gte?: number
+    not?: NestedIntNullableWithAggregatesFilter | number | null
+    _count?: NestedIntNullableFilter
+    _avg?: NestedFloatNullableFilter
+    _sum?: NestedIntNullableFilter
+    _min?: NestedIntNullableFilter
+    _max?: NestedIntNullableFilter
+  }
+
+  export type BigIntWithAggregatesFilter = {
+    equals?: bigint | number
+    in?: Enumerable<bigint> | Enumerable<number> | bigint | number
+    notIn?: Enumerable<bigint> | Enumerable<number> | bigint | number
+    lt?: bigint | number
+    lte?: bigint | number
+    gt?: bigint | number
+    gte?: bigint | number
+    not?: NestedBigIntWithAggregatesFilter | bigint | number
+    _count?: NestedIntFilter
+    _avg?: NestedFloatFilter
+    _sum?: NestedBigIntFilter
+    _min?: NestedBigIntFilter
+    _max?: NestedBigIntFilter
+  }
+
+  export type EnumSituacaoContratoWithAggregatesFilter = {
+    equals?: SituacaoContrato
+    in?: Enumerable<SituacaoContrato>
+    notIn?: Enumerable<SituacaoContrato>
+    not?: NestedEnumSituacaoContratoWithAggregatesFilter | SituacaoContrato
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoContratoFilter
+    _max?: NestedEnumSituacaoContratoFilter
+  }
+
+  export type EnumTipoGarantiaNullableWithAggregatesFilter = {
+    equals?: TipoGarantia | null
+    in?: Enumerable<TipoGarantia> | null
+    notIn?: Enumerable<TipoGarantia> | null
+    not?: NestedEnumTipoGarantiaNullableWithAggregatesFilter | TipoGarantia | null
+    _count?: NestedIntNullableFilter
+    _min?: NestedEnumTipoGarantiaNullableFilter
+    _max?: NestedEnumTipoGarantiaNullableFilter
+  }
+
+  export type EnumPapelResponsavelFilter = {
+    equals?: PapelResponsavel
+    in?: Enumerable<PapelResponsavel>
+    notIn?: Enumerable<PapelResponsavel>
+    not?: NestedEnumPapelResponsavelFilter | PapelResponsavel
+  }
+
   export type ContratoRelationFilter = {
     is?: ContratoWhereInput | null
     isNot?: ContratoWhereInput | null
+  }
+
+  export type ServidorRelationFilter = {
+    is?: ServidorWhereInput | null
+    isNot?: ServidorWhereInput | null
+  }
+
+  export type ContratoResponsavelCountOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    servidorId?: SortOrder
+    papel?: SortOrder
+    atoDesignacao?: SortOrder
+    dataInicio?: SortOrder
+    dataFim?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ContratoResponsavelMaxOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    servidorId?: SortOrder
+    papel?: SortOrder
+    atoDesignacao?: SortOrder
+    dataInicio?: SortOrder
+    dataFim?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ContratoResponsavelMinOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    servidorId?: SortOrder
+    papel?: SortOrder
+    atoDesignacao?: SortOrder
+    dataInicio?: SortOrder
+    dataFim?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type EnumPapelResponsavelWithAggregatesFilter = {
+    equals?: PapelResponsavel
+    in?: Enumerable<PapelResponsavel>
+    notIn?: Enumerable<PapelResponsavel>
+    not?: NestedEnumPapelResponsavelWithAggregatesFilter | PapelResponsavel
+    _count?: NestedIntFilter
+    _min?: NestedEnumPapelResponsavelFilter
+    _max?: NestedEnumPapelResponsavelFilter
+  }
+
+  export type DecimalNullableFilter = {
+    equals?: Decimal | DecimalJsLike | number | string | null
+    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string | null
+    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string | null
+    lt?: Decimal | DecimalJsLike | number | string
+    lte?: Decimal | DecimalJsLike | number | string
+    gt?: Decimal | DecimalJsLike | number | string
+    gte?: Decimal | DecimalJsLike | number | string
+    not?: NestedDecimalNullableFilter | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type ContratoRateioContratoIdUnidadeIdCompoundUniqueInput = {
+    contratoId: string
+    unidadeId: string
+  }
+
+  export type ContratoRateioCountOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    unidadeId?: SortOrder
+    percentual?: SortOrder
+    valorCents?: SortOrder
+    quantidade?: SortOrder
+    observacao?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ContratoRateioAvgOrderByAggregateInput = {
+    percentual?: SortOrder
+    valorCents?: SortOrder
+    quantidade?: SortOrder
+  }
+
+  export type ContratoRateioMaxOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    unidadeId?: SortOrder
+    percentual?: SortOrder
+    valorCents?: SortOrder
+    quantidade?: SortOrder
+    observacao?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ContratoRateioMinOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    unidadeId?: SortOrder
+    percentual?: SortOrder
+    valorCents?: SortOrder
+    quantidade?: SortOrder
+    observacao?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ContratoRateioSumOrderByAggregateInput = {
+    percentual?: SortOrder
+    valorCents?: SortOrder
+    quantidade?: SortOrder
+  }
+
+  export type DecimalNullableWithAggregatesFilter = {
+    equals?: Decimal | DecimalJsLike | number | string | null
+    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string | null
+    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string | null
+    lt?: Decimal | DecimalJsLike | number | string
+    lte?: Decimal | DecimalJsLike | number | string
+    gt?: Decimal | DecimalJsLike | number | string
+    gte?: Decimal | DecimalJsLike | number | string
+    not?: NestedDecimalNullableWithAggregatesFilter | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter
+    _avg?: NestedDecimalNullableFilter
+    _sum?: NestedDecimalNullableFilter
+    _min?: NestedDecimalNullableFilter
+    _max?: NestedDecimalNullableFilter
   }
 
   export type AditivoCountOrderByAggregateInput = {
@@ -20839,22 +25967,6 @@ export namespace Prisma {
   export type AditivoSumOrderByAggregateInput = {
     numAditivo?: SortOrder
     valorAdicionalCents?: SortOrder
-  }
-
-  export type IntNullableWithAggregatesFilter = {
-    equals?: number | null
-    in?: Enumerable<number> | number | null
-    notIn?: Enumerable<number> | number | null
-    lt?: number
-    lte?: number
-    gt?: number
-    gte?: number
-    not?: NestedIntNullableWithAggregatesFilter | number | null
-    _count?: NestedIntNullableFilter
-    _avg?: NestedFloatNullableFilter
-    _sum?: NestedIntNullableFilter
-    _min?: NestedIntNullableFilter
-    _max?: NestedIntNullableFilter
   }
 
   export type ServicoCountOrderByAggregateInput = {
@@ -20980,50 +26092,8 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
-  export type ContratoCreateNestedManyWithoutUnidadeFspInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeFspInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeFspInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeFspInput>
-    createMany?: ContratoCreateManyUnidadeFspInputEnvelope
-    connect?: Enumerable<ContratoWhereUniqueInput>
-  }
-
-  export type ContratoUncheckedCreateNestedManyWithoutUnidadeFspInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeFspInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeFspInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeFspInput>
-    createMany?: ContratoCreateManyUnidadeFspInputEnvelope
-    connect?: Enumerable<ContratoWhereUniqueInput>
-  }
-
   export type StringFieldUpdateOperationsInput = {
     set?: string
-  }
-
-  export type ContratoUpdateManyWithoutUnidadeFspNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeFspInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeFspInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeFspInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutUnidadeFspInput>
-    createMany?: ContratoCreateManyUnidadeFspInputEnvelope
-    set?: Enumerable<ContratoWhereUniqueInput>
-    disconnect?: Enumerable<ContratoWhereUniqueInput>
-    delete?: Enumerable<ContratoWhereUniqueInput>
-    connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutUnidadeFspInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutUnidadeFspInput>
-    deleteMany?: Enumerable<ContratoScalarWhereInput>
-  }
-
-  export type ContratoUncheckedUpdateManyWithoutUnidadeFspNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeFspInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeFspInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeFspInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutUnidadeFspInput>
-    createMany?: ContratoCreateManyUnidadeFspInputEnvelope
-    set?: Enumerable<ContratoWhereUniqueInput>
-    disconnect?: Enumerable<ContratoWhereUniqueInput>
-    delete?: Enumerable<ContratoWhereUniqueInput>
-    connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutUnidadeFspInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutUnidadeFspInput>
-    deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
   export type UnidadeOrganizacionalCreateNestedManyWithoutMunicipioInput = {
@@ -21183,11 +26253,67 @@ export namespace Prisma {
     connect?: Enumerable<DominioValorWhereUniqueInput>
   }
 
+  export type ContratoCreateNestedManyWithoutCategoriaContratacaoInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutCategoriaContratacaoInput>, Enumerable<ContratoUncheckedCreateWithoutCategoriaContratacaoInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutCategoriaContratacaoInput>
+    createMany?: ContratoCreateManyCategoriaContratacaoInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoCreateNestedManyWithoutModalidadeRefInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutModalidadeRefInput>, Enumerable<ContratoUncheckedCreateWithoutModalidadeRefInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutModalidadeRefInput>
+    createMany?: ContratoCreateManyModalidadeRefInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoCreateNestedManyWithoutFundamentoLegalInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFundamentoLegalInput>, Enumerable<ContratoUncheckedCreateWithoutFundamentoLegalInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFundamentoLegalInput>
+    createMany?: ContratoCreateManyFundamentoLegalInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput = {
+    create?: XOR<Enumerable<ProcessoContratacaoCreateWithoutModalidadePretendidaInput>, Enumerable<ProcessoContratacaoUncheckedCreateWithoutModalidadePretendidaInput>>
+    connectOrCreate?: Enumerable<ProcessoContratacaoCreateOrConnectWithoutModalidadePretendidaInput>
+    createMany?: ProcessoContratacaoCreateManyModalidadePretendidaInputEnvelope
+    connect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+  }
+
   export type DominioValorUncheckedCreateNestedManyWithoutParentInput = {
     create?: XOR<Enumerable<DominioValorCreateWithoutParentInput>, Enumerable<DominioValorUncheckedCreateWithoutParentInput>>
     connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutParentInput>
     createMany?: DominioValorCreateManyParentInputEnvelope
     connect?: Enumerable<DominioValorWhereUniqueInput>
+  }
+
+  export type ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutCategoriaContratacaoInput>, Enumerable<ContratoUncheckedCreateWithoutCategoriaContratacaoInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutCategoriaContratacaoInput>
+    createMany?: ContratoCreateManyCategoriaContratacaoInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutModalidadeRefInput>, Enumerable<ContratoUncheckedCreateWithoutModalidadeRefInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutModalidadeRefInput>
+    createMany?: ContratoCreateManyModalidadeRefInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFundamentoLegalInput>, Enumerable<ContratoUncheckedCreateWithoutFundamentoLegalInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFundamentoLegalInput>
+    createMany?: ContratoCreateManyFundamentoLegalInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput = {
+    create?: XOR<Enumerable<ProcessoContratacaoCreateWithoutModalidadePretendidaInput>, Enumerable<ProcessoContratacaoUncheckedCreateWithoutModalidadePretendidaInput>>
+    connectOrCreate?: Enumerable<ProcessoContratacaoCreateOrConnectWithoutModalidadePretendidaInput>
+    createMany?: ProcessoContratacaoCreateManyModalidadePretendidaInputEnvelope
+    connect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -21230,6 +26356,62 @@ export namespace Prisma {
     deleteMany?: Enumerable<DominioValorScalarWhereInput>
   }
 
+  export type ContratoUpdateManyWithoutCategoriaContratacaoNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutCategoriaContratacaoInput>, Enumerable<ContratoUncheckedCreateWithoutCategoriaContratacaoInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutCategoriaContratacaoInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutCategoriaContratacaoInput>
+    createMany?: ContratoCreateManyCategoriaContratacaoInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutCategoriaContratacaoInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutCategoriaContratacaoInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoUpdateManyWithoutModalidadeRefNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutModalidadeRefInput>, Enumerable<ContratoUncheckedCreateWithoutModalidadeRefInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutModalidadeRefInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutModalidadeRefInput>
+    createMany?: ContratoCreateManyModalidadeRefInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutModalidadeRefInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutModalidadeRefInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoUpdateManyWithoutFundamentoLegalNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFundamentoLegalInput>, Enumerable<ContratoUncheckedCreateWithoutFundamentoLegalInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFundamentoLegalInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutFundamentoLegalInput>
+    createMany?: ContratoCreateManyFundamentoLegalInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutFundamentoLegalInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutFundamentoLegalInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput = {
+    create?: XOR<Enumerable<ProcessoContratacaoCreateWithoutModalidadePretendidaInput>, Enumerable<ProcessoContratacaoUncheckedCreateWithoutModalidadePretendidaInput>>
+    connectOrCreate?: Enumerable<ProcessoContratacaoCreateOrConnectWithoutModalidadePretendidaInput>
+    upsert?: Enumerable<ProcessoContratacaoUpsertWithWhereUniqueWithoutModalidadePretendidaInput>
+    createMany?: ProcessoContratacaoCreateManyModalidadePretendidaInputEnvelope
+    set?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    disconnect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    delete?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    connect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    update?: Enumerable<ProcessoContratacaoUpdateWithWhereUniqueWithoutModalidadePretendidaInput>
+    updateMany?: Enumerable<ProcessoContratacaoUpdateManyWithWhereWithoutModalidadePretendidaInput>
+    deleteMany?: Enumerable<ProcessoContratacaoScalarWhereInput>
+  }
+
   export type DominioValorUncheckedUpdateManyWithoutParentNestedInput = {
     create?: XOR<Enumerable<DominioValorCreateWithoutParentInput>, Enumerable<DominioValorUncheckedCreateWithoutParentInput>>
     connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutParentInput>
@@ -21242,6 +26424,62 @@ export namespace Prisma {
     update?: Enumerable<DominioValorUpdateWithWhereUniqueWithoutParentInput>
     updateMany?: Enumerable<DominioValorUpdateManyWithWhereWithoutParentInput>
     deleteMany?: Enumerable<DominioValorScalarWhereInput>
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutCategoriaContratacaoInput>, Enumerable<ContratoUncheckedCreateWithoutCategoriaContratacaoInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutCategoriaContratacaoInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutCategoriaContratacaoInput>
+    createMany?: ContratoCreateManyCategoriaContratacaoInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutCategoriaContratacaoInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutCategoriaContratacaoInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutModalidadeRefInput>, Enumerable<ContratoUncheckedCreateWithoutModalidadeRefInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutModalidadeRefInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutModalidadeRefInput>
+    createMany?: ContratoCreateManyModalidadeRefInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutModalidadeRefInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutModalidadeRefInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutFundamentoLegalInput>, Enumerable<ContratoUncheckedCreateWithoutFundamentoLegalInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFundamentoLegalInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutFundamentoLegalInput>
+    createMany?: ContratoCreateManyFundamentoLegalInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutFundamentoLegalInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutFundamentoLegalInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput = {
+    create?: XOR<Enumerable<ProcessoContratacaoCreateWithoutModalidadePretendidaInput>, Enumerable<ProcessoContratacaoUncheckedCreateWithoutModalidadePretendidaInput>>
+    connectOrCreate?: Enumerable<ProcessoContratacaoCreateOrConnectWithoutModalidadePretendidaInput>
+    upsert?: Enumerable<ProcessoContratacaoUpsertWithWhereUniqueWithoutModalidadePretendidaInput>
+    createMany?: ProcessoContratacaoCreateManyModalidadePretendidaInputEnvelope
+    set?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    disconnect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    delete?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    connect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    update?: Enumerable<ProcessoContratacaoUpdateWithWhereUniqueWithoutModalidadePretendidaInput>
+    updateMany?: Enumerable<ProcessoContratacaoUpdateManyWithWhereWithoutModalidadePretendidaInput>
+    deleteMany?: Enumerable<ProcessoContratacaoScalarWhereInput>
   }
 
   export type UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput = {
@@ -21364,6 +26602,27 @@ export namespace Prisma {
     connect?: Enumerable<ServidorWhereUniqueInput>
   }
 
+  export type ContratoCreateNestedManyWithoutUnidadeGestoraInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
+    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoRateioCreateNestedManyWithoutUnidadeInput = {
+    create?: XOR<Enumerable<ContratoRateioCreateWithoutUnidadeInput>, Enumerable<ContratoRateioUncheckedCreateWithoutUnidadeInput>>
+    connectOrCreate?: Enumerable<ContratoRateioCreateOrConnectWithoutUnidadeInput>
+    createMany?: ContratoRateioCreateManyUnidadeInputEnvelope
+    connect?: Enumerable<ContratoRateioWhereUniqueInput>
+  }
+
+  export type ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput = {
+    create?: XOR<Enumerable<ProcessoContratacaoCreateWithoutUnidadeDemandanteInput>, Enumerable<ProcessoContratacaoUncheckedCreateWithoutUnidadeDemandanteInput>>
+    connectOrCreate?: Enumerable<ProcessoContratacaoCreateOrConnectWithoutUnidadeDemandanteInput>
+    createMany?: ProcessoContratacaoCreateManyUnidadeDemandanteInputEnvelope
+    connect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+  }
+
   export type UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput = {
     create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutParentInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutParentInput>>
     connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutParentInput>
@@ -21376,6 +26635,27 @@ export namespace Prisma {
     connectOrCreate?: Enumerable<ServidorCreateOrConnectWithoutUnidadeInput>
     createMany?: ServidorCreateManyUnidadeInputEnvelope
     connect?: Enumerable<ServidorWhereUniqueInput>
+  }
+
+  export type ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
+    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput = {
+    create?: XOR<Enumerable<ContratoRateioCreateWithoutUnidadeInput>, Enumerable<ContratoRateioUncheckedCreateWithoutUnidadeInput>>
+    connectOrCreate?: Enumerable<ContratoRateioCreateOrConnectWithoutUnidadeInput>
+    createMany?: ContratoRateioCreateManyUnidadeInputEnvelope
+    connect?: Enumerable<ContratoRateioWhereUniqueInput>
+  }
+
+  export type ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput = {
+    create?: XOR<Enumerable<ProcessoContratacaoCreateWithoutUnidadeDemandanteInput>, Enumerable<ProcessoContratacaoUncheckedCreateWithoutUnidadeDemandanteInput>>
+    connectOrCreate?: Enumerable<ProcessoContratacaoCreateOrConnectWithoutUnidadeDemandanteInput>
+    createMany?: ProcessoContratacaoCreateManyUnidadeDemandanteInputEnvelope
+    connect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
   }
 
   export type EnumNivelUnidadeFieldUpdateOperationsInput = {
@@ -21436,6 +26716,48 @@ export namespace Prisma {
     deleteMany?: Enumerable<ServidorScalarWhereInput>
   }
 
+  export type ContratoUpdateManyWithoutUnidadeGestoraNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutUnidadeGestoraInput>
+    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutUnidadeGestoraInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutUnidadeGestoraInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoRateioUpdateManyWithoutUnidadeNestedInput = {
+    create?: XOR<Enumerable<ContratoRateioCreateWithoutUnidadeInput>, Enumerable<ContratoRateioUncheckedCreateWithoutUnidadeInput>>
+    connectOrCreate?: Enumerable<ContratoRateioCreateOrConnectWithoutUnidadeInput>
+    upsert?: Enumerable<ContratoRateioUpsertWithWhereUniqueWithoutUnidadeInput>
+    createMany?: ContratoRateioCreateManyUnidadeInputEnvelope
+    set?: Enumerable<ContratoRateioWhereUniqueInput>
+    disconnect?: Enumerable<ContratoRateioWhereUniqueInput>
+    delete?: Enumerable<ContratoRateioWhereUniqueInput>
+    connect?: Enumerable<ContratoRateioWhereUniqueInput>
+    update?: Enumerable<ContratoRateioUpdateWithWhereUniqueWithoutUnidadeInput>
+    updateMany?: Enumerable<ContratoRateioUpdateManyWithWhereWithoutUnidadeInput>
+    deleteMany?: Enumerable<ContratoRateioScalarWhereInput>
+  }
+
+  export type ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput = {
+    create?: XOR<Enumerable<ProcessoContratacaoCreateWithoutUnidadeDemandanteInput>, Enumerable<ProcessoContratacaoUncheckedCreateWithoutUnidadeDemandanteInput>>
+    connectOrCreate?: Enumerable<ProcessoContratacaoCreateOrConnectWithoutUnidadeDemandanteInput>
+    upsert?: Enumerable<ProcessoContratacaoUpsertWithWhereUniqueWithoutUnidadeDemandanteInput>
+    createMany?: ProcessoContratacaoCreateManyUnidadeDemandanteInputEnvelope
+    set?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    disconnect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    delete?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    connect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    update?: Enumerable<ProcessoContratacaoUpdateWithWhereUniqueWithoutUnidadeDemandanteInput>
+    updateMany?: Enumerable<ProcessoContratacaoUpdateManyWithWhereWithoutUnidadeDemandanteInput>
+    deleteMany?: Enumerable<ProcessoContratacaoScalarWhereInput>
+  }
+
   export type UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput = {
     create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutParentInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutParentInput>>
     connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutParentInput>
@@ -21462,6 +26784,48 @@ export namespace Prisma {
     update?: Enumerable<ServidorUpdateWithWhereUniqueWithoutUnidadeInput>
     updateMany?: Enumerable<ServidorUpdateManyWithWhereWithoutUnidadeInput>
     deleteMany?: Enumerable<ServidorScalarWhereInput>
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutUnidadeGestoraInput>
+    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutUnidadeGestoraInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutUnidadeGestoraInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput = {
+    create?: XOR<Enumerable<ContratoRateioCreateWithoutUnidadeInput>, Enumerable<ContratoRateioUncheckedCreateWithoutUnidadeInput>>
+    connectOrCreate?: Enumerable<ContratoRateioCreateOrConnectWithoutUnidadeInput>
+    upsert?: Enumerable<ContratoRateioUpsertWithWhereUniqueWithoutUnidadeInput>
+    createMany?: ContratoRateioCreateManyUnidadeInputEnvelope
+    set?: Enumerable<ContratoRateioWhereUniqueInput>
+    disconnect?: Enumerable<ContratoRateioWhereUniqueInput>
+    delete?: Enumerable<ContratoRateioWhereUniqueInput>
+    connect?: Enumerable<ContratoRateioWhereUniqueInput>
+    update?: Enumerable<ContratoRateioUpdateWithWhereUniqueWithoutUnidadeInput>
+    updateMany?: Enumerable<ContratoRateioUpdateManyWithWhereWithoutUnidadeInput>
+    deleteMany?: Enumerable<ContratoRateioScalarWhereInput>
+  }
+
+  export type ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput = {
+    create?: XOR<Enumerable<ProcessoContratacaoCreateWithoutUnidadeDemandanteInput>, Enumerable<ProcessoContratacaoUncheckedCreateWithoutUnidadeDemandanteInput>>
+    connectOrCreate?: Enumerable<ProcessoContratacaoCreateOrConnectWithoutUnidadeDemandanteInput>
+    upsert?: Enumerable<ProcessoContratacaoUpsertWithWhereUniqueWithoutUnidadeDemandanteInput>
+    createMany?: ProcessoContratacaoCreateManyUnidadeDemandanteInputEnvelope
+    set?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    disconnect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    delete?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    connect?: Enumerable<ProcessoContratacaoWhereUniqueInput>
+    update?: Enumerable<ProcessoContratacaoUpdateWithWhereUniqueWithoutUnidadeDemandanteInput>
+    updateMany?: Enumerable<ProcessoContratacaoUpdateManyWithWhereWithoutUnidadeDemandanteInput>
+    deleteMany?: Enumerable<ProcessoContratacaoScalarWhereInput>
   }
 
   export type MunicipioCreateNestedOneWithoutFornecedoresInput = {
@@ -21666,32 +27030,18 @@ export namespace Prisma {
     connect?: UnidadeOrganizacionalWhereUniqueInput
   }
 
-  export type ContratoCreateNestedManyWithoutGestorInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
-    createMany?: ContratoCreateManyGestorInputEnvelope
-    connect?: Enumerable<ContratoWhereUniqueInput>
+  export type ContratoResponsavelCreateNestedManyWithoutServidorInput = {
+    create?: XOR<Enumerable<ContratoResponsavelCreateWithoutServidorInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutServidorInput>>
+    connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutServidorInput>
+    createMany?: ContratoResponsavelCreateManyServidorInputEnvelope
+    connect?: Enumerable<ContratoResponsavelWhereUniqueInput>
   }
 
-  export type ContratoCreateNestedManyWithoutFiscalInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
-    createMany?: ContratoCreateManyFiscalInputEnvelope
-    connect?: Enumerable<ContratoWhereUniqueInput>
-  }
-
-  export type ContratoUncheckedCreateNestedManyWithoutGestorInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
-    createMany?: ContratoCreateManyGestorInputEnvelope
-    connect?: Enumerable<ContratoWhereUniqueInput>
-  }
-
-  export type ContratoUncheckedCreateNestedManyWithoutFiscalInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
-    createMany?: ContratoCreateManyFiscalInputEnvelope
-    connect?: Enumerable<ContratoWhereUniqueInput>
+  export type ContratoResponsavelUncheckedCreateNestedManyWithoutServidorInput = {
+    create?: XOR<Enumerable<ContratoResponsavelCreateWithoutServidorInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutServidorInput>>
+    connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutServidorInput>
+    createMany?: ContratoResponsavelCreateManyServidorInputEnvelope
+    connect?: Enumerable<ContratoResponsavelWhereUniqueInput>
   }
 
   export type OrgaoUpdateOneWithoutServidoresNestedInput = {
@@ -21714,84 +27064,166 @@ export namespace Prisma {
     update?: XOR<UnidadeOrganizacionalUpdateWithoutServidoresInput, UnidadeOrganizacionalUncheckedUpdateWithoutServidoresInput>
   }
 
-  export type ContratoUpdateManyWithoutGestorNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutGestorInput>
-    createMany?: ContratoCreateManyGestorInputEnvelope
+  export type ContratoResponsavelUpdateManyWithoutServidorNestedInput = {
+    create?: XOR<Enumerable<ContratoResponsavelCreateWithoutServidorInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutServidorInput>>
+    connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutServidorInput>
+    upsert?: Enumerable<ContratoResponsavelUpsertWithWhereUniqueWithoutServidorInput>
+    createMany?: ContratoResponsavelCreateManyServidorInputEnvelope
+    set?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    disconnect?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    delete?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    connect?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    update?: Enumerable<ContratoResponsavelUpdateWithWhereUniqueWithoutServidorInput>
+    updateMany?: Enumerable<ContratoResponsavelUpdateManyWithWhereWithoutServidorInput>
+    deleteMany?: Enumerable<ContratoResponsavelScalarWhereInput>
+  }
+
+  export type ContratoResponsavelUncheckedUpdateManyWithoutServidorNestedInput = {
+    create?: XOR<Enumerable<ContratoResponsavelCreateWithoutServidorInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutServidorInput>>
+    connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutServidorInput>
+    upsert?: Enumerable<ContratoResponsavelUpsertWithWhereUniqueWithoutServidorInput>
+    createMany?: ContratoResponsavelCreateManyServidorInputEnvelope
+    set?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    disconnect?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    delete?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    connect?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    update?: Enumerable<ContratoResponsavelUpdateWithWhereUniqueWithoutServidorInput>
+    updateMany?: Enumerable<ContratoResponsavelUpdateManyWithWhereWithoutServidorInput>
+    deleteMany?: Enumerable<ContratoResponsavelScalarWhereInput>
+  }
+
+  export type UnidadeOrganizacionalCreateNestedOneWithoutProcessosDemandanteInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutProcessosDemandanteInput, UnidadeOrganizacionalUncheckedCreateWithoutProcessosDemandanteInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutProcessosDemandanteInput
+    connect?: UnidadeOrganizacionalWhereUniqueInput
+  }
+
+  export type DominioValorCreateNestedOneWithoutProcessosModalidadeInput = {
+    create?: XOR<DominioValorCreateWithoutProcessosModalidadeInput, DominioValorUncheckedCreateWithoutProcessosModalidadeInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutProcessosModalidadeInput
+    connect?: DominioValorWhereUniqueInput
+  }
+
+  export type ContratoCreateNestedManyWithoutProcessoInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutProcessoInput>, Enumerable<ContratoUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutProcessoInput>
+    createMany?: ContratoCreateManyProcessoInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoUncheckedCreateNestedManyWithoutProcessoInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutProcessoInput>, Enumerable<ContratoUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutProcessoInput>
+    createMany?: ContratoCreateManyProcessoInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type NullableBigIntFieldUpdateOperationsInput = {
+    set?: bigint | number | null
+    increment?: bigint | number
+    decrement?: bigint | number
+    multiply?: bigint | number
+    divide?: bigint | number
+  }
+
+  export type EnumSituacaoProcessoFieldUpdateOperationsInput = {
+    set?: SituacaoProcesso
+  }
+
+  export type UnidadeOrganizacionalUpdateOneRequiredWithoutProcessosDemandanteNestedInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutProcessosDemandanteInput, UnidadeOrganizacionalUncheckedCreateWithoutProcessosDemandanteInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutProcessosDemandanteInput
+    upsert?: UnidadeOrganizacionalUpsertWithoutProcessosDemandanteInput
+    connect?: UnidadeOrganizacionalWhereUniqueInput
+    update?: XOR<UnidadeOrganizacionalUpdateWithoutProcessosDemandanteInput, UnidadeOrganizacionalUncheckedUpdateWithoutProcessosDemandanteInput>
+  }
+
+  export type DominioValorUpdateOneWithoutProcessosModalidadeNestedInput = {
+    create?: XOR<DominioValorCreateWithoutProcessosModalidadeInput, DominioValorUncheckedCreateWithoutProcessosModalidadeInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutProcessosModalidadeInput
+    upsert?: DominioValorUpsertWithoutProcessosModalidadeInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: DominioValorWhereUniqueInput
+    update?: XOR<DominioValorUpdateWithoutProcessosModalidadeInput, DominioValorUncheckedUpdateWithoutProcessosModalidadeInput>
+  }
+
+  export type ContratoUpdateManyWithoutProcessoNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutProcessoInput>, Enumerable<ContratoUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutProcessoInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutProcessoInput>
+    createMany?: ContratoCreateManyProcessoInputEnvelope
     set?: Enumerable<ContratoWhereUniqueInput>
     disconnect?: Enumerable<ContratoWhereUniqueInput>
     delete?: Enumerable<ContratoWhereUniqueInput>
     connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutGestorInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutGestorInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutProcessoInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutProcessoInput>
     deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
-  export type ContratoUpdateManyWithoutFiscalNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutFiscalInput>
-    createMany?: ContratoCreateManyFiscalInputEnvelope
+  export type ContratoUncheckedUpdateManyWithoutProcessoNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutProcessoInput>, Enumerable<ContratoUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutProcessoInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutProcessoInput>
+    createMany?: ContratoCreateManyProcessoInputEnvelope
     set?: Enumerable<ContratoWhereUniqueInput>
     disconnect?: Enumerable<ContratoWhereUniqueInput>
     delete?: Enumerable<ContratoWhereUniqueInput>
     connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutFiscalInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutFiscalInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutProcessoInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutProcessoInput>
     deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
-  export type ContratoUncheckedUpdateManyWithoutGestorNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutGestorInput>, Enumerable<ContratoUncheckedCreateWithoutGestorInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutGestorInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutGestorInput>
-    createMany?: ContratoCreateManyGestorInputEnvelope
-    set?: Enumerable<ContratoWhereUniqueInput>
-    disconnect?: Enumerable<ContratoWhereUniqueInput>
-    delete?: Enumerable<ContratoWhereUniqueInput>
-    connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutGestorInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutGestorInput>
-    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  export type ProcessoContratacaoCreateNestedOneWithoutContratosInput = {
+    create?: XOR<ProcessoContratacaoCreateWithoutContratosInput, ProcessoContratacaoUncheckedCreateWithoutContratosInput>
+    connectOrCreate?: ProcessoContratacaoCreateOrConnectWithoutContratosInput
+    connect?: ProcessoContratacaoWhereUniqueInput
   }
 
-  export type ContratoUncheckedUpdateManyWithoutFiscalNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutFiscalInput>, Enumerable<ContratoUncheckedCreateWithoutFiscalInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutFiscalInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutFiscalInput>
-    createMany?: ContratoCreateManyFiscalInputEnvelope
-    set?: Enumerable<ContratoWhereUniqueInput>
-    disconnect?: Enumerable<ContratoWhereUniqueInput>
-    delete?: Enumerable<ContratoWhereUniqueInput>
-    connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutFiscalInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutFiscalInput>
-    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  export type DominioValorCreateNestedOneWithoutContratosCategoriaInput = {
+    create?: XOR<DominioValorCreateWithoutContratosCategoriaInput, DominioValorUncheckedCreateWithoutContratosCategoriaInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutContratosCategoriaInput
+    connect?: DominioValorWhereUniqueInput
   }
 
-  export type UnidadeFspCreateNestedOneWithoutContratosInput = {
-    create?: XOR<UnidadeFspCreateWithoutContratosInput, UnidadeFspUncheckedCreateWithoutContratosInput>
-    connectOrCreate?: UnidadeFspCreateOrConnectWithoutContratosInput
-    connect?: UnidadeFspWhereUniqueInput
+  export type DominioValorCreateNestedOneWithoutContratosModalidadeInput = {
+    create?: XOR<DominioValorCreateWithoutContratosModalidadeInput, DominioValorUncheckedCreateWithoutContratosModalidadeInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutContratosModalidadeInput
+    connect?: DominioValorWhereUniqueInput
   }
 
-  export type ServidorCreateNestedOneWithoutGestorContratosInput = {
-    create?: XOR<ServidorCreateWithoutGestorContratosInput, ServidorUncheckedCreateWithoutGestorContratosInput>
-    connectOrCreate?: ServidorCreateOrConnectWithoutGestorContratosInput
-    connect?: ServidorWhereUniqueInput
-  }
-
-  export type ServidorCreateNestedOneWithoutFiscalContratosInput = {
-    create?: XOR<ServidorCreateWithoutFiscalContratosInput, ServidorUncheckedCreateWithoutFiscalContratosInput>
-    connectOrCreate?: ServidorCreateOrConnectWithoutFiscalContratosInput
-    connect?: ServidorWhereUniqueInput
+  export type DominioValorCreateNestedOneWithoutContratosFundamentoInput = {
+    create?: XOR<DominioValorCreateWithoutContratosFundamentoInput, DominioValorUncheckedCreateWithoutContratosFundamentoInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutContratosFundamentoInput
+    connect?: DominioValorWhereUniqueInput
   }
 
   export type FornecedorCreateNestedOneWithoutContratosInput = {
     create?: XOR<FornecedorCreateWithoutContratosInput, FornecedorUncheckedCreateWithoutContratosInput>
     connectOrCreate?: FornecedorCreateOrConnectWithoutContratosInput
     connect?: FornecedorWhereUniqueInput
+  }
+
+  export type UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosGestoraInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutContratosGestoraInput
+    connect?: UnidadeOrganizacionalWhereUniqueInput
+  }
+
+  export type ContratoResponsavelCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<ContratoResponsavelCreateWithoutContratoInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutContratoInput>
+    createMany?: ContratoResponsavelCreateManyContratoInputEnvelope
+    connect?: Enumerable<ContratoResponsavelWhereUniqueInput>
+  }
+
+  export type ContratoRateioCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<ContratoRateioCreateWithoutContratoInput>, Enumerable<ContratoRateioUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoRateioCreateOrConnectWithoutContratoInput>
+    createMany?: ContratoRateioCreateManyContratoInputEnvelope
+    connect?: Enumerable<ContratoRateioWhereUniqueInput>
   }
 
   export type AditivoCreateNestedManyWithoutContratoInput = {
@@ -21801,6 +27233,20 @@ export namespace Prisma {
     connect?: Enumerable<AditivoWhereUniqueInput>
   }
 
+  export type ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<ContratoResponsavelCreateWithoutContratoInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutContratoInput>
+    createMany?: ContratoResponsavelCreateManyContratoInputEnvelope
+    connect?: Enumerable<ContratoResponsavelWhereUniqueInput>
+  }
+
+  export type ContratoRateioUncheckedCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<ContratoRateioCreateWithoutContratoInput>, Enumerable<ContratoRateioUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoRateioCreateOrConnectWithoutContratoInput>
+    createMany?: ContratoRateioCreateManyContratoInputEnvelope
+    connect?: Enumerable<ContratoRateioWhereUniqueInput>
+  }
+
   export type AditivoUncheckedCreateNestedManyWithoutContratoInput = {
     create?: XOR<Enumerable<AditivoCreateWithoutContratoInput>, Enumerable<AditivoUncheckedCreateWithoutContratoInput>>
     connectOrCreate?: Enumerable<AditivoCreateOrConnectWithoutContratoInput>
@@ -21808,28 +27254,76 @@ export namespace Prisma {
     connect?: Enumerable<AditivoWhereUniqueInput>
   }
 
-  export type UnidadeFspUpdateOneRequiredWithoutContratosNestedInput = {
-    create?: XOR<UnidadeFspCreateWithoutContratosInput, UnidadeFspUncheckedCreateWithoutContratosInput>
-    connectOrCreate?: UnidadeFspCreateOrConnectWithoutContratosInput
-    upsert?: UnidadeFspUpsertWithoutContratosInput
-    connect?: UnidadeFspWhereUniqueInput
-    update?: XOR<UnidadeFspUpdateWithoutContratosInput, UnidadeFspUncheckedUpdateWithoutContratosInput>
+  export type EnumPilarOrcamentarioFieldUpdateOperationsInput = {
+    set?: PilarOrcamentario
   }
 
-  export type ServidorUpdateOneRequiredWithoutGestorContratosNestedInput = {
-    create?: XOR<ServidorCreateWithoutGestorContratosInput, ServidorUncheckedCreateWithoutGestorContratosInput>
-    connectOrCreate?: ServidorCreateOrConnectWithoutGestorContratosInput
-    upsert?: ServidorUpsertWithoutGestorContratosInput
-    connect?: ServidorWhereUniqueInput
-    update?: XOR<ServidorUpdateWithoutGestorContratosInput, ServidorUncheckedUpdateWithoutGestorContratosInput>
+  export type EnumNaturezaObjetoFieldUpdateOperationsInput = {
+    set?: NaturezaObjeto
   }
 
-  export type ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput = {
-    create?: XOR<ServidorCreateWithoutFiscalContratosInput, ServidorUncheckedCreateWithoutFiscalContratosInput>
-    connectOrCreate?: ServidorCreateOrConnectWithoutFiscalContratosInput
-    upsert?: ServidorUpsertWithoutFiscalContratosInput
-    connect?: ServidorWhereUniqueInput
-    update?: XOR<ServidorUpdateWithoutFiscalContratosInput, ServidorUncheckedUpdateWithoutFiscalContratosInput>
+  export type EnumUnidadeTempoFieldUpdateOperationsInput = {
+    set?: UnidadeTempo
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type BigIntFieldUpdateOperationsInput = {
+    set?: bigint | number
+    increment?: bigint | number
+    decrement?: bigint | number
+    multiply?: bigint | number
+    divide?: bigint | number
+  }
+
+  export type EnumSituacaoContratoFieldUpdateOperationsInput = {
+    set?: SituacaoContrato
+  }
+
+  export type NullableEnumTipoGarantiaFieldUpdateOperationsInput = {
+    set?: TipoGarantia | null
+  }
+
+  export type ProcessoContratacaoUpdateOneWithoutContratosNestedInput = {
+    create?: XOR<ProcessoContratacaoCreateWithoutContratosInput, ProcessoContratacaoUncheckedCreateWithoutContratosInput>
+    connectOrCreate?: ProcessoContratacaoCreateOrConnectWithoutContratosInput
+    upsert?: ProcessoContratacaoUpsertWithoutContratosInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: ProcessoContratacaoWhereUniqueInput
+    update?: XOR<ProcessoContratacaoUpdateWithoutContratosInput, ProcessoContratacaoUncheckedUpdateWithoutContratosInput>
+  }
+
+  export type DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput = {
+    create?: XOR<DominioValorCreateWithoutContratosCategoriaInput, DominioValorUncheckedCreateWithoutContratosCategoriaInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutContratosCategoriaInput
+    upsert?: DominioValorUpsertWithoutContratosCategoriaInput
+    connect?: DominioValorWhereUniqueInput
+    update?: XOR<DominioValorUpdateWithoutContratosCategoriaInput, DominioValorUncheckedUpdateWithoutContratosCategoriaInput>
+  }
+
+  export type DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput = {
+    create?: XOR<DominioValorCreateWithoutContratosModalidadeInput, DominioValorUncheckedCreateWithoutContratosModalidadeInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutContratosModalidadeInput
+    upsert?: DominioValorUpsertWithoutContratosModalidadeInput
+    connect?: DominioValorWhereUniqueInput
+    update?: XOR<DominioValorUpdateWithoutContratosModalidadeInput, DominioValorUncheckedUpdateWithoutContratosModalidadeInput>
+  }
+
+  export type DominioValorUpdateOneWithoutContratosFundamentoNestedInput = {
+    create?: XOR<DominioValorCreateWithoutContratosFundamentoInput, DominioValorUncheckedCreateWithoutContratosFundamentoInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutContratosFundamentoInput
+    upsert?: DominioValorUpsertWithoutContratosFundamentoInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: DominioValorWhereUniqueInput
+    update?: XOR<DominioValorUpdateWithoutContratosFundamentoInput, DominioValorUncheckedUpdateWithoutContratosFundamentoInput>
   }
 
   export type FornecedorUpdateOneRequiredWithoutContratosNestedInput = {
@@ -21838,6 +27332,42 @@ export namespace Prisma {
     upsert?: FornecedorUpsertWithoutContratosInput
     connect?: FornecedorWhereUniqueInput
     update?: XOR<FornecedorUpdateWithoutContratosInput, FornecedorUncheckedUpdateWithoutContratosInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosGestoraInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutContratosGestoraInput
+    upsert?: UnidadeOrganizacionalUpsertWithoutContratosGestoraInput
+    connect?: UnidadeOrganizacionalWhereUniqueInput
+    update?: XOR<UnidadeOrganizacionalUpdateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedUpdateWithoutContratosGestoraInput>
+  }
+
+  export type ContratoResponsavelUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<ContratoResponsavelCreateWithoutContratoInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<ContratoResponsavelUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: ContratoResponsavelCreateManyContratoInputEnvelope
+    set?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    disconnect?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    delete?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    connect?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    update?: Enumerable<ContratoResponsavelUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<ContratoResponsavelUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<ContratoResponsavelScalarWhereInput>
+  }
+
+  export type ContratoRateioUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<ContratoRateioCreateWithoutContratoInput>, Enumerable<ContratoRateioUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoRateioCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<ContratoRateioUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: ContratoRateioCreateManyContratoInputEnvelope
+    set?: Enumerable<ContratoRateioWhereUniqueInput>
+    disconnect?: Enumerable<ContratoRateioWhereUniqueInput>
+    delete?: Enumerable<ContratoRateioWhereUniqueInput>
+    connect?: Enumerable<ContratoRateioWhereUniqueInput>
+    update?: Enumerable<ContratoRateioUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<ContratoRateioUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<ContratoRateioScalarWhereInput>
   }
 
   export type AditivoUpdateManyWithoutContratoNestedInput = {
@@ -21854,6 +27384,34 @@ export namespace Prisma {
     deleteMany?: Enumerable<AditivoScalarWhereInput>
   }
 
+  export type ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<ContratoResponsavelCreateWithoutContratoInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<ContratoResponsavelUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: ContratoResponsavelCreateManyContratoInputEnvelope
+    set?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    disconnect?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    delete?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    connect?: Enumerable<ContratoResponsavelWhereUniqueInput>
+    update?: Enumerable<ContratoResponsavelUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<ContratoResponsavelUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<ContratoResponsavelScalarWhereInput>
+  }
+
+  export type ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<ContratoRateioCreateWithoutContratoInput>, Enumerable<ContratoRateioUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoRateioCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<ContratoRateioUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: ContratoRateioCreateManyContratoInputEnvelope
+    set?: Enumerable<ContratoRateioWhereUniqueInput>
+    disconnect?: Enumerable<ContratoRateioWhereUniqueInput>
+    delete?: Enumerable<ContratoRateioWhereUniqueInput>
+    connect?: Enumerable<ContratoRateioWhereUniqueInput>
+    update?: Enumerable<ContratoRateioUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<ContratoRateioUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<ContratoRateioScalarWhereInput>
+  }
+
   export type AditivoUncheckedUpdateManyWithoutContratoNestedInput = {
     create?: XOR<Enumerable<AditivoCreateWithoutContratoInput>, Enumerable<AditivoUncheckedCreateWithoutContratoInput>>
     connectOrCreate?: Enumerable<AditivoCreateOrConnectWithoutContratoInput>
@@ -21868,18 +27426,78 @@ export namespace Prisma {
     deleteMany?: Enumerable<AditivoScalarWhereInput>
   }
 
+  export type ContratoCreateNestedOneWithoutResponsaveisInput = {
+    create?: XOR<ContratoCreateWithoutResponsaveisInput, ContratoUncheckedCreateWithoutResponsaveisInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutResponsaveisInput
+    connect?: ContratoWhereUniqueInput
+  }
+
+  export type ServidorCreateNestedOneWithoutResponsaveisInput = {
+    create?: XOR<ServidorCreateWithoutResponsaveisInput, ServidorUncheckedCreateWithoutResponsaveisInput>
+    connectOrCreate?: ServidorCreateOrConnectWithoutResponsaveisInput
+    connect?: ServidorWhereUniqueInput
+  }
+
+  export type EnumPapelResponsavelFieldUpdateOperationsInput = {
+    set?: PapelResponsavel
+  }
+
+  export type ContratoUpdateOneRequiredWithoutResponsaveisNestedInput = {
+    create?: XOR<ContratoCreateWithoutResponsaveisInput, ContratoUncheckedCreateWithoutResponsaveisInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutResponsaveisInput
+    upsert?: ContratoUpsertWithoutResponsaveisInput
+    connect?: ContratoWhereUniqueInput
+    update?: XOR<ContratoUpdateWithoutResponsaveisInput, ContratoUncheckedUpdateWithoutResponsaveisInput>
+  }
+
+  export type ServidorUpdateOneRequiredWithoutResponsaveisNestedInput = {
+    create?: XOR<ServidorCreateWithoutResponsaveisInput, ServidorUncheckedCreateWithoutResponsaveisInput>
+    connectOrCreate?: ServidorCreateOrConnectWithoutResponsaveisInput
+    upsert?: ServidorUpsertWithoutResponsaveisInput
+    connect?: ServidorWhereUniqueInput
+    update?: XOR<ServidorUpdateWithoutResponsaveisInput, ServidorUncheckedUpdateWithoutResponsaveisInput>
+  }
+
+  export type ContratoCreateNestedOneWithoutRateiosInput = {
+    create?: XOR<ContratoCreateWithoutRateiosInput, ContratoUncheckedCreateWithoutRateiosInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutRateiosInput
+    connect?: ContratoWhereUniqueInput
+  }
+
+  export type UnidadeOrganizacionalCreateNestedOneWithoutRateiosInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutRateiosInput, UnidadeOrganizacionalUncheckedCreateWithoutRateiosInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutRateiosInput
+    connect?: UnidadeOrganizacionalWhereUniqueInput
+  }
+
+  export type NullableDecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string | null
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type ContratoUpdateOneRequiredWithoutRateiosNestedInput = {
+    create?: XOR<ContratoCreateWithoutRateiosInput, ContratoUncheckedCreateWithoutRateiosInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutRateiosInput
+    upsert?: ContratoUpsertWithoutRateiosInput
+    connect?: ContratoWhereUniqueInput
+    update?: XOR<ContratoUpdateWithoutRateiosInput, ContratoUncheckedUpdateWithoutRateiosInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateOneRequiredWithoutRateiosNestedInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutRateiosInput, UnidadeOrganizacionalUncheckedCreateWithoutRateiosInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutRateiosInput
+    upsert?: UnidadeOrganizacionalUpsertWithoutRateiosInput
+    connect?: UnidadeOrganizacionalWhereUniqueInput
+    update?: XOR<UnidadeOrganizacionalUpdateWithoutRateiosInput, UnidadeOrganizacionalUncheckedUpdateWithoutRateiosInput>
+  }
+
   export type ContratoCreateNestedOneWithoutAditivosInput = {
     create?: XOR<ContratoCreateWithoutAditivosInput, ContratoUncheckedCreateWithoutAditivosInput>
     connectOrCreate?: ContratoCreateOrConnectWithoutAditivosInput
     connect?: ContratoWhereUniqueInput
-  }
-
-  export type NullableIntFieldUpdateOperationsInput = {
-    set?: number | null
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type ContratoUpdateOneRequiredWithoutAditivosNestedInput = {
@@ -22188,6 +27806,137 @@ export namespace Prisma {
     _max?: NestedDateTimeNullableFilter
   }
 
+  export type NestedBigIntNullableFilter = {
+    equals?: bigint | number | null
+    in?: Enumerable<bigint> | Enumerable<number> | bigint | number | null
+    notIn?: Enumerable<bigint> | Enumerable<number> | bigint | number | null
+    lt?: bigint | number
+    lte?: bigint | number
+    gt?: bigint | number
+    gte?: bigint | number
+    not?: NestedBigIntNullableFilter | bigint | number | null
+  }
+
+  export type NestedEnumSituacaoProcessoFilter = {
+    equals?: SituacaoProcesso
+    in?: Enumerable<SituacaoProcesso>
+    notIn?: Enumerable<SituacaoProcesso>
+    not?: NestedEnumSituacaoProcessoFilter | SituacaoProcesso
+  }
+
+  export type NestedBigIntNullableWithAggregatesFilter = {
+    equals?: bigint | number | null
+    in?: Enumerable<bigint> | Enumerable<number> | bigint | number | null
+    notIn?: Enumerable<bigint> | Enumerable<number> | bigint | number | null
+    lt?: bigint | number
+    lte?: bigint | number
+    gt?: bigint | number
+    gte?: bigint | number
+    not?: NestedBigIntNullableWithAggregatesFilter | bigint | number | null
+    _count?: NestedIntNullableFilter
+    _avg?: NestedFloatNullableFilter
+    _sum?: NestedBigIntNullableFilter
+    _min?: NestedBigIntNullableFilter
+    _max?: NestedBigIntNullableFilter
+  }
+
+  export type NestedFloatNullableFilter = {
+    equals?: number | null
+    in?: Enumerable<number> | number | null
+    notIn?: Enumerable<number> | number | null
+    lt?: number
+    lte?: number
+    gt?: number
+    gte?: number
+    not?: NestedFloatNullableFilter | number | null
+  }
+
+  export type NestedEnumSituacaoProcessoWithAggregatesFilter = {
+    equals?: SituacaoProcesso
+    in?: Enumerable<SituacaoProcesso>
+    notIn?: Enumerable<SituacaoProcesso>
+    not?: NestedEnumSituacaoProcessoWithAggregatesFilter | SituacaoProcesso
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoProcessoFilter
+    _max?: NestedEnumSituacaoProcessoFilter
+  }
+
+  export type NestedEnumPilarOrcamentarioFilter = {
+    equals?: PilarOrcamentario
+    in?: Enumerable<PilarOrcamentario>
+    notIn?: Enumerable<PilarOrcamentario>
+    not?: NestedEnumPilarOrcamentarioFilter | PilarOrcamentario
+  }
+
+  export type NestedEnumNaturezaObjetoFilter = {
+    equals?: NaturezaObjeto
+    in?: Enumerable<NaturezaObjeto>
+    notIn?: Enumerable<NaturezaObjeto>
+    not?: NestedEnumNaturezaObjetoFilter | NaturezaObjeto
+  }
+
+  export type NestedEnumUnidadeTempoFilter = {
+    equals?: UnidadeTempo
+    in?: Enumerable<UnidadeTempo>
+    notIn?: Enumerable<UnidadeTempo>
+    not?: NestedEnumUnidadeTempoFilter | UnidadeTempo
+  }
+
+  export type NestedBigIntFilter = {
+    equals?: bigint | number
+    in?: Enumerable<bigint> | Enumerable<number> | bigint | number
+    notIn?: Enumerable<bigint> | Enumerable<number> | bigint | number
+    lt?: bigint | number
+    lte?: bigint | number
+    gt?: bigint | number
+    gte?: bigint | number
+    not?: NestedBigIntFilter | bigint | number
+  }
+
+  export type NestedEnumSituacaoContratoFilter = {
+    equals?: SituacaoContrato
+    in?: Enumerable<SituacaoContrato>
+    notIn?: Enumerable<SituacaoContrato>
+    not?: NestedEnumSituacaoContratoFilter | SituacaoContrato
+  }
+
+  export type NestedEnumTipoGarantiaNullableFilter = {
+    equals?: TipoGarantia | null
+    in?: Enumerable<TipoGarantia> | null
+    notIn?: Enumerable<TipoGarantia> | null
+    not?: NestedEnumTipoGarantiaNullableFilter | TipoGarantia | null
+  }
+
+  export type NestedEnumPilarOrcamentarioWithAggregatesFilter = {
+    equals?: PilarOrcamentario
+    in?: Enumerable<PilarOrcamentario>
+    notIn?: Enumerable<PilarOrcamentario>
+    not?: NestedEnumPilarOrcamentarioWithAggregatesFilter | PilarOrcamentario
+    _count?: NestedIntFilter
+    _min?: NestedEnumPilarOrcamentarioFilter
+    _max?: NestedEnumPilarOrcamentarioFilter
+  }
+
+  export type NestedEnumNaturezaObjetoWithAggregatesFilter = {
+    equals?: NaturezaObjeto
+    in?: Enumerable<NaturezaObjeto>
+    notIn?: Enumerable<NaturezaObjeto>
+    not?: NestedEnumNaturezaObjetoWithAggregatesFilter | NaturezaObjeto
+    _count?: NestedIntFilter
+    _min?: NestedEnumNaturezaObjetoFilter
+    _max?: NestedEnumNaturezaObjetoFilter
+  }
+
+  export type NestedEnumUnidadeTempoWithAggregatesFilter = {
+    equals?: UnidadeTempo
+    in?: Enumerable<UnidadeTempo>
+    notIn?: Enumerable<UnidadeTempo>
+    not?: NestedEnumUnidadeTempoWithAggregatesFilter | UnidadeTempo
+    _count?: NestedIntFilter
+    _min?: NestedEnumUnidadeTempoFilter
+    _max?: NestedEnumUnidadeTempoFilter
+  }
+
   export type NestedIntNullableWithAggregatesFilter = {
     equals?: number | null
     in?: Enumerable<number> | number | null
@@ -22204,15 +27953,84 @@ export namespace Prisma {
     _max?: NestedIntNullableFilter
   }
 
-  export type NestedFloatNullableFilter = {
-    equals?: number | null
-    in?: Enumerable<number> | number | null
-    notIn?: Enumerable<number> | number | null
-    lt?: number
-    lte?: number
-    gt?: number
-    gte?: number
-    not?: NestedFloatNullableFilter | number | null
+  export type NestedBigIntWithAggregatesFilter = {
+    equals?: bigint | number
+    in?: Enumerable<bigint> | Enumerable<number> | bigint | number
+    notIn?: Enumerable<bigint> | Enumerable<number> | bigint | number
+    lt?: bigint | number
+    lte?: bigint | number
+    gt?: bigint | number
+    gte?: bigint | number
+    not?: NestedBigIntWithAggregatesFilter | bigint | number
+    _count?: NestedIntFilter
+    _avg?: NestedFloatFilter
+    _sum?: NestedBigIntFilter
+    _min?: NestedBigIntFilter
+    _max?: NestedBigIntFilter
+  }
+
+  export type NestedEnumSituacaoContratoWithAggregatesFilter = {
+    equals?: SituacaoContrato
+    in?: Enumerable<SituacaoContrato>
+    notIn?: Enumerable<SituacaoContrato>
+    not?: NestedEnumSituacaoContratoWithAggregatesFilter | SituacaoContrato
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoContratoFilter
+    _max?: NestedEnumSituacaoContratoFilter
+  }
+
+  export type NestedEnumTipoGarantiaNullableWithAggregatesFilter = {
+    equals?: TipoGarantia | null
+    in?: Enumerable<TipoGarantia> | null
+    notIn?: Enumerable<TipoGarantia> | null
+    not?: NestedEnumTipoGarantiaNullableWithAggregatesFilter | TipoGarantia | null
+    _count?: NestedIntNullableFilter
+    _min?: NestedEnumTipoGarantiaNullableFilter
+    _max?: NestedEnumTipoGarantiaNullableFilter
+  }
+
+  export type NestedEnumPapelResponsavelFilter = {
+    equals?: PapelResponsavel
+    in?: Enumerable<PapelResponsavel>
+    notIn?: Enumerable<PapelResponsavel>
+    not?: NestedEnumPapelResponsavelFilter | PapelResponsavel
+  }
+
+  export type NestedEnumPapelResponsavelWithAggregatesFilter = {
+    equals?: PapelResponsavel
+    in?: Enumerable<PapelResponsavel>
+    notIn?: Enumerable<PapelResponsavel>
+    not?: NestedEnumPapelResponsavelWithAggregatesFilter | PapelResponsavel
+    _count?: NestedIntFilter
+    _min?: NestedEnumPapelResponsavelFilter
+    _max?: NestedEnumPapelResponsavelFilter
+  }
+
+  export type NestedDecimalNullableFilter = {
+    equals?: Decimal | DecimalJsLike | number | string | null
+    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string | null
+    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string | null
+    lt?: Decimal | DecimalJsLike | number | string
+    lte?: Decimal | DecimalJsLike | number | string
+    gt?: Decimal | DecimalJsLike | number | string
+    gte?: Decimal | DecimalJsLike | number | string
+    not?: NestedDecimalNullableFilter | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type NestedDecimalNullableWithAggregatesFilter = {
+    equals?: Decimal | DecimalJsLike | number | string | null
+    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string | null
+    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string | null
+    lt?: Decimal | DecimalJsLike | number | string
+    lte?: Decimal | DecimalJsLike | number | string
+    gt?: Decimal | DecimalJsLike | number | string
+    gte?: Decimal | DecimalJsLike | number | string
+    not?: NestedDecimalNullableWithAggregatesFilter | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter
+    _avg?: NestedDecimalNullableFilter
+    _sum?: NestedDecimalNullableFilter
+    _min?: NestedDecimalNullableFilter
+    _max?: NestedDecimalNullableFilter
   }
   export type NestedJsonFilter = 
     | PatchUndefined<
@@ -22237,92 +28055,6 @@ export namespace Prisma {
     not?: InputJsonValue | JsonNullValueFilter
   }
 
-  export type ContratoCreateWithoutUnidadeFspInput = {
-    id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    gestor: ServidorCreateNestedOneWithoutGestorContratosInput
-    fiscal: ServidorCreateNestedOneWithoutFiscalContratosInput
-    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
-  }
-
-  export type ContratoUncheckedCreateWithoutUnidadeFspInput = {
-    id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    gestorId: string
-    fiscalId: string
-    fornecedorId: string
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
-  }
-
-  export type ContratoCreateOrConnectWithoutUnidadeFspInput = {
-    where: ContratoWhereUniqueInput
-    create: XOR<ContratoCreateWithoutUnidadeFspInput, ContratoUncheckedCreateWithoutUnidadeFspInput>
-  }
-
-  export type ContratoCreateManyUnidadeFspInputEnvelope = {
-    data: Enumerable<ContratoCreateManyUnidadeFspInput>
-    skipDuplicates?: boolean
-  }
-
-  export type ContratoUpsertWithWhereUniqueWithoutUnidadeFspInput = {
-    where: ContratoWhereUniqueInput
-    update: XOR<ContratoUpdateWithoutUnidadeFspInput, ContratoUncheckedUpdateWithoutUnidadeFspInput>
-    create: XOR<ContratoCreateWithoutUnidadeFspInput, ContratoUncheckedCreateWithoutUnidadeFspInput>
-  }
-
-  export type ContratoUpdateWithWhereUniqueWithoutUnidadeFspInput = {
-    where: ContratoWhereUniqueInput
-    data: XOR<ContratoUpdateWithoutUnidadeFspInput, ContratoUncheckedUpdateWithoutUnidadeFspInput>
-  }
-
-  export type ContratoUpdateManyWithWhereWithoutUnidadeFspInput = {
-    where: ContratoScalarWhereInput
-    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosInput>
-  }
-
-  export type ContratoScalarWhereInput = {
-    AND?: Enumerable<ContratoScalarWhereInput>
-    OR?: Enumerable<ContratoScalarWhereInput>
-    NOT?: Enumerable<ContratoScalarWhereInput>
-    id?: StringFilter | string
-    protocoloCabeca?: StringNullableFilter | string | null
-    numGms?: IntFilter | number
-    anoGms?: IntFilter | number
-    unidadeFspId?: StringFilter | string
-    gestorId?: StringFilter | string
-    fiscalId?: StringFilter | string
-    fornecedorId?: StringFilter | string
-    modalidade?: StringFilter | string
-    objeto?: StringFilter | string
-    valorAnualCents?: IntFilter | number
-    dataInicio?: DateTimeNullableFilter | Date | string | null
-    dataFimOrig?: DateTimeNullableFilter | Date | string | null
-    status?: StringFilter | string
-    createdAt?: DateTimeFilter | Date | string
-    updatedAt?: DateTimeFilter | Date | string
-  }
-
   export type UnidadeOrganizacionalCreateWithoutMunicipioInput = {
     id?: string
     sigla: string
@@ -22335,6 +28067,9 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalUncheckedCreateWithoutMunicipioInput = {
@@ -22349,6 +28084,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalCreateOrConnectWithoutMunicipioInput = {
@@ -22483,6 +28221,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     parent?: DominioValorCreateNestedOneWithoutChildrenInput
     children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
   }
 
   export type DominioValorUncheckedCreateWithoutDominioInput = {
@@ -22497,6 +28239,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
   }
 
   export type DominioValorCreateOrConnectWithoutDominioInput = {
@@ -22581,6 +28327,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     dominio: DominioCreateNestedOneWithoutValoresInput
     parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
   }
 
   export type DominioValorUncheckedCreateWithoutChildrenInput = {
@@ -22595,6 +28345,10 @@ export namespace Prisma {
     codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
   }
 
   export type DominioValorCreateOrConnectWithoutChildrenInput = {
@@ -22614,6 +28368,10 @@ export namespace Prisma {
     updatedAt?: Date | string
     dominio: DominioCreateNestedOneWithoutValoresInput
     children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
   }
 
   export type DominioValorUncheckedCreateWithoutParentInput = {
@@ -22628,6 +28386,10 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
   }
 
   export type DominioValorCreateOrConnectWithoutParentInput = {
@@ -22637,6 +28399,322 @@ export namespace Prisma {
 
   export type DominioValorCreateManyParentInputEnvelope = {
     data: Enumerable<DominioValorCreateManyParentInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoCreateWithoutCategoriaContratacaoInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutCategoriaContratacaoInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutCategoriaContratacaoInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutCategoriaContratacaoInput, ContratoUncheckedCreateWithoutCategoriaContratacaoInput>
+  }
+
+  export type ContratoCreateManyCategoriaContratacaoInputEnvelope = {
+    data: Enumerable<ContratoCreateManyCategoriaContratacaoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoCreateWithoutModalidadeRefInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutModalidadeRefInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutModalidadeRefInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutModalidadeRefInput, ContratoUncheckedCreateWithoutModalidadeRefInput>
+  }
+
+  export type ContratoCreateManyModalidadeRefInputEnvelope = {
+    data: Enumerable<ContratoCreateManyModalidadeRefInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoCreateWithoutFundamentoLegalInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutFundamentoLegalInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutFundamentoLegalInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutFundamentoLegalInput, ContratoUncheckedCreateWithoutFundamentoLegalInput>
+  }
+
+  export type ContratoCreateManyFundamentoLegalInputEnvelope = {
+    data: Enumerable<ContratoCreateManyFundamentoLegalInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ProcessoContratacaoCreateWithoutModalidadePretendidaInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidadeDemandante: UnidadeOrganizacionalCreateNestedOneWithoutProcessosDemandanteInput
+    contratos?: ContratoCreateNestedManyWithoutProcessoInput
+  }
+
+  export type ProcessoContratacaoUncheckedCreateWithoutModalidadePretendidaInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    unidadeDemandanteId: string
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contratos?: ContratoUncheckedCreateNestedManyWithoutProcessoInput
+  }
+
+  export type ProcessoContratacaoCreateOrConnectWithoutModalidadePretendidaInput = {
+    where: ProcessoContratacaoWhereUniqueInput
+    create: XOR<ProcessoContratacaoCreateWithoutModalidadePretendidaInput, ProcessoContratacaoUncheckedCreateWithoutModalidadePretendidaInput>
+  }
+
+  export type ProcessoContratacaoCreateManyModalidadePretendidaInputEnvelope = {
+    data: Enumerable<ProcessoContratacaoCreateManyModalidadePretendidaInput>
     skipDuplicates?: boolean
   }
 
@@ -22684,6 +28762,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
     parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutChildrenInput = {
@@ -22698,6 +28780,10 @@ export namespace Prisma {
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
   }
 
   export type DominioValorUpsertWithWhereUniqueWithoutParentInput = {
@@ -22716,6 +28802,132 @@ export namespace Prisma {
     data: XOR<DominioValorUpdateManyMutationInput, DominioValorUncheckedUpdateManyWithoutChildrenInput>
   }
 
+  export type ContratoUpsertWithWhereUniqueWithoutCategoriaContratacaoInput = {
+    where: ContratoWhereUniqueInput
+    update: XOR<ContratoUpdateWithoutCategoriaContratacaoInput, ContratoUncheckedUpdateWithoutCategoriaContratacaoInput>
+    create: XOR<ContratoCreateWithoutCategoriaContratacaoInput, ContratoUncheckedCreateWithoutCategoriaContratacaoInput>
+  }
+
+  export type ContratoUpdateWithWhereUniqueWithoutCategoriaContratacaoInput = {
+    where: ContratoWhereUniqueInput
+    data: XOR<ContratoUpdateWithoutCategoriaContratacaoInput, ContratoUncheckedUpdateWithoutCategoriaContratacaoInput>
+  }
+
+  export type ContratoUpdateManyWithWhereWithoutCategoriaContratacaoInput = {
+    where: ContratoScalarWhereInput
+    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosCategoriaInput>
+  }
+
+  export type ContratoScalarWhereInput = {
+    AND?: Enumerable<ContratoScalarWhereInput>
+    OR?: Enumerable<ContratoScalarWhereInput>
+    NOT?: Enumerable<ContratoScalarWhereInput>
+    id?: StringFilter | string
+    processoId?: StringNullableFilter | string | null
+    numeroGms?: StringFilter | string
+    anoGms?: IntFilter | number
+    numeroContrato?: StringNullableFilter | string | null
+    eProtocolo?: StringNullableFilter | string | null
+    pilar?: EnumPilarOrcamentarioFilter | PilarOrcamentario
+    categoriaContratacaoId?: StringFilter | string
+    naturezaObjeto?: EnumNaturezaObjetoFilter | NaturezaObjeto
+    modalidadeId?: StringFilter | string
+    fundamentoLegalId?: StringNullableFilter | string | null
+    objeto?: StringFilter | string
+    fornecedorId?: StringFilter | string
+    unidadeGestoraId?: StringFilter | string
+    dataAssinatura?: DateTimeNullableFilter | Date | string | null
+    dataInicioVigencia?: DateTimeFilter | Date | string
+    prazoInicialValor?: IntFilter | number
+    prazoInicialUnidade?: EnumUnidadeTempoFilter | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFilter | Date | string
+    prorrogavel?: BoolFilter | boolean
+    limiteProrrogacaoMeses?: IntNullableFilter | number | null
+    valorGlobalOriginalCents?: BigIntFilter | bigint | number
+    indiceReajuste?: StringNullableFilter | string | null
+    mesAniversarioReajuste?: IntNullableFilter | number | null
+    situacao?: EnumSituacaoContratoFilter | SituacaoContrato
+    dataEncerramento?: DateTimeNullableFilter | Date | string | null
+    motivoEncerramento?: StringNullableFilter | string | null
+    garantiaTipo?: EnumTipoGarantiaNullableFilter | TipoGarantia | null
+    garantiaValorCents?: BigIntNullableFilter | bigint | number | null
+    garantiaValidade?: DateTimeNullableFilter | Date | string | null
+    reservaObservacao?: StringNullableFilter | string | null
+    observacoes?: StringNullableFilter | string | null
+    codigoLegado?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
+  export type ContratoUpsertWithWhereUniqueWithoutModalidadeRefInput = {
+    where: ContratoWhereUniqueInput
+    update: XOR<ContratoUpdateWithoutModalidadeRefInput, ContratoUncheckedUpdateWithoutModalidadeRefInput>
+    create: XOR<ContratoCreateWithoutModalidadeRefInput, ContratoUncheckedCreateWithoutModalidadeRefInput>
+  }
+
+  export type ContratoUpdateWithWhereUniqueWithoutModalidadeRefInput = {
+    where: ContratoWhereUniqueInput
+    data: XOR<ContratoUpdateWithoutModalidadeRefInput, ContratoUncheckedUpdateWithoutModalidadeRefInput>
+  }
+
+  export type ContratoUpdateManyWithWhereWithoutModalidadeRefInput = {
+    where: ContratoScalarWhereInput
+    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosModalidadeInput>
+  }
+
+  export type ContratoUpsertWithWhereUniqueWithoutFundamentoLegalInput = {
+    where: ContratoWhereUniqueInput
+    update: XOR<ContratoUpdateWithoutFundamentoLegalInput, ContratoUncheckedUpdateWithoutFundamentoLegalInput>
+    create: XOR<ContratoCreateWithoutFundamentoLegalInput, ContratoUncheckedCreateWithoutFundamentoLegalInput>
+  }
+
+  export type ContratoUpdateWithWhereUniqueWithoutFundamentoLegalInput = {
+    where: ContratoWhereUniqueInput
+    data: XOR<ContratoUpdateWithoutFundamentoLegalInput, ContratoUncheckedUpdateWithoutFundamentoLegalInput>
+  }
+
+  export type ContratoUpdateManyWithWhereWithoutFundamentoLegalInput = {
+    where: ContratoScalarWhereInput
+    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosFundamentoInput>
+  }
+
+  export type ProcessoContratacaoUpsertWithWhereUniqueWithoutModalidadePretendidaInput = {
+    where: ProcessoContratacaoWhereUniqueInput
+    update: XOR<ProcessoContratacaoUpdateWithoutModalidadePretendidaInput, ProcessoContratacaoUncheckedUpdateWithoutModalidadePretendidaInput>
+    create: XOR<ProcessoContratacaoCreateWithoutModalidadePretendidaInput, ProcessoContratacaoUncheckedCreateWithoutModalidadePretendidaInput>
+  }
+
+  export type ProcessoContratacaoUpdateWithWhereUniqueWithoutModalidadePretendidaInput = {
+    where: ProcessoContratacaoWhereUniqueInput
+    data: XOR<ProcessoContratacaoUpdateWithoutModalidadePretendidaInput, ProcessoContratacaoUncheckedUpdateWithoutModalidadePretendidaInput>
+  }
+
+  export type ProcessoContratacaoUpdateManyWithWhereWithoutModalidadePretendidaInput = {
+    where: ProcessoContratacaoScalarWhereInput
+    data: XOR<ProcessoContratacaoUpdateManyMutationInput, ProcessoContratacaoUncheckedUpdateManyWithoutProcessosModalidadeInput>
+  }
+
+  export type ProcessoContratacaoScalarWhereInput = {
+    AND?: Enumerable<ProcessoContratacaoScalarWhereInput>
+    OR?: Enumerable<ProcessoContratacaoScalarWhereInput>
+    NOT?: Enumerable<ProcessoContratacaoScalarWhereInput>
+    id?: StringFilter | string
+    eProtocolo?: StringFilter | string
+    ano?: IntFilter | number
+    objetoResumo?: StringFilter | string
+    unidadeDemandanteId?: StringFilter | string
+    modalidadePretendidaId?: StringNullableFilter | string | null
+    valorEstimadoCents?: BigIntNullableFilter | bigint | number | null
+    etpConcluido?: BoolFilter | boolean
+    dataEtp?: DateTimeNullableFilter | Date | string | null
+    termoReferenciaConcluido?: BoolFilter | boolean
+    dataTermoReferencia?: DateTimeNullableFilter | Date | string | null
+    situacao?: EnumSituacaoProcessoFilter | SituacaoProcesso
+    observacoes?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
   export type UnidadeOrganizacionalCreateWithoutOrgaoInput = {
     id?: string
     sigla: string
@@ -22728,6 +28940,9 @@ export namespace Prisma {
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
     municipio: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput = {
@@ -22742,6 +28957,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalCreateOrConnectWithoutOrgaoInput = {
@@ -22766,8 +28984,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     unidade?: UnidadeOrganizacionalCreateNestedOneWithoutServidoresInput
-    gestorContratos?: ContratoCreateNestedManyWithoutGestorInput
-    fiscalContratos?: ContratoCreateNestedManyWithoutFiscalInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutServidorInput
   }
 
   export type ServidorUncheckedCreateWithoutOrgaoInput = {
@@ -22782,8 +28999,7 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    gestorContratos?: ContratoUncheckedCreateNestedManyWithoutGestorInput
-    fiscalContratos?: ContratoUncheckedCreateNestedManyWithoutFiscalInput
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutServidorInput
   }
 
   export type ServidorCreateOrConnectWithoutOrgaoInput = {
@@ -22885,6 +29101,9 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     municipio: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalUncheckedCreateWithoutChildrenInput = {
@@ -22899,6 +29118,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalCreateOrConnectWithoutChildrenInput = {
@@ -22918,6 +29140,9 @@ export namespace Prisma {
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
     municipio: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalUncheckedCreateWithoutParentInput = {
@@ -22932,6 +29157,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalCreateOrConnectWithoutParentInput = {
@@ -22979,8 +29207,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     orgao?: OrgaoCreateNestedOneWithoutServidoresInput
-    gestorContratos?: ContratoCreateNestedManyWithoutGestorInput
-    fiscalContratos?: ContratoCreateNestedManyWithoutFiscalInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutServidorInput
   }
 
   export type ServidorUncheckedCreateWithoutUnidadeInput = {
@@ -22995,8 +29222,7 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    gestorContratos?: ContratoUncheckedCreateNestedManyWithoutGestorInput
-    fiscalContratos?: ContratoUncheckedCreateNestedManyWithoutFiscalInput
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutServidorInput
   }
 
   export type ServidorCreateOrConnectWithoutUnidadeInput = {
@@ -23006,6 +29232,172 @@ export namespace Prisma {
 
   export type ServidorCreateManyUnidadeInputEnvelope = {
     data: Enumerable<ServidorCreateManyUnidadeInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoCreateWithoutUnidadeGestoraInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutUnidadeGestoraInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutUnidadeGestoraInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutUnidadeGestoraInput, ContratoUncheckedCreateWithoutUnidadeGestoraInput>
+  }
+
+  export type ContratoCreateManyUnidadeGestoraInputEnvelope = {
+    data: Enumerable<ContratoCreateManyUnidadeGestoraInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoRateioCreateWithoutUnidadeInput = {
+    id?: string
+    percentual?: Decimal | DecimalJsLike | number | string | null
+    valorCents?: bigint | number | null
+    quantidade?: Decimal | DecimalJsLike | number | string | null
+    observacao?: string | null
+    createdAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutRateiosInput
+  }
+
+  export type ContratoRateioUncheckedCreateWithoutUnidadeInput = {
+    id?: string
+    contratoId: string
+    percentual?: Decimal | DecimalJsLike | number | string | null
+    valorCents?: bigint | number | null
+    quantidade?: Decimal | DecimalJsLike | number | string | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ContratoRateioCreateOrConnectWithoutUnidadeInput = {
+    where: ContratoRateioWhereUniqueInput
+    create: XOR<ContratoRateioCreateWithoutUnidadeInput, ContratoRateioUncheckedCreateWithoutUnidadeInput>
+  }
+
+  export type ContratoRateioCreateManyUnidadeInputEnvelope = {
+    data: Enumerable<ContratoRateioCreateManyUnidadeInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ProcessoContratacaoCreateWithoutUnidadeDemandanteInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    modalidadePretendida?: DominioValorCreateNestedOneWithoutProcessosModalidadeInput
+    contratos?: ContratoCreateNestedManyWithoutProcessoInput
+  }
+
+  export type ProcessoContratacaoUncheckedCreateWithoutUnidadeDemandanteInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    modalidadePretendidaId?: string | null
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contratos?: ContratoUncheckedCreateNestedManyWithoutProcessoInput
+  }
+
+  export type ProcessoContratacaoCreateOrConnectWithoutUnidadeDemandanteInput = {
+    where: ProcessoContratacaoWhereUniqueInput
+    create: XOR<ProcessoContratacaoCreateWithoutUnidadeDemandanteInput, ProcessoContratacaoUncheckedCreateWithoutUnidadeDemandanteInput>
+  }
+
+  export type ProcessoContratacaoCreateManyUnidadeDemandanteInputEnvelope = {
+    data: Enumerable<ProcessoContratacaoCreateManyUnidadeDemandanteInput>
     skipDuplicates?: boolean
   }
 
@@ -23053,6 +29445,9 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateWithoutChildrenInput = {
@@ -23067,6 +29462,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
   export type UnidadeOrganizacionalUpsertWithWhereUniqueWithoutParentInput = {
@@ -23122,6 +29520,68 @@ export namespace Prisma {
   export type ServidorUpdateManyWithWhereWithoutUnidadeInput = {
     where: ServidorScalarWhereInput
     data: XOR<ServidorUpdateManyMutationInput, ServidorUncheckedUpdateManyWithoutServidoresInput>
+  }
+
+  export type ContratoUpsertWithWhereUniqueWithoutUnidadeGestoraInput = {
+    where: ContratoWhereUniqueInput
+    update: XOR<ContratoUpdateWithoutUnidadeGestoraInput, ContratoUncheckedUpdateWithoutUnidadeGestoraInput>
+    create: XOR<ContratoCreateWithoutUnidadeGestoraInput, ContratoUncheckedCreateWithoutUnidadeGestoraInput>
+  }
+
+  export type ContratoUpdateWithWhereUniqueWithoutUnidadeGestoraInput = {
+    where: ContratoWhereUniqueInput
+    data: XOR<ContratoUpdateWithoutUnidadeGestoraInput, ContratoUncheckedUpdateWithoutUnidadeGestoraInput>
+  }
+
+  export type ContratoUpdateManyWithWhereWithoutUnidadeGestoraInput = {
+    where: ContratoScalarWhereInput
+    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosGestoraInput>
+  }
+
+  export type ContratoRateioUpsertWithWhereUniqueWithoutUnidadeInput = {
+    where: ContratoRateioWhereUniqueInput
+    update: XOR<ContratoRateioUpdateWithoutUnidadeInput, ContratoRateioUncheckedUpdateWithoutUnidadeInput>
+    create: XOR<ContratoRateioCreateWithoutUnidadeInput, ContratoRateioUncheckedCreateWithoutUnidadeInput>
+  }
+
+  export type ContratoRateioUpdateWithWhereUniqueWithoutUnidadeInput = {
+    where: ContratoRateioWhereUniqueInput
+    data: XOR<ContratoRateioUpdateWithoutUnidadeInput, ContratoRateioUncheckedUpdateWithoutUnidadeInput>
+  }
+
+  export type ContratoRateioUpdateManyWithWhereWithoutUnidadeInput = {
+    where: ContratoRateioScalarWhereInput
+    data: XOR<ContratoRateioUpdateManyMutationInput, ContratoRateioUncheckedUpdateManyWithoutRateiosInput>
+  }
+
+  export type ContratoRateioScalarWhereInput = {
+    AND?: Enumerable<ContratoRateioScalarWhereInput>
+    OR?: Enumerable<ContratoRateioScalarWhereInput>
+    NOT?: Enumerable<ContratoRateioScalarWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringFilter | string
+    unidadeId?: StringFilter | string
+    percentual?: DecimalNullableFilter | Decimal | DecimalJsLike | number | string | null
+    valorCents?: BigIntNullableFilter | bigint | number | null
+    quantidade?: DecimalNullableFilter | Decimal | DecimalJsLike | number | string | null
+    observacao?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+  }
+
+  export type ProcessoContratacaoUpsertWithWhereUniqueWithoutUnidadeDemandanteInput = {
+    where: ProcessoContratacaoWhereUniqueInput
+    update: XOR<ProcessoContratacaoUpdateWithoutUnidadeDemandanteInput, ProcessoContratacaoUncheckedUpdateWithoutUnidadeDemandanteInput>
+    create: XOR<ProcessoContratacaoCreateWithoutUnidadeDemandanteInput, ProcessoContratacaoUncheckedCreateWithoutUnidadeDemandanteInput>
+  }
+
+  export type ProcessoContratacaoUpdateWithWhereUniqueWithoutUnidadeDemandanteInput = {
+    where: ProcessoContratacaoWhereUniqueInput
+    data: XOR<ProcessoContratacaoUpdateWithoutUnidadeDemandanteInput, ProcessoContratacaoUncheckedUpdateWithoutUnidadeDemandanteInput>
+  }
+
+  export type ProcessoContratacaoUpdateManyWithWhereWithoutUnidadeDemandanteInput = {
+    where: ProcessoContratacaoScalarWhereInput
+    data: XOR<ProcessoContratacaoUpdateManyMutationInput, ProcessoContratacaoUncheckedUpdateManyWithoutProcessosDemandanteInput>
   }
 
   export type MunicipioCreateWithoutFornecedoresInput = {
@@ -23211,39 +29671,81 @@ export namespace Prisma {
 
   export type ContratoCreateWithoutFornecedorInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
+    numeroGms: string
     anoGms: number
-    modalidade: string
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
     objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
-    gestor: ServidorCreateNestedOneWithoutGestorContratosInput
-    fiscal: ServidorCreateNestedOneWithoutFiscalContratosInput
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     aditivos?: AditivoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutFornecedorInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
+    processoId?: string | null
+    numeroGms: string
     anoGms: number
-    unidadeFspId: string
-    gestorId: string
-    fiscalId: string
-    modalidade: string
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
     objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
   }
 
@@ -23552,6 +30054,9 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
     municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalUncheckedCreateWithoutServidoresInput = {
@@ -23566,6 +30071,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
   }
 
   export type UnidadeOrganizacionalCreateOrConnectWithoutServidoresInput = {
@@ -23573,99 +30081,33 @@ export namespace Prisma {
     create: XOR<UnidadeOrganizacionalCreateWithoutServidoresInput, UnidadeOrganizacionalUncheckedCreateWithoutServidoresInput>
   }
 
-  export type ContratoCreateWithoutGestorInput = {
+  export type ContratoResponsavelCreateWithoutServidorInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    papel: PapelResponsavel
+    atoDesignacao?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
     createdAt?: Date | string
-    updatedAt?: Date | string
-    unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
-    fiscal: ServidorCreateNestedOneWithoutFiscalContratosInput
-    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+    contrato: ContratoCreateNestedOneWithoutResponsaveisInput
   }
 
-  export type ContratoUncheckedCreateWithoutGestorInput = {
+  export type ContratoResponsavelUncheckedCreateWithoutServidorInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    unidadeFspId: string
-    fiscalId: string
-    fornecedorId: string
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    contratoId: string
+    papel: PapelResponsavel
+    atoDesignacao?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
     createdAt?: Date | string
-    updatedAt?: Date | string
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
   }
 
-  export type ContratoCreateOrConnectWithoutGestorInput = {
-    where: ContratoWhereUniqueInput
-    create: XOR<ContratoCreateWithoutGestorInput, ContratoUncheckedCreateWithoutGestorInput>
+  export type ContratoResponsavelCreateOrConnectWithoutServidorInput = {
+    where: ContratoResponsavelWhereUniqueInput
+    create: XOR<ContratoResponsavelCreateWithoutServidorInput, ContratoResponsavelUncheckedCreateWithoutServidorInput>
   }
 
-  export type ContratoCreateManyGestorInputEnvelope = {
-    data: Enumerable<ContratoCreateManyGestorInput>
-    skipDuplicates?: boolean
-  }
-
-  export type ContratoCreateWithoutFiscalInput = {
-    id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
-    gestor: ServidorCreateNestedOneWithoutGestorContratosInput
-    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
-  }
-
-  export type ContratoUncheckedCreateWithoutFiscalInput = {
-    id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    unidadeFspId: string
-    gestorId: string
-    fornecedorId: string
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
-  }
-
-  export type ContratoCreateOrConnectWithoutFiscalInput = {
-    where: ContratoWhereUniqueInput
-    create: XOR<ContratoCreateWithoutFiscalInput, ContratoUncheckedCreateWithoutFiscalInput>
-  }
-
-  export type ContratoCreateManyFiscalInputEnvelope = {
-    data: Enumerable<ContratoCreateManyFiscalInput>
+  export type ContratoResponsavelCreateManyServidorInputEnvelope = {
+    data: Enumerable<ContratoResponsavelCreateManyServidorInput>
     skipDuplicates?: boolean
   }
 
@@ -23713,6 +30155,9 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
     municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateWithoutServidoresInput = {
@@ -23727,129 +30172,469 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
-  export type ContratoUpsertWithWhereUniqueWithoutGestorInput = {
-    where: ContratoWhereUniqueInput
-    update: XOR<ContratoUpdateWithoutGestorInput, ContratoUncheckedUpdateWithoutGestorInput>
-    create: XOR<ContratoCreateWithoutGestorInput, ContratoUncheckedCreateWithoutGestorInput>
+  export type ContratoResponsavelUpsertWithWhereUniqueWithoutServidorInput = {
+    where: ContratoResponsavelWhereUniqueInput
+    update: XOR<ContratoResponsavelUpdateWithoutServidorInput, ContratoResponsavelUncheckedUpdateWithoutServidorInput>
+    create: XOR<ContratoResponsavelCreateWithoutServidorInput, ContratoResponsavelUncheckedCreateWithoutServidorInput>
   }
 
-  export type ContratoUpdateWithWhereUniqueWithoutGestorInput = {
-    where: ContratoWhereUniqueInput
-    data: XOR<ContratoUpdateWithoutGestorInput, ContratoUncheckedUpdateWithoutGestorInput>
+  export type ContratoResponsavelUpdateWithWhereUniqueWithoutServidorInput = {
+    where: ContratoResponsavelWhereUniqueInput
+    data: XOR<ContratoResponsavelUpdateWithoutServidorInput, ContratoResponsavelUncheckedUpdateWithoutServidorInput>
   }
 
-  export type ContratoUpdateManyWithWhereWithoutGestorInput = {
-    where: ContratoScalarWhereInput
-    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutGestorContratosInput>
+  export type ContratoResponsavelUpdateManyWithWhereWithoutServidorInput = {
+    where: ContratoResponsavelScalarWhereInput
+    data: XOR<ContratoResponsavelUpdateManyMutationInput, ContratoResponsavelUncheckedUpdateManyWithoutResponsaveisInput>
   }
 
-  export type ContratoUpsertWithWhereUniqueWithoutFiscalInput = {
-    where: ContratoWhereUniqueInput
-    update: XOR<ContratoUpdateWithoutFiscalInput, ContratoUncheckedUpdateWithoutFiscalInput>
-    create: XOR<ContratoCreateWithoutFiscalInput, ContratoUncheckedCreateWithoutFiscalInput>
+  export type ContratoResponsavelScalarWhereInput = {
+    AND?: Enumerable<ContratoResponsavelScalarWhereInput>
+    OR?: Enumerable<ContratoResponsavelScalarWhereInput>
+    NOT?: Enumerable<ContratoResponsavelScalarWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringFilter | string
+    servidorId?: StringFilter | string
+    papel?: EnumPapelResponsavelFilter | PapelResponsavel
+    atoDesignacao?: StringNullableFilter | string | null
+    dataInicio?: DateTimeFilter | Date | string
+    dataFim?: DateTimeNullableFilter | Date | string | null
+    createdAt?: DateTimeFilter | Date | string
   }
 
-  export type ContratoUpdateWithWhereUniqueWithoutFiscalInput = {
-    where: ContratoWhereUniqueInput
-    data: XOR<ContratoUpdateWithoutFiscalInput, ContratoUncheckedUpdateWithoutFiscalInput>
-  }
-
-  export type ContratoUpdateManyWithWhereWithoutFiscalInput = {
-    where: ContratoScalarWhereInput
-    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutFiscalContratosInput>
-  }
-
-  export type UnidadeFspCreateWithoutContratosInput = {
+  export type UnidadeOrganizacionalCreateWithoutProcessosDemandanteInput = {
     id?: string
     sigla: string
     nome: string
+    nivel: NivelUnidade
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao: OrgaoCreateNestedOneWithoutUnidadesInput
+    parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
+    children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
+    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    servidores?: ServidorCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
   }
 
-  export type UnidadeFspUncheckedCreateWithoutContratosInput = {
+  export type UnidadeOrganizacionalUncheckedCreateWithoutProcessosDemandanteInput = {
     id?: string
+    orgaoId: string
+    parentId?: string | null
     sigla: string
     nome: string
-  }
-
-  export type UnidadeFspCreateOrConnectWithoutContratosInput = {
-    where: UnidadeFspWhereUniqueInput
-    create: XOR<UnidadeFspCreateWithoutContratosInput, UnidadeFspUncheckedCreateWithoutContratosInput>
-  }
-
-  export type ServidorCreateWithoutGestorContratosInput = {
-    id?: string
-    nome: string
-    cpf?: string | null
-    rgFuncional?: string | null
-    cargo?: string | null
-    email?: string | null
-    telefone?: string | null
+    nivel: NivelUnidade
+    municipioId: string
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    orgao?: OrgaoCreateNestedOneWithoutServidoresInput
-    unidade?: UnidadeOrganizacionalCreateNestedOneWithoutServidoresInput
-    fiscalContratos?: ContratoCreateNestedManyWithoutFiscalInput
+    children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+    servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
   }
 
-  export type ServidorUncheckedCreateWithoutGestorContratosInput = {
+  export type UnidadeOrganizacionalCreateOrConnectWithoutProcessosDemandanteInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    create: XOR<UnidadeOrganizacionalCreateWithoutProcessosDemandanteInput, UnidadeOrganizacionalUncheckedCreateWithoutProcessosDemandanteInput>
+  }
+
+  export type DominioValorCreateWithoutProcessosModalidadeInput = {
     id?: string
-    nome: string
-    cpf?: string | null
-    rgFuncional?: string | null
-    cargo?: string | null
-    orgaoId?: string | null
-    unidadeId?: string | null
-    email?: string | null
-    telefone?: string | null
+    codigo: string
+    label: string
+    ordem?: number
     ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    fiscalContratos?: ContratoUncheckedCreateNestedManyWithoutFiscalInput
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
   }
 
-  export type ServidorCreateOrConnectWithoutGestorContratosInput = {
-    where: ServidorWhereUniqueInput
-    create: XOR<ServidorCreateWithoutGestorContratosInput, ServidorUncheckedCreateWithoutGestorContratosInput>
-  }
-
-  export type ServidorCreateWithoutFiscalContratosInput = {
+  export type DominioValorUncheckedCreateWithoutProcessosModalidadeInput = {
     id?: string
-    nome: string
-    cpf?: string | null
-    rgFuncional?: string | null
-    cargo?: string | null
-    email?: string | null
-    telefone?: string | null
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
     ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    orgao?: OrgaoCreateNestedOneWithoutServidoresInput
-    unidade?: UnidadeOrganizacionalCreateNestedOneWithoutServidoresInput
-    gestorContratos?: ContratoCreateNestedManyWithoutGestorInput
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
-  export type ServidorUncheckedCreateWithoutFiscalContratosInput = {
+  export type DominioValorCreateOrConnectWithoutProcessosModalidadeInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutProcessosModalidadeInput, DominioValorUncheckedCreateWithoutProcessosModalidadeInput>
+  }
+
+  export type ContratoCreateWithoutProcessoInput = {
     id?: string
-    nome: string
-    cpf?: string | null
-    rgFuncional?: string | null
-    cargo?: string | null
-    orgaoId?: string | null
-    unidadeId?: string | null
-    email?: string | null
-    telefone?: string | null
-    ativo?: boolean
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    gestorContratos?: ContratoUncheckedCreateNestedManyWithoutGestorInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoCreateNestedManyWithoutContratoInput
   }
 
-  export type ServidorCreateOrConnectWithoutFiscalContratosInput = {
-    where: ServidorWhereUniqueInput
-    create: XOR<ServidorCreateWithoutFiscalContratosInput, ServidorUncheckedCreateWithoutFiscalContratosInput>
+  export type ContratoUncheckedCreateWithoutProcessoInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutProcessoInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutProcessoInput, ContratoUncheckedCreateWithoutProcessoInput>
+  }
+
+  export type ContratoCreateManyProcessoInputEnvelope = {
+    data: Enumerable<ContratoCreateManyProcessoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type UnidadeOrganizacionalUpsertWithoutProcessosDemandanteInput = {
+    update: XOR<UnidadeOrganizacionalUpdateWithoutProcessosDemandanteInput, UnidadeOrganizacionalUncheckedUpdateWithoutProcessosDemandanteInput>
+    create: XOR<UnidadeOrganizacionalCreateWithoutProcessosDemandanteInput, UnidadeOrganizacionalUncheckedCreateWithoutProcessosDemandanteInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateWithoutProcessosDemandanteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
+    parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
+    children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
+    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateWithoutProcessosDemandanteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgaoId?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    municipioId?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+    servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
+  }
+
+  export type DominioValorUpsertWithoutProcessosModalidadeInput = {
+    update: XOR<DominioValorUpdateWithoutProcessosModalidadeInput, DominioValorUncheckedUpdateWithoutProcessosModalidadeInput>
+    create: XOR<DominioValorCreateWithoutProcessosModalidadeInput, DominioValorUncheckedCreateWithoutProcessosModalidadeInput>
+  }
+
+  export type DominioValorUpdateWithoutProcessosModalidadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateWithoutProcessosModalidadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+  }
+
+  export type ContratoUpsertWithWhereUniqueWithoutProcessoInput = {
+    where: ContratoWhereUniqueInput
+    update: XOR<ContratoUpdateWithoutProcessoInput, ContratoUncheckedUpdateWithoutProcessoInput>
+    create: XOR<ContratoCreateWithoutProcessoInput, ContratoUncheckedCreateWithoutProcessoInput>
+  }
+
+  export type ContratoUpdateWithWhereUniqueWithoutProcessoInput = {
+    where: ContratoWhereUniqueInput
+    data: XOR<ContratoUpdateWithoutProcessoInput, ContratoUncheckedUpdateWithoutProcessoInput>
+  }
+
+  export type ContratoUpdateManyWithWhereWithoutProcessoInput = {
+    where: ContratoScalarWhereInput
+    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosInput>
+  }
+
+  export type ProcessoContratacaoCreateWithoutContratosInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidadeDemandante: UnidadeOrganizacionalCreateNestedOneWithoutProcessosDemandanteInput
+    modalidadePretendida?: DominioValorCreateNestedOneWithoutProcessosModalidadeInput
+  }
+
+  export type ProcessoContratacaoUncheckedCreateWithoutContratosInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    unidadeDemandanteId: string
+    modalidadePretendidaId?: string | null
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProcessoContratacaoCreateOrConnectWithoutContratosInput = {
+    where: ProcessoContratacaoWhereUniqueInput
+    create: XOR<ProcessoContratacaoCreateWithoutContratosInput, ProcessoContratacaoUncheckedCreateWithoutContratosInput>
+  }
+
+  export type DominioValorCreateWithoutContratosCategoriaInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
+  }
+
+  export type DominioValorUncheckedCreateWithoutContratosCategoriaInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
+  }
+
+  export type DominioValorCreateOrConnectWithoutContratosCategoriaInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutContratosCategoriaInput, DominioValorUncheckedCreateWithoutContratosCategoriaInput>
+  }
+
+  export type DominioValorCreateWithoutContratosModalidadeInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
+  }
+
+  export type DominioValorUncheckedCreateWithoutContratosModalidadeInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
+  }
+
+  export type DominioValorCreateOrConnectWithoutContratosModalidadeInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutContratosModalidadeInput, DominioValorUncheckedCreateWithoutContratosModalidadeInput>
+  }
+
+  export type DominioValorCreateWithoutContratosFundamentoInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
+  }
+
+  export type DominioValorUncheckedCreateWithoutContratosFundamentoInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
+  }
+
+  export type DominioValorCreateOrConnectWithoutContratosFundamentoInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutContratosFundamentoInput, DominioValorUncheckedCreateWithoutContratosFundamentoInput>
   }
 
   export type FornecedorCreateWithoutContratosInput = {
@@ -23891,6 +30676,105 @@ export namespace Prisma {
     create: XOR<FornecedorCreateWithoutContratosInput, FornecedorUncheckedCreateWithoutContratosInput>
   }
 
+  export type UnidadeOrganizacionalCreateWithoutContratosGestoraInput = {
+    id?: string
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao: OrgaoCreateNestedOneWithoutUnidadesInput
+    parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
+    children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
+    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    servidores?: ServidorCreateNestedManyWithoutUnidadeInput
+    rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedCreateWithoutContratosGestoraInput = {
+    id?: string
+    orgaoId: string
+    parentId?: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+    servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
+    processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
+  }
+
+  export type UnidadeOrganizacionalCreateOrConnectWithoutContratosGestoraInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    create: XOR<UnidadeOrganizacionalCreateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosGestoraInput>
+  }
+
+  export type ContratoResponsavelCreateWithoutContratoInput = {
+    id?: string
+    papel: PapelResponsavel
+    atoDesignacao?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    createdAt?: Date | string
+    servidor: ServidorCreateNestedOneWithoutResponsaveisInput
+  }
+
+  export type ContratoResponsavelUncheckedCreateWithoutContratoInput = {
+    id?: string
+    servidorId: string
+    papel: PapelResponsavel
+    atoDesignacao?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ContratoResponsavelCreateOrConnectWithoutContratoInput = {
+    where: ContratoResponsavelWhereUniqueInput
+    create: XOR<ContratoResponsavelCreateWithoutContratoInput, ContratoResponsavelUncheckedCreateWithoutContratoInput>
+  }
+
+  export type ContratoResponsavelCreateManyContratoInputEnvelope = {
+    data: Enumerable<ContratoResponsavelCreateManyContratoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoRateioCreateWithoutContratoInput = {
+    id?: string
+    percentual?: Decimal | DecimalJsLike | number | string | null
+    valorCents?: bigint | number | null
+    quantidade?: Decimal | DecimalJsLike | number | string | null
+    observacao?: string | null
+    createdAt?: Date | string
+    unidade: UnidadeOrganizacionalCreateNestedOneWithoutRateiosInput
+  }
+
+  export type ContratoRateioUncheckedCreateWithoutContratoInput = {
+    id?: string
+    unidadeId: string
+    percentual?: Decimal | DecimalJsLike | number | string | null
+    valorCents?: bigint | number | null
+    quantidade?: Decimal | DecimalJsLike | number | string | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ContratoRateioCreateOrConnectWithoutContratoInput = {
+    where: ContratoRateioWhereUniqueInput
+    create: XOR<ContratoRateioCreateWithoutContratoInput, ContratoRateioUncheckedCreateWithoutContratoInput>
+  }
+
+  export type ContratoRateioCreateManyContratoInputEnvelope = {
+    data: Enumerable<ContratoRateioCreateManyContratoInput>
+    skipDuplicates?: boolean
+  }
+
   export type AditivoCreateWithoutContratoInput = {
     id?: string
     numAditivo: number
@@ -23919,95 +30803,168 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type UnidadeFspUpsertWithoutContratosInput = {
-    update: XOR<UnidadeFspUpdateWithoutContratosInput, UnidadeFspUncheckedUpdateWithoutContratosInput>
-    create: XOR<UnidadeFspCreateWithoutContratosInput, UnidadeFspUncheckedCreateWithoutContratosInput>
+  export type ProcessoContratacaoUpsertWithoutContratosInput = {
+    update: XOR<ProcessoContratacaoUpdateWithoutContratosInput, ProcessoContratacaoUncheckedUpdateWithoutContratosInput>
+    create: XOR<ProcessoContratacaoCreateWithoutContratosInput, ProcessoContratacaoUncheckedCreateWithoutContratosInput>
   }
 
-  export type UnidadeFspUpdateWithoutContratosInput = {
+  export type ProcessoContratacaoUpdateWithoutContratosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    sigla?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type UnidadeFspUncheckedUpdateWithoutContratosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    sigla?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-  }
-
-  export type ServidorUpsertWithoutGestorContratosInput = {
-    update: XOR<ServidorUpdateWithoutGestorContratosInput, ServidorUncheckedUpdateWithoutGestorContratosInput>
-    create: XOR<ServidorCreateWithoutGestorContratosInput, ServidorUncheckedCreateWithoutGestorContratosInput>
-  }
-
-  export type ServidorUpdateWithoutGestorContratosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    cpf?: NullableStringFieldUpdateOperationsInput | string | null
-    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
-    cargo?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    orgao?: OrgaoUpdateOneWithoutServidoresNestedInput
-    unidade?: UnidadeOrganizacionalUpdateOneWithoutServidoresNestedInput
-    fiscalContratos?: ContratoUpdateManyWithoutFiscalNestedInput
+    unidadeDemandante?: UnidadeOrganizacionalUpdateOneRequiredWithoutProcessosDemandanteNestedInput
+    modalidadePretendida?: DominioValorUpdateOneWithoutProcessosModalidadeNestedInput
   }
 
-  export type ServidorUncheckedUpdateWithoutGestorContratosInput = {
+  export type ProcessoContratacaoUncheckedUpdateWithoutContratosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    cpf?: NullableStringFieldUpdateOperationsInput | string | null
-    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
-    cargo?: NullableStringFieldUpdateOperationsInput | string | null
-    orgaoId?: NullableStringFieldUpdateOperationsInput | string | null
-    unidadeId?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
-    ativo?: BoolFieldUpdateOperationsInput | boolean
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    unidadeDemandanteId?: StringFieldUpdateOperationsInput | string
+    modalidadePretendidaId?: NullableStringFieldUpdateOperationsInput | string | null
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    fiscalContratos?: ContratoUncheckedUpdateManyWithoutFiscalNestedInput
   }
 
-  export type ServidorUpsertWithoutFiscalContratosInput = {
-    update: XOR<ServidorUpdateWithoutFiscalContratosInput, ServidorUncheckedUpdateWithoutFiscalContratosInput>
-    create: XOR<ServidorCreateWithoutFiscalContratosInput, ServidorUncheckedCreateWithoutFiscalContratosInput>
+  export type DominioValorUpsertWithoutContratosCategoriaInput = {
+    update: XOR<DominioValorUpdateWithoutContratosCategoriaInput, DominioValorUncheckedUpdateWithoutContratosCategoriaInput>
+    create: XOR<DominioValorCreateWithoutContratosCategoriaInput, DominioValorUncheckedCreateWithoutContratosCategoriaInput>
   }
 
-  export type ServidorUpdateWithoutFiscalContratosInput = {
+  export type DominioValorUpdateWithoutContratosCategoriaInput = {
     id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    cpf?: NullableStringFieldUpdateOperationsInput | string | null
-    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
-    cargo?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
     ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    orgao?: OrgaoUpdateOneWithoutServidoresNestedInput
-    unidade?: UnidadeOrganizacionalUpdateOneWithoutServidoresNestedInput
-    gestorContratos?: ContratoUpdateManyWithoutGestorNestedInput
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
   }
 
-  export type ServidorUncheckedUpdateWithoutFiscalContratosInput = {
+  export type DominioValorUncheckedUpdateWithoutContratosCategoriaInput = {
     id?: StringFieldUpdateOperationsInput | string
-    nome?: StringFieldUpdateOperationsInput | string
-    cpf?: NullableStringFieldUpdateOperationsInput | string | null
-    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
-    cargo?: NullableStringFieldUpdateOperationsInput | string | null
-    orgaoId?: NullableStringFieldUpdateOperationsInput | string | null
-    unidadeId?: NullableStringFieldUpdateOperationsInput | string | null
-    email?: NullableStringFieldUpdateOperationsInput | string | null
-    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
     ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    gestorContratos?: ContratoUncheckedUpdateManyWithoutGestorNestedInput
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
+  }
+
+  export type DominioValorUpsertWithoutContratosModalidadeInput = {
+    update: XOR<DominioValorUpdateWithoutContratosModalidadeInput, DominioValorUncheckedUpdateWithoutContratosModalidadeInput>
+    create: XOR<DominioValorCreateWithoutContratosModalidadeInput, DominioValorUncheckedCreateWithoutContratosModalidadeInput>
+  }
+
+  export type DominioValorUpdateWithoutContratosModalidadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateWithoutContratosModalidadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
+  }
+
+  export type DominioValorUpsertWithoutContratosFundamentoInput = {
+    update: XOR<DominioValorUpdateWithoutContratosFundamentoInput, DominioValorUncheckedUpdateWithoutContratosFundamentoInput>
+    create: XOR<DominioValorCreateWithoutContratosFundamentoInput, DominioValorUncheckedCreateWithoutContratosFundamentoInput>
+  }
+
+  export type DominioValorUpdateWithoutContratosFundamentoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateWithoutContratosFundamentoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
   }
 
   export type FornecedorUpsertWithoutContratosInput = {
@@ -24049,6 +31006,77 @@ export namespace Prisma {
     sancoes?: FornecedorSancaoUncheckedUpdateManyWithoutFornecedorNestedInput
   }
 
+  export type UnidadeOrganizacionalUpsertWithoutContratosGestoraInput = {
+    update: XOR<UnidadeOrganizacionalUpdateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedUpdateWithoutContratosGestoraInput>
+    create: XOR<UnidadeOrganizacionalCreateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosGestoraInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateWithoutContratosGestoraInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
+    parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
+    children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
+    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateWithoutContratosGestoraInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgaoId?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    municipioId?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+    servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
+  }
+
+  export type ContratoResponsavelUpsertWithWhereUniqueWithoutContratoInput = {
+    where: ContratoResponsavelWhereUniqueInput
+    update: XOR<ContratoResponsavelUpdateWithoutContratoInput, ContratoResponsavelUncheckedUpdateWithoutContratoInput>
+    create: XOR<ContratoResponsavelCreateWithoutContratoInput, ContratoResponsavelUncheckedCreateWithoutContratoInput>
+  }
+
+  export type ContratoResponsavelUpdateWithWhereUniqueWithoutContratoInput = {
+    where: ContratoResponsavelWhereUniqueInput
+    data: XOR<ContratoResponsavelUpdateWithoutContratoInput, ContratoResponsavelUncheckedUpdateWithoutContratoInput>
+  }
+
+  export type ContratoResponsavelUpdateManyWithWhereWithoutContratoInput = {
+    where: ContratoResponsavelScalarWhereInput
+    data: XOR<ContratoResponsavelUpdateManyMutationInput, ContratoResponsavelUncheckedUpdateManyWithoutResponsaveisInput>
+  }
+
+  export type ContratoRateioUpsertWithWhereUniqueWithoutContratoInput = {
+    where: ContratoRateioWhereUniqueInput
+    update: XOR<ContratoRateioUpdateWithoutContratoInput, ContratoRateioUncheckedUpdateWithoutContratoInput>
+    create: XOR<ContratoRateioCreateWithoutContratoInput, ContratoRateioUncheckedCreateWithoutContratoInput>
+  }
+
+  export type ContratoRateioUpdateWithWhereUniqueWithoutContratoInput = {
+    where: ContratoRateioWhereUniqueInput
+    data: XOR<ContratoRateioUpdateWithoutContratoInput, ContratoRateioUncheckedUpdateWithoutContratoInput>
+  }
+
+  export type ContratoRateioUpdateManyWithWhereWithoutContratoInput = {
+    where: ContratoRateioScalarWhereInput
+    data: XOR<ContratoRateioUpdateManyMutationInput, ContratoRateioUncheckedUpdateManyWithoutRateiosInput>
+  }
+
   export type AditivoUpsertWithWhereUniqueWithoutContratoInput = {
     where: AditivoWhereUniqueInput
     update: XOR<AditivoUpdateWithoutContratoInput, AditivoUncheckedUpdateWithoutContratoInput>
@@ -24078,42 +31106,572 @@ export namespace Prisma {
     createdAt?: DateTimeFilter | Date | string
   }
 
-  export type ContratoCreateWithoutAditivosInput = {
+  export type ContratoCreateWithoutResponsaveisInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
+    numeroGms: string
     anoGms: number
-    modalidade: string
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
     objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
-    unidadeFsp: UnidadeFspCreateNestedOneWithoutContratosInput
-    gestor: ServidorCreateNestedOneWithoutGestorContratosInput
-    fiscal: ServidorCreateNestedOneWithoutFiscalContratosInput
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutResponsaveisInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutResponsaveisInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutResponsaveisInput, ContratoUncheckedCreateWithoutResponsaveisInput>
+  }
+
+  export type ServidorCreateWithoutResponsaveisInput = {
+    id?: string
+    nome: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao?: OrgaoCreateNestedOneWithoutServidoresInput
+    unidade?: UnidadeOrganizacionalCreateNestedOneWithoutServidoresInput
+  }
+
+  export type ServidorUncheckedCreateWithoutResponsaveisInput = {
+    id?: string
+    nome: string
+    cpf?: string | null
+    rgFuncional?: string | null
+    cargo?: string | null
+    orgaoId?: string | null
+    unidadeId?: string | null
+    email?: string | null
+    telefone?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ServidorCreateOrConnectWithoutResponsaveisInput = {
+    where: ServidorWhereUniqueInput
+    create: XOR<ServidorCreateWithoutResponsaveisInput, ServidorUncheckedCreateWithoutResponsaveisInput>
+  }
+
+  export type ContratoUpsertWithoutResponsaveisInput = {
+    update: XOR<ContratoUpdateWithoutResponsaveisInput, ContratoUncheckedUpdateWithoutResponsaveisInput>
+    create: XOR<ContratoCreateWithoutResponsaveisInput, ContratoUncheckedCreateWithoutResponsaveisInput>
+  }
+
+  export type ContratoUpdateWithoutResponsaveisInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutResponsaveisInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ServidorUpsertWithoutResponsaveisInput = {
+    update: XOR<ServidorUpdateWithoutResponsaveisInput, ServidorUncheckedUpdateWithoutResponsaveisInput>
+    create: XOR<ServidorCreateWithoutResponsaveisInput, ServidorUncheckedCreateWithoutResponsaveisInput>
+  }
+
+  export type ServidorUpdateWithoutResponsaveisInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneWithoutServidoresNestedInput
+    unidade?: UnidadeOrganizacionalUpdateOneWithoutServidoresNestedInput
+  }
+
+  export type ServidorUncheckedUpdateWithoutResponsaveisInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    cpf?: NullableStringFieldUpdateOperationsInput | string | null
+    rgFuncional?: NullableStringFieldUpdateOperationsInput | string | null
+    cargo?: NullableStringFieldUpdateOperationsInput | string | null
+    orgaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    unidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    telefone?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoCreateWithoutRateiosInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutRateiosInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutRateiosInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutRateiosInput, ContratoUncheckedCreateWithoutRateiosInput>
+  }
+
+  export type UnidadeOrganizacionalCreateWithoutRateiosInput = {
+    id?: string
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    orgao: OrgaoCreateNestedOneWithoutUnidadesInput
+    parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
+    children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
+    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    servidores?: ServidorCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedCreateWithoutRateiosInput = {
+    id?: string
+    orgaoId: string
+    parentId?: string | null
+    sigla: string
+    nome: string
+    nivel: NivelUnidade
+    municipioId: string
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
+    servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
+  }
+
+  export type UnidadeOrganizacionalCreateOrConnectWithoutRateiosInput = {
+    where: UnidadeOrganizacionalWhereUniqueInput
+    create: XOR<UnidadeOrganizacionalCreateWithoutRateiosInput, UnidadeOrganizacionalUncheckedCreateWithoutRateiosInput>
+  }
+
+  export type ContratoUpsertWithoutRateiosInput = {
+    update: XOR<ContratoUpdateWithoutRateiosInput, ContratoUncheckedUpdateWithoutRateiosInput>
+    create: XOR<ContratoCreateWithoutRateiosInput, ContratoUncheckedCreateWithoutRateiosInput>
+  }
+
+  export type ContratoUpdateWithoutRateiosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutRateiosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type UnidadeOrganizacionalUpsertWithoutRateiosInput = {
+    update: XOR<UnidadeOrganizacionalUpdateWithoutRateiosInput, UnidadeOrganizacionalUncheckedUpdateWithoutRateiosInput>
+    create: XOR<UnidadeOrganizacionalCreateWithoutRateiosInput, UnidadeOrganizacionalUncheckedCreateWithoutRateiosInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateWithoutRateiosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
+    parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
+    children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
+    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
+  }
+
+  export type UnidadeOrganizacionalUncheckedUpdateWithoutRateiosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    orgaoId?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    municipioId?: StringFieldUpdateOperationsInput | string
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
+    servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
+  }
+
+  export type ContratoCreateWithoutAditivosInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutAditivosInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
+    processoId?: string | null
+    numeroGms: string
     anoGms: number
-    unidadeFspId: string
-    gestorId: string
-    fiscalId: string
-    fornecedorId: string
-    modalidade: string
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
     objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutAditivosInput = {
@@ -24128,114 +31686,82 @@ export namespace Prisma {
 
   export type ContratoUpdateWithoutAditivosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
+    numeroGms?: StringFieldUpdateOperationsInput | string
     anoGms?: IntFieldUpdateOperationsInput | number
-    modalidade?: StringFieldUpdateOperationsInput | string
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
     objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
-    gestor?: ServidorUpdateOneRequiredWithoutGestorContratosNestedInput
-    fiscal?: ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutAditivosInput = {
     id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
     anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    gestorId?: StringFieldUpdateOperationsInput | string
-    fiscalId?: StringFieldUpdateOperationsInput | string
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ContratoCreateManyUnidadeFspInput = {
-    id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    gestorId: string
-    fiscalId: string
-    fornecedorId: string
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type ContratoUpdateWithoutUnidadeFspInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    gestor?: ServidorUpdateOneRequiredWithoutGestorContratosNestedInput
-    fiscal?: ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput
-    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
-  }
-
-  export type ContratoUncheckedUpdateWithoutUnidadeFspInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    gestorId?: StringFieldUpdateOperationsInput | string
-    fiscalId?: StringFieldUpdateOperationsInput | string
-    fornecedorId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
-  }
-
-  export type ContratoUncheckedUpdateManyWithoutContratosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    gestorId?: StringFieldUpdateOperationsInput | string
-    fiscalId?: StringFieldUpdateOperationsInput | string
-    fornecedorId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type UnidadeOrganizacionalCreateManyMunicipioInput = {
@@ -24276,6 +31802,9 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateWithoutMunicipioInput = {
@@ -24290,6 +31819,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateManyWithoutUnidadesInput = {
@@ -24377,6 +31909,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     parent?: DominioValorUpdateOneWithoutChildrenNestedInput
     children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutDominioInput = {
@@ -24391,6 +31927,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
   }
 
   export type DominioValorUncheckedUpdateManyWithoutValoresInput = {
@@ -24419,6 +31959,134 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ContratoCreateManyCategoriaContratacaoInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContratoCreateManyModalidadeRefInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContratoCreateManyFundamentoLegalInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ProcessoContratacaoCreateManyModalidadePretendidaInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    unidadeDemandanteId: string
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type DominioValorUpdateWithoutParentInput = {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
@@ -24431,6 +32099,10 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
     children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutParentInput = {
@@ -24445,6 +32117,10 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
   }
 
   export type DominioValorUncheckedUpdateManyWithoutChildrenInput = {
@@ -24456,6 +32132,410 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     metadata?: NullableJsonNullValueInput | InputJsonValue
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoUpdateWithoutCategoriaContratacaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutCategoriaContratacaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutContratosCategoriaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoUpdateWithoutModalidadeRefInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutModalidadeRefInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutContratosModalidadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoUpdateWithoutFundamentoLegalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutFundamentoLegalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutContratosFundamentoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProcessoContratacaoUpdateWithoutModalidadePretendidaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidadeDemandante?: UnidadeOrganizacionalUpdateOneRequiredWithoutProcessosDemandanteNestedInput
+    contratos?: ContratoUpdateManyWithoutProcessoNestedInput
+  }
+
+  export type ProcessoContratacaoUncheckedUpdateWithoutModalidadePretendidaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    unidadeDemandanteId?: StringFieldUpdateOperationsInput | string
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratos?: ContratoUncheckedUpdateManyWithoutProcessoNestedInput
+  }
+
+  export type ProcessoContratacaoUncheckedUpdateManyWithoutProcessosModalidadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    unidadeDemandanteId?: StringFieldUpdateOperationsInput | string
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -24498,6 +32578,9 @@ export namespace Prisma {
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
     municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateWithoutOrgaoInput = {
@@ -24512,6 +32595,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
   export type ServidorUpdateWithoutOrgaoInput = {
@@ -24526,8 +32612,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     unidade?: UnidadeOrganizacionalUpdateOneWithoutServidoresNestedInput
-    gestorContratos?: ContratoUpdateManyWithoutGestorNestedInput
-    fiscalContratos?: ContratoUpdateManyWithoutFiscalNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutServidorNestedInput
   }
 
   export type ServidorUncheckedUpdateWithoutOrgaoInput = {
@@ -24542,8 +32627,7 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    gestorContratos?: ContratoUncheckedUpdateManyWithoutGestorNestedInput
-    fiscalContratos?: ContratoUncheckedUpdateManyWithoutFiscalNestedInput
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutServidorNestedInput
   }
 
   export type ServidorUncheckedUpdateManyWithoutServidoresInput = {
@@ -24586,6 +32670,70 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ContratoCreateManyUnidadeGestoraInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContratoRateioCreateManyUnidadeInput = {
+    id?: string
+    contratoId: string
+    percentual?: Decimal | DecimalJsLike | number | string | null
+    valorCents?: bigint | number | null
+    quantidade?: Decimal | DecimalJsLike | number | string | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ProcessoContratacaoCreateManyUnidadeDemandanteInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    modalidadePretendidaId?: string | null
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type UnidadeOrganizacionalUpdateWithoutParentInput = {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
@@ -24598,6 +32746,9 @@ export namespace Prisma {
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
     municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateWithoutParentInput = {
@@ -24612,6 +32763,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
+    processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateManyWithoutChildrenInput = {
@@ -24638,8 +32792,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orgao?: OrgaoUpdateOneWithoutServidoresNestedInput
-    gestorContratos?: ContratoUpdateManyWithoutGestorNestedInput
-    fiscalContratos?: ContratoUpdateManyWithoutFiscalNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutServidorNestedInput
   }
 
   export type ServidorUncheckedUpdateWithoutUnidadeInput = {
@@ -24654,8 +32807,207 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    gestorContratos?: ContratoUncheckedUpdateManyWithoutGestorNestedInput
-    fiscalContratos?: ContratoUncheckedUpdateManyWithoutFiscalNestedInput
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutServidorNestedInput
+  }
+
+  export type ContratoUpdateWithoutUnidadeGestoraInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutUnidadeGestoraInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutContratosGestoraInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoRateioUpdateWithoutUnidadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    percentual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    quantidade?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutRateiosNestedInput
+  }
+
+  export type ContratoRateioUncheckedUpdateWithoutUnidadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    percentual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    quantidade?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoRateioUncheckedUpdateManyWithoutRateiosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    percentual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    quantidade?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ProcessoContratacaoUpdateWithoutUnidadeDemandanteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    modalidadePretendida?: DominioValorUpdateOneWithoutProcessosModalidadeNestedInput
+    contratos?: ContratoUpdateManyWithoutProcessoNestedInput
+  }
+
+  export type ProcessoContratacaoUncheckedUpdateWithoutUnidadeDemandanteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    modalidadePretendidaId?: NullableStringFieldUpdateOperationsInput | string | null
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratos?: ContratoUncheckedUpdateManyWithoutProcessoNestedInput
+  }
+
+  export type ProcessoContratacaoUncheckedUpdateManyWithoutProcessosDemandanteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    modalidadePretendidaId?: NullableStringFieldUpdateOperationsInput | string | null
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type FornecedorContatoCreateManyFornecedorInput = {
@@ -24681,18 +33033,37 @@ export namespace Prisma {
 
   export type ContratoCreateManyFornecedorInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
+    processoId?: string | null
+    numeroGms: string
     anoGms: number
-    unidadeFspId: string
-    gestorId: string
-    fiscalId: string
-    modalidade: string
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
     objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -24762,188 +33133,296 @@ export namespace Prisma {
 
   export type ContratoUpdateWithoutFornecedorInput = {
     id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
+    numeroGms?: StringFieldUpdateOperationsInput | string
     anoGms?: IntFieldUpdateOperationsInput | number
-    modalidade?: StringFieldUpdateOperationsInput | string
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
     objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
-    gestor?: ServidorUpdateOneRequiredWithoutGestorContratosNestedInput
-    fiscal?: ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     aditivos?: AditivoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutFornecedorInput = {
     id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
     anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    gestorId?: StringFieldUpdateOperationsInput | string
-    fiscalId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
     objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
-  export type ContratoCreateManyGestorInput = {
+  export type ContratoUncheckedUpdateManyWithoutContratosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoResponsavelCreateManyServidorInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
+    contratoId: string
+    papel: PapelResponsavel
+    atoDesignacao?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
+    createdAt?: Date | string
+  }
+
+  export type ContratoResponsavelUpdateWithoutServidorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    papel?: EnumPapelResponsavelFieldUpdateOperationsInput | PapelResponsavel
+    atoDesignacao?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutResponsaveisNestedInput
+  }
+
+  export type ContratoResponsavelUncheckedUpdateWithoutServidorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    papel?: EnumPapelResponsavelFieldUpdateOperationsInput | PapelResponsavel
+    atoDesignacao?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoResponsavelUncheckedUpdateManyWithoutResponsaveisInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    papel?: EnumPapelResponsavelFieldUpdateOperationsInput | PapelResponsavel
+    atoDesignacao?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoCreateManyProcessoInput = {
+    id?: string
+    numeroGms: string
     anoGms: number
-    unidadeFspId: string
-    fiscalId: string
-    fornecedorId: string
-    modalidade: string
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
     objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
-  export type ContratoCreateManyFiscalInput = {
+  export type ContratoUpdateWithoutProcessoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutProcessoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoResponsavelCreateManyContratoInput = {
     id?: string
-    protocoloCabeca?: string | null
-    numGms: number
-    anoGms: number
-    unidadeFspId: string
-    gestorId: string
-    fornecedorId: string
-    modalidade: string
-    objeto: string
-    valorAnualCents: number
-    dataInicio?: Date | string | null
-    dataFimOrig?: Date | string | null
-    status: string
+    servidorId: string
+    papel: PapelResponsavel
+    atoDesignacao?: string | null
+    dataInicio: Date | string
+    dataFim?: Date | string | null
     createdAt?: Date | string
-    updatedAt?: Date | string
   }
 
-  export type ContratoUpdateWithoutGestorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
-    fiscal?: ServidorUpdateOneRequiredWithoutFiscalContratosNestedInput
-    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
-  }
-
-  export type ContratoUncheckedUpdateWithoutGestorInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    fiscalId?: StringFieldUpdateOperationsInput | string
-    fornecedorId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
-  }
-
-  export type ContratoUncheckedUpdateManyWithoutGestorContratosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    fiscalId?: StringFieldUpdateOperationsInput | string
-    fornecedorId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type ContratoUpdateWithoutFiscalInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    unidadeFsp?: UnidadeFspUpdateOneRequiredWithoutContratosNestedInput
-    gestor?: ServidorUpdateOneRequiredWithoutGestorContratosNestedInput
-    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
-  }
-
-  export type ContratoUncheckedUpdateWithoutFiscalInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    gestorId?: StringFieldUpdateOperationsInput | string
-    fornecedorId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
-  }
-
-  export type ContratoUncheckedUpdateManyWithoutFiscalContratosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    protocoloCabeca?: NullableStringFieldUpdateOperationsInput | string | null
-    numGms?: IntFieldUpdateOperationsInput | number
-    anoGms?: IntFieldUpdateOperationsInput | number
-    unidadeFspId?: StringFieldUpdateOperationsInput | string
-    gestorId?: StringFieldUpdateOperationsInput | string
-    fornecedorId?: StringFieldUpdateOperationsInput | string
-    modalidade?: StringFieldUpdateOperationsInput | string
-    objeto?: StringFieldUpdateOperationsInput | string
-    valorAnualCents?: IntFieldUpdateOperationsInput | number
-    dataInicio?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    dataFimOrig?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    status?: StringFieldUpdateOperationsInput | string
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  export type ContratoRateioCreateManyContratoInput = {
+    id?: string
+    unidadeId: string
+    percentual?: Decimal | DecimalJsLike | number | string | null
+    valorCents?: bigint | number | null
+    quantidade?: Decimal | DecimalJsLike | number | string | null
+    observacao?: string | null
+    createdAt?: Date | string
   }
 
   export type AditivoCreateManyContratoInput = {
@@ -24953,6 +33432,46 @@ export namespace Prisma {
     novoFimVigencia?: Date | string | null
     valorAdicionalCents?: number | null
     createdAt?: Date | string
+  }
+
+  export type ContratoResponsavelUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    papel?: EnumPapelResponsavelFieldUpdateOperationsInput | PapelResponsavel
+    atoDesignacao?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    servidor?: ServidorUpdateOneRequiredWithoutResponsaveisNestedInput
+  }
+
+  export type ContratoResponsavelUncheckedUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    servidorId?: StringFieldUpdateOperationsInput | string
+    papel?: EnumPapelResponsavelFieldUpdateOperationsInput | PapelResponsavel
+    atoDesignacao?: NullableStringFieldUpdateOperationsInput | string | null
+    dataInicio?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataFim?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoRateioUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    percentual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    quantidade?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidade?: UnidadeOrganizacionalUpdateOneRequiredWithoutRateiosNestedInput
+  }
+
+  export type ContratoRateioUncheckedUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    unidadeId?: StringFieldUpdateOperationsInput | string
+    percentual?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    valorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    quantidade?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AditivoUpdateWithoutContratoInput = {

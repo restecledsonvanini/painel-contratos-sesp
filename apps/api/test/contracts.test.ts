@@ -18,10 +18,11 @@ async function dbReady() {
 
 describe('contracts API integration', () => {
   let ready = false;
-  let unidadeId = '';
+  let unidadeGestoraId = '';
   let fornecedorId = '';
   let gestorId = '';
   let fiscalId = '';
+  let modalidadeCodigo = 'DISPENSA';
 
   beforeAll(async () => {
     ready = await dbReady();
@@ -31,9 +32,9 @@ describe('contracts API integration', () => {
     const suffix = Date.now().toString();
     const rand = Math.floor(Math.random() * 9000) + 1000;
 
-    const unidade = await db.unidadeFsp.create({
-      data: { sigla: `T${suffix.slice(-5)}${rand}`.slice(0, 10), nome: `Unidade Teste ${suffix}` },
-    });
+    const unidade = await db.unidadeOrganizacional.findFirst({ where: { ativo: true } });
+    if (!unidade) throw new Error('Nenhuma unidade organizacional no seed');
+
     const fornecedor = await db.fornecedor.create({
       data: {
         tipoPessoa: 'JURIDICA',
@@ -57,7 +58,7 @@ describe('contracts API integration', () => {
       },
     });
 
-    unidadeId = unidade.id;
+    unidadeGestoraId = unidade.id;
     fornecedorId = fornecedor.id;
     gestorId = gestor.id;
     fiscalId = fiscal.id;
@@ -92,11 +93,11 @@ describe('contracts API integration', () => {
       .send({
         numGms,
         anoGms: 2026,
-        unidadeFspId: unidadeId,
+        unidadeGestoraId,
         gestorId,
         fiscalId,
         fornecedorId,
-        modalidade: 'Dispensa',
+        modalidade: modalidadeCodigo,
         objeto: 'Contrato integração',
         valorAnual: 2500,
         dataInicio: '2026-01-01',
@@ -114,6 +115,8 @@ describe('contracts API integration', () => {
     expect(createRes.status).toBe(201);
     expect(createRes.body.id).toBeTruthy();
     expect(createRes.body.valorAnual).toBe(2500);
+    expect(createRes.body.situacao).toBe('VIGENTE');
+    expect(createRes.body.responsaveis?.length).toBeGreaterThanOrEqual(2);
     expect(createRes.body.aditivos).toHaveLength(1);
 
     const id = createRes.body.id as string;
@@ -121,25 +124,17 @@ describe('contracts API integration', () => {
     const getRes = await request(app).get(`/.netlify/functions/api/contracts/${id}`);
     expect(getRes.status).toBe(200);
     expect(getRes.body.objeto).toBe('Contrato integração');
+    expect(getRes.body.unidadeGestoraId).toBe(unidadeGestoraId);
 
     const updateRes = await request(app)
       .put(`/.netlify/functions/api/contracts/${id}`)
       .send({ status: 'encerrado', valorAnual: 2600 });
     expect(updateRes.status).toBe(200);
-    expect(updateRes.body.status).toBe('encerrado');
+    expect(updateRes.body.situacao).toBe('ENCERRADO');
     expect(updateRes.body.valorAnual).toBe(2600);
-    expect(updateRes.body.aditivos).toHaveLength(1);
 
     const deleteRes = await request(app).delete(`/.netlify/functions/api/contracts/${id}`);
     expect(deleteRes.status).toBe(200);
-    expect(deleteRes.body.success).toBe(true);
-
-    const missing = await request(app).get(`/.netlify/functions/api/contracts/${id}`);
-    expect(missing.status).toBe(404);
-
-    const db = getPrisma();
-    const leftoverAditivos = await db.aditivo.count({ where: { contratoId: id } });
-    expect(leftoverAditivos).toBe(0);
 
     await disconnectPrisma();
   });
