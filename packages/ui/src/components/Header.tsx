@@ -16,6 +16,7 @@ export function Header({ trailing }: { trailing?: React.ReactNode }) {
         onClick={toggleMobile}
         aria-label={mobileOpen ? 'Fechar menu' : 'Abrir menu'}
         aria-expanded={mobileOpen}
+        aria-controls="navegacao-principal"
       >
         {mobileOpen ? <X size={18} /> : <Menu size={18} />}
       </button>

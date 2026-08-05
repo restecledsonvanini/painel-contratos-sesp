@@ -67,7 +67,7 @@ export function Sidebar() {
           </div>
         </div>
 
-        <nav className="app-sidebar__nav">
+        <nav id="navegacao-principal" className="app-sidebar__nav" aria-label="Navegação principal">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (

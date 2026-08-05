@@ -44,7 +44,7 @@ export function Meter({
         aria-valuenow={value}
         aria-valuemin={0}
         aria-valuemax={max}
-        aria-label={typeof label === 'string' ? label : undefined}
+        aria-label={typeof label === 'string' ? label : 'Medidor'}
       >
         <div
           className="absolute inset-y-0 left-0 rounded-[var(--radius-sm)] transition-all duration-300"

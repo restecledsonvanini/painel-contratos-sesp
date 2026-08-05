@@ -375,7 +375,7 @@ Tela de login, `AuthProvider` real, UI sensível a papel e escopo por órgão; a
 - [x] `fase4-timeline` — Timeline, Meter de limites, formulário de alteração com simulação
 - [x] `fase5-dashboards` — painel tático + estratégico consumindo MVs com drill-down
 - [x] `fase6-alertas-importacao` — central de alertas, wizard de importação, CommandPalette, export CSV
-- [x] `fase7-auth-polimento` — login JWT, UI sensível a papel (a11y/E2E ficam como evolução)
+- [x] `fase7-auth-polimento` — login JWT, UI sensível a papel, skip-link, tabela→cards mobile, Playwright/axe smoke
 
 ## 17. Critério de pronto
 
@@ -385,7 +385,7 @@ Tela de login, `AuthProvider` real, UI sensível a papel e escopo por órgão; a
 - [x] Contrato completo em uma sessão com rascunho salvo (wizard 8 etapas — evolução).
 - [x] Linha do tempo e medidor de limite na alteração.
 - [x] 16 widgets/filtros 1:1 com as perguntas do plano da API (evolução).
-- [ ] a11y/mobile completos + Playwright/axe (evolução).
+- [x] a11y/mobile completos + Playwright/axe (evolução).
 - [x] Tokens de tema em `theme.css` no shell principal.
 
 ## 18. Fora deste plano

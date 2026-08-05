@@ -50,7 +50,11 @@ export default function LoginPage() {
             autoComplete="current-password"
             required
           />
-          {error && <p className="text-sm text-red-700">{error}</p>}
+          {error && (
+            <p className="text-sm text-red-700" role="alert" aria-live="assertive">
+              {error}
+            </p>
+          )}
           <Button type="submit" disabled={pending} className="w-full">
             {pending ? 'Entrando…' : 'Entrar'}
           </Button>

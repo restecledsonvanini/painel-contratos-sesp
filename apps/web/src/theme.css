@@ -575,3 +575,81 @@ a:focus-visible {
     grid-column: span 3;
   }
 }
+
+/* Skip link — visível só no foco (teclado) */
+.skip-link {
+  position: absolute;
+  left: var(--space-md);
+  top: -100px;
+  z-index: 1000;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--primary);
+  color: var(--text-inverse);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+}
+
+.skip-link:focus {
+  top: var(--space-md);
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Tabela → cartões no mobile */
+@media (max-width: 767px) {
+  .table-as-cards thead {
+    display: none;
+  }
+
+  .table-as-cards tbody,
+  .table-as-cards tr,
+  .table-as-cards td {
+    display: block;
+    width: 100%;
+  }
+
+  .table-as-cards tr {
+    margin-bottom: var(--space-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    padding: var(--space-sm);
+  }
+
+  .table-as-cards td {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    padding: 0.4rem 0.25rem;
+    border: none;
+    text-align: right;
+  }
+
+  .table-as-cards td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: var(--text-muted);
+    text-align: left;
+    flex: 0 0 40%;
+  }
+
+  .table-as-cards td:last-child {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+

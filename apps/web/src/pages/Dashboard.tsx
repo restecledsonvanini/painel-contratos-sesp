@@ -247,6 +247,7 @@ export default function Dashboard() {
                 <div
                   className="h-2 overflow-hidden rounded-[var(--radius-sm)] bg-[var(--surface-muted)]"
                   role="meter"
+                  aria-label={`Publicação ${p.veiculo}`}
                   aria-valuenow={num(p.percentualPublicado)}
                   aria-valuemin={0}
                   aria-valuemax={100}

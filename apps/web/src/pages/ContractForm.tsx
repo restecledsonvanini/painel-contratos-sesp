@@ -468,16 +468,24 @@ export default function ContractForm() {
                 />
               </div>
               <div>
-                <span className="field-label">Pilar</span>
-                <select className="select-field" {...register('pilar')}>
+                <span className="field-label" id="label-pilar">
+                  Pilar
+                </span>
+                <select className="select-field" aria-labelledby="label-pilar" {...register('pilar')}>
                   <option value="CUSTEIO">Custeio</option>
                   <option value="INVESTIMENTO">Investimento</option>
                   <option value="SERVICOS">Serviços</option>
                 </select>
               </div>
               <div>
-                <span className="field-label">Natureza do objeto</span>
-                <select className="select-field" {...register('naturezaObjeto')}>
+                <span className="field-label" id="label-natureza">
+                  Natureza do objeto
+                </span>
+                <select
+                  className="select-field"
+                  aria-labelledby="label-natureza"
+                  {...register('naturezaObjeto')}
+                >
                   <option value="SERVICO_CONTINUADO">Serviço continuado</option>
                   <option value="SERVICO_NAO_CONTINUADO">Serviço não continuado</option>
                   <option value="COMPRA">Compra</option>
@@ -498,8 +506,15 @@ export default function ContractForm() {
           {currentStep === 'partes' && (
             <div className="app-form__grid is-dense">
               <div className="app-form__span-3">
-                <span className="field-label">Unidade gestora</span>
-                <select className="select-field" {...register('unidadeGestoraId')} disabled={unidadesLoading}>
+                <span className="field-label" id="label-unidade-gestora">
+                  Unidade gestora
+                </span>
+                <select
+                  className="select-field"
+                  aria-labelledby="label-unidade-gestora"
+                  {...register('unidadeGestoraId')}
+                  disabled={unidadesLoading}
+                >
                   <option value="">Selecione a unidade</option>
                   {unidades?.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -510,8 +525,15 @@ export default function ContractForm() {
                 </select>
               </div>
               <div className="app-form__span-3">
-                <span className="field-label">Fornecedor</span>
-                <select className="select-field" {...register('fornecedorId')} disabled={fornecedoresLoading}>
+                <span className="field-label" id="label-fornecedor">
+                  Fornecedor
+                </span>
+                <select
+                  className="select-field"
+                  aria-labelledby="label-fornecedor"
+                  {...register('fornecedorId')}
+                  disabled={fornecedoresLoading}
+                >
                   <option value="">Selecione o fornecedor</option>
                   {fornecedores?.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -521,8 +543,15 @@ export default function ContractForm() {
                 </select>
               </div>
               <div>
-                <span className="field-label">Gestor</span>
-                <select className="select-field" {...register('gestorId')} disabled={servidoresLoading}>
+                <span className="field-label" id="label-gestor">
+                  Gestor
+                </span>
+                <select
+                  className="select-field"
+                  aria-labelledby="label-gestor"
+                  {...register('gestorId')}
+                  disabled={servidoresLoading}
+                >
                   <option value="">Selecione o gestor</option>
                   {servidores
                     ?.filter((item) => /gestor/i.test(item.cargo || item.nome || ''))
@@ -535,8 +564,15 @@ export default function ContractForm() {
                 </select>
               </div>
               <div>
-                <span className="field-label">Fiscal</span>
-                <select className="select-field" {...register('fiscalId')} disabled={servidoresLoading}>
+                <span className="field-label" id="label-fiscal">
+                  Fiscal
+                </span>
+                <select
+                  className="select-field"
+                  aria-labelledby="label-fiscal"
+                  {...register('fiscalId')}
+                  disabled={servidoresLoading}
+                >
                   <option value="">Selecione o fiscal</option>
                   {servidores
                     ?.filter((item) => /fiscal/i.test(item.cargo || item.nome || ''))
@@ -648,8 +684,14 @@ export default function ContractForm() {
                 {...register('prazoInicialValor', { valueAsNumber: true })}
               />
               <div>
-                <span className="field-label">Unidade do prazo</span>
-                <select className="select-field" {...register('prazoInicialUnidade')}>
+                <span className="field-label" id="label-prazo-unidade">
+                  Unidade do prazo
+                </span>
+                <select
+                  className="select-field"
+                  aria-labelledby="label-prazo-unidade"
+                  {...register('prazoInicialUnidade')}
+                >
                   <option value="DIAS">Dias</option>
                   <option value="MESES">Meses</option>
                   <option value="ANOS">Anos</option>

@@ -205,7 +205,7 @@ export default function ContractsList() {
 
       <Card variant="bordered" className="overflow-hidden">
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="table-as-cards">
             <TableHead>
               <TableRow>
                 <TableHeader>Protocolo</TableHeader>
@@ -221,32 +221,32 @@ export default function ContractsList() {
               {contracts.length > 0 ? (
                 contracts.map((contract) => (
                   <TableRow key={contract.id}>
-                    <TableCell className="font-semibold">
+                    <TableCell className="font-semibold" data-label="Protocolo">
                       <Link className="text-[var(--primary)] hover:underline" to={`/contracts/${contract.id}`}>
                         {contract.protocoloCabeca || '—'}
                       </Link>
                     </TableCell>
-                    <TableCell>
+                    <TableCell data-label="GMS/Ano">
                       {contract.numGms}/{contract.anoGms}
                     </TableCell>
-                    <TableCell>
+                    <TableCell data-label="Unidade">
                       {contract.unidadeGestora?.sigla ||
                         contract.unidadeFsp?.sigla ||
                         contract.unidadeGestoraId ||
                         contract.unidadeFspId ||
                         '—'}
                     </TableCell>
-                    <TableCell>
+                    <TableCell data-label="Fornecedor">
                       {contract.fornecedorName ||
                         contract.empresaName ||
                         contract.fornecedorId ||
                         contract.empresaId ||
                         '—'}
                     </TableCell>
-                    <TableCell>
+                    <TableCell data-label="Status">
                       <StatusBadge status={contract.status || contract.situacao?.toLowerCase()} />
                     </TableCell>
-                    <TableCell>
+                    <TableCell data-label="Valor anual">
                       {contract.valorAnual != null
                         ? contract.valorAnual.toLocaleString('pt-BR', {
                             style: 'currency',
@@ -254,7 +254,7 @@ export default function ContractsList() {
                           })
                         : '—'}
                     </TableCell>
-                    <TableCell>
+                    <TableCell data-label="Ações">
                       <div className="flex flex-wrap gap-2">
                         <Link to={`/contracts/${contract.id}`}>
                           <Button size="sm" variant="secondary">
