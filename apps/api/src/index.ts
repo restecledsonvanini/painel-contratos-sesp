@@ -9,6 +9,7 @@ import partesRouter from './routes/partes';
 import catalogoRouter from './routes/catalogo';
 import { contratoItensRouter } from './routes/catalogo';
 import { contratoAlteracoesRouter, alteracoesAliasRouter } from './routes/alteracoes';
+import orcamentoRouter, { contratoOrcamentoRouter } from './routes/orcamento';
 import { authenticate } from './middleware/auth';
 import { errorHandler } from './lib/errors';
 import { registerBigIntJson } from './lib/bigint-json';
@@ -38,7 +39,9 @@ function mountApi(base: string) {
   app.use(`${base}/contracts`, contractsRouter);
   app.use(`${base}/contracts/:id/itens`, contratoItensRouter);
   app.use(`${base}/contracts/:id/alteracoes`, contratoAlteracoesRouter);
+  app.use(`${base}/contracts/:id`, contratoOrcamentoRouter);
   app.use(`${base}/alteracoes`, alteracoesAliasRouter);
+  app.use(base, orcamentoRouter);
   app.use(`${base}/references`, referencesRouter);
   app.use(base, lookupsRouter);
   app.use(base, organizacaoRouter);

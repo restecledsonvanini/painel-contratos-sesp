@@ -543,6 +543,104 @@ async function main() {
     }
   });
 
+  // Orçamento e publicidade demo (contrato GMS 456)
+  const contrato456 = await prisma.contrato.findUnique({
+    where: { numeroGms_anoGms: { numeroGms: '456', anoGms: 2025 } },
+  });
+  if (contrato456) {
+    const natureza = await prisma.dominioValor.findFirstOrThrow({
+      where: { dominio: { slug: 'natureza-despesa' }, codigo: '33903900' },
+    });
+    const fonte = await prisma.dominioValor.findFirstOrThrow({
+      where: { dominio: { slug: 'fonte-recurso' }, codigo: 'TESOURO_ESTADO' },
+    });
+    const veiculoPncp = await prisma.dominioValor.findFirstOrThrow({
+      where: { dominio: { slug: 'veiculo-publicacao' }, codigo: 'PNCP' },
+    });
+    const tipoDoc = await prisma.dominioValor.findFirstOrThrow({
+      where: { dominio: { slug: 'tipo-documento' }, codigo: 'CONTRATO_ASSINADO' },
+    });
+
+    const dotacao = await prisma.dotacaoOrcamentaria.upsert({
+      where: { exercicio_codigo: { exercicio: 2025, codigo: '3390.39.00.10.301' } },
+      update: {
+        naturezaDespesaId: natureza.id,
+        fonteRecursoId: fonte.id,
+        descricao: 'Locação de veículos — SESP',
+      },
+      create: {
+        exercicio: 2025,
+        codigo: '3390.39.00.10.301',
+        unidadeOrcamentaria: 'SESP',
+        funcionalProgramatica: '06.181.1234.2001',
+        naturezaDespesaId: natureza.id,
+        fonteRecursoId: fonte.id,
+        descricao: 'Locação de veículos — SESP',
+      },
+    });
+
+    await prisma.contratoDotacao.deleteMany({ where: { contratoId: contrato456.id } });
+    await prisma.contratoDotacao.create({
+      data: {
+        contratoId: contrato456.id,
+        dotacaoId: dotacao.id,
+        exercicio: 2025,
+        valorPrevistoCents: BigInt(480_000_000),
+      },
+    });
+
+    await prisma.empenho.deleteMany({
+      where: { numero: '2025NE000123', exercicio: 2025 },
+    });
+    await prisma.empenho.create({
+      data: {
+        contratoId: contrato456.id,
+        dotacaoId: dotacao.id,
+        numero: '2025NE000123',
+        exercicio: 2025,
+        tipo: 'ESTIMATIVO',
+        data: new Date('2025-03-05'),
+        valorCents: BigInt(120_000_000),
+        valorLiquidadoCents: BigInt(40_000_000),
+        valorPagoCents: BigInt(40_000_000),
+        situacao: 'PAGO',
+      },
+    });
+
+    await prisma.reservaOrcamentaria.deleteMany({ where: { numero: 'NR-2025-0456' } });
+    await prisma.reservaOrcamentaria.create({
+      data: {
+        contratoId: contrato456.id,
+        numero: 'NR-2025-0456',
+        data: new Date('2025-02-20'),
+        valorCents: BigInt(480_000_000),
+        situacao: 'ATIVA',
+      },
+    });
+
+    await prisma.publicacao.deleteMany({ where: { contratoId: contrato456.id } });
+    await prisma.publicacao.create({
+      data: {
+        contratoId: contrato456.id,
+        veiculoId: veiculoPncp.id,
+        dataPublicacao: new Date('2025-03-10'),
+        idPncp: 'PNCP-2025-456',
+        url: 'https://pncp.gov.br/app/editais/exemplo',
+      },
+    });
+
+    await prisma.documento.deleteMany({ where: { contratoId: contrato456.id } });
+    await prisma.documento.create({
+      data: {
+        contratoId: contrato456.id,
+        tipoDocumentoId: tipoDoc.id,
+        nome: 'Contrato assinado — locação de viaturas',
+        urlExterna: 'https://example.local/docs/contrato-456.pdf',
+        mimeType: 'application/pdf',
+      },
+    });
+  }
+
   const counts = {
     municipios: municipiosCount,
     dominios: await prisma.dominio.count(),
@@ -556,6 +654,10 @@ async function main() {
     itemAtributos: await prisma.itemAtributoDef.count(),
     itemContratos: await prisma.itemContrato.count(),
     alteracoes: await prisma.alteracaoContratual.count(),
+    dotacoes: await prisma.dotacaoOrcamentaria.count(),
+    empenhos: await prisma.empenho.count(),
+    publicacoes: await prisma.publicacao.count(),
+    documentos: await prisma.documento.count(),
     contratos: await prisma.contrato.count(),
   };
 

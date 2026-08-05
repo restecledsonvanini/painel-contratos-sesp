@@ -50,6 +50,14 @@ export const publicApiCatalog = {
         note: 'alias POST /alteracoes/:id/simular (id = contratoId)',
       },
     },
+    orcamento: {
+      dotacoes: { method: 'GET', path: `${API_BASE}/dotacoes` },
+      contratoDotacoes: { method: 'GET', path: `${API_BASE}/contracts/:id/dotacoes` },
+      empenhos: { method: 'GET', path: `${API_BASE}/contracts/:id/empenhos` },
+      reservas: { method: 'GET', path: `${API_BASE}/reservas` },
+      publicacoes: { method: 'GET', path: `${API_BASE}/contracts/:id/publicacoes` },
+      documentos: { method: 'GET', path: `${API_BASE}/contracts/:id/documentos` },
+    },
     contracts: {
       list: { method: 'GET', path: `${API_BASE}/contracts` },
       get: { method: 'GET', path: `${API_BASE}/contracts/:id` },

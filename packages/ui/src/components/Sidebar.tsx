@@ -9,6 +9,7 @@ import {
   ListTree,
   Shield,
   Users,
+  Wallet,
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
@@ -29,6 +30,7 @@ const navItems: NavItem[] = [
   { label: 'Fornecedores', to: '/fornecedores', icon: Briefcase },
   { label: 'Servidores', to: '/servidores', icon: Users },
   { label: 'Catálogo de itens', to: '/catalogo-itens', icon: Wrench },
+  { label: 'Dotações', to: '/dotacoes', icon: Wallet },
   { label: 'Unidades FSP', to: '/unidades-fsp', icon: Shield },
   { label: 'Listas suspensas', to: '/dominios', icon: ListTree },
 ];

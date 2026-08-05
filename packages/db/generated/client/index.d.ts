@@ -88,6 +88,10 @@ export type DominioValorPayload<ExtArgs extends $Extensions.Args = $Extensions.D
     atributosPorCategoria: ItemAtributoDefPayload<ExtArgs>[]
     itensUnidadeMedida: ItemContratoPayload<ExtArgs>[]
     alteracoesFundamento: AlteracaoContratualPayload<ExtArgs>[]
+    dotacoesNatureza: DotacaoOrcamentariaPayload<ExtArgs>[]
+    dotacoesFonte: DotacaoOrcamentariaPayload<ExtArgs>[]
+    publicacoesVeiculo: PublicacaoPayload<ExtArgs>[]
+    documentosTipo: DocumentoPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -278,6 +282,8 @@ export type ProcessoContratacaoPayload<ExtArgs extends $Extensions.Args = $Exten
     unidadeDemandante: UnidadeOrganizacionalPayload<ExtArgs>
     modalidadePretendida: DominioValorPayload<ExtArgs> | null
     contratos: ContratoPayload<ExtArgs>[]
+    reservas: ReservaOrcamentariaPayload<ExtArgs>[]
+    documentos: DocumentoPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -317,6 +323,11 @@ export type ContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
     rateios: ContratoRateioPayload<ExtArgs>[]
     itens: ItemContratoPayload<ExtArgs>[]
     alteracoes: AlteracaoContratualPayload<ExtArgs>[]
+    dotacoes: ContratoDotacaoPayload<ExtArgs>[]
+    empenhos: EmpenhoPayload<ExtArgs>[]
+    reservas: ReservaOrcamentariaPayload<ExtArgs>[]
+    publicacoes: PublicacaoPayload<ExtArgs>[]
+    documentos: DocumentoPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -417,6 +428,8 @@ export type AlteracaoContratualPayload<ExtArgs extends $Extensions.Args = $Exten
     contrato: ContratoPayload<ExtArgs>
     fundamentoLegal: DominioValorPayload<ExtArgs> | null
     itens: AlteracaoItemPayload<ExtArgs>[]
+    publicacoes: PublicacaoPayload<ExtArgs>[]
+    documentos: DocumentoPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -565,6 +578,166 @@ export type ItemContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.D
  * 
  */
 export type ItemContrato = runtime.Types.DefaultSelection<ItemContratoPayload>
+export type DotacaoOrcamentariaPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "DotacaoOrcamentaria"
+  objects: {
+    naturezaDespesa: DominioValorPayload<ExtArgs>
+    fonteRecurso: DominioValorPayload<ExtArgs>
+    contratos: ContratoDotacaoPayload<ExtArgs>[]
+    empenhos: EmpenhoPayload<ExtArgs>[]
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria: string | null
+    funcionalProgramatica: string | null
+    naturezaDespesaId: string
+    fonteRecursoId: string
+    descricao: string | null
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["dotacaoOrcamentaria"]>
+  composites: {}
+}
+
+/**
+ * Model DotacaoOrcamentaria
+ * 
+ */
+export type DotacaoOrcamentaria = runtime.Types.DefaultSelection<DotacaoOrcamentariaPayload>
+export type ContratoDotacaoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "ContratoDotacao"
+  objects: {
+    contrato: ContratoPayload<ExtArgs>
+    dotacao: DotacaoOrcamentariaPayload<ExtArgs>
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    contratoId: string
+    dotacaoId: string
+    exercicio: number
+    valorPrevistoCents: bigint
+    createdAt: Date
+  }, ExtArgs["result"]["contratoDotacao"]>
+  composites: {}
+}
+
+/**
+ * Model ContratoDotacao
+ * 
+ */
+export type ContratoDotacao = runtime.Types.DefaultSelection<ContratoDotacaoPayload>
+export type EmpenhoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "Empenho"
+  objects: {
+    contrato: ContratoPayload<ExtArgs>
+    dotacao: DotacaoOrcamentariaPayload<ExtArgs> | null
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    contratoId: string
+    dotacaoId: string | null
+    numero: string
+    exercicio: number
+    tipo: TipoEmpenho
+    data: Date
+    valorCents: bigint
+    valorLiquidadoCents: bigint
+    valorPagoCents: bigint
+    situacao: SituacaoEmpenho
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["empenho"]>
+  composites: {}
+}
+
+/**
+ * Model Empenho
+ * 
+ */
+export type Empenho = runtime.Types.DefaultSelection<EmpenhoPayload>
+export type ReservaOrcamentariaPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "ReservaOrcamentaria"
+  objects: {
+    contrato: ContratoPayload<ExtArgs> | null
+    processo: ProcessoContratacaoPayload<ExtArgs> | null
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    contratoId: string | null
+    processoId: string | null
+    numero: string
+    data: Date
+    valorCents: bigint
+    situacao: SituacaoReserva
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["reservaOrcamentaria"]>
+  composites: {}
+}
+
+/**
+ * Model ReservaOrcamentaria
+ * 
+ */
+export type ReservaOrcamentaria = runtime.Types.DefaultSelection<ReservaOrcamentariaPayload>
+export type PublicacaoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "Publicacao"
+  objects: {
+    contrato: ContratoPayload<ExtArgs> | null
+    alteracao: AlteracaoContratualPayload<ExtArgs> | null
+    veiculo: DominioValorPayload<ExtArgs>
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    contratoId: string | null
+    alteracaoId: string | null
+    veiculoId: string
+    dataPublicacao: Date
+    numeroEdicao: string | null
+    idPncp: string | null
+    url: string | null
+    createdAt: Date
+  }, ExtArgs["result"]["publicacao"]>
+  composites: {}
+}
+
+/**
+ * Model Publicacao
+ * 
+ */
+export type Publicacao = runtime.Types.DefaultSelection<PublicacaoPayload>
+export type DocumentoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "Documento"
+  objects: {
+    contrato: ContratoPayload<ExtArgs> | null
+    alteracao: AlteracaoContratualPayload<ExtArgs> | null
+    processo: ProcessoContratacaoPayload<ExtArgs> | null
+    tipoDocumento: DominioValorPayload<ExtArgs>
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    contratoId: string | null
+    alteracaoId: string | null
+    processoId: string | null
+    tipoDocumentoId: string
+    nome: string
+    storageKey: string | null
+    urlExterna: string | null
+    mimeType: string | null
+    tamanhoBytes: number | null
+    uploadedById: string | null
+    createdAt: Date
+  }, ExtArgs["result"]["documento"]>
+  composites: {}
+}
+
+/**
+ * Model Documento
+ * 
+ */
+export type Documento = runtime.Types.DefaultSelection<DocumentoPayload>
 export type AuditLogPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
   name: "AuditLog"
   objects: {}
@@ -808,6 +981,34 @@ export const Periodicidade: {
 };
 
 export type Periodicidade = (typeof Periodicidade)[keyof typeof Periodicidade]
+
+
+export const TipoEmpenho: {
+  ORDINARIO: 'ORDINARIO',
+  ESTIMATIVO: 'ESTIMATIVO',
+  GLOBAL: 'GLOBAL'
+};
+
+export type TipoEmpenho = (typeof TipoEmpenho)[keyof typeof TipoEmpenho]
+
+
+export const SituacaoEmpenho: {
+  EMITIDO: 'EMITIDO',
+  LIQUIDADO: 'LIQUIDADO',
+  PAGO: 'PAGO',
+  ANULADO: 'ANULADO'
+};
+
+export type SituacaoEmpenho = (typeof SituacaoEmpenho)[keyof typeof SituacaoEmpenho]
+
+
+export const SituacaoReserva: {
+  ATIVA: 'ATIVA',
+  BAIXADA: 'BAIXADA',
+  CANCELADA: 'CANCELADA'
+};
+
+export type SituacaoReserva = (typeof SituacaoReserva)[keyof typeof SituacaoReserva]
 
 
 /**
@@ -1124,6 +1325,66 @@ export class PrismaClient<
     * ```
     */
   get itemContrato(): Prisma.ItemContratoDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.dotacaoOrcamentaria`: Exposes CRUD operations for the **DotacaoOrcamentaria** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more DotacaoOrcamentarias
+    * const dotacaoOrcamentarias = await prisma.dotacaoOrcamentaria.findMany()
+    * ```
+    */
+  get dotacaoOrcamentaria(): Prisma.DotacaoOrcamentariaDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.contratoDotacao`: Exposes CRUD operations for the **ContratoDotacao** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ContratoDotacaos
+    * const contratoDotacaos = await prisma.contratoDotacao.findMany()
+    * ```
+    */
+  get contratoDotacao(): Prisma.ContratoDotacaoDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.empenho`: Exposes CRUD operations for the **Empenho** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Empenhos
+    * const empenhos = await prisma.empenho.findMany()
+    * ```
+    */
+  get empenho(): Prisma.EmpenhoDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.reservaOrcamentaria`: Exposes CRUD operations for the **ReservaOrcamentaria** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ReservaOrcamentarias
+    * const reservaOrcamentarias = await prisma.reservaOrcamentaria.findMany()
+    * ```
+    */
+  get reservaOrcamentaria(): Prisma.ReservaOrcamentariaDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.publicacao`: Exposes CRUD operations for the **Publicacao** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Publicacaos
+    * const publicacaos = await prisma.publicacao.findMany()
+    * ```
+    */
+  get publicacao(): Prisma.PublicacaoDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.documento`: Exposes CRUD operations for the **Documento** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Documentos
+    * const documentos = await prisma.documento.findMany()
+    * ```
+    */
+  get documento(): Prisma.DocumentoDelegate<GlobalReject, ExtArgs>;
 
   /**
    * `prisma.auditLog`: Exposes CRUD operations for the **AuditLog** model.
@@ -1646,6 +1907,12 @@ export namespace Prisma {
     CatalogoItem: 'CatalogoItem',
     ItemAtributoDef: 'ItemAtributoDef',
     ItemContrato: 'ItemContrato',
+    DotacaoOrcamentaria: 'DotacaoOrcamentaria',
+    ContratoDotacao: 'ContratoDotacao',
+    Empenho: 'Empenho',
+    ReservaOrcamentaria: 'ReservaOrcamentaria',
+    Publicacao: 'Publicacao',
+    Documento: 'Documento',
     AuditLog: 'AuditLog',
     User: 'User'
   };
@@ -1664,7 +1931,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     meta: {
-      modelProps: 'unidadeFsp' | 'municipio' | 'dominio' | 'dominioValor' | 'orgao' | 'unidadeOrganizacional' | 'fornecedor' | 'fornecedorContato' | 'fornecedorSancao' | 'servidor' | 'processoContratacao' | 'contrato' | 'contratoResponsavel' | 'contratoRateio' | 'alteracaoContratual' | 'alteracaoItem' | 'catalogoItem' | 'itemAtributoDef' | 'itemContrato' | 'auditLog' | 'user'
+      modelProps: 'unidadeFsp' | 'municipio' | 'dominio' | 'dominioValor' | 'orgao' | 'unidadeOrganizacional' | 'fornecedor' | 'fornecedorContato' | 'fornecedorSancao' | 'servidor' | 'processoContratacao' | 'contrato' | 'contratoResponsavel' | 'contratoRateio' | 'alteracaoContratual' | 'alteracaoItem' | 'catalogoItem' | 'itemAtributoDef' | 'itemContrato' | 'dotacaoOrcamentaria' | 'contratoDotacao' | 'empenho' | 'reservaOrcamentaria' | 'publicacao' | 'documento' | 'auditLog' | 'user'
       txIsolationLevel: Prisma.TransactionIsolationLevel
     },
     model: {
@@ -2903,6 +3170,396 @@ export namespace Prisma {
           }
         }
       }
+      DotacaoOrcamentaria: {
+        payload: DotacaoOrcamentariaPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.DotacaoOrcamentariaFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DotacaoOrcamentariaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DotacaoOrcamentariaFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DotacaoOrcamentariaPayload>
+          }
+          findFirst: {
+            args: Prisma.DotacaoOrcamentariaFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DotacaoOrcamentariaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DotacaoOrcamentariaFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DotacaoOrcamentariaPayload>
+          }
+          findMany: {
+            args: Prisma.DotacaoOrcamentariaFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DotacaoOrcamentariaPayload>[]
+          }
+          create: {
+            args: Prisma.DotacaoOrcamentariaCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DotacaoOrcamentariaPayload>
+          }
+          createMany: {
+            args: Prisma.DotacaoOrcamentariaCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.DotacaoOrcamentariaDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DotacaoOrcamentariaPayload>
+          }
+          update: {
+            args: Prisma.DotacaoOrcamentariaUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DotacaoOrcamentariaPayload>
+          }
+          deleteMany: {
+            args: Prisma.DotacaoOrcamentariaDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DotacaoOrcamentariaUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.DotacaoOrcamentariaUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DotacaoOrcamentariaPayload>
+          }
+          aggregate: {
+            args: Prisma.DotacaoOrcamentariaAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateDotacaoOrcamentaria>
+          }
+          groupBy: {
+            args: Prisma.DotacaoOrcamentariaGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<DotacaoOrcamentariaGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DotacaoOrcamentariaCountArgs<ExtArgs>,
+            result: $Utils.Optional<DotacaoOrcamentariaCountAggregateOutputType> | number
+          }
+        }
+      }
+      ContratoDotacao: {
+        payload: ContratoDotacaoPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.ContratoDotacaoFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoDotacaoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ContratoDotacaoFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoDotacaoPayload>
+          }
+          findFirst: {
+            args: Prisma.ContratoDotacaoFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoDotacaoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ContratoDotacaoFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoDotacaoPayload>
+          }
+          findMany: {
+            args: Prisma.ContratoDotacaoFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoDotacaoPayload>[]
+          }
+          create: {
+            args: Prisma.ContratoDotacaoCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoDotacaoPayload>
+          }
+          createMany: {
+            args: Prisma.ContratoDotacaoCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.ContratoDotacaoDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoDotacaoPayload>
+          }
+          update: {
+            args: Prisma.ContratoDotacaoUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoDotacaoPayload>
+          }
+          deleteMany: {
+            args: Prisma.ContratoDotacaoDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ContratoDotacaoUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.ContratoDotacaoUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ContratoDotacaoPayload>
+          }
+          aggregate: {
+            args: Prisma.ContratoDotacaoAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateContratoDotacao>
+          }
+          groupBy: {
+            args: Prisma.ContratoDotacaoGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<ContratoDotacaoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ContratoDotacaoCountArgs<ExtArgs>,
+            result: $Utils.Optional<ContratoDotacaoCountAggregateOutputType> | number
+          }
+        }
+      }
+      Empenho: {
+        payload: EmpenhoPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.EmpenhoFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<EmpenhoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.EmpenhoFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<EmpenhoPayload>
+          }
+          findFirst: {
+            args: Prisma.EmpenhoFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<EmpenhoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.EmpenhoFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<EmpenhoPayload>
+          }
+          findMany: {
+            args: Prisma.EmpenhoFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<EmpenhoPayload>[]
+          }
+          create: {
+            args: Prisma.EmpenhoCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<EmpenhoPayload>
+          }
+          createMany: {
+            args: Prisma.EmpenhoCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.EmpenhoDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<EmpenhoPayload>
+          }
+          update: {
+            args: Prisma.EmpenhoUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<EmpenhoPayload>
+          }
+          deleteMany: {
+            args: Prisma.EmpenhoDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.EmpenhoUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.EmpenhoUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<EmpenhoPayload>
+          }
+          aggregate: {
+            args: Prisma.EmpenhoAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateEmpenho>
+          }
+          groupBy: {
+            args: Prisma.EmpenhoGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<EmpenhoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.EmpenhoCountArgs<ExtArgs>,
+            result: $Utils.Optional<EmpenhoCountAggregateOutputType> | number
+          }
+        }
+      }
+      ReservaOrcamentaria: {
+        payload: ReservaOrcamentariaPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.ReservaOrcamentariaFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ReservaOrcamentariaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ReservaOrcamentariaFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ReservaOrcamentariaPayload>
+          }
+          findFirst: {
+            args: Prisma.ReservaOrcamentariaFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ReservaOrcamentariaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ReservaOrcamentariaFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ReservaOrcamentariaPayload>
+          }
+          findMany: {
+            args: Prisma.ReservaOrcamentariaFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ReservaOrcamentariaPayload>[]
+          }
+          create: {
+            args: Prisma.ReservaOrcamentariaCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ReservaOrcamentariaPayload>
+          }
+          createMany: {
+            args: Prisma.ReservaOrcamentariaCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.ReservaOrcamentariaDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ReservaOrcamentariaPayload>
+          }
+          update: {
+            args: Prisma.ReservaOrcamentariaUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ReservaOrcamentariaPayload>
+          }
+          deleteMany: {
+            args: Prisma.ReservaOrcamentariaDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ReservaOrcamentariaUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.ReservaOrcamentariaUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ReservaOrcamentariaPayload>
+          }
+          aggregate: {
+            args: Prisma.ReservaOrcamentariaAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateReservaOrcamentaria>
+          }
+          groupBy: {
+            args: Prisma.ReservaOrcamentariaGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<ReservaOrcamentariaGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ReservaOrcamentariaCountArgs<ExtArgs>,
+            result: $Utils.Optional<ReservaOrcamentariaCountAggregateOutputType> | number
+          }
+        }
+      }
+      Publicacao: {
+        payload: PublicacaoPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.PublicacaoFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<PublicacaoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.PublicacaoFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<PublicacaoPayload>
+          }
+          findFirst: {
+            args: Prisma.PublicacaoFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<PublicacaoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.PublicacaoFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<PublicacaoPayload>
+          }
+          findMany: {
+            args: Prisma.PublicacaoFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<PublicacaoPayload>[]
+          }
+          create: {
+            args: Prisma.PublicacaoCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<PublicacaoPayload>
+          }
+          createMany: {
+            args: Prisma.PublicacaoCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.PublicacaoDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<PublicacaoPayload>
+          }
+          update: {
+            args: Prisma.PublicacaoUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<PublicacaoPayload>
+          }
+          deleteMany: {
+            args: Prisma.PublicacaoDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.PublicacaoUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.PublicacaoUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<PublicacaoPayload>
+          }
+          aggregate: {
+            args: Prisma.PublicacaoAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregatePublicacao>
+          }
+          groupBy: {
+            args: Prisma.PublicacaoGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<PublicacaoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.PublicacaoCountArgs<ExtArgs>,
+            result: $Utils.Optional<PublicacaoCountAggregateOutputType> | number
+          }
+        }
+      }
+      Documento: {
+        payload: DocumentoPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.DocumentoFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DocumentoPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.DocumentoFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DocumentoPayload>
+          }
+          findFirst: {
+            args: Prisma.DocumentoFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DocumentoPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.DocumentoFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DocumentoPayload>
+          }
+          findMany: {
+            args: Prisma.DocumentoFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DocumentoPayload>[]
+          }
+          create: {
+            args: Prisma.DocumentoCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DocumentoPayload>
+          }
+          createMany: {
+            args: Prisma.DocumentoCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.DocumentoDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DocumentoPayload>
+          }
+          update: {
+            args: Prisma.DocumentoUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DocumentoPayload>
+          }
+          deleteMany: {
+            args: Prisma.DocumentoDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.DocumentoUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.DocumentoUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<DocumentoPayload>
+          }
+          aggregate: {
+            args: Prisma.DocumentoAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateDocumento>
+          }
+          groupBy: {
+            args: Prisma.DocumentoGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<DocumentoGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.DocumentoCountArgs<ExtArgs>,
+            result: $Utils.Optional<DocumentoCountAggregateOutputType> | number
+          }
+        }
+      }
       AuditLog: {
         payload: AuditLogPayload<ExtArgs>
         operations: {
@@ -3315,6 +3972,10 @@ export namespace Prisma {
     atributosPorCategoria: number
     itensUnidadeMedida: number
     alteracoesFundamento: number
+    dotacoesNatureza: number
+    dotacoesFonte: number
+    publicacoesVeiculo: number
+    documentosTipo: number
   }
 
   export type DominioValorCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -3328,6 +3989,10 @@ export namespace Prisma {
     atributosPorCategoria?: boolean | DominioValorCountOutputTypeCountAtributosPorCategoriaArgs
     itensUnidadeMedida?: boolean | DominioValorCountOutputTypeCountItensUnidadeMedidaArgs
     alteracoesFundamento?: boolean | DominioValorCountOutputTypeCountAlteracoesFundamentoArgs
+    dotacoesNatureza?: boolean | DominioValorCountOutputTypeCountDotacoesNaturezaArgs
+    dotacoesFonte?: boolean | DominioValorCountOutputTypeCountDotacoesFonteArgs
+    publicacoesVeiculo?: boolean | DominioValorCountOutputTypeCountPublicacoesVeiculoArgs
+    documentosTipo?: boolean | DominioValorCountOutputTypeCountDocumentosTipoArgs
   }
 
   // Custom InputTypes
@@ -3420,6 +4085,38 @@ export namespace Prisma {
    */
   export type DominioValorCountOutputTypeCountAlteracoesFundamentoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: AlteracaoContratualWhereInput
+  }
+
+
+  /**
+   * DominioValorCountOutputType without action
+   */
+  export type DominioValorCountOutputTypeCountDotacoesNaturezaArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DotacaoOrcamentariaWhereInput
+  }
+
+
+  /**
+   * DominioValorCountOutputType without action
+   */
+  export type DominioValorCountOutputTypeCountDotacoesFonteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DotacaoOrcamentariaWhereInput
+  }
+
+
+  /**
+   * DominioValorCountOutputType without action
+   */
+  export type DominioValorCountOutputTypeCountPublicacoesVeiculoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: PublicacaoWhereInput
+  }
+
+
+  /**
+   * DominioValorCountOutputType without action
+   */
+  export type DominioValorCountOutputTypeCountDocumentosTipoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DocumentoWhereInput
   }
 
 
@@ -3651,10 +4348,14 @@ export namespace Prisma {
 
   export type ProcessoContratacaoCountOutputType = {
     contratos: number
+    reservas: number
+    documentos: number
   }
 
   export type ProcessoContratacaoCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     contratos?: boolean | ProcessoContratacaoCountOutputTypeCountContratosArgs
+    reservas?: boolean | ProcessoContratacaoCountOutputTypeCountReservasArgs
+    documentos?: boolean | ProcessoContratacaoCountOutputTypeCountDocumentosArgs
   }
 
   // Custom InputTypes
@@ -3678,6 +4379,22 @@ export namespace Prisma {
   }
 
 
+  /**
+   * ProcessoContratacaoCountOutputType without action
+   */
+  export type ProcessoContratacaoCountOutputTypeCountReservasArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ReservaOrcamentariaWhereInput
+  }
+
+
+  /**
+   * ProcessoContratacaoCountOutputType without action
+   */
+  export type ProcessoContratacaoCountOutputTypeCountDocumentosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DocumentoWhereInput
+  }
+
+
 
   /**
    * Count Type ContratoCountOutputType
@@ -3689,6 +4406,11 @@ export namespace Prisma {
     rateios: number
     itens: number
     alteracoes: number
+    dotacoes: number
+    empenhos: number
+    reservas: number
+    publicacoes: number
+    documentos: number
   }
 
   export type ContratoCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -3696,6 +4418,11 @@ export namespace Prisma {
     rateios?: boolean | ContratoCountOutputTypeCountRateiosArgs
     itens?: boolean | ContratoCountOutputTypeCountItensArgs
     alteracoes?: boolean | ContratoCountOutputTypeCountAlteracoesArgs
+    dotacoes?: boolean | ContratoCountOutputTypeCountDotacoesArgs
+    empenhos?: boolean | ContratoCountOutputTypeCountEmpenhosArgs
+    reservas?: boolean | ContratoCountOutputTypeCountReservasArgs
+    publicacoes?: boolean | ContratoCountOutputTypeCountPublicacoesArgs
+    documentos?: boolean | ContratoCountOutputTypeCountDocumentosArgs
   }
 
   // Custom InputTypes
@@ -3743,6 +4470,46 @@ export namespace Prisma {
   }
 
 
+  /**
+   * ContratoCountOutputType without action
+   */
+  export type ContratoCountOutputTypeCountDotacoesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoDotacaoWhereInput
+  }
+
+
+  /**
+   * ContratoCountOutputType without action
+   */
+  export type ContratoCountOutputTypeCountEmpenhosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: EmpenhoWhereInput
+  }
+
+
+  /**
+   * ContratoCountOutputType without action
+   */
+  export type ContratoCountOutputTypeCountReservasArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ReservaOrcamentariaWhereInput
+  }
+
+
+  /**
+   * ContratoCountOutputType without action
+   */
+  export type ContratoCountOutputTypeCountPublicacoesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: PublicacaoWhereInput
+  }
+
+
+  /**
+   * ContratoCountOutputType without action
+   */
+  export type ContratoCountOutputTypeCountDocumentosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DocumentoWhereInput
+  }
+
+
 
   /**
    * Count Type AlteracaoContratualCountOutputType
@@ -3751,10 +4518,14 @@ export namespace Prisma {
 
   export type AlteracaoContratualCountOutputType = {
     itens: number
+    publicacoes: number
+    documentos: number
   }
 
   export type AlteracaoContratualCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     itens?: boolean | AlteracaoContratualCountOutputTypeCountItensArgs
+    publicacoes?: boolean | AlteracaoContratualCountOutputTypeCountPublicacoesArgs
+    documentos?: boolean | AlteracaoContratualCountOutputTypeCountDocumentosArgs
   }
 
   // Custom InputTypes
@@ -3775,6 +4546,22 @@ export namespace Prisma {
    */
   export type AlteracaoContratualCountOutputTypeCountItensArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: AlteracaoItemWhereInput
+  }
+
+
+  /**
+   * AlteracaoContratualCountOutputType without action
+   */
+  export type AlteracaoContratualCountOutputTypeCountPublicacoesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: PublicacaoWhereInput
+  }
+
+
+  /**
+   * AlteracaoContratualCountOutputType without action
+   */
+  export type AlteracaoContratualCountOutputTypeCountDocumentosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DocumentoWhereInput
   }
 
 
@@ -3855,6 +4642,51 @@ export namespace Prisma {
    */
   export type ItemContratoCountOutputTypeCountAlteracaoItensArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: AlteracaoItemWhereInput
+  }
+
+
+
+  /**
+   * Count Type DotacaoOrcamentariaCountOutputType
+   */
+
+
+  export type DotacaoOrcamentariaCountOutputType = {
+    contratos: number
+    empenhos: number
+  }
+
+  export type DotacaoOrcamentariaCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contratos?: boolean | DotacaoOrcamentariaCountOutputTypeCountContratosArgs
+    empenhos?: boolean | DotacaoOrcamentariaCountOutputTypeCountEmpenhosArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * DotacaoOrcamentariaCountOutputType without action
+   */
+  export type DotacaoOrcamentariaCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentariaCountOutputType
+     */
+    select?: DotacaoOrcamentariaCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * DotacaoOrcamentariaCountOutputType without action
+   */
+  export type DotacaoOrcamentariaCountOutputTypeCountContratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoDotacaoWhereInput
+  }
+
+
+  /**
+   * DotacaoOrcamentariaCountOutputType without action
+   */
+  export type DotacaoOrcamentariaCountOutputTypeCountEmpenhosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: EmpenhoWhereInput
   }
 
 
@@ -6950,6 +7782,10 @@ export namespace Prisma {
     atributosPorCategoria?: boolean | DominioValor$atributosPorCategoriaArgs<ExtArgs>
     itensUnidadeMedida?: boolean | DominioValor$itensUnidadeMedidaArgs<ExtArgs>
     alteracoesFundamento?: boolean | DominioValor$alteracoesFundamentoArgs<ExtArgs>
+    dotacoesNatureza?: boolean | DominioValor$dotacoesNaturezaArgs<ExtArgs>
+    dotacoesFonte?: boolean | DominioValor$dotacoesFonteArgs<ExtArgs>
+    publicacoesVeiculo?: boolean | DominioValor$publicacoesVeiculoArgs<ExtArgs>
+    documentosTipo?: boolean | DominioValor$documentosTipoArgs<ExtArgs>
     _count?: boolean | DominioValorCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["dominioValor"]>
 
@@ -6980,6 +7816,10 @@ export namespace Prisma {
     atributosPorCategoria?: boolean | DominioValor$atributosPorCategoriaArgs<ExtArgs>
     itensUnidadeMedida?: boolean | DominioValor$itensUnidadeMedidaArgs<ExtArgs>
     alteracoesFundamento?: boolean | DominioValor$alteracoesFundamentoArgs<ExtArgs>
+    dotacoesNatureza?: boolean | DominioValor$dotacoesNaturezaArgs<ExtArgs>
+    dotacoesFonte?: boolean | DominioValor$dotacoesFonteArgs<ExtArgs>
+    publicacoesVeiculo?: boolean | DominioValor$publicacoesVeiculoArgs<ExtArgs>
+    documentosTipo?: boolean | DominioValor$documentosTipoArgs<ExtArgs>
     _count?: boolean | DominioValorCountOutputTypeArgs<ExtArgs>
   }
 
@@ -7376,6 +8216,14 @@ export namespace Prisma {
     itensUnidadeMedida<T extends DominioValor$itensUnidadeMedidaArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$itensUnidadeMedidaArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ItemContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     alteracoesFundamento<T extends DominioValor$alteracoesFundamentoArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$alteracoesFundamentoArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    dotacoesNatureza<T extends DominioValor$dotacoesNaturezaArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$dotacoesNaturezaArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    dotacoesFonte<T extends DominioValor$dotacoesFonteArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$dotacoesFonteArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    publicacoesVeiculo<T extends DominioValor$publicacoesVeiculoArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$publicacoesVeiculoArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    documentosTipo<T extends DominioValor$documentosTipoArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$documentosTipoArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -7939,6 +8787,90 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Enumerable<AlteracaoContratualScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor.dotacoesNatureza
+   */
+  export type DominioValor$dotacoesNaturezaArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+    where?: DotacaoOrcamentariaWhereInput
+    orderBy?: Enumerable<DotacaoOrcamentariaOrderByWithRelationInput>
+    cursor?: DotacaoOrcamentariaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<DotacaoOrcamentariaScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor.dotacoesFonte
+   */
+  export type DominioValor$dotacoesFonteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+    where?: DotacaoOrcamentariaWhereInput
+    orderBy?: Enumerable<DotacaoOrcamentariaOrderByWithRelationInput>
+    cursor?: DotacaoOrcamentariaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<DotacaoOrcamentariaScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor.publicacoesVeiculo
+   */
+  export type DominioValor$publicacoesVeiculoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    where?: PublicacaoWhereInput
+    orderBy?: Enumerable<PublicacaoOrderByWithRelationInput>
+    cursor?: PublicacaoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<PublicacaoScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor.documentosTipo
+   */
+  export type DominioValor$documentosTipoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    where?: DocumentoWhereInput
+    orderBy?: Enumerable<DocumentoOrderByWithRelationInput>
+    cursor?: DocumentoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<DocumentoScalarFieldEnum>
   }
 
 
@@ -14357,6 +15289,8 @@ export namespace Prisma {
     unidadeDemandante?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
     modalidadePretendida?: boolean | DominioValorArgs<ExtArgs>
     contratos?: boolean | ProcessoContratacao$contratosArgs<ExtArgs>
+    reservas?: boolean | ProcessoContratacao$reservasArgs<ExtArgs>
+    documentos?: boolean | ProcessoContratacao$documentosArgs<ExtArgs>
     _count?: boolean | ProcessoContratacaoCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["processoContratacao"]>
 
@@ -14382,6 +15316,8 @@ export namespace Prisma {
     unidadeDemandante?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
     modalidadePretendida?: boolean | DominioValorArgs<ExtArgs>
     contratos?: boolean | ProcessoContratacao$contratosArgs<ExtArgs>
+    reservas?: boolean | ProcessoContratacao$reservasArgs<ExtArgs>
+    documentos?: boolean | ProcessoContratacao$documentosArgs<ExtArgs>
     _count?: boolean | ProcessoContratacaoCountOutputTypeArgs<ExtArgs>
   }
 
@@ -14761,6 +15697,10 @@ export namespace Prisma {
 
     contratos<T extends ProcessoContratacao$contratosArgs<ExtArgs> = {}>(args?: Subset<T, ProcessoContratacao$contratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
+    reservas<T extends ProcessoContratacao$reservasArgs<ExtArgs> = {}>(args?: Subset<T, ProcessoContratacao$reservasArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    documentos<T extends ProcessoContratacao$documentosArgs<ExtArgs> = {}>(args?: Subset<T, ProcessoContratacao$documentosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
     private get _document();
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -15134,6 +16074,48 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
+   * ProcessoContratacao.reservas
+   */
+  export type ProcessoContratacao$reservasArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+    where?: ReservaOrcamentariaWhereInput
+    orderBy?: Enumerable<ReservaOrcamentariaOrderByWithRelationInput>
+    cursor?: ReservaOrcamentariaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ReservaOrcamentariaScalarFieldEnum>
+  }
+
+
+  /**
+   * ProcessoContratacao.documentos
+   */
+  export type ProcessoContratacao$documentosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    where?: DocumentoWhereInput
+    orderBy?: Enumerable<DocumentoOrderByWithRelationInput>
+    cursor?: DocumentoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<DocumentoScalarFieldEnum>
   }
 
 
@@ -15623,6 +16605,11 @@ export namespace Prisma {
     rateios?: boolean | Contrato$rateiosArgs<ExtArgs>
     itens?: boolean | Contrato$itensArgs<ExtArgs>
     alteracoes?: boolean | Contrato$alteracoesArgs<ExtArgs>
+    dotacoes?: boolean | Contrato$dotacoesArgs<ExtArgs>
+    empenhos?: boolean | Contrato$empenhosArgs<ExtArgs>
+    reservas?: boolean | Contrato$reservasArgs<ExtArgs>
+    publicacoes?: boolean | Contrato$publicacoesArgs<ExtArgs>
+    documentos?: boolean | Contrato$documentosArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["contrato"]>
 
@@ -15675,6 +16662,11 @@ export namespace Prisma {
     rateios?: boolean | Contrato$rateiosArgs<ExtArgs>
     itens?: boolean | Contrato$itensArgs<ExtArgs>
     alteracoes?: boolean | Contrato$alteracoesArgs<ExtArgs>
+    dotacoes?: boolean | Contrato$dotacoesArgs<ExtArgs>
+    empenhos?: boolean | Contrato$empenhosArgs<ExtArgs>
+    reservas?: boolean | Contrato$reservasArgs<ExtArgs>
+    publicacoes?: boolean | Contrato$publicacoesArgs<ExtArgs>
+    documentos?: boolean | Contrato$documentosArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }
 
@@ -16067,6 +17059,16 @@ export namespace Prisma {
     itens<T extends Contrato$itensArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$itensArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ItemContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     alteracoes<T extends Contrato$alteracoesArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$alteracoesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    dotacoes<T extends Contrato$dotacoesArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$dotacoesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    empenhos<T extends Contrato$empenhosArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$empenhosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    reservas<T extends Contrato$reservasArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$reservasArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    publicacoes<T extends Contrato$publicacoesArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$publicacoesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    documentos<T extends Contrato$documentosArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$documentosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -16504,6 +17506,111 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Enumerable<AlteracaoContratualScalarFieldEnum>
+  }
+
+
+  /**
+   * Contrato.dotacoes
+   */
+  export type Contrato$dotacoesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+    where?: ContratoDotacaoWhereInput
+    orderBy?: Enumerable<ContratoDotacaoOrderByWithRelationInput>
+    cursor?: ContratoDotacaoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoDotacaoScalarFieldEnum>
+  }
+
+
+  /**
+   * Contrato.empenhos
+   */
+  export type Contrato$empenhosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+    where?: EmpenhoWhereInput
+    orderBy?: Enumerable<EmpenhoOrderByWithRelationInput>
+    cursor?: EmpenhoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<EmpenhoScalarFieldEnum>
+  }
+
+
+  /**
+   * Contrato.reservas
+   */
+  export type Contrato$reservasArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+    where?: ReservaOrcamentariaWhereInput
+    orderBy?: Enumerable<ReservaOrcamentariaOrderByWithRelationInput>
+    cursor?: ReservaOrcamentariaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ReservaOrcamentariaScalarFieldEnum>
+  }
+
+
+  /**
+   * Contrato.publicacoes
+   */
+  export type Contrato$publicacoesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    where?: PublicacaoWhereInput
+    orderBy?: Enumerable<PublicacaoOrderByWithRelationInput>
+    cursor?: PublicacaoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<PublicacaoScalarFieldEnum>
+  }
+
+
+  /**
+   * Contrato.documentos
+   */
+  export type Contrato$documentosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    where?: DocumentoWhereInput
+    orderBy?: Enumerable<DocumentoOrderByWithRelationInput>
+    cursor?: DocumentoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<DocumentoScalarFieldEnum>
   }
 
 
@@ -18822,6 +19929,8 @@ export namespace Prisma {
     contrato?: boolean | ContratoArgs<ExtArgs>
     fundamentoLegal?: boolean | DominioValorArgs<ExtArgs>
     itens?: boolean | AlteracaoContratual$itensArgs<ExtArgs>
+    publicacoes?: boolean | AlteracaoContratual$publicacoesArgs<ExtArgs>
+    documentos?: boolean | AlteracaoContratual$documentosArgs<ExtArgs>
     _count?: boolean | AlteracaoContratualCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["alteracaoContratual"]>
 
@@ -18853,6 +19962,8 @@ export namespace Prisma {
     contrato?: boolean | ContratoArgs<ExtArgs>
     fundamentoLegal?: boolean | DominioValorArgs<ExtArgs>
     itens?: boolean | AlteracaoContratual$itensArgs<ExtArgs>
+    publicacoes?: boolean | AlteracaoContratual$publicacoesArgs<ExtArgs>
+    documentos?: boolean | AlteracaoContratual$documentosArgs<ExtArgs>
     _count?: boolean | AlteracaoContratualCountOutputTypeArgs<ExtArgs>
   }
 
@@ -19232,6 +20343,10 @@ export namespace Prisma {
 
     itens<T extends AlteracaoContratual$itensArgs<ExtArgs> = {}>(args?: Subset<T, AlteracaoContratual$itensArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
+    publicacoes<T extends AlteracaoContratual$publicacoesArgs<ExtArgs> = {}>(args?: Subset<T, AlteracaoContratual$publicacoesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    documentos<T extends AlteracaoContratual$documentosArgs<ExtArgs> = {}>(args?: Subset<T, AlteracaoContratual$documentosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
     private get _document();
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -19605,6 +20720,48 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Enumerable<AlteracaoItemScalarFieldEnum>
+  }
+
+
+  /**
+   * AlteracaoContratual.publicacoes
+   */
+  export type AlteracaoContratual$publicacoesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    where?: PublicacaoWhereInput
+    orderBy?: Enumerable<PublicacaoOrderByWithRelationInput>
+    cursor?: PublicacaoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<PublicacaoScalarFieldEnum>
+  }
+
+
+  /**
+   * AlteracaoContratual.documentos
+   */
+  export type AlteracaoContratual$documentosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    where?: DocumentoWhereInput
+    orderBy?: Enumerable<DocumentoOrderByWithRelationInput>
+    cursor?: DocumentoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<DocumentoScalarFieldEnum>
   }
 
 
@@ -23768,6 +24925,6085 @@ export namespace Prisma {
 
 
   /**
+   * Model DotacaoOrcamentaria
+   */
+
+
+  export type AggregateDotacaoOrcamentaria = {
+    _count: DotacaoOrcamentariaCountAggregateOutputType | null
+    _avg: DotacaoOrcamentariaAvgAggregateOutputType | null
+    _sum: DotacaoOrcamentariaSumAggregateOutputType | null
+    _min: DotacaoOrcamentariaMinAggregateOutputType | null
+    _max: DotacaoOrcamentariaMaxAggregateOutputType | null
+  }
+
+  export type DotacaoOrcamentariaAvgAggregateOutputType = {
+    exercicio: number | null
+  }
+
+  export type DotacaoOrcamentariaSumAggregateOutputType = {
+    exercicio: number | null
+  }
+
+  export type DotacaoOrcamentariaMinAggregateOutputType = {
+    id: string | null
+    exercicio: number | null
+    codigo: string | null
+    unidadeOrcamentaria: string | null
+    funcionalProgramatica: string | null
+    naturezaDespesaId: string | null
+    fonteRecursoId: string | null
+    descricao: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DotacaoOrcamentariaMaxAggregateOutputType = {
+    id: string | null
+    exercicio: number | null
+    codigo: string | null
+    unidadeOrcamentaria: string | null
+    funcionalProgramatica: string | null
+    naturezaDespesaId: string | null
+    fonteRecursoId: string | null
+    descricao: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type DotacaoOrcamentariaCountAggregateOutputType = {
+    id: number
+    exercicio: number
+    codigo: number
+    unidadeOrcamentaria: number
+    funcionalProgramatica: number
+    naturezaDespesaId: number
+    fonteRecursoId: number
+    descricao: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type DotacaoOrcamentariaAvgAggregateInputType = {
+    exercicio?: true
+  }
+
+  export type DotacaoOrcamentariaSumAggregateInputType = {
+    exercicio?: true
+  }
+
+  export type DotacaoOrcamentariaMinAggregateInputType = {
+    id?: true
+    exercicio?: true
+    codigo?: true
+    unidadeOrcamentaria?: true
+    funcionalProgramatica?: true
+    naturezaDespesaId?: true
+    fonteRecursoId?: true
+    descricao?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DotacaoOrcamentariaMaxAggregateInputType = {
+    id?: true
+    exercicio?: true
+    codigo?: true
+    unidadeOrcamentaria?: true
+    funcionalProgramatica?: true
+    naturezaDespesaId?: true
+    fonteRecursoId?: true
+    descricao?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type DotacaoOrcamentariaCountAggregateInputType = {
+    id?: true
+    exercicio?: true
+    codigo?: true
+    unidadeOrcamentaria?: true
+    funcionalProgramatica?: true
+    naturezaDespesaId?: true
+    fonteRecursoId?: true
+    descricao?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type DotacaoOrcamentariaAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DotacaoOrcamentaria to aggregate.
+     */
+    where?: DotacaoOrcamentariaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DotacaoOrcamentarias to fetch.
+     */
+    orderBy?: Enumerable<DotacaoOrcamentariaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DotacaoOrcamentariaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DotacaoOrcamentarias from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DotacaoOrcamentarias.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned DotacaoOrcamentarias
+    **/
+    _count?: true | DotacaoOrcamentariaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DotacaoOrcamentariaAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DotacaoOrcamentariaSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DotacaoOrcamentariaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DotacaoOrcamentariaMaxAggregateInputType
+  }
+
+  export type GetDotacaoOrcamentariaAggregateType<T extends DotacaoOrcamentariaAggregateArgs> = {
+        [P in keyof T & keyof AggregateDotacaoOrcamentaria]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDotacaoOrcamentaria[P]>
+      : GetScalarType<T[P], AggregateDotacaoOrcamentaria[P]>
+  }
+
+
+
+
+  export type DotacaoOrcamentariaGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DotacaoOrcamentariaWhereInput
+    orderBy?: Enumerable<DotacaoOrcamentariaOrderByWithAggregationInput>
+    by: DotacaoOrcamentariaScalarFieldEnum[]
+    having?: DotacaoOrcamentariaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DotacaoOrcamentariaCountAggregateInputType | true
+    _avg?: DotacaoOrcamentariaAvgAggregateInputType
+    _sum?: DotacaoOrcamentariaSumAggregateInputType
+    _min?: DotacaoOrcamentariaMinAggregateInputType
+    _max?: DotacaoOrcamentariaMaxAggregateInputType
+  }
+
+
+  export type DotacaoOrcamentariaGroupByOutputType = {
+    id: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria: string | null
+    funcionalProgramatica: string | null
+    naturezaDespesaId: string
+    fonteRecursoId: string
+    descricao: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: DotacaoOrcamentariaCountAggregateOutputType | null
+    _avg: DotacaoOrcamentariaAvgAggregateOutputType | null
+    _sum: DotacaoOrcamentariaSumAggregateOutputType | null
+    _min: DotacaoOrcamentariaMinAggregateOutputType | null
+    _max: DotacaoOrcamentariaMaxAggregateOutputType | null
+  }
+
+  type GetDotacaoOrcamentariaGroupByPayload<T extends DotacaoOrcamentariaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<DotacaoOrcamentariaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DotacaoOrcamentariaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DotacaoOrcamentariaGroupByOutputType[P]>
+            : GetScalarType<T[P], DotacaoOrcamentariaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DotacaoOrcamentariaSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    exercicio?: boolean
+    codigo?: boolean
+    unidadeOrcamentaria?: boolean
+    funcionalProgramatica?: boolean
+    naturezaDespesaId?: boolean
+    fonteRecursoId?: boolean
+    descricao?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    naturezaDespesa?: boolean | DominioValorArgs<ExtArgs>
+    fonteRecurso?: boolean | DominioValorArgs<ExtArgs>
+    contratos?: boolean | DotacaoOrcamentaria$contratosArgs<ExtArgs>
+    empenhos?: boolean | DotacaoOrcamentaria$empenhosArgs<ExtArgs>
+    _count?: boolean | DotacaoOrcamentariaCountOutputTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["dotacaoOrcamentaria"]>
+
+  export type DotacaoOrcamentariaSelectScalar = {
+    id?: boolean
+    exercicio?: boolean
+    codigo?: boolean
+    unidadeOrcamentaria?: boolean
+    funcionalProgramatica?: boolean
+    naturezaDespesaId?: boolean
+    fonteRecursoId?: boolean
+    descricao?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type DotacaoOrcamentariaInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    naturezaDespesa?: boolean | DominioValorArgs<ExtArgs>
+    fonteRecurso?: boolean | DominioValorArgs<ExtArgs>
+    contratos?: boolean | DotacaoOrcamentaria$contratosArgs<ExtArgs>
+    empenhos?: boolean | DotacaoOrcamentaria$empenhosArgs<ExtArgs>
+    _count?: boolean | DotacaoOrcamentariaCountOutputTypeArgs<ExtArgs>
+  }
+
+
+  type DotacaoOrcamentariaGetPayload<S extends boolean | null | undefined | DotacaoOrcamentariaArgs> = $Types.GetResult<DotacaoOrcamentariaPayload, S>
+
+  type DotacaoOrcamentariaCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<DotacaoOrcamentariaFindManyArgs, 'select' | 'include'> & {
+      select?: DotacaoOrcamentariaCountAggregateInputType | true
+    }
+
+  export interface DotacaoOrcamentariaDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['DotacaoOrcamentaria'], meta: { name: 'DotacaoOrcamentaria' } }
+    /**
+     * Find zero or one DotacaoOrcamentaria that matches the filter.
+     * @param {DotacaoOrcamentariaFindUniqueArgs} args - Arguments to find a DotacaoOrcamentaria
+     * @example
+     * // Get one DotacaoOrcamentaria
+     * const dotacaoOrcamentaria = await prisma.dotacaoOrcamentaria.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends DotacaoOrcamentariaFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, DotacaoOrcamentariaFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'DotacaoOrcamentaria'> extends True ? Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one DotacaoOrcamentaria that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {DotacaoOrcamentariaFindUniqueOrThrowArgs} args - Arguments to find a DotacaoOrcamentaria
+     * @example
+     * // Get one DotacaoOrcamentaria
+     * const dotacaoOrcamentaria = await prisma.dotacaoOrcamentaria.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends DotacaoOrcamentariaFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, DotacaoOrcamentariaFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first DotacaoOrcamentaria that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DotacaoOrcamentariaFindFirstArgs} args - Arguments to find a DotacaoOrcamentaria
+     * @example
+     * // Get one DotacaoOrcamentaria
+     * const dotacaoOrcamentaria = await prisma.dotacaoOrcamentaria.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends DotacaoOrcamentariaFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, DotacaoOrcamentariaFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'DotacaoOrcamentaria'> extends True ? Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first DotacaoOrcamentaria that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DotacaoOrcamentariaFindFirstOrThrowArgs} args - Arguments to find a DotacaoOrcamentaria
+     * @example
+     * // Get one DotacaoOrcamentaria
+     * const dotacaoOrcamentaria = await prisma.dotacaoOrcamentaria.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends DotacaoOrcamentariaFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, DotacaoOrcamentariaFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more DotacaoOrcamentarias that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DotacaoOrcamentariaFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all DotacaoOrcamentarias
+     * const dotacaoOrcamentarias = await prisma.dotacaoOrcamentaria.findMany()
+     * 
+     * // Get first 10 DotacaoOrcamentarias
+     * const dotacaoOrcamentarias = await prisma.dotacaoOrcamentaria.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const dotacaoOrcamentariaWithIdOnly = await prisma.dotacaoOrcamentaria.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends DotacaoOrcamentariaFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DotacaoOrcamentariaFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a DotacaoOrcamentaria.
+     * @param {DotacaoOrcamentariaCreateArgs} args - Arguments to create a DotacaoOrcamentaria.
+     * @example
+     * // Create one DotacaoOrcamentaria
+     * const DotacaoOrcamentaria = await prisma.dotacaoOrcamentaria.create({
+     *   data: {
+     *     // ... data to create a DotacaoOrcamentaria
+     *   }
+     * })
+     * 
+    **/
+    create<T extends DotacaoOrcamentariaCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, DotacaoOrcamentariaCreateArgs<ExtArgs>>
+    ): Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many DotacaoOrcamentarias.
+     *     @param {DotacaoOrcamentariaCreateManyArgs} args - Arguments to create many DotacaoOrcamentarias.
+     *     @example
+     *     // Create many DotacaoOrcamentarias
+     *     const dotacaoOrcamentaria = await prisma.dotacaoOrcamentaria.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends DotacaoOrcamentariaCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DotacaoOrcamentariaCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a DotacaoOrcamentaria.
+     * @param {DotacaoOrcamentariaDeleteArgs} args - Arguments to delete one DotacaoOrcamentaria.
+     * @example
+     * // Delete one DotacaoOrcamentaria
+     * const DotacaoOrcamentaria = await prisma.dotacaoOrcamentaria.delete({
+     *   where: {
+     *     // ... filter to delete one DotacaoOrcamentaria
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends DotacaoOrcamentariaDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, DotacaoOrcamentariaDeleteArgs<ExtArgs>>
+    ): Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one DotacaoOrcamentaria.
+     * @param {DotacaoOrcamentariaUpdateArgs} args - Arguments to update one DotacaoOrcamentaria.
+     * @example
+     * // Update one DotacaoOrcamentaria
+     * const dotacaoOrcamentaria = await prisma.dotacaoOrcamentaria.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends DotacaoOrcamentariaUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, DotacaoOrcamentariaUpdateArgs<ExtArgs>>
+    ): Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more DotacaoOrcamentarias.
+     * @param {DotacaoOrcamentariaDeleteManyArgs} args - Arguments to filter DotacaoOrcamentarias to delete.
+     * @example
+     * // Delete a few DotacaoOrcamentarias
+     * const { count } = await prisma.dotacaoOrcamentaria.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends DotacaoOrcamentariaDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DotacaoOrcamentariaDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more DotacaoOrcamentarias.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DotacaoOrcamentariaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many DotacaoOrcamentarias
+     * const dotacaoOrcamentaria = await prisma.dotacaoOrcamentaria.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends DotacaoOrcamentariaUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, DotacaoOrcamentariaUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one DotacaoOrcamentaria.
+     * @param {DotacaoOrcamentariaUpsertArgs} args - Arguments to update or create a DotacaoOrcamentaria.
+     * @example
+     * // Update or create a DotacaoOrcamentaria
+     * const dotacaoOrcamentaria = await prisma.dotacaoOrcamentaria.upsert({
+     *   create: {
+     *     // ... data to create a DotacaoOrcamentaria
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the DotacaoOrcamentaria we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends DotacaoOrcamentariaUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, DotacaoOrcamentariaUpsertArgs<ExtArgs>>
+    ): Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of DotacaoOrcamentarias.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DotacaoOrcamentariaCountArgs} args - Arguments to filter DotacaoOrcamentarias to count.
+     * @example
+     * // Count the number of DotacaoOrcamentarias
+     * const count = await prisma.dotacaoOrcamentaria.count({
+     *   where: {
+     *     // ... the filter for the DotacaoOrcamentarias we want to count
+     *   }
+     * })
+    **/
+    count<T extends DotacaoOrcamentariaCountArgs>(
+      args?: Subset<T, DotacaoOrcamentariaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DotacaoOrcamentariaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a DotacaoOrcamentaria.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DotacaoOrcamentariaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DotacaoOrcamentariaAggregateArgs>(args: Subset<T, DotacaoOrcamentariaAggregateArgs>): Prisma.PrismaPromise<GetDotacaoOrcamentariaAggregateType<T>>
+
+    /**
+     * Group by DotacaoOrcamentaria.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DotacaoOrcamentariaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DotacaoOrcamentariaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DotacaoOrcamentariaGroupByArgs['orderBy'] }
+        : { orderBy?: DotacaoOrcamentariaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DotacaoOrcamentariaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDotacaoOrcamentariaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for DotacaoOrcamentaria.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__DotacaoOrcamentariaClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    naturezaDespesa<T extends DominioValorArgs<ExtArgs> = {}>(args?: Subset<T, DominioValorArgs<ExtArgs>>): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    fonteRecurso<T extends DominioValorArgs<ExtArgs> = {}>(args?: Subset<T, DominioValorArgs<ExtArgs>>): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    contratos<T extends DotacaoOrcamentaria$contratosArgs<ExtArgs> = {}>(args?: Subset<T, DotacaoOrcamentaria$contratosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    empenhos<T extends DotacaoOrcamentaria$empenhosArgs<ExtArgs> = {}>(args?: Subset<T, DotacaoOrcamentaria$empenhosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * DotacaoOrcamentaria base type for findUnique actions
+   */
+  export type DotacaoOrcamentariaFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter, which DotacaoOrcamentaria to fetch.
+     */
+    where: DotacaoOrcamentariaWhereUniqueInput
+  }
+
+  /**
+   * DotacaoOrcamentaria findUnique
+   */
+  export interface DotacaoOrcamentariaFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends DotacaoOrcamentariaFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * DotacaoOrcamentaria findUniqueOrThrow
+   */
+  export type DotacaoOrcamentariaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter, which DotacaoOrcamentaria to fetch.
+     */
+    where: DotacaoOrcamentariaWhereUniqueInput
+  }
+
+
+  /**
+   * DotacaoOrcamentaria base type for findFirst actions
+   */
+  export type DotacaoOrcamentariaFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter, which DotacaoOrcamentaria to fetch.
+     */
+    where?: DotacaoOrcamentariaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DotacaoOrcamentarias to fetch.
+     */
+    orderBy?: Enumerable<DotacaoOrcamentariaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DotacaoOrcamentarias.
+     */
+    cursor?: DotacaoOrcamentariaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DotacaoOrcamentarias from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DotacaoOrcamentarias.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DotacaoOrcamentarias.
+     */
+    distinct?: Enumerable<DotacaoOrcamentariaScalarFieldEnum>
+  }
+
+  /**
+   * DotacaoOrcamentaria findFirst
+   */
+  export interface DotacaoOrcamentariaFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends DotacaoOrcamentariaFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * DotacaoOrcamentaria findFirstOrThrow
+   */
+  export type DotacaoOrcamentariaFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter, which DotacaoOrcamentaria to fetch.
+     */
+    where?: DotacaoOrcamentariaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DotacaoOrcamentarias to fetch.
+     */
+    orderBy?: Enumerable<DotacaoOrcamentariaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for DotacaoOrcamentarias.
+     */
+    cursor?: DotacaoOrcamentariaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DotacaoOrcamentarias from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DotacaoOrcamentarias.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of DotacaoOrcamentarias.
+     */
+    distinct?: Enumerable<DotacaoOrcamentariaScalarFieldEnum>
+  }
+
+
+  /**
+   * DotacaoOrcamentaria findMany
+   */
+  export type DotacaoOrcamentariaFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter, which DotacaoOrcamentarias to fetch.
+     */
+    where?: DotacaoOrcamentariaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of DotacaoOrcamentarias to fetch.
+     */
+    orderBy?: Enumerable<DotacaoOrcamentariaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing DotacaoOrcamentarias.
+     */
+    cursor?: DotacaoOrcamentariaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` DotacaoOrcamentarias from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` DotacaoOrcamentarias.
+     */
+    skip?: number
+    distinct?: Enumerable<DotacaoOrcamentariaScalarFieldEnum>
+  }
+
+
+  /**
+   * DotacaoOrcamentaria create
+   */
+  export type DotacaoOrcamentariaCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+    /**
+     * The data needed to create a DotacaoOrcamentaria.
+     */
+    data: XOR<DotacaoOrcamentariaCreateInput, DotacaoOrcamentariaUncheckedCreateInput>
+  }
+
+
+  /**
+   * DotacaoOrcamentaria createMany
+   */
+  export type DotacaoOrcamentariaCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many DotacaoOrcamentarias.
+     */
+    data: Enumerable<DotacaoOrcamentariaCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * DotacaoOrcamentaria update
+   */
+  export type DotacaoOrcamentariaUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+    /**
+     * The data needed to update a DotacaoOrcamentaria.
+     */
+    data: XOR<DotacaoOrcamentariaUpdateInput, DotacaoOrcamentariaUncheckedUpdateInput>
+    /**
+     * Choose, which DotacaoOrcamentaria to update.
+     */
+    where: DotacaoOrcamentariaWhereUniqueInput
+  }
+
+
+  /**
+   * DotacaoOrcamentaria updateMany
+   */
+  export type DotacaoOrcamentariaUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update DotacaoOrcamentarias.
+     */
+    data: XOR<DotacaoOrcamentariaUpdateManyMutationInput, DotacaoOrcamentariaUncheckedUpdateManyInput>
+    /**
+     * Filter which DotacaoOrcamentarias to update
+     */
+    where?: DotacaoOrcamentariaWhereInput
+  }
+
+
+  /**
+   * DotacaoOrcamentaria upsert
+   */
+  export type DotacaoOrcamentariaUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+    /**
+     * The filter to search for the DotacaoOrcamentaria to update in case it exists.
+     */
+    where: DotacaoOrcamentariaWhereUniqueInput
+    /**
+     * In case the DotacaoOrcamentaria found by the `where` argument doesn't exist, create a new DotacaoOrcamentaria with this data.
+     */
+    create: XOR<DotacaoOrcamentariaCreateInput, DotacaoOrcamentariaUncheckedCreateInput>
+    /**
+     * In case the DotacaoOrcamentaria was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DotacaoOrcamentariaUpdateInput, DotacaoOrcamentariaUncheckedUpdateInput>
+  }
+
+
+  /**
+   * DotacaoOrcamentaria delete
+   */
+  export type DotacaoOrcamentariaDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter which DotacaoOrcamentaria to delete.
+     */
+    where: DotacaoOrcamentariaWhereUniqueInput
+  }
+
+
+  /**
+   * DotacaoOrcamentaria deleteMany
+   */
+  export type DotacaoOrcamentariaDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which DotacaoOrcamentarias to delete
+     */
+    where?: DotacaoOrcamentariaWhereInput
+  }
+
+
+  /**
+   * DotacaoOrcamentaria.contratos
+   */
+  export type DotacaoOrcamentaria$contratosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+    where?: ContratoDotacaoWhereInput
+    orderBy?: Enumerable<ContratoDotacaoOrderByWithRelationInput>
+    cursor?: ContratoDotacaoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoDotacaoScalarFieldEnum>
+  }
+
+
+  /**
+   * DotacaoOrcamentaria.empenhos
+   */
+  export type DotacaoOrcamentaria$empenhosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+    where?: EmpenhoWhereInput
+    orderBy?: Enumerable<EmpenhoOrderByWithRelationInput>
+    cursor?: EmpenhoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<EmpenhoScalarFieldEnum>
+  }
+
+
+  /**
+   * DotacaoOrcamentaria without action
+   */
+  export type DotacaoOrcamentariaArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the DotacaoOrcamentaria
+     */
+    select?: DotacaoOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DotacaoOrcamentariaInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model ContratoDotacao
+   */
+
+
+  export type AggregateContratoDotacao = {
+    _count: ContratoDotacaoCountAggregateOutputType | null
+    _avg: ContratoDotacaoAvgAggregateOutputType | null
+    _sum: ContratoDotacaoSumAggregateOutputType | null
+    _min: ContratoDotacaoMinAggregateOutputType | null
+    _max: ContratoDotacaoMaxAggregateOutputType | null
+  }
+
+  export type ContratoDotacaoAvgAggregateOutputType = {
+    exercicio: number | null
+    valorPrevistoCents: number | null
+  }
+
+  export type ContratoDotacaoSumAggregateOutputType = {
+    exercicio: number | null
+    valorPrevistoCents: bigint | null
+  }
+
+  export type ContratoDotacaoMinAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    dotacaoId: string | null
+    exercicio: number | null
+    valorPrevistoCents: bigint | null
+    createdAt: Date | null
+  }
+
+  export type ContratoDotacaoMaxAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    dotacaoId: string | null
+    exercicio: number | null
+    valorPrevistoCents: bigint | null
+    createdAt: Date | null
+  }
+
+  export type ContratoDotacaoCountAggregateOutputType = {
+    id: number
+    contratoId: number
+    dotacaoId: number
+    exercicio: number
+    valorPrevistoCents: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ContratoDotacaoAvgAggregateInputType = {
+    exercicio?: true
+    valorPrevistoCents?: true
+  }
+
+  export type ContratoDotacaoSumAggregateInputType = {
+    exercicio?: true
+    valorPrevistoCents?: true
+  }
+
+  export type ContratoDotacaoMinAggregateInputType = {
+    id?: true
+    contratoId?: true
+    dotacaoId?: true
+    exercicio?: true
+    valorPrevistoCents?: true
+    createdAt?: true
+  }
+
+  export type ContratoDotacaoMaxAggregateInputType = {
+    id?: true
+    contratoId?: true
+    dotacaoId?: true
+    exercicio?: true
+    valorPrevistoCents?: true
+    createdAt?: true
+  }
+
+  export type ContratoDotacaoCountAggregateInputType = {
+    id?: true
+    contratoId?: true
+    dotacaoId?: true
+    exercicio?: true
+    valorPrevistoCents?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ContratoDotacaoAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ContratoDotacao to aggregate.
+     */
+    where?: ContratoDotacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoDotacaos to fetch.
+     */
+    orderBy?: Enumerable<ContratoDotacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ContratoDotacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoDotacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoDotacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ContratoDotacaos
+    **/
+    _count?: true | ContratoDotacaoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ContratoDotacaoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ContratoDotacaoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ContratoDotacaoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ContratoDotacaoMaxAggregateInputType
+  }
+
+  export type GetContratoDotacaoAggregateType<T extends ContratoDotacaoAggregateArgs> = {
+        [P in keyof T & keyof AggregateContratoDotacao]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateContratoDotacao[P]>
+      : GetScalarType<T[P], AggregateContratoDotacao[P]>
+  }
+
+
+
+
+  export type ContratoDotacaoGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoDotacaoWhereInput
+    orderBy?: Enumerable<ContratoDotacaoOrderByWithAggregationInput>
+    by: ContratoDotacaoScalarFieldEnum[]
+    having?: ContratoDotacaoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ContratoDotacaoCountAggregateInputType | true
+    _avg?: ContratoDotacaoAvgAggregateInputType
+    _sum?: ContratoDotacaoSumAggregateInputType
+    _min?: ContratoDotacaoMinAggregateInputType
+    _max?: ContratoDotacaoMaxAggregateInputType
+  }
+
+
+  export type ContratoDotacaoGroupByOutputType = {
+    id: string
+    contratoId: string
+    dotacaoId: string
+    exercicio: number
+    valorPrevistoCents: bigint
+    createdAt: Date
+    _count: ContratoDotacaoCountAggregateOutputType | null
+    _avg: ContratoDotacaoAvgAggregateOutputType | null
+    _sum: ContratoDotacaoSumAggregateOutputType | null
+    _min: ContratoDotacaoMinAggregateOutputType | null
+    _max: ContratoDotacaoMaxAggregateOutputType | null
+  }
+
+  type GetContratoDotacaoGroupByPayload<T extends ContratoDotacaoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<ContratoDotacaoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ContratoDotacaoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ContratoDotacaoGroupByOutputType[P]>
+            : GetScalarType<T[P], ContratoDotacaoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ContratoDotacaoSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    contratoId?: boolean
+    dotacaoId?: boolean
+    exercicio?: boolean
+    valorPrevistoCents?: boolean
+    createdAt?: boolean
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    dotacao?: boolean | DotacaoOrcamentariaArgs<ExtArgs>
+  }, ExtArgs["result"]["contratoDotacao"]>
+
+  export type ContratoDotacaoSelectScalar = {
+    id?: boolean
+    contratoId?: boolean
+    dotacaoId?: boolean
+    exercicio?: boolean
+    valorPrevistoCents?: boolean
+    createdAt?: boolean
+  }
+
+  export type ContratoDotacaoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    dotacao?: boolean | DotacaoOrcamentariaArgs<ExtArgs>
+  }
+
+
+  type ContratoDotacaoGetPayload<S extends boolean | null | undefined | ContratoDotacaoArgs> = $Types.GetResult<ContratoDotacaoPayload, S>
+
+  type ContratoDotacaoCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<ContratoDotacaoFindManyArgs, 'select' | 'include'> & {
+      select?: ContratoDotacaoCountAggregateInputType | true
+    }
+
+  export interface ContratoDotacaoDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ContratoDotacao'], meta: { name: 'ContratoDotacao' } }
+    /**
+     * Find zero or one ContratoDotacao that matches the filter.
+     * @param {ContratoDotacaoFindUniqueArgs} args - Arguments to find a ContratoDotacao
+     * @example
+     * // Get one ContratoDotacao
+     * const contratoDotacao = await prisma.contratoDotacao.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends ContratoDotacaoFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, ContratoDotacaoFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'ContratoDotacao'> extends True ? Prisma__ContratoDotacaoClient<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__ContratoDotacaoClient<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one ContratoDotacao that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {ContratoDotacaoFindUniqueOrThrowArgs} args - Arguments to find a ContratoDotacao
+     * @example
+     * // Get one ContratoDotacao
+     * const contratoDotacao = await prisma.contratoDotacao.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends ContratoDotacaoFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoDotacaoFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__ContratoDotacaoClient<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first ContratoDotacao that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoDotacaoFindFirstArgs} args - Arguments to find a ContratoDotacao
+     * @example
+     * // Get one ContratoDotacao
+     * const contratoDotacao = await prisma.contratoDotacao.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends ContratoDotacaoFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, ContratoDotacaoFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'ContratoDotacao'> extends True ? Prisma__ContratoDotacaoClient<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__ContratoDotacaoClient<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first ContratoDotacao that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoDotacaoFindFirstOrThrowArgs} args - Arguments to find a ContratoDotacao
+     * @example
+     * // Get one ContratoDotacao
+     * const contratoDotacao = await prisma.contratoDotacao.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends ContratoDotacaoFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoDotacaoFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__ContratoDotacaoClient<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more ContratoDotacaos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoDotacaoFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ContratoDotacaos
+     * const contratoDotacaos = await prisma.contratoDotacao.findMany()
+     * 
+     * // Get first 10 ContratoDotacaos
+     * const contratoDotacaos = await prisma.contratoDotacao.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const contratoDotacaoWithIdOnly = await prisma.contratoDotacao.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends ContratoDotacaoFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoDotacaoFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a ContratoDotacao.
+     * @param {ContratoDotacaoCreateArgs} args - Arguments to create a ContratoDotacao.
+     * @example
+     * // Create one ContratoDotacao
+     * const ContratoDotacao = await prisma.contratoDotacao.create({
+     *   data: {
+     *     // ... data to create a ContratoDotacao
+     *   }
+     * })
+     * 
+    **/
+    create<T extends ContratoDotacaoCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoDotacaoCreateArgs<ExtArgs>>
+    ): Prisma__ContratoDotacaoClient<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many ContratoDotacaos.
+     *     @param {ContratoDotacaoCreateManyArgs} args - Arguments to create many ContratoDotacaos.
+     *     @example
+     *     // Create many ContratoDotacaos
+     *     const contratoDotacao = await prisma.contratoDotacao.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends ContratoDotacaoCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoDotacaoCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ContratoDotacao.
+     * @param {ContratoDotacaoDeleteArgs} args - Arguments to delete one ContratoDotacao.
+     * @example
+     * // Delete one ContratoDotacao
+     * const ContratoDotacao = await prisma.contratoDotacao.delete({
+     *   where: {
+     *     // ... filter to delete one ContratoDotacao
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends ContratoDotacaoDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoDotacaoDeleteArgs<ExtArgs>>
+    ): Prisma__ContratoDotacaoClient<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one ContratoDotacao.
+     * @param {ContratoDotacaoUpdateArgs} args - Arguments to update one ContratoDotacao.
+     * @example
+     * // Update one ContratoDotacao
+     * const contratoDotacao = await prisma.contratoDotacao.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends ContratoDotacaoUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoDotacaoUpdateArgs<ExtArgs>>
+    ): Prisma__ContratoDotacaoClient<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more ContratoDotacaos.
+     * @param {ContratoDotacaoDeleteManyArgs} args - Arguments to filter ContratoDotacaos to delete.
+     * @example
+     * // Delete a few ContratoDotacaos
+     * const { count } = await prisma.contratoDotacao.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends ContratoDotacaoDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ContratoDotacaoDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ContratoDotacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoDotacaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ContratoDotacaos
+     * const contratoDotacao = await prisma.contratoDotacao.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends ContratoDotacaoUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoDotacaoUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ContratoDotacao.
+     * @param {ContratoDotacaoUpsertArgs} args - Arguments to update or create a ContratoDotacao.
+     * @example
+     * // Update or create a ContratoDotacao
+     * const contratoDotacao = await prisma.contratoDotacao.upsert({
+     *   create: {
+     *     // ... data to create a ContratoDotacao
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ContratoDotacao we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends ContratoDotacaoUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, ContratoDotacaoUpsertArgs<ExtArgs>>
+    ): Prisma__ContratoDotacaoClient<$Types.GetResult<ContratoDotacaoPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of ContratoDotacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoDotacaoCountArgs} args - Arguments to filter ContratoDotacaos to count.
+     * @example
+     * // Count the number of ContratoDotacaos
+     * const count = await prisma.contratoDotacao.count({
+     *   where: {
+     *     // ... the filter for the ContratoDotacaos we want to count
+     *   }
+     * })
+    **/
+    count<T extends ContratoDotacaoCountArgs>(
+      args?: Subset<T, ContratoDotacaoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ContratoDotacaoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ContratoDotacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoDotacaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ContratoDotacaoAggregateArgs>(args: Subset<T, ContratoDotacaoAggregateArgs>): Prisma.PrismaPromise<GetContratoDotacaoAggregateType<T>>
+
+    /**
+     * Group by ContratoDotacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ContratoDotacaoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ContratoDotacaoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ContratoDotacaoGroupByArgs['orderBy'] }
+        : { orderBy?: ContratoDotacaoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ContratoDotacaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetContratoDotacaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ContratoDotacao.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__ContratoDotacaoClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    contrato<T extends ContratoArgs<ExtArgs> = {}>(args?: Subset<T, ContratoArgs<ExtArgs>>): Prisma__ContratoClient<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    dotacao<T extends DotacaoOrcamentariaArgs<ExtArgs> = {}>(args?: Subset<T, DotacaoOrcamentariaArgs<ExtArgs>>): Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * ContratoDotacao base type for findUnique actions
+   */
+  export type ContratoDotacaoFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoDotacao to fetch.
+     */
+    where: ContratoDotacaoWhereUniqueInput
+  }
+
+  /**
+   * ContratoDotacao findUnique
+   */
+  export interface ContratoDotacaoFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ContratoDotacaoFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ContratoDotacao findUniqueOrThrow
+   */
+  export type ContratoDotacaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoDotacao to fetch.
+     */
+    where: ContratoDotacaoWhereUniqueInput
+  }
+
+
+  /**
+   * ContratoDotacao base type for findFirst actions
+   */
+  export type ContratoDotacaoFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoDotacao to fetch.
+     */
+    where?: ContratoDotacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoDotacaos to fetch.
+     */
+    orderBy?: Enumerable<ContratoDotacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ContratoDotacaos.
+     */
+    cursor?: ContratoDotacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoDotacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoDotacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ContratoDotacaos.
+     */
+    distinct?: Enumerable<ContratoDotacaoScalarFieldEnum>
+  }
+
+  /**
+   * ContratoDotacao findFirst
+   */
+  export interface ContratoDotacaoFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ContratoDotacaoFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ContratoDotacao findFirstOrThrow
+   */
+  export type ContratoDotacaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoDotacao to fetch.
+     */
+    where?: ContratoDotacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoDotacaos to fetch.
+     */
+    orderBy?: Enumerable<ContratoDotacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ContratoDotacaos.
+     */
+    cursor?: ContratoDotacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoDotacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoDotacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ContratoDotacaos.
+     */
+    distinct?: Enumerable<ContratoDotacaoScalarFieldEnum>
+  }
+
+
+  /**
+   * ContratoDotacao findMany
+   */
+  export type ContratoDotacaoFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which ContratoDotacaos to fetch.
+     */
+    where?: ContratoDotacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ContratoDotacaos to fetch.
+     */
+    orderBy?: Enumerable<ContratoDotacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ContratoDotacaos.
+     */
+    cursor?: ContratoDotacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ContratoDotacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ContratoDotacaos.
+     */
+    skip?: number
+    distinct?: Enumerable<ContratoDotacaoScalarFieldEnum>
+  }
+
+
+  /**
+   * ContratoDotacao create
+   */
+  export type ContratoDotacaoCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ContratoDotacao.
+     */
+    data: XOR<ContratoDotacaoCreateInput, ContratoDotacaoUncheckedCreateInput>
+  }
+
+
+  /**
+   * ContratoDotacao createMany
+   */
+  export type ContratoDotacaoCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ContratoDotacaos.
+     */
+    data: Enumerable<ContratoDotacaoCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * ContratoDotacao update
+   */
+  export type ContratoDotacaoUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ContratoDotacao.
+     */
+    data: XOR<ContratoDotacaoUpdateInput, ContratoDotacaoUncheckedUpdateInput>
+    /**
+     * Choose, which ContratoDotacao to update.
+     */
+    where: ContratoDotacaoWhereUniqueInput
+  }
+
+
+  /**
+   * ContratoDotacao updateMany
+   */
+  export type ContratoDotacaoUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ContratoDotacaos.
+     */
+    data: XOR<ContratoDotacaoUpdateManyMutationInput, ContratoDotacaoUncheckedUpdateManyInput>
+    /**
+     * Filter which ContratoDotacaos to update
+     */
+    where?: ContratoDotacaoWhereInput
+  }
+
+
+  /**
+   * ContratoDotacao upsert
+   */
+  export type ContratoDotacaoUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ContratoDotacao to update in case it exists.
+     */
+    where: ContratoDotacaoWhereUniqueInput
+    /**
+     * In case the ContratoDotacao found by the `where` argument doesn't exist, create a new ContratoDotacao with this data.
+     */
+    create: XOR<ContratoDotacaoCreateInput, ContratoDotacaoUncheckedCreateInput>
+    /**
+     * In case the ContratoDotacao was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ContratoDotacaoUpdateInput, ContratoDotacaoUncheckedUpdateInput>
+  }
+
+
+  /**
+   * ContratoDotacao delete
+   */
+  export type ContratoDotacaoDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+    /**
+     * Filter which ContratoDotacao to delete.
+     */
+    where: ContratoDotacaoWhereUniqueInput
+  }
+
+
+  /**
+   * ContratoDotacao deleteMany
+   */
+  export type ContratoDotacaoDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ContratoDotacaos to delete
+     */
+    where?: ContratoDotacaoWhereInput
+  }
+
+
+  /**
+   * ContratoDotacao without action
+   */
+  export type ContratoDotacaoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContratoDotacao
+     */
+    select?: ContratoDotacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoDotacaoInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model Empenho
+   */
+
+
+  export type AggregateEmpenho = {
+    _count: EmpenhoCountAggregateOutputType | null
+    _avg: EmpenhoAvgAggregateOutputType | null
+    _sum: EmpenhoSumAggregateOutputType | null
+    _min: EmpenhoMinAggregateOutputType | null
+    _max: EmpenhoMaxAggregateOutputType | null
+  }
+
+  export type EmpenhoAvgAggregateOutputType = {
+    exercicio: number | null
+    valorCents: number | null
+    valorLiquidadoCents: number | null
+    valorPagoCents: number | null
+  }
+
+  export type EmpenhoSumAggregateOutputType = {
+    exercicio: number | null
+    valorCents: bigint | null
+    valorLiquidadoCents: bigint | null
+    valorPagoCents: bigint | null
+  }
+
+  export type EmpenhoMinAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    dotacaoId: string | null
+    numero: string | null
+    exercicio: number | null
+    tipo: TipoEmpenho | null
+    data: Date | null
+    valorCents: bigint | null
+    valorLiquidadoCents: bigint | null
+    valorPagoCents: bigint | null
+    situacao: SituacaoEmpenho | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmpenhoMaxAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    dotacaoId: string | null
+    numero: string | null
+    exercicio: number | null
+    tipo: TipoEmpenho | null
+    data: Date | null
+    valorCents: bigint | null
+    valorLiquidadoCents: bigint | null
+    valorPagoCents: bigint | null
+    situacao: SituacaoEmpenho | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type EmpenhoCountAggregateOutputType = {
+    id: number
+    contratoId: number
+    dotacaoId: number
+    numero: number
+    exercicio: number
+    tipo: number
+    data: number
+    valorCents: number
+    valorLiquidadoCents: number
+    valorPagoCents: number
+    situacao: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type EmpenhoAvgAggregateInputType = {
+    exercicio?: true
+    valorCents?: true
+    valorLiquidadoCents?: true
+    valorPagoCents?: true
+  }
+
+  export type EmpenhoSumAggregateInputType = {
+    exercicio?: true
+    valorCents?: true
+    valorLiquidadoCents?: true
+    valorPagoCents?: true
+  }
+
+  export type EmpenhoMinAggregateInputType = {
+    id?: true
+    contratoId?: true
+    dotacaoId?: true
+    numero?: true
+    exercicio?: true
+    tipo?: true
+    data?: true
+    valorCents?: true
+    valorLiquidadoCents?: true
+    valorPagoCents?: true
+    situacao?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmpenhoMaxAggregateInputType = {
+    id?: true
+    contratoId?: true
+    dotacaoId?: true
+    numero?: true
+    exercicio?: true
+    tipo?: true
+    data?: true
+    valorCents?: true
+    valorLiquidadoCents?: true
+    valorPagoCents?: true
+    situacao?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type EmpenhoCountAggregateInputType = {
+    id?: true
+    contratoId?: true
+    dotacaoId?: true
+    numero?: true
+    exercicio?: true
+    tipo?: true
+    data?: true
+    valorCents?: true
+    valorLiquidadoCents?: true
+    valorPagoCents?: true
+    situacao?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type EmpenhoAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Empenho to aggregate.
+     */
+    where?: EmpenhoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Empenhos to fetch.
+     */
+    orderBy?: Enumerable<EmpenhoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: EmpenhoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Empenhos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Empenhos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Empenhos
+    **/
+    _count?: true | EmpenhoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: EmpenhoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: EmpenhoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: EmpenhoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: EmpenhoMaxAggregateInputType
+  }
+
+  export type GetEmpenhoAggregateType<T extends EmpenhoAggregateArgs> = {
+        [P in keyof T & keyof AggregateEmpenho]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateEmpenho[P]>
+      : GetScalarType<T[P], AggregateEmpenho[P]>
+  }
+
+
+
+
+  export type EmpenhoGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: EmpenhoWhereInput
+    orderBy?: Enumerable<EmpenhoOrderByWithAggregationInput>
+    by: EmpenhoScalarFieldEnum[]
+    having?: EmpenhoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: EmpenhoCountAggregateInputType | true
+    _avg?: EmpenhoAvgAggregateInputType
+    _sum?: EmpenhoSumAggregateInputType
+    _min?: EmpenhoMinAggregateInputType
+    _max?: EmpenhoMaxAggregateInputType
+  }
+
+
+  export type EmpenhoGroupByOutputType = {
+    id: string
+    contratoId: string
+    dotacaoId: string | null
+    numero: string
+    exercicio: number
+    tipo: TipoEmpenho
+    data: Date
+    valorCents: bigint
+    valorLiquidadoCents: bigint
+    valorPagoCents: bigint
+    situacao: SituacaoEmpenho
+    createdAt: Date
+    updatedAt: Date
+    _count: EmpenhoCountAggregateOutputType | null
+    _avg: EmpenhoAvgAggregateOutputType | null
+    _sum: EmpenhoSumAggregateOutputType | null
+    _min: EmpenhoMinAggregateOutputType | null
+    _max: EmpenhoMaxAggregateOutputType | null
+  }
+
+  type GetEmpenhoGroupByPayload<T extends EmpenhoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<EmpenhoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof EmpenhoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], EmpenhoGroupByOutputType[P]>
+            : GetScalarType<T[P], EmpenhoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type EmpenhoSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    contratoId?: boolean
+    dotacaoId?: boolean
+    numero?: boolean
+    exercicio?: boolean
+    tipo?: boolean
+    data?: boolean
+    valorCents?: boolean
+    valorLiquidadoCents?: boolean
+    valorPagoCents?: boolean
+    situacao?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    dotacao?: boolean | DotacaoOrcamentariaArgs<ExtArgs>
+  }, ExtArgs["result"]["empenho"]>
+
+  export type EmpenhoSelectScalar = {
+    id?: boolean
+    contratoId?: boolean
+    dotacaoId?: boolean
+    numero?: boolean
+    exercicio?: boolean
+    tipo?: boolean
+    data?: boolean
+    valorCents?: boolean
+    valorLiquidadoCents?: boolean
+    valorPagoCents?: boolean
+    situacao?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type EmpenhoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    dotacao?: boolean | DotacaoOrcamentariaArgs<ExtArgs>
+  }
+
+
+  type EmpenhoGetPayload<S extends boolean | null | undefined | EmpenhoArgs> = $Types.GetResult<EmpenhoPayload, S>
+
+  type EmpenhoCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<EmpenhoFindManyArgs, 'select' | 'include'> & {
+      select?: EmpenhoCountAggregateInputType | true
+    }
+
+  export interface EmpenhoDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Empenho'], meta: { name: 'Empenho' } }
+    /**
+     * Find zero or one Empenho that matches the filter.
+     * @param {EmpenhoFindUniqueArgs} args - Arguments to find a Empenho
+     * @example
+     * // Get one Empenho
+     * const empenho = await prisma.empenho.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends EmpenhoFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, EmpenhoFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Empenho'> extends True ? Prisma__EmpenhoClient<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__EmpenhoClient<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one Empenho that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {EmpenhoFindUniqueOrThrowArgs} args - Arguments to find a Empenho
+     * @example
+     * // Get one Empenho
+     * const empenho = await prisma.empenho.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends EmpenhoFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, EmpenhoFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__EmpenhoClient<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first Empenho that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpenhoFindFirstArgs} args - Arguments to find a Empenho
+     * @example
+     * // Get one Empenho
+     * const empenho = await prisma.empenho.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends EmpenhoFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, EmpenhoFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Empenho'> extends True ? Prisma__EmpenhoClient<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__EmpenhoClient<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first Empenho that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpenhoFindFirstOrThrowArgs} args - Arguments to find a Empenho
+     * @example
+     * // Get one Empenho
+     * const empenho = await prisma.empenho.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends EmpenhoFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, EmpenhoFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__EmpenhoClient<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more Empenhos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpenhoFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Empenhos
+     * const empenhos = await prisma.empenho.findMany()
+     * 
+     * // Get first 10 Empenhos
+     * const empenhos = await prisma.empenho.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const empenhoWithIdOnly = await prisma.empenho.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends EmpenhoFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, EmpenhoFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a Empenho.
+     * @param {EmpenhoCreateArgs} args - Arguments to create a Empenho.
+     * @example
+     * // Create one Empenho
+     * const Empenho = await prisma.empenho.create({
+     *   data: {
+     *     // ... data to create a Empenho
+     *   }
+     * })
+     * 
+    **/
+    create<T extends EmpenhoCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, EmpenhoCreateArgs<ExtArgs>>
+    ): Prisma__EmpenhoClient<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many Empenhos.
+     *     @param {EmpenhoCreateManyArgs} args - Arguments to create many Empenhos.
+     *     @example
+     *     // Create many Empenhos
+     *     const empenho = await prisma.empenho.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends EmpenhoCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, EmpenhoCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Empenho.
+     * @param {EmpenhoDeleteArgs} args - Arguments to delete one Empenho.
+     * @example
+     * // Delete one Empenho
+     * const Empenho = await prisma.empenho.delete({
+     *   where: {
+     *     // ... filter to delete one Empenho
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends EmpenhoDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, EmpenhoDeleteArgs<ExtArgs>>
+    ): Prisma__EmpenhoClient<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one Empenho.
+     * @param {EmpenhoUpdateArgs} args - Arguments to update one Empenho.
+     * @example
+     * // Update one Empenho
+     * const empenho = await prisma.empenho.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends EmpenhoUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, EmpenhoUpdateArgs<ExtArgs>>
+    ): Prisma__EmpenhoClient<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more Empenhos.
+     * @param {EmpenhoDeleteManyArgs} args - Arguments to filter Empenhos to delete.
+     * @example
+     * // Delete a few Empenhos
+     * const { count } = await prisma.empenho.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends EmpenhoDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, EmpenhoDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Empenhos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpenhoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Empenhos
+     * const empenho = await prisma.empenho.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends EmpenhoUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, EmpenhoUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Empenho.
+     * @param {EmpenhoUpsertArgs} args - Arguments to update or create a Empenho.
+     * @example
+     * // Update or create a Empenho
+     * const empenho = await prisma.empenho.upsert({
+     *   create: {
+     *     // ... data to create a Empenho
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Empenho we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends EmpenhoUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, EmpenhoUpsertArgs<ExtArgs>>
+    ): Prisma__EmpenhoClient<$Types.GetResult<EmpenhoPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of Empenhos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpenhoCountArgs} args - Arguments to filter Empenhos to count.
+     * @example
+     * // Count the number of Empenhos
+     * const count = await prisma.empenho.count({
+     *   where: {
+     *     // ... the filter for the Empenhos we want to count
+     *   }
+     * })
+    **/
+    count<T extends EmpenhoCountArgs>(
+      args?: Subset<T, EmpenhoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], EmpenhoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Empenho.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpenhoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends EmpenhoAggregateArgs>(args: Subset<T, EmpenhoAggregateArgs>): Prisma.PrismaPromise<GetEmpenhoAggregateType<T>>
+
+    /**
+     * Group by Empenho.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {EmpenhoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends EmpenhoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: EmpenhoGroupByArgs['orderBy'] }
+        : { orderBy?: EmpenhoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, EmpenhoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetEmpenhoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Empenho.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__EmpenhoClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    contrato<T extends ContratoArgs<ExtArgs> = {}>(args?: Subset<T, ContratoArgs<ExtArgs>>): Prisma__ContratoClient<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    dotacao<T extends DotacaoOrcamentariaArgs<ExtArgs> = {}>(args?: Subset<T, DotacaoOrcamentariaArgs<ExtArgs>>): Prisma__DotacaoOrcamentariaClient<$Types.GetResult<DotacaoOrcamentariaPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * Empenho base type for findUnique actions
+   */
+  export type EmpenhoFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+    /**
+     * Filter, which Empenho to fetch.
+     */
+    where: EmpenhoWhereUniqueInput
+  }
+
+  /**
+   * Empenho findUnique
+   */
+  export interface EmpenhoFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends EmpenhoFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Empenho findUniqueOrThrow
+   */
+  export type EmpenhoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+    /**
+     * Filter, which Empenho to fetch.
+     */
+    where: EmpenhoWhereUniqueInput
+  }
+
+
+  /**
+   * Empenho base type for findFirst actions
+   */
+  export type EmpenhoFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+    /**
+     * Filter, which Empenho to fetch.
+     */
+    where?: EmpenhoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Empenhos to fetch.
+     */
+    orderBy?: Enumerable<EmpenhoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Empenhos.
+     */
+    cursor?: EmpenhoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Empenhos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Empenhos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Empenhos.
+     */
+    distinct?: Enumerable<EmpenhoScalarFieldEnum>
+  }
+
+  /**
+   * Empenho findFirst
+   */
+  export interface EmpenhoFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends EmpenhoFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Empenho findFirstOrThrow
+   */
+  export type EmpenhoFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+    /**
+     * Filter, which Empenho to fetch.
+     */
+    where?: EmpenhoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Empenhos to fetch.
+     */
+    orderBy?: Enumerable<EmpenhoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Empenhos.
+     */
+    cursor?: EmpenhoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Empenhos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Empenhos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Empenhos.
+     */
+    distinct?: Enumerable<EmpenhoScalarFieldEnum>
+  }
+
+
+  /**
+   * Empenho findMany
+   */
+  export type EmpenhoFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+    /**
+     * Filter, which Empenhos to fetch.
+     */
+    where?: EmpenhoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Empenhos to fetch.
+     */
+    orderBy?: Enumerable<EmpenhoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Empenhos.
+     */
+    cursor?: EmpenhoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Empenhos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Empenhos.
+     */
+    skip?: number
+    distinct?: Enumerable<EmpenhoScalarFieldEnum>
+  }
+
+
+  /**
+   * Empenho create
+   */
+  export type EmpenhoCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Empenho.
+     */
+    data: XOR<EmpenhoCreateInput, EmpenhoUncheckedCreateInput>
+  }
+
+
+  /**
+   * Empenho createMany
+   */
+  export type EmpenhoCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Empenhos.
+     */
+    data: Enumerable<EmpenhoCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * Empenho update
+   */
+  export type EmpenhoUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Empenho.
+     */
+    data: XOR<EmpenhoUpdateInput, EmpenhoUncheckedUpdateInput>
+    /**
+     * Choose, which Empenho to update.
+     */
+    where: EmpenhoWhereUniqueInput
+  }
+
+
+  /**
+   * Empenho updateMany
+   */
+  export type EmpenhoUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Empenhos.
+     */
+    data: XOR<EmpenhoUpdateManyMutationInput, EmpenhoUncheckedUpdateManyInput>
+    /**
+     * Filter which Empenhos to update
+     */
+    where?: EmpenhoWhereInput
+  }
+
+
+  /**
+   * Empenho upsert
+   */
+  export type EmpenhoUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Empenho to update in case it exists.
+     */
+    where: EmpenhoWhereUniqueInput
+    /**
+     * In case the Empenho found by the `where` argument doesn't exist, create a new Empenho with this data.
+     */
+    create: XOR<EmpenhoCreateInput, EmpenhoUncheckedCreateInput>
+    /**
+     * In case the Empenho was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<EmpenhoUpdateInput, EmpenhoUncheckedUpdateInput>
+  }
+
+
+  /**
+   * Empenho delete
+   */
+  export type EmpenhoDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+    /**
+     * Filter which Empenho to delete.
+     */
+    where: EmpenhoWhereUniqueInput
+  }
+
+
+  /**
+   * Empenho deleteMany
+   */
+  export type EmpenhoDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Empenhos to delete
+     */
+    where?: EmpenhoWhereInput
+  }
+
+
+  /**
+   * Empenho without action
+   */
+  export type EmpenhoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Empenho
+     */
+    select?: EmpenhoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: EmpenhoInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model ReservaOrcamentaria
+   */
+
+
+  export type AggregateReservaOrcamentaria = {
+    _count: ReservaOrcamentariaCountAggregateOutputType | null
+    _avg: ReservaOrcamentariaAvgAggregateOutputType | null
+    _sum: ReservaOrcamentariaSumAggregateOutputType | null
+    _min: ReservaOrcamentariaMinAggregateOutputType | null
+    _max: ReservaOrcamentariaMaxAggregateOutputType | null
+  }
+
+  export type ReservaOrcamentariaAvgAggregateOutputType = {
+    valorCents: number | null
+  }
+
+  export type ReservaOrcamentariaSumAggregateOutputType = {
+    valorCents: bigint | null
+  }
+
+  export type ReservaOrcamentariaMinAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    processoId: string | null
+    numero: string | null
+    data: Date | null
+    valorCents: bigint | null
+    situacao: SituacaoReserva | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReservaOrcamentariaMaxAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    processoId: string | null
+    numero: string | null
+    data: Date | null
+    valorCents: bigint | null
+    situacao: SituacaoReserva | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ReservaOrcamentariaCountAggregateOutputType = {
+    id: number
+    contratoId: number
+    processoId: number
+    numero: number
+    data: number
+    valorCents: number
+    situacao: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ReservaOrcamentariaAvgAggregateInputType = {
+    valorCents?: true
+  }
+
+  export type ReservaOrcamentariaSumAggregateInputType = {
+    valorCents?: true
+  }
+
+  export type ReservaOrcamentariaMinAggregateInputType = {
+    id?: true
+    contratoId?: true
+    processoId?: true
+    numero?: true
+    data?: true
+    valorCents?: true
+    situacao?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReservaOrcamentariaMaxAggregateInputType = {
+    id?: true
+    contratoId?: true
+    processoId?: true
+    numero?: true
+    data?: true
+    valorCents?: true
+    situacao?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ReservaOrcamentariaCountAggregateInputType = {
+    id?: true
+    contratoId?: true
+    processoId?: true
+    numero?: true
+    data?: true
+    valorCents?: true
+    situacao?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ReservaOrcamentariaAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReservaOrcamentaria to aggregate.
+     */
+    where?: ReservaOrcamentariaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReservaOrcamentarias to fetch.
+     */
+    orderBy?: Enumerable<ReservaOrcamentariaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ReservaOrcamentariaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReservaOrcamentarias from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReservaOrcamentarias.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ReservaOrcamentarias
+    **/
+    _count?: true | ReservaOrcamentariaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ReservaOrcamentariaAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ReservaOrcamentariaSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ReservaOrcamentariaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ReservaOrcamentariaMaxAggregateInputType
+  }
+
+  export type GetReservaOrcamentariaAggregateType<T extends ReservaOrcamentariaAggregateArgs> = {
+        [P in keyof T & keyof AggregateReservaOrcamentaria]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateReservaOrcamentaria[P]>
+      : GetScalarType<T[P], AggregateReservaOrcamentaria[P]>
+  }
+
+
+
+
+  export type ReservaOrcamentariaGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ReservaOrcamentariaWhereInput
+    orderBy?: Enumerable<ReservaOrcamentariaOrderByWithAggregationInput>
+    by: ReservaOrcamentariaScalarFieldEnum[]
+    having?: ReservaOrcamentariaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ReservaOrcamentariaCountAggregateInputType | true
+    _avg?: ReservaOrcamentariaAvgAggregateInputType
+    _sum?: ReservaOrcamentariaSumAggregateInputType
+    _min?: ReservaOrcamentariaMinAggregateInputType
+    _max?: ReservaOrcamentariaMaxAggregateInputType
+  }
+
+
+  export type ReservaOrcamentariaGroupByOutputType = {
+    id: string
+    contratoId: string | null
+    processoId: string | null
+    numero: string
+    data: Date
+    valorCents: bigint
+    situacao: SituacaoReserva
+    createdAt: Date
+    updatedAt: Date
+    _count: ReservaOrcamentariaCountAggregateOutputType | null
+    _avg: ReservaOrcamentariaAvgAggregateOutputType | null
+    _sum: ReservaOrcamentariaSumAggregateOutputType | null
+    _min: ReservaOrcamentariaMinAggregateOutputType | null
+    _max: ReservaOrcamentariaMaxAggregateOutputType | null
+  }
+
+  type GetReservaOrcamentariaGroupByPayload<T extends ReservaOrcamentariaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<ReservaOrcamentariaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ReservaOrcamentariaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ReservaOrcamentariaGroupByOutputType[P]>
+            : GetScalarType<T[P], ReservaOrcamentariaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ReservaOrcamentariaSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    contratoId?: boolean
+    processoId?: boolean
+    numero?: boolean
+    data?: boolean
+    valorCents?: boolean
+    situacao?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    processo?: boolean | ProcessoContratacaoArgs<ExtArgs>
+  }, ExtArgs["result"]["reservaOrcamentaria"]>
+
+  export type ReservaOrcamentariaSelectScalar = {
+    id?: boolean
+    contratoId?: boolean
+    processoId?: boolean
+    numero?: boolean
+    data?: boolean
+    valorCents?: boolean
+    situacao?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ReservaOrcamentariaInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    processo?: boolean | ProcessoContratacaoArgs<ExtArgs>
+  }
+
+
+  type ReservaOrcamentariaGetPayload<S extends boolean | null | undefined | ReservaOrcamentariaArgs> = $Types.GetResult<ReservaOrcamentariaPayload, S>
+
+  type ReservaOrcamentariaCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<ReservaOrcamentariaFindManyArgs, 'select' | 'include'> & {
+      select?: ReservaOrcamentariaCountAggregateInputType | true
+    }
+
+  export interface ReservaOrcamentariaDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ReservaOrcamentaria'], meta: { name: 'ReservaOrcamentaria' } }
+    /**
+     * Find zero or one ReservaOrcamentaria that matches the filter.
+     * @param {ReservaOrcamentariaFindUniqueArgs} args - Arguments to find a ReservaOrcamentaria
+     * @example
+     * // Get one ReservaOrcamentaria
+     * const reservaOrcamentaria = await prisma.reservaOrcamentaria.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends ReservaOrcamentariaFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, ReservaOrcamentariaFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'ReservaOrcamentaria'> extends True ? Prisma__ReservaOrcamentariaClient<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__ReservaOrcamentariaClient<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one ReservaOrcamentaria that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {ReservaOrcamentariaFindUniqueOrThrowArgs} args - Arguments to find a ReservaOrcamentaria
+     * @example
+     * // Get one ReservaOrcamentaria
+     * const reservaOrcamentaria = await prisma.reservaOrcamentaria.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends ReservaOrcamentariaFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ReservaOrcamentariaFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__ReservaOrcamentariaClient<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first ReservaOrcamentaria that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservaOrcamentariaFindFirstArgs} args - Arguments to find a ReservaOrcamentaria
+     * @example
+     * // Get one ReservaOrcamentaria
+     * const reservaOrcamentaria = await prisma.reservaOrcamentaria.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends ReservaOrcamentariaFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, ReservaOrcamentariaFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'ReservaOrcamentaria'> extends True ? Prisma__ReservaOrcamentariaClient<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__ReservaOrcamentariaClient<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first ReservaOrcamentaria that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservaOrcamentariaFindFirstOrThrowArgs} args - Arguments to find a ReservaOrcamentaria
+     * @example
+     * // Get one ReservaOrcamentaria
+     * const reservaOrcamentaria = await prisma.reservaOrcamentaria.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends ReservaOrcamentariaFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ReservaOrcamentariaFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__ReservaOrcamentariaClient<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more ReservaOrcamentarias that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservaOrcamentariaFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ReservaOrcamentarias
+     * const reservaOrcamentarias = await prisma.reservaOrcamentaria.findMany()
+     * 
+     * // Get first 10 ReservaOrcamentarias
+     * const reservaOrcamentarias = await prisma.reservaOrcamentaria.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const reservaOrcamentariaWithIdOnly = await prisma.reservaOrcamentaria.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends ReservaOrcamentariaFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ReservaOrcamentariaFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a ReservaOrcamentaria.
+     * @param {ReservaOrcamentariaCreateArgs} args - Arguments to create a ReservaOrcamentaria.
+     * @example
+     * // Create one ReservaOrcamentaria
+     * const ReservaOrcamentaria = await prisma.reservaOrcamentaria.create({
+     *   data: {
+     *     // ... data to create a ReservaOrcamentaria
+     *   }
+     * })
+     * 
+    **/
+    create<T extends ReservaOrcamentariaCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, ReservaOrcamentariaCreateArgs<ExtArgs>>
+    ): Prisma__ReservaOrcamentariaClient<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many ReservaOrcamentarias.
+     *     @param {ReservaOrcamentariaCreateManyArgs} args - Arguments to create many ReservaOrcamentarias.
+     *     @example
+     *     // Create many ReservaOrcamentarias
+     *     const reservaOrcamentaria = await prisma.reservaOrcamentaria.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends ReservaOrcamentariaCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ReservaOrcamentariaCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ReservaOrcamentaria.
+     * @param {ReservaOrcamentariaDeleteArgs} args - Arguments to delete one ReservaOrcamentaria.
+     * @example
+     * // Delete one ReservaOrcamentaria
+     * const ReservaOrcamentaria = await prisma.reservaOrcamentaria.delete({
+     *   where: {
+     *     // ... filter to delete one ReservaOrcamentaria
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends ReservaOrcamentariaDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, ReservaOrcamentariaDeleteArgs<ExtArgs>>
+    ): Prisma__ReservaOrcamentariaClient<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one ReservaOrcamentaria.
+     * @param {ReservaOrcamentariaUpdateArgs} args - Arguments to update one ReservaOrcamentaria.
+     * @example
+     * // Update one ReservaOrcamentaria
+     * const reservaOrcamentaria = await prisma.reservaOrcamentaria.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends ReservaOrcamentariaUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, ReservaOrcamentariaUpdateArgs<ExtArgs>>
+    ): Prisma__ReservaOrcamentariaClient<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more ReservaOrcamentarias.
+     * @param {ReservaOrcamentariaDeleteManyArgs} args - Arguments to filter ReservaOrcamentarias to delete.
+     * @example
+     * // Delete a few ReservaOrcamentarias
+     * const { count } = await prisma.reservaOrcamentaria.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends ReservaOrcamentariaDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ReservaOrcamentariaDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ReservaOrcamentarias.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservaOrcamentariaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ReservaOrcamentarias
+     * const reservaOrcamentaria = await prisma.reservaOrcamentaria.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends ReservaOrcamentariaUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, ReservaOrcamentariaUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ReservaOrcamentaria.
+     * @param {ReservaOrcamentariaUpsertArgs} args - Arguments to update or create a ReservaOrcamentaria.
+     * @example
+     * // Update or create a ReservaOrcamentaria
+     * const reservaOrcamentaria = await prisma.reservaOrcamentaria.upsert({
+     *   create: {
+     *     // ... data to create a ReservaOrcamentaria
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ReservaOrcamentaria we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends ReservaOrcamentariaUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, ReservaOrcamentariaUpsertArgs<ExtArgs>>
+    ): Prisma__ReservaOrcamentariaClient<$Types.GetResult<ReservaOrcamentariaPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of ReservaOrcamentarias.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservaOrcamentariaCountArgs} args - Arguments to filter ReservaOrcamentarias to count.
+     * @example
+     * // Count the number of ReservaOrcamentarias
+     * const count = await prisma.reservaOrcamentaria.count({
+     *   where: {
+     *     // ... the filter for the ReservaOrcamentarias we want to count
+     *   }
+     * })
+    **/
+    count<T extends ReservaOrcamentariaCountArgs>(
+      args?: Subset<T, ReservaOrcamentariaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ReservaOrcamentariaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ReservaOrcamentaria.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservaOrcamentariaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ReservaOrcamentariaAggregateArgs>(args: Subset<T, ReservaOrcamentariaAggregateArgs>): Prisma.PrismaPromise<GetReservaOrcamentariaAggregateType<T>>
+
+    /**
+     * Group by ReservaOrcamentaria.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ReservaOrcamentariaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ReservaOrcamentariaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ReservaOrcamentariaGroupByArgs['orderBy'] }
+        : { orderBy?: ReservaOrcamentariaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ReservaOrcamentariaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetReservaOrcamentariaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ReservaOrcamentaria.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__ReservaOrcamentariaClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    contrato<T extends ContratoArgs<ExtArgs> = {}>(args?: Subset<T, ContratoArgs<ExtArgs>>): Prisma__ContratoClient<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    processo<T extends ProcessoContratacaoArgs<ExtArgs> = {}>(args?: Subset<T, ProcessoContratacaoArgs<ExtArgs>>): Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * ReservaOrcamentaria base type for findUnique actions
+   */
+  export type ReservaOrcamentariaFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter, which ReservaOrcamentaria to fetch.
+     */
+    where: ReservaOrcamentariaWhereUniqueInput
+  }
+
+  /**
+   * ReservaOrcamentaria findUnique
+   */
+  export interface ReservaOrcamentariaFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ReservaOrcamentariaFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ReservaOrcamentaria findUniqueOrThrow
+   */
+  export type ReservaOrcamentariaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter, which ReservaOrcamentaria to fetch.
+     */
+    where: ReservaOrcamentariaWhereUniqueInput
+  }
+
+
+  /**
+   * ReservaOrcamentaria base type for findFirst actions
+   */
+  export type ReservaOrcamentariaFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter, which ReservaOrcamentaria to fetch.
+     */
+    where?: ReservaOrcamentariaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReservaOrcamentarias to fetch.
+     */
+    orderBy?: Enumerable<ReservaOrcamentariaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReservaOrcamentarias.
+     */
+    cursor?: ReservaOrcamentariaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReservaOrcamentarias from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReservaOrcamentarias.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReservaOrcamentarias.
+     */
+    distinct?: Enumerable<ReservaOrcamentariaScalarFieldEnum>
+  }
+
+  /**
+   * ReservaOrcamentaria findFirst
+   */
+  export interface ReservaOrcamentariaFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ReservaOrcamentariaFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ReservaOrcamentaria findFirstOrThrow
+   */
+  export type ReservaOrcamentariaFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter, which ReservaOrcamentaria to fetch.
+     */
+    where?: ReservaOrcamentariaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReservaOrcamentarias to fetch.
+     */
+    orderBy?: Enumerable<ReservaOrcamentariaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ReservaOrcamentarias.
+     */
+    cursor?: ReservaOrcamentariaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReservaOrcamentarias from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReservaOrcamentarias.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ReservaOrcamentarias.
+     */
+    distinct?: Enumerable<ReservaOrcamentariaScalarFieldEnum>
+  }
+
+
+  /**
+   * ReservaOrcamentaria findMany
+   */
+  export type ReservaOrcamentariaFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter, which ReservaOrcamentarias to fetch.
+     */
+    where?: ReservaOrcamentariaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ReservaOrcamentarias to fetch.
+     */
+    orderBy?: Enumerable<ReservaOrcamentariaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ReservaOrcamentarias.
+     */
+    cursor?: ReservaOrcamentariaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ReservaOrcamentarias from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ReservaOrcamentarias.
+     */
+    skip?: number
+    distinct?: Enumerable<ReservaOrcamentariaScalarFieldEnum>
+  }
+
+
+  /**
+   * ReservaOrcamentaria create
+   */
+  export type ReservaOrcamentariaCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ReservaOrcamentaria.
+     */
+    data: XOR<ReservaOrcamentariaCreateInput, ReservaOrcamentariaUncheckedCreateInput>
+  }
+
+
+  /**
+   * ReservaOrcamentaria createMany
+   */
+  export type ReservaOrcamentariaCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ReservaOrcamentarias.
+     */
+    data: Enumerable<ReservaOrcamentariaCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * ReservaOrcamentaria update
+   */
+  export type ReservaOrcamentariaUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ReservaOrcamentaria.
+     */
+    data: XOR<ReservaOrcamentariaUpdateInput, ReservaOrcamentariaUncheckedUpdateInput>
+    /**
+     * Choose, which ReservaOrcamentaria to update.
+     */
+    where: ReservaOrcamentariaWhereUniqueInput
+  }
+
+
+  /**
+   * ReservaOrcamentaria updateMany
+   */
+  export type ReservaOrcamentariaUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ReservaOrcamentarias.
+     */
+    data: XOR<ReservaOrcamentariaUpdateManyMutationInput, ReservaOrcamentariaUncheckedUpdateManyInput>
+    /**
+     * Filter which ReservaOrcamentarias to update
+     */
+    where?: ReservaOrcamentariaWhereInput
+  }
+
+
+  /**
+   * ReservaOrcamentaria upsert
+   */
+  export type ReservaOrcamentariaUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ReservaOrcamentaria to update in case it exists.
+     */
+    where: ReservaOrcamentariaWhereUniqueInput
+    /**
+     * In case the ReservaOrcamentaria found by the `where` argument doesn't exist, create a new ReservaOrcamentaria with this data.
+     */
+    create: XOR<ReservaOrcamentariaCreateInput, ReservaOrcamentariaUncheckedCreateInput>
+    /**
+     * In case the ReservaOrcamentaria was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ReservaOrcamentariaUpdateInput, ReservaOrcamentariaUncheckedUpdateInput>
+  }
+
+
+  /**
+   * ReservaOrcamentaria delete
+   */
+  export type ReservaOrcamentariaDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+    /**
+     * Filter which ReservaOrcamentaria to delete.
+     */
+    where: ReservaOrcamentariaWhereUniqueInput
+  }
+
+
+  /**
+   * ReservaOrcamentaria deleteMany
+   */
+  export type ReservaOrcamentariaDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ReservaOrcamentarias to delete
+     */
+    where?: ReservaOrcamentariaWhereInput
+  }
+
+
+  /**
+   * ReservaOrcamentaria without action
+   */
+  export type ReservaOrcamentariaArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ReservaOrcamentaria
+     */
+    select?: ReservaOrcamentariaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ReservaOrcamentariaInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model Publicacao
+   */
+
+
+  export type AggregatePublicacao = {
+    _count: PublicacaoCountAggregateOutputType | null
+    _min: PublicacaoMinAggregateOutputType | null
+    _max: PublicacaoMaxAggregateOutputType | null
+  }
+
+  export type PublicacaoMinAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    alteracaoId: string | null
+    veiculoId: string | null
+    dataPublicacao: Date | null
+    numeroEdicao: string | null
+    idPncp: string | null
+    url: string | null
+    createdAt: Date | null
+  }
+
+  export type PublicacaoMaxAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    alteracaoId: string | null
+    veiculoId: string | null
+    dataPublicacao: Date | null
+    numeroEdicao: string | null
+    idPncp: string | null
+    url: string | null
+    createdAt: Date | null
+  }
+
+  export type PublicacaoCountAggregateOutputType = {
+    id: number
+    contratoId: number
+    alteracaoId: number
+    veiculoId: number
+    dataPublicacao: number
+    numeroEdicao: number
+    idPncp: number
+    url: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type PublicacaoMinAggregateInputType = {
+    id?: true
+    contratoId?: true
+    alteracaoId?: true
+    veiculoId?: true
+    dataPublicacao?: true
+    numeroEdicao?: true
+    idPncp?: true
+    url?: true
+    createdAt?: true
+  }
+
+  export type PublicacaoMaxAggregateInputType = {
+    id?: true
+    contratoId?: true
+    alteracaoId?: true
+    veiculoId?: true
+    dataPublicacao?: true
+    numeroEdicao?: true
+    idPncp?: true
+    url?: true
+    createdAt?: true
+  }
+
+  export type PublicacaoCountAggregateInputType = {
+    id?: true
+    contratoId?: true
+    alteracaoId?: true
+    veiculoId?: true
+    dataPublicacao?: true
+    numeroEdicao?: true
+    idPncp?: true
+    url?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type PublicacaoAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Publicacao to aggregate.
+     */
+    where?: PublicacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Publicacaos to fetch.
+     */
+    orderBy?: Enumerable<PublicacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: PublicacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Publicacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Publicacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Publicacaos
+    **/
+    _count?: true | PublicacaoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PublicacaoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PublicacaoMaxAggregateInputType
+  }
+
+  export type GetPublicacaoAggregateType<T extends PublicacaoAggregateArgs> = {
+        [P in keyof T & keyof AggregatePublicacao]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePublicacao[P]>
+      : GetScalarType<T[P], AggregatePublicacao[P]>
+  }
+
+
+
+
+  export type PublicacaoGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: PublicacaoWhereInput
+    orderBy?: Enumerable<PublicacaoOrderByWithAggregationInput>
+    by: PublicacaoScalarFieldEnum[]
+    having?: PublicacaoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PublicacaoCountAggregateInputType | true
+    _min?: PublicacaoMinAggregateInputType
+    _max?: PublicacaoMaxAggregateInputType
+  }
+
+
+  export type PublicacaoGroupByOutputType = {
+    id: string
+    contratoId: string | null
+    alteracaoId: string | null
+    veiculoId: string
+    dataPublicacao: Date
+    numeroEdicao: string | null
+    idPncp: string | null
+    url: string | null
+    createdAt: Date
+    _count: PublicacaoCountAggregateOutputType | null
+    _min: PublicacaoMinAggregateOutputType | null
+    _max: PublicacaoMaxAggregateOutputType | null
+  }
+
+  type GetPublicacaoGroupByPayload<T extends PublicacaoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<PublicacaoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof PublicacaoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], PublicacaoGroupByOutputType[P]>
+            : GetScalarType<T[P], PublicacaoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type PublicacaoSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    contratoId?: boolean
+    alteracaoId?: boolean
+    veiculoId?: boolean
+    dataPublicacao?: boolean
+    numeroEdicao?: boolean
+    idPncp?: boolean
+    url?: boolean
+    createdAt?: boolean
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    alteracao?: boolean | AlteracaoContratualArgs<ExtArgs>
+    veiculo?: boolean | DominioValorArgs<ExtArgs>
+  }, ExtArgs["result"]["publicacao"]>
+
+  export type PublicacaoSelectScalar = {
+    id?: boolean
+    contratoId?: boolean
+    alteracaoId?: boolean
+    veiculoId?: boolean
+    dataPublicacao?: boolean
+    numeroEdicao?: boolean
+    idPncp?: boolean
+    url?: boolean
+    createdAt?: boolean
+  }
+
+  export type PublicacaoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    alteracao?: boolean | AlteracaoContratualArgs<ExtArgs>
+    veiculo?: boolean | DominioValorArgs<ExtArgs>
+  }
+
+
+  type PublicacaoGetPayload<S extends boolean | null | undefined | PublicacaoArgs> = $Types.GetResult<PublicacaoPayload, S>
+
+  type PublicacaoCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<PublicacaoFindManyArgs, 'select' | 'include'> & {
+      select?: PublicacaoCountAggregateInputType | true
+    }
+
+  export interface PublicacaoDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Publicacao'], meta: { name: 'Publicacao' } }
+    /**
+     * Find zero or one Publicacao that matches the filter.
+     * @param {PublicacaoFindUniqueArgs} args - Arguments to find a Publicacao
+     * @example
+     * // Get one Publicacao
+     * const publicacao = await prisma.publicacao.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends PublicacaoFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, PublicacaoFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Publicacao'> extends True ? Prisma__PublicacaoClient<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__PublicacaoClient<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one Publicacao that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {PublicacaoFindUniqueOrThrowArgs} args - Arguments to find a Publicacao
+     * @example
+     * // Get one Publicacao
+     * const publicacao = await prisma.publicacao.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends PublicacaoFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, PublicacaoFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__PublicacaoClient<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first Publicacao that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublicacaoFindFirstArgs} args - Arguments to find a Publicacao
+     * @example
+     * // Get one Publicacao
+     * const publicacao = await prisma.publicacao.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends PublicacaoFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, PublicacaoFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Publicacao'> extends True ? Prisma__PublicacaoClient<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__PublicacaoClient<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first Publicacao that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublicacaoFindFirstOrThrowArgs} args - Arguments to find a Publicacao
+     * @example
+     * // Get one Publicacao
+     * const publicacao = await prisma.publicacao.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends PublicacaoFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, PublicacaoFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__PublicacaoClient<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more Publicacaos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublicacaoFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Publicacaos
+     * const publicacaos = await prisma.publicacao.findMany()
+     * 
+     * // Get first 10 Publicacaos
+     * const publicacaos = await prisma.publicacao.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const publicacaoWithIdOnly = await prisma.publicacao.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends PublicacaoFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, PublicacaoFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a Publicacao.
+     * @param {PublicacaoCreateArgs} args - Arguments to create a Publicacao.
+     * @example
+     * // Create one Publicacao
+     * const Publicacao = await prisma.publicacao.create({
+     *   data: {
+     *     // ... data to create a Publicacao
+     *   }
+     * })
+     * 
+    **/
+    create<T extends PublicacaoCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, PublicacaoCreateArgs<ExtArgs>>
+    ): Prisma__PublicacaoClient<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many Publicacaos.
+     *     @param {PublicacaoCreateManyArgs} args - Arguments to create many Publicacaos.
+     *     @example
+     *     // Create many Publicacaos
+     *     const publicacao = await prisma.publicacao.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends PublicacaoCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, PublicacaoCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Publicacao.
+     * @param {PublicacaoDeleteArgs} args - Arguments to delete one Publicacao.
+     * @example
+     * // Delete one Publicacao
+     * const Publicacao = await prisma.publicacao.delete({
+     *   where: {
+     *     // ... filter to delete one Publicacao
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends PublicacaoDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, PublicacaoDeleteArgs<ExtArgs>>
+    ): Prisma__PublicacaoClient<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one Publicacao.
+     * @param {PublicacaoUpdateArgs} args - Arguments to update one Publicacao.
+     * @example
+     * // Update one Publicacao
+     * const publicacao = await prisma.publicacao.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends PublicacaoUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, PublicacaoUpdateArgs<ExtArgs>>
+    ): Prisma__PublicacaoClient<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more Publicacaos.
+     * @param {PublicacaoDeleteManyArgs} args - Arguments to filter Publicacaos to delete.
+     * @example
+     * // Delete a few Publicacaos
+     * const { count } = await prisma.publicacao.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends PublicacaoDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, PublicacaoDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Publicacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublicacaoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Publicacaos
+     * const publicacao = await prisma.publicacao.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends PublicacaoUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, PublicacaoUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Publicacao.
+     * @param {PublicacaoUpsertArgs} args - Arguments to update or create a Publicacao.
+     * @example
+     * // Update or create a Publicacao
+     * const publicacao = await prisma.publicacao.upsert({
+     *   create: {
+     *     // ... data to create a Publicacao
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Publicacao we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends PublicacaoUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, PublicacaoUpsertArgs<ExtArgs>>
+    ): Prisma__PublicacaoClient<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of Publicacaos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublicacaoCountArgs} args - Arguments to filter Publicacaos to count.
+     * @example
+     * // Count the number of Publicacaos
+     * const count = await prisma.publicacao.count({
+     *   where: {
+     *     // ... the filter for the Publicacaos we want to count
+     *   }
+     * })
+    **/
+    count<T extends PublicacaoCountArgs>(
+      args?: Subset<T, PublicacaoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PublicacaoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Publicacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublicacaoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PublicacaoAggregateArgs>(args: Subset<T, PublicacaoAggregateArgs>): Prisma.PrismaPromise<GetPublicacaoAggregateType<T>>
+
+    /**
+     * Group by Publicacao.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PublicacaoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PublicacaoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PublicacaoGroupByArgs['orderBy'] }
+        : { orderBy?: PublicacaoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PublicacaoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPublicacaoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Publicacao.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__PublicacaoClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    contrato<T extends ContratoArgs<ExtArgs> = {}>(args?: Subset<T, ContratoArgs<ExtArgs>>): Prisma__ContratoClient<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    alteracao<T extends AlteracaoContratualArgs<ExtArgs> = {}>(args?: Subset<T, AlteracaoContratualArgs<ExtArgs>>): Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    veiculo<T extends DominioValorArgs<ExtArgs> = {}>(args?: Subset<T, DominioValorArgs<ExtArgs>>): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * Publicacao base type for findUnique actions
+   */
+  export type PublicacaoFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which Publicacao to fetch.
+     */
+    where: PublicacaoWhereUniqueInput
+  }
+
+  /**
+   * Publicacao findUnique
+   */
+  export interface PublicacaoFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends PublicacaoFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Publicacao findUniqueOrThrow
+   */
+  export type PublicacaoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which Publicacao to fetch.
+     */
+    where: PublicacaoWhereUniqueInput
+  }
+
+
+  /**
+   * Publicacao base type for findFirst actions
+   */
+  export type PublicacaoFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which Publicacao to fetch.
+     */
+    where?: PublicacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Publicacaos to fetch.
+     */
+    orderBy?: Enumerable<PublicacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Publicacaos.
+     */
+    cursor?: PublicacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Publicacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Publicacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Publicacaos.
+     */
+    distinct?: Enumerable<PublicacaoScalarFieldEnum>
+  }
+
+  /**
+   * Publicacao findFirst
+   */
+  export interface PublicacaoFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends PublicacaoFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Publicacao findFirstOrThrow
+   */
+  export type PublicacaoFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which Publicacao to fetch.
+     */
+    where?: PublicacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Publicacaos to fetch.
+     */
+    orderBy?: Enumerable<PublicacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Publicacaos.
+     */
+    cursor?: PublicacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Publicacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Publicacaos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Publicacaos.
+     */
+    distinct?: Enumerable<PublicacaoScalarFieldEnum>
+  }
+
+
+  /**
+   * Publicacao findMany
+   */
+  export type PublicacaoFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    /**
+     * Filter, which Publicacaos to fetch.
+     */
+    where?: PublicacaoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Publicacaos to fetch.
+     */
+    orderBy?: Enumerable<PublicacaoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Publicacaos.
+     */
+    cursor?: PublicacaoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Publicacaos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Publicacaos.
+     */
+    skip?: number
+    distinct?: Enumerable<PublicacaoScalarFieldEnum>
+  }
+
+
+  /**
+   * Publicacao create
+   */
+  export type PublicacaoCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Publicacao.
+     */
+    data: XOR<PublicacaoCreateInput, PublicacaoUncheckedCreateInput>
+  }
+
+
+  /**
+   * Publicacao createMany
+   */
+  export type PublicacaoCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Publicacaos.
+     */
+    data: Enumerable<PublicacaoCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * Publicacao update
+   */
+  export type PublicacaoUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Publicacao.
+     */
+    data: XOR<PublicacaoUpdateInput, PublicacaoUncheckedUpdateInput>
+    /**
+     * Choose, which Publicacao to update.
+     */
+    where: PublicacaoWhereUniqueInput
+  }
+
+
+  /**
+   * Publicacao updateMany
+   */
+  export type PublicacaoUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Publicacaos.
+     */
+    data: XOR<PublicacaoUpdateManyMutationInput, PublicacaoUncheckedUpdateManyInput>
+    /**
+     * Filter which Publicacaos to update
+     */
+    where?: PublicacaoWhereInput
+  }
+
+
+  /**
+   * Publicacao upsert
+   */
+  export type PublicacaoUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Publicacao to update in case it exists.
+     */
+    where: PublicacaoWhereUniqueInput
+    /**
+     * In case the Publicacao found by the `where` argument doesn't exist, create a new Publicacao with this data.
+     */
+    create: XOR<PublicacaoCreateInput, PublicacaoUncheckedCreateInput>
+    /**
+     * In case the Publicacao was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<PublicacaoUpdateInput, PublicacaoUncheckedUpdateInput>
+  }
+
+
+  /**
+   * Publicacao delete
+   */
+  export type PublicacaoDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+    /**
+     * Filter which Publicacao to delete.
+     */
+    where: PublicacaoWhereUniqueInput
+  }
+
+
+  /**
+   * Publicacao deleteMany
+   */
+  export type PublicacaoDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Publicacaos to delete
+     */
+    where?: PublicacaoWhereInput
+  }
+
+
+  /**
+   * Publicacao without action
+   */
+  export type PublicacaoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Publicacao
+     */
+    select?: PublicacaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: PublicacaoInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model Documento
+   */
+
+
+  export type AggregateDocumento = {
+    _count: DocumentoCountAggregateOutputType | null
+    _avg: DocumentoAvgAggregateOutputType | null
+    _sum: DocumentoSumAggregateOutputType | null
+    _min: DocumentoMinAggregateOutputType | null
+    _max: DocumentoMaxAggregateOutputType | null
+  }
+
+  export type DocumentoAvgAggregateOutputType = {
+    tamanhoBytes: number | null
+  }
+
+  export type DocumentoSumAggregateOutputType = {
+    tamanhoBytes: number | null
+  }
+
+  export type DocumentoMinAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    alteracaoId: string | null
+    processoId: string | null
+    tipoDocumentoId: string | null
+    nome: string | null
+    storageKey: string | null
+    urlExterna: string | null
+    mimeType: string | null
+    tamanhoBytes: number | null
+    uploadedById: string | null
+    createdAt: Date | null
+  }
+
+  export type DocumentoMaxAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    alteracaoId: string | null
+    processoId: string | null
+    tipoDocumentoId: string | null
+    nome: string | null
+    storageKey: string | null
+    urlExterna: string | null
+    mimeType: string | null
+    tamanhoBytes: number | null
+    uploadedById: string | null
+    createdAt: Date | null
+  }
+
+  export type DocumentoCountAggregateOutputType = {
+    id: number
+    contratoId: number
+    alteracaoId: number
+    processoId: number
+    tipoDocumentoId: number
+    nome: number
+    storageKey: number
+    urlExterna: number
+    mimeType: number
+    tamanhoBytes: number
+    uploadedById: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type DocumentoAvgAggregateInputType = {
+    tamanhoBytes?: true
+  }
+
+  export type DocumentoSumAggregateInputType = {
+    tamanhoBytes?: true
+  }
+
+  export type DocumentoMinAggregateInputType = {
+    id?: true
+    contratoId?: true
+    alteracaoId?: true
+    processoId?: true
+    tipoDocumentoId?: true
+    nome?: true
+    storageKey?: true
+    urlExterna?: true
+    mimeType?: true
+    tamanhoBytes?: true
+    uploadedById?: true
+    createdAt?: true
+  }
+
+  export type DocumentoMaxAggregateInputType = {
+    id?: true
+    contratoId?: true
+    alteracaoId?: true
+    processoId?: true
+    tipoDocumentoId?: true
+    nome?: true
+    storageKey?: true
+    urlExterna?: true
+    mimeType?: true
+    tamanhoBytes?: true
+    uploadedById?: true
+    createdAt?: true
+  }
+
+  export type DocumentoCountAggregateInputType = {
+    id?: true
+    contratoId?: true
+    alteracaoId?: true
+    processoId?: true
+    tipoDocumentoId?: true
+    nome?: true
+    storageKey?: true
+    urlExterna?: true
+    mimeType?: true
+    tamanhoBytes?: true
+    uploadedById?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type DocumentoAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Documento to aggregate.
+     */
+    where?: DocumentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Documentos to fetch.
+     */
+    orderBy?: Enumerable<DocumentoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: DocumentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Documentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Documentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Documentos
+    **/
+    _count?: true | DocumentoCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: DocumentoAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: DocumentoSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: DocumentoMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: DocumentoMaxAggregateInputType
+  }
+
+  export type GetDocumentoAggregateType<T extends DocumentoAggregateArgs> = {
+        [P in keyof T & keyof AggregateDocumento]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateDocumento[P]>
+      : GetScalarType<T[P], AggregateDocumento[P]>
+  }
+
+
+
+
+  export type DocumentoGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: DocumentoWhereInput
+    orderBy?: Enumerable<DocumentoOrderByWithAggregationInput>
+    by: DocumentoScalarFieldEnum[]
+    having?: DocumentoScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: DocumentoCountAggregateInputType | true
+    _avg?: DocumentoAvgAggregateInputType
+    _sum?: DocumentoSumAggregateInputType
+    _min?: DocumentoMinAggregateInputType
+    _max?: DocumentoMaxAggregateInputType
+  }
+
+
+  export type DocumentoGroupByOutputType = {
+    id: string
+    contratoId: string | null
+    alteracaoId: string | null
+    processoId: string | null
+    tipoDocumentoId: string
+    nome: string
+    storageKey: string | null
+    urlExterna: string | null
+    mimeType: string | null
+    tamanhoBytes: number | null
+    uploadedById: string | null
+    createdAt: Date
+    _count: DocumentoCountAggregateOutputType | null
+    _avg: DocumentoAvgAggregateOutputType | null
+    _sum: DocumentoSumAggregateOutputType | null
+    _min: DocumentoMinAggregateOutputType | null
+    _max: DocumentoMaxAggregateOutputType | null
+  }
+
+  type GetDocumentoGroupByPayload<T extends DocumentoGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<DocumentoGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof DocumentoGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], DocumentoGroupByOutputType[P]>
+            : GetScalarType<T[P], DocumentoGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type DocumentoSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    contratoId?: boolean
+    alteracaoId?: boolean
+    processoId?: boolean
+    tipoDocumentoId?: boolean
+    nome?: boolean
+    storageKey?: boolean
+    urlExterna?: boolean
+    mimeType?: boolean
+    tamanhoBytes?: boolean
+    uploadedById?: boolean
+    createdAt?: boolean
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    alteracao?: boolean | AlteracaoContratualArgs<ExtArgs>
+    processo?: boolean | ProcessoContratacaoArgs<ExtArgs>
+    tipoDocumento?: boolean | DominioValorArgs<ExtArgs>
+  }, ExtArgs["result"]["documento"]>
+
+  export type DocumentoSelectScalar = {
+    id?: boolean
+    contratoId?: boolean
+    alteracaoId?: boolean
+    processoId?: boolean
+    tipoDocumentoId?: boolean
+    nome?: boolean
+    storageKey?: boolean
+    urlExterna?: boolean
+    mimeType?: boolean
+    tamanhoBytes?: boolean
+    uploadedById?: boolean
+    createdAt?: boolean
+  }
+
+  export type DocumentoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contrato?: boolean | ContratoArgs<ExtArgs>
+    alteracao?: boolean | AlteracaoContratualArgs<ExtArgs>
+    processo?: boolean | ProcessoContratacaoArgs<ExtArgs>
+    tipoDocumento?: boolean | DominioValorArgs<ExtArgs>
+  }
+
+
+  type DocumentoGetPayload<S extends boolean | null | undefined | DocumentoArgs> = $Types.GetResult<DocumentoPayload, S>
+
+  type DocumentoCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<DocumentoFindManyArgs, 'select' | 'include'> & {
+      select?: DocumentoCountAggregateInputType | true
+    }
+
+  export interface DocumentoDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Documento'], meta: { name: 'Documento' } }
+    /**
+     * Find zero or one Documento that matches the filter.
+     * @param {DocumentoFindUniqueArgs} args - Arguments to find a Documento
+     * @example
+     * // Get one Documento
+     * const documento = await prisma.documento.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends DocumentoFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, DocumentoFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Documento'> extends True ? Prisma__DocumentoClient<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__DocumentoClient<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one Documento that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {DocumentoFindUniqueOrThrowArgs} args - Arguments to find a Documento
+     * @example
+     * // Get one Documento
+     * const documento = await prisma.documento.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends DocumentoFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, DocumentoFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__DocumentoClient<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first Documento that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoFindFirstArgs} args - Arguments to find a Documento
+     * @example
+     * // Get one Documento
+     * const documento = await prisma.documento.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends DocumentoFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, DocumentoFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Documento'> extends True ? Prisma__DocumentoClient<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__DocumentoClient<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first Documento that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoFindFirstOrThrowArgs} args - Arguments to find a Documento
+     * @example
+     * // Get one Documento
+     * const documento = await prisma.documento.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends DocumentoFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, DocumentoFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__DocumentoClient<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more Documentos that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Documentos
+     * const documentos = await prisma.documento.findMany()
+     * 
+     * // Get first 10 Documentos
+     * const documentos = await prisma.documento.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const documentoWithIdOnly = await prisma.documento.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends DocumentoFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DocumentoFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a Documento.
+     * @param {DocumentoCreateArgs} args - Arguments to create a Documento.
+     * @example
+     * // Create one Documento
+     * const Documento = await prisma.documento.create({
+     *   data: {
+     *     // ... data to create a Documento
+     *   }
+     * })
+     * 
+    **/
+    create<T extends DocumentoCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, DocumentoCreateArgs<ExtArgs>>
+    ): Prisma__DocumentoClient<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many Documentos.
+     *     @param {DocumentoCreateManyArgs} args - Arguments to create many Documentos.
+     *     @example
+     *     // Create many Documentos
+     *     const documento = await prisma.documento.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends DocumentoCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DocumentoCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Documento.
+     * @param {DocumentoDeleteArgs} args - Arguments to delete one Documento.
+     * @example
+     * // Delete one Documento
+     * const Documento = await prisma.documento.delete({
+     *   where: {
+     *     // ... filter to delete one Documento
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends DocumentoDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, DocumentoDeleteArgs<ExtArgs>>
+    ): Prisma__DocumentoClient<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one Documento.
+     * @param {DocumentoUpdateArgs} args - Arguments to update one Documento.
+     * @example
+     * // Update one Documento
+     * const documento = await prisma.documento.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends DocumentoUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, DocumentoUpdateArgs<ExtArgs>>
+    ): Prisma__DocumentoClient<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more Documentos.
+     * @param {DocumentoDeleteManyArgs} args - Arguments to filter Documentos to delete.
+     * @example
+     * // Delete a few Documentos
+     * const { count } = await prisma.documento.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends DocumentoDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, DocumentoDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Documentos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Documentos
+     * const documento = await prisma.documento.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends DocumentoUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, DocumentoUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Documento.
+     * @param {DocumentoUpsertArgs} args - Arguments to update or create a Documento.
+     * @example
+     * // Update or create a Documento
+     * const documento = await prisma.documento.upsert({
+     *   create: {
+     *     // ... data to create a Documento
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Documento we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends DocumentoUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, DocumentoUpsertArgs<ExtArgs>>
+    ): Prisma__DocumentoClient<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of Documentos.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoCountArgs} args - Arguments to filter Documentos to count.
+     * @example
+     * // Count the number of Documentos
+     * const count = await prisma.documento.count({
+     *   where: {
+     *     // ... the filter for the Documentos we want to count
+     *   }
+     * })
+    **/
+    count<T extends DocumentoCountArgs>(
+      args?: Subset<T, DocumentoCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], DocumentoCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Documento.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends DocumentoAggregateArgs>(args: Subset<T, DocumentoAggregateArgs>): Prisma.PrismaPromise<GetDocumentoAggregateType<T>>
+
+    /**
+     * Group by Documento.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {DocumentoGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends DocumentoGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: DocumentoGroupByArgs['orderBy'] }
+        : { orderBy?: DocumentoGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, DocumentoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetDocumentoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Documento.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__DocumentoClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    contrato<T extends ContratoArgs<ExtArgs> = {}>(args?: Subset<T, ContratoArgs<ExtArgs>>): Prisma__ContratoClient<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    alteracao<T extends AlteracaoContratualArgs<ExtArgs> = {}>(args?: Subset<T, AlteracaoContratualArgs<ExtArgs>>): Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    processo<T extends ProcessoContratacaoArgs<ExtArgs> = {}>(args?: Subset<T, ProcessoContratacaoArgs<ExtArgs>>): Prisma__ProcessoContratacaoClient<$Types.GetResult<ProcessoContratacaoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    tipoDocumento<T extends DominioValorArgs<ExtArgs> = {}>(args?: Subset<T, DominioValorArgs<ExtArgs>>): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * Documento base type for findUnique actions
+   */
+  export type DocumentoFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    /**
+     * Filter, which Documento to fetch.
+     */
+    where: DocumentoWhereUniqueInput
+  }
+
+  /**
+   * Documento findUnique
+   */
+  export interface DocumentoFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends DocumentoFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Documento findUniqueOrThrow
+   */
+  export type DocumentoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    /**
+     * Filter, which Documento to fetch.
+     */
+    where: DocumentoWhereUniqueInput
+  }
+
+
+  /**
+   * Documento base type for findFirst actions
+   */
+  export type DocumentoFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    /**
+     * Filter, which Documento to fetch.
+     */
+    where?: DocumentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Documentos to fetch.
+     */
+    orderBy?: Enumerable<DocumentoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Documentos.
+     */
+    cursor?: DocumentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Documentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Documentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Documentos.
+     */
+    distinct?: Enumerable<DocumentoScalarFieldEnum>
+  }
+
+  /**
+   * Documento findFirst
+   */
+  export interface DocumentoFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends DocumentoFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Documento findFirstOrThrow
+   */
+  export type DocumentoFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    /**
+     * Filter, which Documento to fetch.
+     */
+    where?: DocumentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Documentos to fetch.
+     */
+    orderBy?: Enumerable<DocumentoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Documentos.
+     */
+    cursor?: DocumentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Documentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Documentos.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Documentos.
+     */
+    distinct?: Enumerable<DocumentoScalarFieldEnum>
+  }
+
+
+  /**
+   * Documento findMany
+   */
+  export type DocumentoFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    /**
+     * Filter, which Documentos to fetch.
+     */
+    where?: DocumentoWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Documentos to fetch.
+     */
+    orderBy?: Enumerable<DocumentoOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Documentos.
+     */
+    cursor?: DocumentoWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Documentos from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Documentos.
+     */
+    skip?: number
+    distinct?: Enumerable<DocumentoScalarFieldEnum>
+  }
+
+
+  /**
+   * Documento create
+   */
+  export type DocumentoCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Documento.
+     */
+    data: XOR<DocumentoCreateInput, DocumentoUncheckedCreateInput>
+  }
+
+
+  /**
+   * Documento createMany
+   */
+  export type DocumentoCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Documentos.
+     */
+    data: Enumerable<DocumentoCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * Documento update
+   */
+  export type DocumentoUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Documento.
+     */
+    data: XOR<DocumentoUpdateInput, DocumentoUncheckedUpdateInput>
+    /**
+     * Choose, which Documento to update.
+     */
+    where: DocumentoWhereUniqueInput
+  }
+
+
+  /**
+   * Documento updateMany
+   */
+  export type DocumentoUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Documentos.
+     */
+    data: XOR<DocumentoUpdateManyMutationInput, DocumentoUncheckedUpdateManyInput>
+    /**
+     * Filter which Documentos to update
+     */
+    where?: DocumentoWhereInput
+  }
+
+
+  /**
+   * Documento upsert
+   */
+  export type DocumentoUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Documento to update in case it exists.
+     */
+    where: DocumentoWhereUniqueInput
+    /**
+     * In case the Documento found by the `where` argument doesn't exist, create a new Documento with this data.
+     */
+    create: XOR<DocumentoCreateInput, DocumentoUncheckedCreateInput>
+    /**
+     * In case the Documento was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<DocumentoUpdateInput, DocumentoUncheckedUpdateInput>
+  }
+
+
+  /**
+   * Documento delete
+   */
+  export type DocumentoDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+    /**
+     * Filter which Documento to delete.
+     */
+    where: DocumentoWhereUniqueInput
+  }
+
+
+  /**
+   * Documento deleteMany
+   */
+  export type DocumentoDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Documentos to delete
+     */
+    where?: DocumentoWhereInput
+  }
+
+
+  /**
+   * Documento without action
+   */
+  export type DocumentoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Documento
+     */
+    select?: DocumentoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: DocumentoInclude<ExtArgs> | null
+  }
+
+
+
+  /**
    * Model AuditLog
    */
 
@@ -25892,6 +33128,101 @@ export namespace Prisma {
   export type ItemContratoScalarFieldEnum = (typeof ItemContratoScalarFieldEnum)[keyof typeof ItemContratoScalarFieldEnum]
 
 
+  export const DotacaoOrcamentariaScalarFieldEnum: {
+    id: 'id',
+    exercicio: 'exercicio',
+    codigo: 'codigo',
+    unidadeOrcamentaria: 'unidadeOrcamentaria',
+    funcionalProgramatica: 'funcionalProgramatica',
+    naturezaDespesaId: 'naturezaDespesaId',
+    fonteRecursoId: 'fonteRecursoId',
+    descricao: 'descricao',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type DotacaoOrcamentariaScalarFieldEnum = (typeof DotacaoOrcamentariaScalarFieldEnum)[keyof typeof DotacaoOrcamentariaScalarFieldEnum]
+
+
+  export const ContratoDotacaoScalarFieldEnum: {
+    id: 'id',
+    contratoId: 'contratoId',
+    dotacaoId: 'dotacaoId',
+    exercicio: 'exercicio',
+    valorPrevistoCents: 'valorPrevistoCents',
+    createdAt: 'createdAt'
+  };
+
+  export type ContratoDotacaoScalarFieldEnum = (typeof ContratoDotacaoScalarFieldEnum)[keyof typeof ContratoDotacaoScalarFieldEnum]
+
+
+  export const EmpenhoScalarFieldEnum: {
+    id: 'id',
+    contratoId: 'contratoId',
+    dotacaoId: 'dotacaoId',
+    numero: 'numero',
+    exercicio: 'exercicio',
+    tipo: 'tipo',
+    data: 'data',
+    valorCents: 'valorCents',
+    valorLiquidadoCents: 'valorLiquidadoCents',
+    valorPagoCents: 'valorPagoCents',
+    situacao: 'situacao',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type EmpenhoScalarFieldEnum = (typeof EmpenhoScalarFieldEnum)[keyof typeof EmpenhoScalarFieldEnum]
+
+
+  export const ReservaOrcamentariaScalarFieldEnum: {
+    id: 'id',
+    contratoId: 'contratoId',
+    processoId: 'processoId',
+    numero: 'numero',
+    data: 'data',
+    valorCents: 'valorCents',
+    situacao: 'situacao',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ReservaOrcamentariaScalarFieldEnum = (typeof ReservaOrcamentariaScalarFieldEnum)[keyof typeof ReservaOrcamentariaScalarFieldEnum]
+
+
+  export const PublicacaoScalarFieldEnum: {
+    id: 'id',
+    contratoId: 'contratoId',
+    alteracaoId: 'alteracaoId',
+    veiculoId: 'veiculoId',
+    dataPublicacao: 'dataPublicacao',
+    numeroEdicao: 'numeroEdicao',
+    idPncp: 'idPncp',
+    url: 'url',
+    createdAt: 'createdAt'
+  };
+
+  export type PublicacaoScalarFieldEnum = (typeof PublicacaoScalarFieldEnum)[keyof typeof PublicacaoScalarFieldEnum]
+
+
+  export const DocumentoScalarFieldEnum: {
+    id: 'id',
+    contratoId: 'contratoId',
+    alteracaoId: 'alteracaoId',
+    processoId: 'processoId',
+    tipoDocumentoId: 'tipoDocumentoId',
+    nome: 'nome',
+    storageKey: 'storageKey',
+    urlExterna: 'urlExterna',
+    mimeType: 'mimeType',
+    tamanhoBytes: 'tamanhoBytes',
+    uploadedById: 'uploadedById',
+    createdAt: 'createdAt'
+  };
+
+  export type DocumentoScalarFieldEnum = (typeof DocumentoScalarFieldEnum)[keyof typeof DocumentoScalarFieldEnum]
+
+
   export const AuditLogScalarFieldEnum: {
     id: 'id',
     tabela: 'tabela',
@@ -26147,6 +33478,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefListRelationFilter
     itensUnidadeMedida?: ItemContratoListRelationFilter
     alteracoesFundamento?: AlteracaoContratualListRelationFilter
+    dotacoesNatureza?: DotacaoOrcamentariaListRelationFilter
+    dotacoesFonte?: DotacaoOrcamentariaListRelationFilter
+    publicacoesVeiculo?: PublicacaoListRelationFilter
+    documentosTipo?: DocumentoListRelationFilter
   }
 
   export type DominioValorOrderByWithRelationInput = {
@@ -26173,6 +33508,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefOrderByRelationAggregateInput
     itensUnidadeMedida?: ItemContratoOrderByRelationAggregateInput
     alteracoesFundamento?: AlteracaoContratualOrderByRelationAggregateInput
+    dotacoesNatureza?: DotacaoOrcamentariaOrderByRelationAggregateInput
+    dotacoesFonte?: DotacaoOrcamentariaOrderByRelationAggregateInput
+    publicacoesVeiculo?: PublicacaoOrderByRelationAggregateInput
+    documentosTipo?: DocumentoOrderByRelationAggregateInput
   }
 
   export type DominioValorWhereUniqueInput = {
@@ -26665,6 +34004,8 @@ export namespace Prisma {
     unidadeDemandante?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput>
     modalidadePretendida?: XOR<DominioValorRelationFilter, DominioValorWhereInput> | null
     contratos?: ContratoListRelationFilter
+    reservas?: ReservaOrcamentariaListRelationFilter
+    documentos?: DocumentoListRelationFilter
   }
 
   export type ProcessoContratacaoOrderByWithRelationInput = {
@@ -26686,6 +34027,8 @@ export namespace Prisma {
     unidadeDemandante?: UnidadeOrganizacionalOrderByWithRelationInput
     modalidadePretendida?: DominioValorOrderByWithRelationInput
     contratos?: ContratoOrderByRelationAggregateInput
+    reservas?: ReservaOrcamentariaOrderByRelationAggregateInput
+    documentos?: DocumentoOrderByRelationAggregateInput
   }
 
   export type ProcessoContratacaoWhereUniqueInput = {
@@ -26786,6 +34129,11 @@ export namespace Prisma {
     rateios?: ContratoRateioListRelationFilter
     itens?: ItemContratoListRelationFilter
     alteracoes?: AlteracaoContratualListRelationFilter
+    dotacoes?: ContratoDotacaoListRelationFilter
+    empenhos?: EmpenhoListRelationFilter
+    reservas?: ReservaOrcamentariaListRelationFilter
+    publicacoes?: PublicacaoListRelationFilter
+    documentos?: DocumentoListRelationFilter
   }
 
   export type ContratoOrderByWithRelationInput = {
@@ -26834,6 +34182,11 @@ export namespace Prisma {
     rateios?: ContratoRateioOrderByRelationAggregateInput
     itens?: ItemContratoOrderByRelationAggregateInput
     alteracoes?: AlteracaoContratualOrderByRelationAggregateInput
+    dotacoes?: ContratoDotacaoOrderByRelationAggregateInput
+    empenhos?: EmpenhoOrderByRelationAggregateInput
+    reservas?: ReservaOrcamentariaOrderByRelationAggregateInput
+    publicacoes?: PublicacaoOrderByRelationAggregateInput
+    documentos?: DocumentoOrderByRelationAggregateInput
   }
 
   export type ContratoWhereUniqueInput = {
@@ -27079,6 +34432,8 @@ export namespace Prisma {
     contrato?: XOR<ContratoRelationFilter, ContratoWhereInput>
     fundamentoLegal?: XOR<DominioValorRelationFilter, DominioValorWhereInput> | null
     itens?: AlteracaoItemListRelationFilter
+    publicacoes?: PublicacaoListRelationFilter
+    documentos?: DocumentoListRelationFilter
   }
 
   export type AlteracaoContratualOrderByWithRelationInput = {
@@ -27106,6 +34461,8 @@ export namespace Prisma {
     contrato?: ContratoOrderByWithRelationInput
     fundamentoLegal?: DominioValorOrderByWithRelationInput
     itens?: AlteracaoItemOrderByRelationAggregateInput
+    publicacoes?: PublicacaoOrderByRelationAggregateInput
+    documentos?: DocumentoOrderByRelationAggregateInput
   }
 
   export type AlteracaoContratualWhereUniqueInput = {
@@ -27490,6 +34847,439 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter | Date | string
   }
 
+  export type DotacaoOrcamentariaWhereInput = {
+    AND?: Enumerable<DotacaoOrcamentariaWhereInput>
+    OR?: Enumerable<DotacaoOrcamentariaWhereInput>
+    NOT?: Enumerable<DotacaoOrcamentariaWhereInput>
+    id?: StringFilter | string
+    exercicio?: IntFilter | number
+    codigo?: StringFilter | string
+    unidadeOrcamentaria?: StringNullableFilter | string | null
+    funcionalProgramatica?: StringNullableFilter | string | null
+    naturezaDespesaId?: StringFilter | string
+    fonteRecursoId?: StringFilter | string
+    descricao?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    naturezaDespesa?: XOR<DominioValorRelationFilter, DominioValorWhereInput>
+    fonteRecurso?: XOR<DominioValorRelationFilter, DominioValorWhereInput>
+    contratos?: ContratoDotacaoListRelationFilter
+    empenhos?: EmpenhoListRelationFilter
+  }
+
+  export type DotacaoOrcamentariaOrderByWithRelationInput = {
+    id?: SortOrder
+    exercicio?: SortOrder
+    codigo?: SortOrder
+    unidadeOrcamentaria?: SortOrderInput | SortOrder
+    funcionalProgramatica?: SortOrderInput | SortOrder
+    naturezaDespesaId?: SortOrder
+    fonteRecursoId?: SortOrder
+    descricao?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    naturezaDespesa?: DominioValorOrderByWithRelationInput
+    fonteRecurso?: DominioValorOrderByWithRelationInput
+    contratos?: ContratoDotacaoOrderByRelationAggregateInput
+    empenhos?: EmpenhoOrderByRelationAggregateInput
+  }
+
+  export type DotacaoOrcamentariaWhereUniqueInput = {
+    id?: string
+    exercicio_codigo?: DotacaoOrcamentariaExercicioCodigoCompoundUniqueInput
+  }
+
+  export type DotacaoOrcamentariaOrderByWithAggregationInput = {
+    id?: SortOrder
+    exercicio?: SortOrder
+    codigo?: SortOrder
+    unidadeOrcamentaria?: SortOrderInput | SortOrder
+    funcionalProgramatica?: SortOrderInput | SortOrder
+    naturezaDespesaId?: SortOrder
+    fonteRecursoId?: SortOrder
+    descricao?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: DotacaoOrcamentariaCountOrderByAggregateInput
+    _avg?: DotacaoOrcamentariaAvgOrderByAggregateInput
+    _max?: DotacaoOrcamentariaMaxOrderByAggregateInput
+    _min?: DotacaoOrcamentariaMinOrderByAggregateInput
+    _sum?: DotacaoOrcamentariaSumOrderByAggregateInput
+  }
+
+  export type DotacaoOrcamentariaScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<DotacaoOrcamentariaScalarWhereWithAggregatesInput>
+    OR?: Enumerable<DotacaoOrcamentariaScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<DotacaoOrcamentariaScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    exercicio?: IntWithAggregatesFilter | number
+    codigo?: StringWithAggregatesFilter | string
+    unidadeOrcamentaria?: StringNullableWithAggregatesFilter | string | null
+    funcionalProgramatica?: StringNullableWithAggregatesFilter | string | null
+    naturezaDespesaId?: StringWithAggregatesFilter | string
+    fonteRecursoId?: StringWithAggregatesFilter | string
+    descricao?: StringNullableWithAggregatesFilter | string | null
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type ContratoDotacaoWhereInput = {
+    AND?: Enumerable<ContratoDotacaoWhereInput>
+    OR?: Enumerable<ContratoDotacaoWhereInput>
+    NOT?: Enumerable<ContratoDotacaoWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringFilter | string
+    dotacaoId?: StringFilter | string
+    exercicio?: IntFilter | number
+    valorPrevistoCents?: BigIntFilter | bigint | number
+    createdAt?: DateTimeFilter | Date | string
+    contrato?: XOR<ContratoRelationFilter, ContratoWhereInput>
+    dotacao?: XOR<DotacaoOrcamentariaRelationFilter, DotacaoOrcamentariaWhereInput>
+  }
+
+  export type ContratoDotacaoOrderByWithRelationInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    dotacaoId?: SortOrder
+    exercicio?: SortOrder
+    valorPrevistoCents?: SortOrder
+    createdAt?: SortOrder
+    contrato?: ContratoOrderByWithRelationInput
+    dotacao?: DotacaoOrcamentariaOrderByWithRelationInput
+  }
+
+  export type ContratoDotacaoWhereUniqueInput = {
+    id?: string
+    contratoId_dotacaoId_exercicio?: ContratoDotacaoContratoIdDotacaoIdExercicioCompoundUniqueInput
+  }
+
+  export type ContratoDotacaoOrderByWithAggregationInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    dotacaoId?: SortOrder
+    exercicio?: SortOrder
+    valorPrevistoCents?: SortOrder
+    createdAt?: SortOrder
+    _count?: ContratoDotacaoCountOrderByAggregateInput
+    _avg?: ContratoDotacaoAvgOrderByAggregateInput
+    _max?: ContratoDotacaoMaxOrderByAggregateInput
+    _min?: ContratoDotacaoMinOrderByAggregateInput
+    _sum?: ContratoDotacaoSumOrderByAggregateInput
+  }
+
+  export type ContratoDotacaoScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<ContratoDotacaoScalarWhereWithAggregatesInput>
+    OR?: Enumerable<ContratoDotacaoScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<ContratoDotacaoScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    contratoId?: StringWithAggregatesFilter | string
+    dotacaoId?: StringWithAggregatesFilter | string
+    exercicio?: IntWithAggregatesFilter | number
+    valorPrevistoCents?: BigIntWithAggregatesFilter | bigint | number
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type EmpenhoWhereInput = {
+    AND?: Enumerable<EmpenhoWhereInput>
+    OR?: Enumerable<EmpenhoWhereInput>
+    NOT?: Enumerable<EmpenhoWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringFilter | string
+    dotacaoId?: StringNullableFilter | string | null
+    numero?: StringFilter | string
+    exercicio?: IntFilter | number
+    tipo?: EnumTipoEmpenhoFilter | TipoEmpenho
+    data?: DateTimeFilter | Date | string
+    valorCents?: BigIntFilter | bigint | number
+    valorLiquidadoCents?: BigIntFilter | bigint | number
+    valorPagoCents?: BigIntFilter | bigint | number
+    situacao?: EnumSituacaoEmpenhoFilter | SituacaoEmpenho
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    contrato?: XOR<ContratoRelationFilter, ContratoWhereInput>
+    dotacao?: XOR<DotacaoOrcamentariaRelationFilter, DotacaoOrcamentariaWhereInput> | null
+  }
+
+  export type EmpenhoOrderByWithRelationInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    dotacaoId?: SortOrderInput | SortOrder
+    numero?: SortOrder
+    exercicio?: SortOrder
+    tipo?: SortOrder
+    data?: SortOrder
+    valorCents?: SortOrder
+    valorLiquidadoCents?: SortOrder
+    valorPagoCents?: SortOrder
+    situacao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    contrato?: ContratoOrderByWithRelationInput
+    dotacao?: DotacaoOrcamentariaOrderByWithRelationInput
+  }
+
+  export type EmpenhoWhereUniqueInput = {
+    id?: string
+    numero_exercicio?: EmpenhoNumeroExercicioCompoundUniqueInput
+  }
+
+  export type EmpenhoOrderByWithAggregationInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    dotacaoId?: SortOrderInput | SortOrder
+    numero?: SortOrder
+    exercicio?: SortOrder
+    tipo?: SortOrder
+    data?: SortOrder
+    valorCents?: SortOrder
+    valorLiquidadoCents?: SortOrder
+    valorPagoCents?: SortOrder
+    situacao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: EmpenhoCountOrderByAggregateInput
+    _avg?: EmpenhoAvgOrderByAggregateInput
+    _max?: EmpenhoMaxOrderByAggregateInput
+    _min?: EmpenhoMinOrderByAggregateInput
+    _sum?: EmpenhoSumOrderByAggregateInput
+  }
+
+  export type EmpenhoScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<EmpenhoScalarWhereWithAggregatesInput>
+    OR?: Enumerable<EmpenhoScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<EmpenhoScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    contratoId?: StringWithAggregatesFilter | string
+    dotacaoId?: StringNullableWithAggregatesFilter | string | null
+    numero?: StringWithAggregatesFilter | string
+    exercicio?: IntWithAggregatesFilter | number
+    tipo?: EnumTipoEmpenhoWithAggregatesFilter | TipoEmpenho
+    data?: DateTimeWithAggregatesFilter | Date | string
+    valorCents?: BigIntWithAggregatesFilter | bigint | number
+    valorLiquidadoCents?: BigIntWithAggregatesFilter | bigint | number
+    valorPagoCents?: BigIntWithAggregatesFilter | bigint | number
+    situacao?: EnumSituacaoEmpenhoWithAggregatesFilter | SituacaoEmpenho
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type ReservaOrcamentariaWhereInput = {
+    AND?: Enumerable<ReservaOrcamentariaWhereInput>
+    OR?: Enumerable<ReservaOrcamentariaWhereInput>
+    NOT?: Enumerable<ReservaOrcamentariaWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringNullableFilter | string | null
+    processoId?: StringNullableFilter | string | null
+    numero?: StringFilter | string
+    data?: DateTimeFilter | Date | string
+    valorCents?: BigIntFilter | bigint | number
+    situacao?: EnumSituacaoReservaFilter | SituacaoReserva
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    contrato?: XOR<ContratoRelationFilter, ContratoWhereInput> | null
+    processo?: XOR<ProcessoContratacaoRelationFilter, ProcessoContratacaoWhereInput> | null
+  }
+
+  export type ReservaOrcamentariaOrderByWithRelationInput = {
+    id?: SortOrder
+    contratoId?: SortOrderInput | SortOrder
+    processoId?: SortOrderInput | SortOrder
+    numero?: SortOrder
+    data?: SortOrder
+    valorCents?: SortOrder
+    situacao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    contrato?: ContratoOrderByWithRelationInput
+    processo?: ProcessoContratacaoOrderByWithRelationInput
+  }
+
+  export type ReservaOrcamentariaWhereUniqueInput = {
+    id?: string
+  }
+
+  export type ReservaOrcamentariaOrderByWithAggregationInput = {
+    id?: SortOrder
+    contratoId?: SortOrderInput | SortOrder
+    processoId?: SortOrderInput | SortOrder
+    numero?: SortOrder
+    data?: SortOrder
+    valorCents?: SortOrder
+    situacao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ReservaOrcamentariaCountOrderByAggregateInput
+    _avg?: ReservaOrcamentariaAvgOrderByAggregateInput
+    _max?: ReservaOrcamentariaMaxOrderByAggregateInput
+    _min?: ReservaOrcamentariaMinOrderByAggregateInput
+    _sum?: ReservaOrcamentariaSumOrderByAggregateInput
+  }
+
+  export type ReservaOrcamentariaScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<ReservaOrcamentariaScalarWhereWithAggregatesInput>
+    OR?: Enumerable<ReservaOrcamentariaScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<ReservaOrcamentariaScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    contratoId?: StringNullableWithAggregatesFilter | string | null
+    processoId?: StringNullableWithAggregatesFilter | string | null
+    numero?: StringWithAggregatesFilter | string
+    data?: DateTimeWithAggregatesFilter | Date | string
+    valorCents?: BigIntWithAggregatesFilter | bigint | number
+    situacao?: EnumSituacaoReservaWithAggregatesFilter | SituacaoReserva
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type PublicacaoWhereInput = {
+    AND?: Enumerable<PublicacaoWhereInput>
+    OR?: Enumerable<PublicacaoWhereInput>
+    NOT?: Enumerable<PublicacaoWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringNullableFilter | string | null
+    alteracaoId?: StringNullableFilter | string | null
+    veiculoId?: StringFilter | string
+    dataPublicacao?: DateTimeFilter | Date | string
+    numeroEdicao?: StringNullableFilter | string | null
+    idPncp?: StringNullableFilter | string | null
+    url?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    contrato?: XOR<ContratoRelationFilter, ContratoWhereInput> | null
+    alteracao?: XOR<AlteracaoContratualRelationFilter, AlteracaoContratualWhereInput> | null
+    veiculo?: XOR<DominioValorRelationFilter, DominioValorWhereInput>
+  }
+
+  export type PublicacaoOrderByWithRelationInput = {
+    id?: SortOrder
+    contratoId?: SortOrderInput | SortOrder
+    alteracaoId?: SortOrderInput | SortOrder
+    veiculoId?: SortOrder
+    dataPublicacao?: SortOrder
+    numeroEdicao?: SortOrderInput | SortOrder
+    idPncp?: SortOrderInput | SortOrder
+    url?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    contrato?: ContratoOrderByWithRelationInput
+    alteracao?: AlteracaoContratualOrderByWithRelationInput
+    veiculo?: DominioValorOrderByWithRelationInput
+  }
+
+  export type PublicacaoWhereUniqueInput = {
+    id?: string
+  }
+
+  export type PublicacaoOrderByWithAggregationInput = {
+    id?: SortOrder
+    contratoId?: SortOrderInput | SortOrder
+    alteracaoId?: SortOrderInput | SortOrder
+    veiculoId?: SortOrder
+    dataPublicacao?: SortOrder
+    numeroEdicao?: SortOrderInput | SortOrder
+    idPncp?: SortOrderInput | SortOrder
+    url?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: PublicacaoCountOrderByAggregateInput
+    _max?: PublicacaoMaxOrderByAggregateInput
+    _min?: PublicacaoMinOrderByAggregateInput
+  }
+
+  export type PublicacaoScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<PublicacaoScalarWhereWithAggregatesInput>
+    OR?: Enumerable<PublicacaoScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<PublicacaoScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    contratoId?: StringNullableWithAggregatesFilter | string | null
+    alteracaoId?: StringNullableWithAggregatesFilter | string | null
+    veiculoId?: StringWithAggregatesFilter | string
+    dataPublicacao?: DateTimeWithAggregatesFilter | Date | string
+    numeroEdicao?: StringNullableWithAggregatesFilter | string | null
+    idPncp?: StringNullableWithAggregatesFilter | string | null
+    url?: StringNullableWithAggregatesFilter | string | null
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type DocumentoWhereInput = {
+    AND?: Enumerable<DocumentoWhereInput>
+    OR?: Enumerable<DocumentoWhereInput>
+    NOT?: Enumerable<DocumentoWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringNullableFilter | string | null
+    alteracaoId?: StringNullableFilter | string | null
+    processoId?: StringNullableFilter | string | null
+    tipoDocumentoId?: StringFilter | string
+    nome?: StringFilter | string
+    storageKey?: StringNullableFilter | string | null
+    urlExterna?: StringNullableFilter | string | null
+    mimeType?: StringNullableFilter | string | null
+    tamanhoBytes?: IntNullableFilter | number | null
+    uploadedById?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    contrato?: XOR<ContratoRelationFilter, ContratoWhereInput> | null
+    alteracao?: XOR<AlteracaoContratualRelationFilter, AlteracaoContratualWhereInput> | null
+    processo?: XOR<ProcessoContratacaoRelationFilter, ProcessoContratacaoWhereInput> | null
+    tipoDocumento?: XOR<DominioValorRelationFilter, DominioValorWhereInput>
+  }
+
+  export type DocumentoOrderByWithRelationInput = {
+    id?: SortOrder
+    contratoId?: SortOrderInput | SortOrder
+    alteracaoId?: SortOrderInput | SortOrder
+    processoId?: SortOrderInput | SortOrder
+    tipoDocumentoId?: SortOrder
+    nome?: SortOrder
+    storageKey?: SortOrderInput | SortOrder
+    urlExterna?: SortOrderInput | SortOrder
+    mimeType?: SortOrderInput | SortOrder
+    tamanhoBytes?: SortOrderInput | SortOrder
+    uploadedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    contrato?: ContratoOrderByWithRelationInput
+    alteracao?: AlteracaoContratualOrderByWithRelationInput
+    processo?: ProcessoContratacaoOrderByWithRelationInput
+    tipoDocumento?: DominioValorOrderByWithRelationInput
+  }
+
+  export type DocumentoWhereUniqueInput = {
+    id?: string
+  }
+
+  export type DocumentoOrderByWithAggregationInput = {
+    id?: SortOrder
+    contratoId?: SortOrderInput | SortOrder
+    alteracaoId?: SortOrderInput | SortOrder
+    processoId?: SortOrderInput | SortOrder
+    tipoDocumentoId?: SortOrder
+    nome?: SortOrder
+    storageKey?: SortOrderInput | SortOrder
+    urlExterna?: SortOrderInput | SortOrder
+    mimeType?: SortOrderInput | SortOrder
+    tamanhoBytes?: SortOrderInput | SortOrder
+    uploadedById?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: DocumentoCountOrderByAggregateInput
+    _avg?: DocumentoAvgOrderByAggregateInput
+    _max?: DocumentoMaxOrderByAggregateInput
+    _min?: DocumentoMinOrderByAggregateInput
+    _sum?: DocumentoSumOrderByAggregateInput
+  }
+
+  export type DocumentoScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<DocumentoScalarWhereWithAggregatesInput>
+    OR?: Enumerable<DocumentoScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<DocumentoScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    contratoId?: StringNullableWithAggregatesFilter | string | null
+    alteracaoId?: StringNullableWithAggregatesFilter | string | null
+    processoId?: StringNullableWithAggregatesFilter | string | null
+    tipoDocumentoId?: StringWithAggregatesFilter | string
+    nome?: StringWithAggregatesFilter | string
+    storageKey?: StringNullableWithAggregatesFilter | string | null
+    urlExterna?: StringNullableWithAggregatesFilter | string | null
+    mimeType?: StringNullableWithAggregatesFilter | string | null
+    tamanhoBytes?: IntNullableWithAggregatesFilter | number | null
+    uploadedById?: StringNullableWithAggregatesFilter | string | null
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
   export type AuditLogWhereInput = {
     AND?: Enumerable<AuditLogWhereInput>
     OR?: Enumerable<AuditLogWhereInput>
@@ -27807,6 +35597,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateInput = {
@@ -27831,6 +35625,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUpdateInput = {
@@ -27855,6 +35653,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateInput = {
@@ -27879,6 +35681,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorCreateManyInput = {
@@ -28510,6 +36316,8 @@ export namespace Prisma {
     unidadeDemandante: UnidadeOrganizacionalCreateNestedOneWithoutProcessosDemandanteInput
     modalidadePretendida?: DominioValorCreateNestedOneWithoutProcessosModalidadeInput
     contratos?: ContratoCreateNestedManyWithoutProcessoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutProcessoInput
+    documentos?: DocumentoCreateNestedManyWithoutProcessoInput
   }
 
   export type ProcessoContratacaoUncheckedCreateInput = {
@@ -28529,6 +36337,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     contratos?: ContratoUncheckedCreateNestedManyWithoutProcessoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutProcessoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutProcessoInput
   }
 
   export type ProcessoContratacaoUpdateInput = {
@@ -28548,6 +36358,8 @@ export namespace Prisma {
     unidadeDemandante?: UnidadeOrganizacionalUpdateOneRequiredWithoutProcessosDemandanteNestedInput
     modalidadePretendida?: DominioValorUpdateOneWithoutProcessosModalidadeNestedInput
     contratos?: ContratoUpdateManyWithoutProcessoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutProcessoNestedInput
+    documentos?: DocumentoUpdateManyWithoutProcessoNestedInput
   }
 
   export type ProcessoContratacaoUncheckedUpdateInput = {
@@ -28567,6 +36379,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contratos?: ContratoUncheckedUpdateManyWithoutProcessoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutProcessoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutProcessoNestedInput
   }
 
   export type ProcessoContratacaoCreateManyInput = {
@@ -28661,6 +36475,11 @@ export namespace Prisma {
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateInput = {
@@ -28703,6 +36522,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUpdateInput = {
@@ -28745,6 +36569,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateInput = {
@@ -28787,6 +36616,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoCreateManyInput = {
@@ -29070,6 +36904,8 @@ export namespace Prisma {
     contrato: ContratoCreateNestedOneWithoutAlteracoesInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutAlteracoesFundamentoInput
     itens?: AlteracaoItemCreateNestedManyWithoutAlteracaoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutAlteracaoInput
+    documentos?: DocumentoCreateNestedManyWithoutAlteracaoInput
   }
 
   export type AlteracaoContratualUncheckedCreateInput = {
@@ -29095,6 +36931,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     itens?: AlteracaoItemUncheckedCreateNestedManyWithoutAlteracaoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutAlteracaoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutAlteracaoInput
   }
 
   export type AlteracaoContratualUpdateInput = {
@@ -29120,6 +36958,8 @@ export namespace Prisma {
     contrato?: ContratoUpdateOneRequiredWithoutAlteracoesNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutAlteracoesFundamentoNestedInput
     itens?: AlteracaoItemUpdateManyWithoutAlteracaoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutAlteracaoNestedInput
+    documentos?: DocumentoUpdateManyWithoutAlteracaoNestedInput
   }
 
   export type AlteracaoContratualUncheckedUpdateInput = {
@@ -29145,6 +36985,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     itens?: AlteracaoItemUncheckedUpdateManyWithoutAlteracaoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutAlteracaoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutAlteracaoNestedInput
   }
 
   export type AlteracaoContratualCreateManyInput = {
@@ -29624,6 +37466,538 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type DotacaoOrcamentariaCreateInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    naturezaDespesa: DominioValorCreateNestedOneWithoutDotacoesNaturezaInput
+    fonteRecurso: DominioValorCreateNestedOneWithoutDotacoesFonteInput
+    contratos?: ContratoDotacaoCreateNestedManyWithoutDotacaoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutDotacaoInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedCreateInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    naturezaDespesaId: string
+    fonteRecursoId: string
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contratos?: ContratoDotacaoUncheckedCreateNestedManyWithoutDotacaoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutDotacaoInput
+  }
+
+  export type DotacaoOrcamentariaUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    naturezaDespesa?: DominioValorUpdateOneRequiredWithoutDotacoesNaturezaNestedInput
+    fonteRecurso?: DominioValorUpdateOneRequiredWithoutDotacoesFonteNestedInput
+    contratos?: ContratoDotacaoUpdateManyWithoutDotacaoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutDotacaoNestedInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    naturezaDespesaId?: StringFieldUpdateOperationsInput | string
+    fonteRecursoId?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratos?: ContratoDotacaoUncheckedUpdateManyWithoutDotacaoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutDotacaoNestedInput
+  }
+
+  export type DotacaoOrcamentariaCreateManyInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    naturezaDespesaId: string
+    fonteRecursoId: string
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DotacaoOrcamentariaUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DotacaoOrcamentariaUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    naturezaDespesaId?: StringFieldUpdateOperationsInput | string
+    fonteRecursoId?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoDotacaoCreateInput = {
+    id?: string
+    exercicio: number
+    valorPrevistoCents: bigint | number
+    createdAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutDotacoesInput
+    dotacao: DotacaoOrcamentariaCreateNestedOneWithoutContratosInput
+  }
+
+  export type ContratoDotacaoUncheckedCreateInput = {
+    id?: string
+    contratoId: string
+    dotacaoId: string
+    exercicio: number
+    valorPrevistoCents: bigint | number
+    createdAt?: Date | string
+  }
+
+  export type ContratoDotacaoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    valorPrevistoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutDotacoesNestedInput
+    dotacao?: DotacaoOrcamentariaUpdateOneRequiredWithoutContratosNestedInput
+  }
+
+  export type ContratoDotacaoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    dotacaoId?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    valorPrevistoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoDotacaoCreateManyInput = {
+    id?: string
+    contratoId: string
+    dotacaoId: string
+    exercicio: number
+    valorPrevistoCents: bigint | number
+    createdAt?: Date | string
+  }
+
+  export type ContratoDotacaoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    valorPrevistoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoDotacaoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    dotacaoId?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    valorPrevistoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmpenhoCreateInput = {
+    id?: string
+    numero: string
+    exercicio: number
+    tipo?: TipoEmpenho
+    data: Date | string
+    valorCents: bigint | number
+    valorLiquidadoCents?: bigint | number
+    valorPagoCents?: bigint | number
+    situacao?: SituacaoEmpenho
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutEmpenhosInput
+    dotacao?: DotacaoOrcamentariaCreateNestedOneWithoutEmpenhosInput
+  }
+
+  export type EmpenhoUncheckedCreateInput = {
+    id?: string
+    contratoId: string
+    dotacaoId?: string | null
+    numero: string
+    exercicio: number
+    tipo?: TipoEmpenho
+    data: Date | string
+    valorCents: bigint | number
+    valorLiquidadoCents?: bigint | number
+    valorPagoCents?: bigint | number
+    situacao?: SituacaoEmpenho
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmpenhoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    tipo?: EnumTipoEmpenhoFieldUpdateOperationsInput | TipoEmpenho
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorLiquidadoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorPagoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoEmpenhoFieldUpdateOperationsInput | SituacaoEmpenho
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutEmpenhosNestedInput
+    dotacao?: DotacaoOrcamentariaUpdateOneWithoutEmpenhosNestedInput
+  }
+
+  export type EmpenhoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    dotacaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numero?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    tipo?: EnumTipoEmpenhoFieldUpdateOperationsInput | TipoEmpenho
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorLiquidadoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorPagoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoEmpenhoFieldUpdateOperationsInput | SituacaoEmpenho
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmpenhoCreateManyInput = {
+    id?: string
+    contratoId: string
+    dotacaoId?: string | null
+    numero: string
+    exercicio: number
+    tipo?: TipoEmpenho
+    data: Date | string
+    valorCents: bigint | number
+    valorLiquidadoCents?: bigint | number
+    valorPagoCents?: bigint | number
+    situacao?: SituacaoEmpenho
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmpenhoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    tipo?: EnumTipoEmpenhoFieldUpdateOperationsInput | TipoEmpenho
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorLiquidadoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorPagoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoEmpenhoFieldUpdateOperationsInput | SituacaoEmpenho
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmpenhoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    dotacaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numero?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    tipo?: EnumTipoEmpenhoFieldUpdateOperationsInput | TipoEmpenho
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorLiquidadoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorPagoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoEmpenhoFieldUpdateOperationsInput | SituacaoEmpenho
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservaOrcamentariaCreateInput = {
+    id?: string
+    numero: string
+    data: Date | string
+    valorCents: bigint | number
+    situacao?: SituacaoReserva
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contrato?: ContratoCreateNestedOneWithoutReservasInput
+    processo?: ProcessoContratacaoCreateNestedOneWithoutReservasInput
+  }
+
+  export type ReservaOrcamentariaUncheckedCreateInput = {
+    id?: string
+    contratoId?: string | null
+    processoId?: string | null
+    numero: string
+    data: Date | string
+    valorCents: bigint | number
+    situacao?: SituacaoReserva
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservaOrcamentariaUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: StringFieldUpdateOperationsInput | string
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoReservaFieldUpdateOperationsInput | SituacaoReserva
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneWithoutReservasNestedInput
+    processo?: ProcessoContratacaoUpdateOneWithoutReservasNestedInput
+  }
+
+  export type ReservaOrcamentariaUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numero?: StringFieldUpdateOperationsInput | string
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoReservaFieldUpdateOperationsInput | SituacaoReserva
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservaOrcamentariaCreateManyInput = {
+    id?: string
+    contratoId?: string | null
+    processoId?: string | null
+    numero: string
+    data: Date | string
+    valorCents: bigint | number
+    situacao?: SituacaoReserva
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservaOrcamentariaUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: StringFieldUpdateOperationsInput | string
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoReservaFieldUpdateOperationsInput | SituacaoReserva
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservaOrcamentariaUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numero?: StringFieldUpdateOperationsInput | string
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoReservaFieldUpdateOperationsInput | SituacaoReserva
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublicacaoCreateInput = {
+    id?: string
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    contrato?: ContratoCreateNestedOneWithoutPublicacoesInput
+    alteracao?: AlteracaoContratualCreateNestedOneWithoutPublicacoesInput
+    veiculo: DominioValorCreateNestedOneWithoutPublicacoesVeiculoInput
+  }
+
+  export type PublicacaoUncheckedCreateInput = {
+    id?: string
+    contratoId?: string | null
+    alteracaoId?: string | null
+    veiculoId: string
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PublicacaoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneWithoutPublicacoesNestedInput
+    alteracao?: AlteracaoContratualUpdateOneWithoutPublicacoesNestedInput
+    veiculo?: DominioValorUpdateOneRequiredWithoutPublicacoesVeiculoNestedInput
+  }
+
+  export type PublicacaoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    veiculoId?: StringFieldUpdateOperationsInput | string
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublicacaoCreateManyInput = {
+    id?: string
+    contratoId?: string | null
+    alteracaoId?: string | null
+    veiculoId: string
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PublicacaoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublicacaoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    veiculoId?: StringFieldUpdateOperationsInput | string
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoCreateInput = {
+    id?: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+    contrato?: ContratoCreateNestedOneWithoutDocumentosInput
+    alteracao?: AlteracaoContratualCreateNestedOneWithoutDocumentosInput
+    processo?: ProcessoContratacaoCreateNestedOneWithoutDocumentosInput
+    tipoDocumento: DominioValorCreateNestedOneWithoutDocumentosTipoInput
+  }
+
+  export type DocumentoUncheckedCreateInput = {
+    id?: string
+    contratoId?: string | null
+    alteracaoId?: string | null
+    processoId?: string | null
+    tipoDocumentoId: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+  }
+
+  export type DocumentoUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneWithoutDocumentosNestedInput
+    alteracao?: AlteracaoContratualUpdateOneWithoutDocumentosNestedInput
+    processo?: ProcessoContratacaoUpdateOneWithoutDocumentosNestedInput
+    tipoDocumento?: DominioValorUpdateOneRequiredWithoutDocumentosTipoNestedInput
+  }
+
+  export type DocumentoUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoDocumentoId?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoCreateManyInput = {
+    id?: string
+    contratoId?: string | null
+    alteracaoId?: string | null
+    processoId?: string | null
+    tipoDocumentoId: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+  }
+
+  export type DocumentoUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoDocumentoId?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AuditLogCreateInput = {
     id?: string
     tabela: string
@@ -30054,6 +38428,24 @@ export namespace Prisma {
     none?: AlteracaoContratualWhereInput
   }
 
+  export type DotacaoOrcamentariaListRelationFilter = {
+    every?: DotacaoOrcamentariaWhereInput
+    some?: DotacaoOrcamentariaWhereInput
+    none?: DotacaoOrcamentariaWhereInput
+  }
+
+  export type PublicacaoListRelationFilter = {
+    every?: PublicacaoWhereInput
+    some?: PublicacaoWhereInput
+    none?: PublicacaoWhereInput
+  }
+
+  export type DocumentoListRelationFilter = {
+    every?: DocumentoWhereInput
+    some?: DocumentoWhereInput
+    none?: DocumentoWhereInput
+  }
+
   export type ContratoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -30071,6 +38463,18 @@ export namespace Prisma {
   }
 
   export type AlteracaoContratualOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DotacaoOrcamentariaOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type PublicacaoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DocumentoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -30616,6 +39020,16 @@ export namespace Prisma {
     not?: NestedEnumSituacaoProcessoFilter | SituacaoProcesso
   }
 
+  export type ReservaOrcamentariaListRelationFilter = {
+    every?: ReservaOrcamentariaWhereInput
+    some?: ReservaOrcamentariaWhereInput
+    none?: ReservaOrcamentariaWhereInput
+  }
+
+  export type ReservaOrcamentariaOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
   export type ProcessoContratacaoCountOrderByAggregateInput = {
     id?: SortOrder
     eProtocolo?: SortOrder
@@ -30766,6 +39180,26 @@ export namespace Prisma {
   export type ProcessoContratacaoRelationFilter = {
     is?: ProcessoContratacaoWhereInput | null
     isNot?: ProcessoContratacaoWhereInput | null
+  }
+
+  export type ContratoDotacaoListRelationFilter = {
+    every?: ContratoDotacaoWhereInput
+    some?: ContratoDotacaoWhereInput
+    none?: ContratoDotacaoWhereInput
+  }
+
+  export type EmpenhoListRelationFilter = {
+    every?: EmpenhoWhereInput
+    some?: EmpenhoWhereInput
+    none?: EmpenhoWhereInput
+  }
+
+  export type ContratoDotacaoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type EmpenhoOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type ContratoNumeroGmsAnoGmsCompoundUniqueInput = {
@@ -31569,6 +40003,357 @@ export namespace Prisma {
     _min?: NestedEnumPeriodicidadeFilter
     _max?: NestedEnumPeriodicidadeFilter
   }
+
+  export type DotacaoOrcamentariaExercicioCodigoCompoundUniqueInput = {
+    exercicio: number
+    codigo: string
+  }
+
+  export type DotacaoOrcamentariaCountOrderByAggregateInput = {
+    id?: SortOrder
+    exercicio?: SortOrder
+    codigo?: SortOrder
+    unidadeOrcamentaria?: SortOrder
+    funcionalProgramatica?: SortOrder
+    naturezaDespesaId?: SortOrder
+    fonteRecursoId?: SortOrder
+    descricao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DotacaoOrcamentariaAvgOrderByAggregateInput = {
+    exercicio?: SortOrder
+  }
+
+  export type DotacaoOrcamentariaMaxOrderByAggregateInput = {
+    id?: SortOrder
+    exercicio?: SortOrder
+    codigo?: SortOrder
+    unidadeOrcamentaria?: SortOrder
+    funcionalProgramatica?: SortOrder
+    naturezaDespesaId?: SortOrder
+    fonteRecursoId?: SortOrder
+    descricao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DotacaoOrcamentariaMinOrderByAggregateInput = {
+    id?: SortOrder
+    exercicio?: SortOrder
+    codigo?: SortOrder
+    unidadeOrcamentaria?: SortOrder
+    funcionalProgramatica?: SortOrder
+    naturezaDespesaId?: SortOrder
+    fonteRecursoId?: SortOrder
+    descricao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type DotacaoOrcamentariaSumOrderByAggregateInput = {
+    exercicio?: SortOrder
+  }
+
+  export type DotacaoOrcamentariaRelationFilter = {
+    is?: DotacaoOrcamentariaWhereInput | null
+    isNot?: DotacaoOrcamentariaWhereInput | null
+  }
+
+  export type ContratoDotacaoContratoIdDotacaoIdExercicioCompoundUniqueInput = {
+    contratoId: string
+    dotacaoId: string
+    exercicio: number
+  }
+
+  export type ContratoDotacaoCountOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    dotacaoId?: SortOrder
+    exercicio?: SortOrder
+    valorPrevistoCents?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ContratoDotacaoAvgOrderByAggregateInput = {
+    exercicio?: SortOrder
+    valorPrevistoCents?: SortOrder
+  }
+
+  export type ContratoDotacaoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    dotacaoId?: SortOrder
+    exercicio?: SortOrder
+    valorPrevistoCents?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ContratoDotacaoMinOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    dotacaoId?: SortOrder
+    exercicio?: SortOrder
+    valorPrevistoCents?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ContratoDotacaoSumOrderByAggregateInput = {
+    exercicio?: SortOrder
+    valorPrevistoCents?: SortOrder
+  }
+
+  export type EnumTipoEmpenhoFilter = {
+    equals?: TipoEmpenho
+    in?: Enumerable<TipoEmpenho>
+    notIn?: Enumerable<TipoEmpenho>
+    not?: NestedEnumTipoEmpenhoFilter | TipoEmpenho
+  }
+
+  export type EnumSituacaoEmpenhoFilter = {
+    equals?: SituacaoEmpenho
+    in?: Enumerable<SituacaoEmpenho>
+    notIn?: Enumerable<SituacaoEmpenho>
+    not?: NestedEnumSituacaoEmpenhoFilter | SituacaoEmpenho
+  }
+
+  export type EmpenhoNumeroExercicioCompoundUniqueInput = {
+    numero: string
+    exercicio: number
+  }
+
+  export type EmpenhoCountOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    dotacaoId?: SortOrder
+    numero?: SortOrder
+    exercicio?: SortOrder
+    tipo?: SortOrder
+    data?: SortOrder
+    valorCents?: SortOrder
+    valorLiquidadoCents?: SortOrder
+    valorPagoCents?: SortOrder
+    situacao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmpenhoAvgOrderByAggregateInput = {
+    exercicio?: SortOrder
+    valorCents?: SortOrder
+    valorLiquidadoCents?: SortOrder
+    valorPagoCents?: SortOrder
+  }
+
+  export type EmpenhoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    dotacaoId?: SortOrder
+    numero?: SortOrder
+    exercicio?: SortOrder
+    tipo?: SortOrder
+    data?: SortOrder
+    valorCents?: SortOrder
+    valorLiquidadoCents?: SortOrder
+    valorPagoCents?: SortOrder
+    situacao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmpenhoMinOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    dotacaoId?: SortOrder
+    numero?: SortOrder
+    exercicio?: SortOrder
+    tipo?: SortOrder
+    data?: SortOrder
+    valorCents?: SortOrder
+    valorLiquidadoCents?: SortOrder
+    valorPagoCents?: SortOrder
+    situacao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type EmpenhoSumOrderByAggregateInput = {
+    exercicio?: SortOrder
+    valorCents?: SortOrder
+    valorLiquidadoCents?: SortOrder
+    valorPagoCents?: SortOrder
+  }
+
+  export type EnumTipoEmpenhoWithAggregatesFilter = {
+    equals?: TipoEmpenho
+    in?: Enumerable<TipoEmpenho>
+    notIn?: Enumerable<TipoEmpenho>
+    not?: NestedEnumTipoEmpenhoWithAggregatesFilter | TipoEmpenho
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoEmpenhoFilter
+    _max?: NestedEnumTipoEmpenhoFilter
+  }
+
+  export type EnumSituacaoEmpenhoWithAggregatesFilter = {
+    equals?: SituacaoEmpenho
+    in?: Enumerable<SituacaoEmpenho>
+    notIn?: Enumerable<SituacaoEmpenho>
+    not?: NestedEnumSituacaoEmpenhoWithAggregatesFilter | SituacaoEmpenho
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoEmpenhoFilter
+    _max?: NestedEnumSituacaoEmpenhoFilter
+  }
+
+  export type EnumSituacaoReservaFilter = {
+    equals?: SituacaoReserva
+    in?: Enumerable<SituacaoReserva>
+    notIn?: Enumerable<SituacaoReserva>
+    not?: NestedEnumSituacaoReservaFilter | SituacaoReserva
+  }
+
+  export type ReservaOrcamentariaCountOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    processoId?: SortOrder
+    numero?: SortOrder
+    data?: SortOrder
+    valorCents?: SortOrder
+    situacao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReservaOrcamentariaAvgOrderByAggregateInput = {
+    valorCents?: SortOrder
+  }
+
+  export type ReservaOrcamentariaMaxOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    processoId?: SortOrder
+    numero?: SortOrder
+    data?: SortOrder
+    valorCents?: SortOrder
+    situacao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReservaOrcamentariaMinOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    processoId?: SortOrder
+    numero?: SortOrder
+    data?: SortOrder
+    valorCents?: SortOrder
+    situacao?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ReservaOrcamentariaSumOrderByAggregateInput = {
+    valorCents?: SortOrder
+  }
+
+  export type EnumSituacaoReservaWithAggregatesFilter = {
+    equals?: SituacaoReserva
+    in?: Enumerable<SituacaoReserva>
+    notIn?: Enumerable<SituacaoReserva>
+    not?: NestedEnumSituacaoReservaWithAggregatesFilter | SituacaoReserva
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoReservaFilter
+    _max?: NestedEnumSituacaoReservaFilter
+  }
+
+  export type PublicacaoCountOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    alteracaoId?: SortOrder
+    veiculoId?: SortOrder
+    dataPublicacao?: SortOrder
+    numeroEdicao?: SortOrder
+    idPncp?: SortOrder
+    url?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PublicacaoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    alteracaoId?: SortOrder
+    veiculoId?: SortOrder
+    dataPublicacao?: SortOrder
+    numeroEdicao?: SortOrder
+    idPncp?: SortOrder
+    url?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type PublicacaoMinOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    alteracaoId?: SortOrder
+    veiculoId?: SortOrder
+    dataPublicacao?: SortOrder
+    numeroEdicao?: SortOrder
+    idPncp?: SortOrder
+    url?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DocumentoCountOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    alteracaoId?: SortOrder
+    processoId?: SortOrder
+    tipoDocumentoId?: SortOrder
+    nome?: SortOrder
+    storageKey?: SortOrder
+    urlExterna?: SortOrder
+    mimeType?: SortOrder
+    tamanhoBytes?: SortOrder
+    uploadedById?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DocumentoAvgOrderByAggregateInput = {
+    tamanhoBytes?: SortOrder
+  }
+
+  export type DocumentoMaxOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    alteracaoId?: SortOrder
+    processoId?: SortOrder
+    tipoDocumentoId?: SortOrder
+    nome?: SortOrder
+    storageKey?: SortOrder
+    urlExterna?: SortOrder
+    mimeType?: SortOrder
+    tamanhoBytes?: SortOrder
+    uploadedById?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DocumentoMinOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    alteracaoId?: SortOrder
+    processoId?: SortOrder
+    tipoDocumentoId?: SortOrder
+    nome?: SortOrder
+    storageKey?: SortOrder
+    urlExterna?: SortOrder
+    mimeType?: SortOrder
+    tamanhoBytes?: SortOrder
+    uploadedById?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type DocumentoSumOrderByAggregateInput = {
+    tamanhoBytes?: SortOrder
+  }
   export type JsonFilter = 
     | PatchUndefined<
         Either<Required<JsonFilterBase>, Exclude<keyof Required<JsonFilterBase>, 'path'>>,
@@ -31938,6 +40723,34 @@ export namespace Prisma {
     connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
   }
 
+  export type DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput = {
+    create?: XOR<Enumerable<DotacaoOrcamentariaCreateWithoutNaturezaDespesaInput>, Enumerable<DotacaoOrcamentariaUncheckedCreateWithoutNaturezaDespesaInput>>
+    connectOrCreate?: Enumerable<DotacaoOrcamentariaCreateOrConnectWithoutNaturezaDespesaInput>
+    createMany?: DotacaoOrcamentariaCreateManyNaturezaDespesaInputEnvelope
+    connect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+  }
+
+  export type DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput = {
+    create?: XOR<Enumerable<DotacaoOrcamentariaCreateWithoutFonteRecursoInput>, Enumerable<DotacaoOrcamentariaUncheckedCreateWithoutFonteRecursoInput>>
+    connectOrCreate?: Enumerable<DotacaoOrcamentariaCreateOrConnectWithoutFonteRecursoInput>
+    createMany?: DotacaoOrcamentariaCreateManyFonteRecursoInputEnvelope
+    connect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+  }
+
+  export type PublicacaoCreateNestedManyWithoutVeiculoInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutVeiculoInput>, Enumerable<PublicacaoUncheckedCreateWithoutVeiculoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutVeiculoInput>
+    createMany?: PublicacaoCreateManyVeiculoInputEnvelope
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+  }
+
+  export type DocumentoCreateNestedManyWithoutTipoDocumentoInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutTipoDocumentoInput>, Enumerable<DocumentoUncheckedCreateWithoutTipoDocumentoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutTipoDocumentoInput>
+    createMany?: DocumentoCreateManyTipoDocumentoInputEnvelope
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+  }
+
   export type DominioValorUncheckedCreateNestedManyWithoutParentInput = {
     create?: XOR<Enumerable<DominioValorCreateWithoutParentInput>, Enumerable<DominioValorUncheckedCreateWithoutParentInput>>
     connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutParentInput>
@@ -32006,6 +40819,34 @@ export namespace Prisma {
     connectOrCreate?: Enumerable<AlteracaoContratualCreateOrConnectWithoutFundamentoLegalInput>
     createMany?: AlteracaoContratualCreateManyFundamentoLegalInputEnvelope
     connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
+  }
+
+  export type DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput = {
+    create?: XOR<Enumerable<DotacaoOrcamentariaCreateWithoutNaturezaDespesaInput>, Enumerable<DotacaoOrcamentariaUncheckedCreateWithoutNaturezaDespesaInput>>
+    connectOrCreate?: Enumerable<DotacaoOrcamentariaCreateOrConnectWithoutNaturezaDespesaInput>
+    createMany?: DotacaoOrcamentariaCreateManyNaturezaDespesaInputEnvelope
+    connect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+  }
+
+  export type DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput = {
+    create?: XOR<Enumerable<DotacaoOrcamentariaCreateWithoutFonteRecursoInput>, Enumerable<DotacaoOrcamentariaUncheckedCreateWithoutFonteRecursoInput>>
+    connectOrCreate?: Enumerable<DotacaoOrcamentariaCreateOrConnectWithoutFonteRecursoInput>
+    createMany?: DotacaoOrcamentariaCreateManyFonteRecursoInputEnvelope
+    connect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+  }
+
+  export type PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutVeiculoInput>, Enumerable<PublicacaoUncheckedCreateWithoutVeiculoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutVeiculoInput>
+    createMany?: PublicacaoCreateManyVeiculoInputEnvelope
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+  }
+
+  export type DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutTipoDocumentoInput>, Enumerable<DocumentoUncheckedCreateWithoutTipoDocumentoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutTipoDocumentoInput>
+    createMany?: DocumentoCreateManyTipoDocumentoInputEnvelope
+    connect?: Enumerable<DocumentoWhereUniqueInput>
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -32174,6 +41015,62 @@ export namespace Prisma {
     deleteMany?: Enumerable<AlteracaoContratualScalarWhereInput>
   }
 
+  export type DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput = {
+    create?: XOR<Enumerable<DotacaoOrcamentariaCreateWithoutNaturezaDespesaInput>, Enumerable<DotacaoOrcamentariaUncheckedCreateWithoutNaturezaDespesaInput>>
+    connectOrCreate?: Enumerable<DotacaoOrcamentariaCreateOrConnectWithoutNaturezaDespesaInput>
+    upsert?: Enumerable<DotacaoOrcamentariaUpsertWithWhereUniqueWithoutNaturezaDespesaInput>
+    createMany?: DotacaoOrcamentariaCreateManyNaturezaDespesaInputEnvelope
+    set?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    disconnect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    delete?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    connect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    update?: Enumerable<DotacaoOrcamentariaUpdateWithWhereUniqueWithoutNaturezaDespesaInput>
+    updateMany?: Enumerable<DotacaoOrcamentariaUpdateManyWithWhereWithoutNaturezaDespesaInput>
+    deleteMany?: Enumerable<DotacaoOrcamentariaScalarWhereInput>
+  }
+
+  export type DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput = {
+    create?: XOR<Enumerable<DotacaoOrcamentariaCreateWithoutFonteRecursoInput>, Enumerable<DotacaoOrcamentariaUncheckedCreateWithoutFonteRecursoInput>>
+    connectOrCreate?: Enumerable<DotacaoOrcamentariaCreateOrConnectWithoutFonteRecursoInput>
+    upsert?: Enumerable<DotacaoOrcamentariaUpsertWithWhereUniqueWithoutFonteRecursoInput>
+    createMany?: DotacaoOrcamentariaCreateManyFonteRecursoInputEnvelope
+    set?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    disconnect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    delete?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    connect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    update?: Enumerable<DotacaoOrcamentariaUpdateWithWhereUniqueWithoutFonteRecursoInput>
+    updateMany?: Enumerable<DotacaoOrcamentariaUpdateManyWithWhereWithoutFonteRecursoInput>
+    deleteMany?: Enumerable<DotacaoOrcamentariaScalarWhereInput>
+  }
+
+  export type PublicacaoUpdateManyWithoutVeiculoNestedInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutVeiculoInput>, Enumerable<PublicacaoUncheckedCreateWithoutVeiculoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutVeiculoInput>
+    upsert?: Enumerable<PublicacaoUpsertWithWhereUniqueWithoutVeiculoInput>
+    createMany?: PublicacaoCreateManyVeiculoInputEnvelope
+    set?: Enumerable<PublicacaoWhereUniqueInput>
+    disconnect?: Enumerable<PublicacaoWhereUniqueInput>
+    delete?: Enumerable<PublicacaoWhereUniqueInput>
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+    update?: Enumerable<PublicacaoUpdateWithWhereUniqueWithoutVeiculoInput>
+    updateMany?: Enumerable<PublicacaoUpdateManyWithWhereWithoutVeiculoInput>
+    deleteMany?: Enumerable<PublicacaoScalarWhereInput>
+  }
+
+  export type DocumentoUpdateManyWithoutTipoDocumentoNestedInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutTipoDocumentoInput>, Enumerable<DocumentoUncheckedCreateWithoutTipoDocumentoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutTipoDocumentoInput>
+    upsert?: Enumerable<DocumentoUpsertWithWhereUniqueWithoutTipoDocumentoInput>
+    createMany?: DocumentoCreateManyTipoDocumentoInputEnvelope
+    set?: Enumerable<DocumentoWhereUniqueInput>
+    disconnect?: Enumerable<DocumentoWhereUniqueInput>
+    delete?: Enumerable<DocumentoWhereUniqueInput>
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+    update?: Enumerable<DocumentoUpdateWithWhereUniqueWithoutTipoDocumentoInput>
+    updateMany?: Enumerable<DocumentoUpdateManyWithWhereWithoutTipoDocumentoInput>
+    deleteMany?: Enumerable<DocumentoScalarWhereInput>
+  }
+
   export type DominioValorUncheckedUpdateManyWithoutParentNestedInput = {
     create?: XOR<Enumerable<DominioValorCreateWithoutParentInput>, Enumerable<DominioValorUncheckedCreateWithoutParentInput>>
     connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutParentInput>
@@ -32312,6 +41209,62 @@ export namespace Prisma {
     update?: Enumerable<AlteracaoContratualUpdateWithWhereUniqueWithoutFundamentoLegalInput>
     updateMany?: Enumerable<AlteracaoContratualUpdateManyWithWhereWithoutFundamentoLegalInput>
     deleteMany?: Enumerable<AlteracaoContratualScalarWhereInput>
+  }
+
+  export type DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput = {
+    create?: XOR<Enumerable<DotacaoOrcamentariaCreateWithoutNaturezaDespesaInput>, Enumerable<DotacaoOrcamentariaUncheckedCreateWithoutNaturezaDespesaInput>>
+    connectOrCreate?: Enumerable<DotacaoOrcamentariaCreateOrConnectWithoutNaturezaDespesaInput>
+    upsert?: Enumerable<DotacaoOrcamentariaUpsertWithWhereUniqueWithoutNaturezaDespesaInput>
+    createMany?: DotacaoOrcamentariaCreateManyNaturezaDespesaInputEnvelope
+    set?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    disconnect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    delete?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    connect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    update?: Enumerable<DotacaoOrcamentariaUpdateWithWhereUniqueWithoutNaturezaDespesaInput>
+    updateMany?: Enumerable<DotacaoOrcamentariaUpdateManyWithWhereWithoutNaturezaDespesaInput>
+    deleteMany?: Enumerable<DotacaoOrcamentariaScalarWhereInput>
+  }
+
+  export type DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput = {
+    create?: XOR<Enumerable<DotacaoOrcamentariaCreateWithoutFonteRecursoInput>, Enumerable<DotacaoOrcamentariaUncheckedCreateWithoutFonteRecursoInput>>
+    connectOrCreate?: Enumerable<DotacaoOrcamentariaCreateOrConnectWithoutFonteRecursoInput>
+    upsert?: Enumerable<DotacaoOrcamentariaUpsertWithWhereUniqueWithoutFonteRecursoInput>
+    createMany?: DotacaoOrcamentariaCreateManyFonteRecursoInputEnvelope
+    set?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    disconnect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    delete?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    connect?: Enumerable<DotacaoOrcamentariaWhereUniqueInput>
+    update?: Enumerable<DotacaoOrcamentariaUpdateWithWhereUniqueWithoutFonteRecursoInput>
+    updateMany?: Enumerable<DotacaoOrcamentariaUpdateManyWithWhereWithoutFonteRecursoInput>
+    deleteMany?: Enumerable<DotacaoOrcamentariaScalarWhereInput>
+  }
+
+  export type PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutVeiculoInput>, Enumerable<PublicacaoUncheckedCreateWithoutVeiculoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutVeiculoInput>
+    upsert?: Enumerable<PublicacaoUpsertWithWhereUniqueWithoutVeiculoInput>
+    createMany?: PublicacaoCreateManyVeiculoInputEnvelope
+    set?: Enumerable<PublicacaoWhereUniqueInput>
+    disconnect?: Enumerable<PublicacaoWhereUniqueInput>
+    delete?: Enumerable<PublicacaoWhereUniqueInput>
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+    update?: Enumerable<PublicacaoUpdateWithWhereUniqueWithoutVeiculoInput>
+    updateMany?: Enumerable<PublicacaoUpdateManyWithWhereWithoutVeiculoInput>
+    deleteMany?: Enumerable<PublicacaoScalarWhereInput>
+  }
+
+  export type DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutTipoDocumentoInput>, Enumerable<DocumentoUncheckedCreateWithoutTipoDocumentoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutTipoDocumentoInput>
+    upsert?: Enumerable<DocumentoUpsertWithWhereUniqueWithoutTipoDocumentoInput>
+    createMany?: DocumentoCreateManyTipoDocumentoInputEnvelope
+    set?: Enumerable<DocumentoWhereUniqueInput>
+    disconnect?: Enumerable<DocumentoWhereUniqueInput>
+    delete?: Enumerable<DocumentoWhereUniqueInput>
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+    update?: Enumerable<DocumentoUpdateWithWhereUniqueWithoutTipoDocumentoInput>
+    updateMany?: Enumerable<DocumentoUpdateManyWithWhereWithoutTipoDocumentoInput>
+    deleteMany?: Enumerable<DocumentoScalarWhereInput>
   }
 
   export type UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput = {
@@ -32985,11 +41938,39 @@ export namespace Prisma {
     connect?: Enumerable<ContratoWhereUniqueInput>
   }
 
+  export type ReservaOrcamentariaCreateNestedManyWithoutProcessoInput = {
+    create?: XOR<Enumerable<ReservaOrcamentariaCreateWithoutProcessoInput>, Enumerable<ReservaOrcamentariaUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<ReservaOrcamentariaCreateOrConnectWithoutProcessoInput>
+    createMany?: ReservaOrcamentariaCreateManyProcessoInputEnvelope
+    connect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+  }
+
+  export type DocumentoCreateNestedManyWithoutProcessoInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutProcessoInput>, Enumerable<DocumentoUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutProcessoInput>
+    createMany?: DocumentoCreateManyProcessoInputEnvelope
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+  }
+
   export type ContratoUncheckedCreateNestedManyWithoutProcessoInput = {
     create?: XOR<Enumerable<ContratoCreateWithoutProcessoInput>, Enumerable<ContratoUncheckedCreateWithoutProcessoInput>>
     connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutProcessoInput>
     createMany?: ContratoCreateManyProcessoInputEnvelope
     connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ReservaOrcamentariaUncheckedCreateNestedManyWithoutProcessoInput = {
+    create?: XOR<Enumerable<ReservaOrcamentariaCreateWithoutProcessoInput>, Enumerable<ReservaOrcamentariaUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<ReservaOrcamentariaCreateOrConnectWithoutProcessoInput>
+    createMany?: ReservaOrcamentariaCreateManyProcessoInputEnvelope
+    connect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+  }
+
+  export type DocumentoUncheckedCreateNestedManyWithoutProcessoInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutProcessoInput>, Enumerable<DocumentoUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutProcessoInput>
+    createMany?: DocumentoCreateManyProcessoInputEnvelope
+    connect?: Enumerable<DocumentoWhereUniqueInput>
   }
 
   export type NullableBigIntFieldUpdateOperationsInput = {
@@ -33036,6 +42017,34 @@ export namespace Prisma {
     deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
+  export type ReservaOrcamentariaUpdateManyWithoutProcessoNestedInput = {
+    create?: XOR<Enumerable<ReservaOrcamentariaCreateWithoutProcessoInput>, Enumerable<ReservaOrcamentariaUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<ReservaOrcamentariaCreateOrConnectWithoutProcessoInput>
+    upsert?: Enumerable<ReservaOrcamentariaUpsertWithWhereUniqueWithoutProcessoInput>
+    createMany?: ReservaOrcamentariaCreateManyProcessoInputEnvelope
+    set?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    disconnect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    delete?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    connect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    update?: Enumerable<ReservaOrcamentariaUpdateWithWhereUniqueWithoutProcessoInput>
+    updateMany?: Enumerable<ReservaOrcamentariaUpdateManyWithWhereWithoutProcessoInput>
+    deleteMany?: Enumerable<ReservaOrcamentariaScalarWhereInput>
+  }
+
+  export type DocumentoUpdateManyWithoutProcessoNestedInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutProcessoInput>, Enumerable<DocumentoUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutProcessoInput>
+    upsert?: Enumerable<DocumentoUpsertWithWhereUniqueWithoutProcessoInput>
+    createMany?: DocumentoCreateManyProcessoInputEnvelope
+    set?: Enumerable<DocumentoWhereUniqueInput>
+    disconnect?: Enumerable<DocumentoWhereUniqueInput>
+    delete?: Enumerable<DocumentoWhereUniqueInput>
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+    update?: Enumerable<DocumentoUpdateWithWhereUniqueWithoutProcessoInput>
+    updateMany?: Enumerable<DocumentoUpdateManyWithWhereWithoutProcessoInput>
+    deleteMany?: Enumerable<DocumentoScalarWhereInput>
+  }
+
   export type ContratoUncheckedUpdateManyWithoutProcessoNestedInput = {
     create?: XOR<Enumerable<ContratoCreateWithoutProcessoInput>, Enumerable<ContratoUncheckedCreateWithoutProcessoInput>>
     connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutProcessoInput>
@@ -33048,6 +42057,34 @@ export namespace Prisma {
     update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutProcessoInput>
     updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutProcessoInput>
     deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ReservaOrcamentariaUncheckedUpdateManyWithoutProcessoNestedInput = {
+    create?: XOR<Enumerable<ReservaOrcamentariaCreateWithoutProcessoInput>, Enumerable<ReservaOrcamentariaUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<ReservaOrcamentariaCreateOrConnectWithoutProcessoInput>
+    upsert?: Enumerable<ReservaOrcamentariaUpsertWithWhereUniqueWithoutProcessoInput>
+    createMany?: ReservaOrcamentariaCreateManyProcessoInputEnvelope
+    set?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    disconnect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    delete?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    connect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    update?: Enumerable<ReservaOrcamentariaUpdateWithWhereUniqueWithoutProcessoInput>
+    updateMany?: Enumerable<ReservaOrcamentariaUpdateManyWithWhereWithoutProcessoInput>
+    deleteMany?: Enumerable<ReservaOrcamentariaScalarWhereInput>
+  }
+
+  export type DocumentoUncheckedUpdateManyWithoutProcessoNestedInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutProcessoInput>, Enumerable<DocumentoUncheckedCreateWithoutProcessoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutProcessoInput>
+    upsert?: Enumerable<DocumentoUpsertWithWhereUniqueWithoutProcessoInput>
+    createMany?: DocumentoCreateManyProcessoInputEnvelope
+    set?: Enumerable<DocumentoWhereUniqueInput>
+    disconnect?: Enumerable<DocumentoWhereUniqueInput>
+    delete?: Enumerable<DocumentoWhereUniqueInput>
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+    update?: Enumerable<DocumentoUpdateWithWhereUniqueWithoutProcessoInput>
+    updateMany?: Enumerable<DocumentoUpdateManyWithWhereWithoutProcessoInput>
+    deleteMany?: Enumerable<DocumentoScalarWhereInput>
   }
 
   export type ProcessoContratacaoCreateNestedOneWithoutContratosInput = {
@@ -33114,6 +42151,41 @@ export namespace Prisma {
     connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
   }
 
+  export type ContratoDotacaoCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<ContratoDotacaoCreateWithoutContratoInput>, Enumerable<ContratoDotacaoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoDotacaoCreateOrConnectWithoutContratoInput>
+    createMany?: ContratoDotacaoCreateManyContratoInputEnvelope
+    connect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+  }
+
+  export type EmpenhoCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<EmpenhoCreateWithoutContratoInput>, Enumerable<EmpenhoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<EmpenhoCreateOrConnectWithoutContratoInput>
+    createMany?: EmpenhoCreateManyContratoInputEnvelope
+    connect?: Enumerable<EmpenhoWhereUniqueInput>
+  }
+
+  export type ReservaOrcamentariaCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<ReservaOrcamentariaCreateWithoutContratoInput>, Enumerable<ReservaOrcamentariaUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ReservaOrcamentariaCreateOrConnectWithoutContratoInput>
+    createMany?: ReservaOrcamentariaCreateManyContratoInputEnvelope
+    connect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+  }
+
+  export type PublicacaoCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutContratoInput>, Enumerable<PublicacaoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutContratoInput>
+    createMany?: PublicacaoCreateManyContratoInputEnvelope
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+  }
+
+  export type DocumentoCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutContratoInput>, Enumerable<DocumentoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutContratoInput>
+    createMany?: DocumentoCreateManyContratoInputEnvelope
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+  }
+
   export type ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput = {
     create?: XOR<Enumerable<ContratoResponsavelCreateWithoutContratoInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutContratoInput>>
     connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutContratoInput>
@@ -33140,6 +42212,41 @@ export namespace Prisma {
     connectOrCreate?: Enumerable<AlteracaoContratualCreateOrConnectWithoutContratoInput>
     createMany?: AlteracaoContratualCreateManyContratoInputEnvelope
     connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
+  }
+
+  export type ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<ContratoDotacaoCreateWithoutContratoInput>, Enumerable<ContratoDotacaoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoDotacaoCreateOrConnectWithoutContratoInput>
+    createMany?: ContratoDotacaoCreateManyContratoInputEnvelope
+    connect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+  }
+
+  export type EmpenhoUncheckedCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<EmpenhoCreateWithoutContratoInput>, Enumerable<EmpenhoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<EmpenhoCreateOrConnectWithoutContratoInput>
+    createMany?: EmpenhoCreateManyContratoInputEnvelope
+    connect?: Enumerable<EmpenhoWhereUniqueInput>
+  }
+
+  export type ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<ReservaOrcamentariaCreateWithoutContratoInput>, Enumerable<ReservaOrcamentariaUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ReservaOrcamentariaCreateOrConnectWithoutContratoInput>
+    createMany?: ReservaOrcamentariaCreateManyContratoInputEnvelope
+    connect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+  }
+
+  export type PublicacaoUncheckedCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutContratoInput>, Enumerable<PublicacaoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutContratoInput>
+    createMany?: PublicacaoCreateManyContratoInputEnvelope
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+  }
+
+  export type DocumentoUncheckedCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutContratoInput>, Enumerable<DocumentoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutContratoInput>
+    createMany?: DocumentoCreateManyContratoInputEnvelope
+    connect?: Enumerable<DocumentoWhereUniqueInput>
   }
 
   export type EnumPilarOrcamentarioFieldUpdateOperationsInput = {
@@ -33286,6 +42393,76 @@ export namespace Prisma {
     deleteMany?: Enumerable<AlteracaoContratualScalarWhereInput>
   }
 
+  export type ContratoDotacaoUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<ContratoDotacaoCreateWithoutContratoInput>, Enumerable<ContratoDotacaoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoDotacaoCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<ContratoDotacaoUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: ContratoDotacaoCreateManyContratoInputEnvelope
+    set?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    delete?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    connect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    update?: Enumerable<ContratoDotacaoUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<ContratoDotacaoUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<ContratoDotacaoScalarWhereInput>
+  }
+
+  export type EmpenhoUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<EmpenhoCreateWithoutContratoInput>, Enumerable<EmpenhoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<EmpenhoCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<EmpenhoUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: EmpenhoCreateManyContratoInputEnvelope
+    set?: Enumerable<EmpenhoWhereUniqueInput>
+    disconnect?: Enumerable<EmpenhoWhereUniqueInput>
+    delete?: Enumerable<EmpenhoWhereUniqueInput>
+    connect?: Enumerable<EmpenhoWhereUniqueInput>
+    update?: Enumerable<EmpenhoUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<EmpenhoUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<EmpenhoScalarWhereInput>
+  }
+
+  export type ReservaOrcamentariaUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<ReservaOrcamentariaCreateWithoutContratoInput>, Enumerable<ReservaOrcamentariaUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ReservaOrcamentariaCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<ReservaOrcamentariaUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: ReservaOrcamentariaCreateManyContratoInputEnvelope
+    set?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    disconnect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    delete?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    connect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    update?: Enumerable<ReservaOrcamentariaUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<ReservaOrcamentariaUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<ReservaOrcamentariaScalarWhereInput>
+  }
+
+  export type PublicacaoUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutContratoInput>, Enumerable<PublicacaoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<PublicacaoUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: PublicacaoCreateManyContratoInputEnvelope
+    set?: Enumerable<PublicacaoWhereUniqueInput>
+    disconnect?: Enumerable<PublicacaoWhereUniqueInput>
+    delete?: Enumerable<PublicacaoWhereUniqueInput>
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+    update?: Enumerable<PublicacaoUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<PublicacaoUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<PublicacaoScalarWhereInput>
+  }
+
+  export type DocumentoUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutContratoInput>, Enumerable<DocumentoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<DocumentoUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: DocumentoCreateManyContratoInputEnvelope
+    set?: Enumerable<DocumentoWhereUniqueInput>
+    disconnect?: Enumerable<DocumentoWhereUniqueInput>
+    delete?: Enumerable<DocumentoWhereUniqueInput>
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+    update?: Enumerable<DocumentoUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<DocumentoUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<DocumentoScalarWhereInput>
+  }
+
   export type ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput = {
     create?: XOR<Enumerable<ContratoResponsavelCreateWithoutContratoInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutContratoInput>>
     connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutContratoInput>
@@ -33340,6 +42517,76 @@ export namespace Prisma {
     update?: Enumerable<AlteracaoContratualUpdateWithWhereUniqueWithoutContratoInput>
     updateMany?: Enumerable<AlteracaoContratualUpdateManyWithWhereWithoutContratoInput>
     deleteMany?: Enumerable<AlteracaoContratualScalarWhereInput>
+  }
+
+  export type ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<ContratoDotacaoCreateWithoutContratoInput>, Enumerable<ContratoDotacaoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ContratoDotacaoCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<ContratoDotacaoUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: ContratoDotacaoCreateManyContratoInputEnvelope
+    set?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    delete?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    connect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    update?: Enumerable<ContratoDotacaoUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<ContratoDotacaoUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<ContratoDotacaoScalarWhereInput>
+  }
+
+  export type EmpenhoUncheckedUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<EmpenhoCreateWithoutContratoInput>, Enumerable<EmpenhoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<EmpenhoCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<EmpenhoUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: EmpenhoCreateManyContratoInputEnvelope
+    set?: Enumerable<EmpenhoWhereUniqueInput>
+    disconnect?: Enumerable<EmpenhoWhereUniqueInput>
+    delete?: Enumerable<EmpenhoWhereUniqueInput>
+    connect?: Enumerable<EmpenhoWhereUniqueInput>
+    update?: Enumerable<EmpenhoUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<EmpenhoUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<EmpenhoScalarWhereInput>
+  }
+
+  export type ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<ReservaOrcamentariaCreateWithoutContratoInput>, Enumerable<ReservaOrcamentariaUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<ReservaOrcamentariaCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<ReservaOrcamentariaUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: ReservaOrcamentariaCreateManyContratoInputEnvelope
+    set?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    disconnect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    delete?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    connect?: Enumerable<ReservaOrcamentariaWhereUniqueInput>
+    update?: Enumerable<ReservaOrcamentariaUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<ReservaOrcamentariaUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<ReservaOrcamentariaScalarWhereInput>
+  }
+
+  export type PublicacaoUncheckedUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutContratoInput>, Enumerable<PublicacaoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<PublicacaoUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: PublicacaoCreateManyContratoInputEnvelope
+    set?: Enumerable<PublicacaoWhereUniqueInput>
+    disconnect?: Enumerable<PublicacaoWhereUniqueInput>
+    delete?: Enumerable<PublicacaoWhereUniqueInput>
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+    update?: Enumerable<PublicacaoUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<PublicacaoUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<PublicacaoScalarWhereInput>
+  }
+
+  export type DocumentoUncheckedUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutContratoInput>, Enumerable<DocumentoUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<DocumentoUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: DocumentoCreateManyContratoInputEnvelope
+    set?: Enumerable<DocumentoWhereUniqueInput>
+    disconnect?: Enumerable<DocumentoWhereUniqueInput>
+    delete?: Enumerable<DocumentoWhereUniqueInput>
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+    update?: Enumerable<DocumentoUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<DocumentoUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<DocumentoScalarWhereInput>
   }
 
   export type ContratoCreateNestedOneWithoutResponsaveisInput = {
@@ -33429,11 +42676,39 @@ export namespace Prisma {
     connect?: Enumerable<AlteracaoItemWhereUniqueInput>
   }
 
+  export type PublicacaoCreateNestedManyWithoutAlteracaoInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutAlteracaoInput>, Enumerable<PublicacaoUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutAlteracaoInput>
+    createMany?: PublicacaoCreateManyAlteracaoInputEnvelope
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+  }
+
+  export type DocumentoCreateNestedManyWithoutAlteracaoInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutAlteracaoInput>, Enumerable<DocumentoUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutAlteracaoInput>
+    createMany?: DocumentoCreateManyAlteracaoInputEnvelope
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+  }
+
   export type AlteracaoItemUncheckedCreateNestedManyWithoutAlteracaoInput = {
     create?: XOR<Enumerable<AlteracaoItemCreateWithoutAlteracaoInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutAlteracaoInput>>
     connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutAlteracaoInput>
     createMany?: AlteracaoItemCreateManyAlteracaoInputEnvelope
     connect?: Enumerable<AlteracaoItemWhereUniqueInput>
+  }
+
+  export type PublicacaoUncheckedCreateNestedManyWithoutAlteracaoInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutAlteracaoInput>, Enumerable<PublicacaoUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutAlteracaoInput>
+    createMany?: PublicacaoCreateManyAlteracaoInputEnvelope
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+  }
+
+  export type DocumentoUncheckedCreateNestedManyWithoutAlteracaoInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutAlteracaoInput>, Enumerable<DocumentoUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutAlteracaoInput>
+    createMany?: DocumentoCreateManyAlteracaoInputEnvelope
+    connect?: Enumerable<DocumentoWhereUniqueInput>
   }
 
   export type EnumTipoAlteracaoFieldUpdateOperationsInput = {
@@ -33480,6 +42755,34 @@ export namespace Prisma {
     deleteMany?: Enumerable<AlteracaoItemScalarWhereInput>
   }
 
+  export type PublicacaoUpdateManyWithoutAlteracaoNestedInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutAlteracaoInput>, Enumerable<PublicacaoUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutAlteracaoInput>
+    upsert?: Enumerable<PublicacaoUpsertWithWhereUniqueWithoutAlteracaoInput>
+    createMany?: PublicacaoCreateManyAlteracaoInputEnvelope
+    set?: Enumerable<PublicacaoWhereUniqueInput>
+    disconnect?: Enumerable<PublicacaoWhereUniqueInput>
+    delete?: Enumerable<PublicacaoWhereUniqueInput>
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+    update?: Enumerable<PublicacaoUpdateWithWhereUniqueWithoutAlteracaoInput>
+    updateMany?: Enumerable<PublicacaoUpdateManyWithWhereWithoutAlteracaoInput>
+    deleteMany?: Enumerable<PublicacaoScalarWhereInput>
+  }
+
+  export type DocumentoUpdateManyWithoutAlteracaoNestedInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutAlteracaoInput>, Enumerable<DocumentoUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutAlteracaoInput>
+    upsert?: Enumerable<DocumentoUpsertWithWhereUniqueWithoutAlteracaoInput>
+    createMany?: DocumentoCreateManyAlteracaoInputEnvelope
+    set?: Enumerable<DocumentoWhereUniqueInput>
+    disconnect?: Enumerable<DocumentoWhereUniqueInput>
+    delete?: Enumerable<DocumentoWhereUniqueInput>
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+    update?: Enumerable<DocumentoUpdateWithWhereUniqueWithoutAlteracaoInput>
+    updateMany?: Enumerable<DocumentoUpdateManyWithWhereWithoutAlteracaoInput>
+    deleteMany?: Enumerable<DocumentoScalarWhereInput>
+  }
+
   export type AlteracaoItemUncheckedUpdateManyWithoutAlteracaoNestedInput = {
     create?: XOR<Enumerable<AlteracaoItemCreateWithoutAlteracaoInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutAlteracaoInput>>
     connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutAlteracaoInput>
@@ -33492,6 +42795,34 @@ export namespace Prisma {
     update?: Enumerable<AlteracaoItemUpdateWithWhereUniqueWithoutAlteracaoInput>
     updateMany?: Enumerable<AlteracaoItemUpdateManyWithWhereWithoutAlteracaoInput>
     deleteMany?: Enumerable<AlteracaoItemScalarWhereInput>
+  }
+
+  export type PublicacaoUncheckedUpdateManyWithoutAlteracaoNestedInput = {
+    create?: XOR<Enumerable<PublicacaoCreateWithoutAlteracaoInput>, Enumerable<PublicacaoUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<PublicacaoCreateOrConnectWithoutAlteracaoInput>
+    upsert?: Enumerable<PublicacaoUpsertWithWhereUniqueWithoutAlteracaoInput>
+    createMany?: PublicacaoCreateManyAlteracaoInputEnvelope
+    set?: Enumerable<PublicacaoWhereUniqueInput>
+    disconnect?: Enumerable<PublicacaoWhereUniqueInput>
+    delete?: Enumerable<PublicacaoWhereUniqueInput>
+    connect?: Enumerable<PublicacaoWhereUniqueInput>
+    update?: Enumerable<PublicacaoUpdateWithWhereUniqueWithoutAlteracaoInput>
+    updateMany?: Enumerable<PublicacaoUpdateManyWithWhereWithoutAlteracaoInput>
+    deleteMany?: Enumerable<PublicacaoScalarWhereInput>
+  }
+
+  export type DocumentoUncheckedUpdateManyWithoutAlteracaoNestedInput = {
+    create?: XOR<Enumerable<DocumentoCreateWithoutAlteracaoInput>, Enumerable<DocumentoUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutAlteracaoInput>
+    upsert?: Enumerable<DocumentoUpsertWithWhereUniqueWithoutAlteracaoInput>
+    createMany?: DocumentoCreateManyAlteracaoInputEnvelope
+    set?: Enumerable<DocumentoWhereUniqueInput>
+    disconnect?: Enumerable<DocumentoWhereUniqueInput>
+    delete?: Enumerable<DocumentoWhereUniqueInput>
+    connect?: Enumerable<DocumentoWhereUniqueInput>
+    update?: Enumerable<DocumentoUpdateWithWhereUniqueWithoutAlteracaoInput>
+    updateMany?: Enumerable<DocumentoUpdateManyWithWhereWithoutAlteracaoInput>
+    deleteMany?: Enumerable<DocumentoScalarWhereInput>
   }
 
   export type AlteracaoContratualCreateNestedOneWithoutItensInput = {
@@ -33796,6 +43127,328 @@ export namespace Prisma {
     update?: Enumerable<AlteracaoItemUpdateWithWhereUniqueWithoutItemContratoInput>
     updateMany?: Enumerable<AlteracaoItemUpdateManyWithWhereWithoutItemContratoInput>
     deleteMany?: Enumerable<AlteracaoItemScalarWhereInput>
+  }
+
+  export type DominioValorCreateNestedOneWithoutDotacoesNaturezaInput = {
+    create?: XOR<DominioValorCreateWithoutDotacoesNaturezaInput, DominioValorUncheckedCreateWithoutDotacoesNaturezaInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutDotacoesNaturezaInput
+    connect?: DominioValorWhereUniqueInput
+  }
+
+  export type DominioValorCreateNestedOneWithoutDotacoesFonteInput = {
+    create?: XOR<DominioValorCreateWithoutDotacoesFonteInput, DominioValorUncheckedCreateWithoutDotacoesFonteInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutDotacoesFonteInput
+    connect?: DominioValorWhereUniqueInput
+  }
+
+  export type ContratoDotacaoCreateNestedManyWithoutDotacaoInput = {
+    create?: XOR<Enumerable<ContratoDotacaoCreateWithoutDotacaoInput>, Enumerable<ContratoDotacaoUncheckedCreateWithoutDotacaoInput>>
+    connectOrCreate?: Enumerable<ContratoDotacaoCreateOrConnectWithoutDotacaoInput>
+    createMany?: ContratoDotacaoCreateManyDotacaoInputEnvelope
+    connect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+  }
+
+  export type EmpenhoCreateNestedManyWithoutDotacaoInput = {
+    create?: XOR<Enumerable<EmpenhoCreateWithoutDotacaoInput>, Enumerable<EmpenhoUncheckedCreateWithoutDotacaoInput>>
+    connectOrCreate?: Enumerable<EmpenhoCreateOrConnectWithoutDotacaoInput>
+    createMany?: EmpenhoCreateManyDotacaoInputEnvelope
+    connect?: Enumerable<EmpenhoWhereUniqueInput>
+  }
+
+  export type ContratoDotacaoUncheckedCreateNestedManyWithoutDotacaoInput = {
+    create?: XOR<Enumerable<ContratoDotacaoCreateWithoutDotacaoInput>, Enumerable<ContratoDotacaoUncheckedCreateWithoutDotacaoInput>>
+    connectOrCreate?: Enumerable<ContratoDotacaoCreateOrConnectWithoutDotacaoInput>
+    createMany?: ContratoDotacaoCreateManyDotacaoInputEnvelope
+    connect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+  }
+
+  export type EmpenhoUncheckedCreateNestedManyWithoutDotacaoInput = {
+    create?: XOR<Enumerable<EmpenhoCreateWithoutDotacaoInput>, Enumerable<EmpenhoUncheckedCreateWithoutDotacaoInput>>
+    connectOrCreate?: Enumerable<EmpenhoCreateOrConnectWithoutDotacaoInput>
+    createMany?: EmpenhoCreateManyDotacaoInputEnvelope
+    connect?: Enumerable<EmpenhoWhereUniqueInput>
+  }
+
+  export type DominioValorUpdateOneRequiredWithoutDotacoesNaturezaNestedInput = {
+    create?: XOR<DominioValorCreateWithoutDotacoesNaturezaInput, DominioValorUncheckedCreateWithoutDotacoesNaturezaInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutDotacoesNaturezaInput
+    upsert?: DominioValorUpsertWithoutDotacoesNaturezaInput
+    connect?: DominioValorWhereUniqueInput
+    update?: XOR<DominioValorUpdateWithoutDotacoesNaturezaInput, DominioValorUncheckedUpdateWithoutDotacoesNaturezaInput>
+  }
+
+  export type DominioValorUpdateOneRequiredWithoutDotacoesFonteNestedInput = {
+    create?: XOR<DominioValorCreateWithoutDotacoesFonteInput, DominioValorUncheckedCreateWithoutDotacoesFonteInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutDotacoesFonteInput
+    upsert?: DominioValorUpsertWithoutDotacoesFonteInput
+    connect?: DominioValorWhereUniqueInput
+    update?: XOR<DominioValorUpdateWithoutDotacoesFonteInput, DominioValorUncheckedUpdateWithoutDotacoesFonteInput>
+  }
+
+  export type ContratoDotacaoUpdateManyWithoutDotacaoNestedInput = {
+    create?: XOR<Enumerable<ContratoDotacaoCreateWithoutDotacaoInput>, Enumerable<ContratoDotacaoUncheckedCreateWithoutDotacaoInput>>
+    connectOrCreate?: Enumerable<ContratoDotacaoCreateOrConnectWithoutDotacaoInput>
+    upsert?: Enumerable<ContratoDotacaoUpsertWithWhereUniqueWithoutDotacaoInput>
+    createMany?: ContratoDotacaoCreateManyDotacaoInputEnvelope
+    set?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    delete?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    connect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    update?: Enumerable<ContratoDotacaoUpdateWithWhereUniqueWithoutDotacaoInput>
+    updateMany?: Enumerable<ContratoDotacaoUpdateManyWithWhereWithoutDotacaoInput>
+    deleteMany?: Enumerable<ContratoDotacaoScalarWhereInput>
+  }
+
+  export type EmpenhoUpdateManyWithoutDotacaoNestedInput = {
+    create?: XOR<Enumerable<EmpenhoCreateWithoutDotacaoInput>, Enumerable<EmpenhoUncheckedCreateWithoutDotacaoInput>>
+    connectOrCreate?: Enumerable<EmpenhoCreateOrConnectWithoutDotacaoInput>
+    upsert?: Enumerable<EmpenhoUpsertWithWhereUniqueWithoutDotacaoInput>
+    createMany?: EmpenhoCreateManyDotacaoInputEnvelope
+    set?: Enumerable<EmpenhoWhereUniqueInput>
+    disconnect?: Enumerable<EmpenhoWhereUniqueInput>
+    delete?: Enumerable<EmpenhoWhereUniqueInput>
+    connect?: Enumerable<EmpenhoWhereUniqueInput>
+    update?: Enumerable<EmpenhoUpdateWithWhereUniqueWithoutDotacaoInput>
+    updateMany?: Enumerable<EmpenhoUpdateManyWithWhereWithoutDotacaoInput>
+    deleteMany?: Enumerable<EmpenhoScalarWhereInput>
+  }
+
+  export type ContratoDotacaoUncheckedUpdateManyWithoutDotacaoNestedInput = {
+    create?: XOR<Enumerable<ContratoDotacaoCreateWithoutDotacaoInput>, Enumerable<ContratoDotacaoUncheckedCreateWithoutDotacaoInput>>
+    connectOrCreate?: Enumerable<ContratoDotacaoCreateOrConnectWithoutDotacaoInput>
+    upsert?: Enumerable<ContratoDotacaoUpsertWithWhereUniqueWithoutDotacaoInput>
+    createMany?: ContratoDotacaoCreateManyDotacaoInputEnvelope
+    set?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    delete?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    connect?: Enumerable<ContratoDotacaoWhereUniqueInput>
+    update?: Enumerable<ContratoDotacaoUpdateWithWhereUniqueWithoutDotacaoInput>
+    updateMany?: Enumerable<ContratoDotacaoUpdateManyWithWhereWithoutDotacaoInput>
+    deleteMany?: Enumerable<ContratoDotacaoScalarWhereInput>
+  }
+
+  export type EmpenhoUncheckedUpdateManyWithoutDotacaoNestedInput = {
+    create?: XOR<Enumerable<EmpenhoCreateWithoutDotacaoInput>, Enumerable<EmpenhoUncheckedCreateWithoutDotacaoInput>>
+    connectOrCreate?: Enumerable<EmpenhoCreateOrConnectWithoutDotacaoInput>
+    upsert?: Enumerable<EmpenhoUpsertWithWhereUniqueWithoutDotacaoInput>
+    createMany?: EmpenhoCreateManyDotacaoInputEnvelope
+    set?: Enumerable<EmpenhoWhereUniqueInput>
+    disconnect?: Enumerable<EmpenhoWhereUniqueInput>
+    delete?: Enumerable<EmpenhoWhereUniqueInput>
+    connect?: Enumerable<EmpenhoWhereUniqueInput>
+    update?: Enumerable<EmpenhoUpdateWithWhereUniqueWithoutDotacaoInput>
+    updateMany?: Enumerable<EmpenhoUpdateManyWithWhereWithoutDotacaoInput>
+    deleteMany?: Enumerable<EmpenhoScalarWhereInput>
+  }
+
+  export type ContratoCreateNestedOneWithoutDotacoesInput = {
+    create?: XOR<ContratoCreateWithoutDotacoesInput, ContratoUncheckedCreateWithoutDotacoesInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutDotacoesInput
+    connect?: ContratoWhereUniqueInput
+  }
+
+  export type DotacaoOrcamentariaCreateNestedOneWithoutContratosInput = {
+    create?: XOR<DotacaoOrcamentariaCreateWithoutContratosInput, DotacaoOrcamentariaUncheckedCreateWithoutContratosInput>
+    connectOrCreate?: DotacaoOrcamentariaCreateOrConnectWithoutContratosInput
+    connect?: DotacaoOrcamentariaWhereUniqueInput
+  }
+
+  export type ContratoUpdateOneRequiredWithoutDotacoesNestedInput = {
+    create?: XOR<ContratoCreateWithoutDotacoesInput, ContratoUncheckedCreateWithoutDotacoesInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutDotacoesInput
+    upsert?: ContratoUpsertWithoutDotacoesInput
+    connect?: ContratoWhereUniqueInput
+    update?: XOR<ContratoUpdateWithoutDotacoesInput, ContratoUncheckedUpdateWithoutDotacoesInput>
+  }
+
+  export type DotacaoOrcamentariaUpdateOneRequiredWithoutContratosNestedInput = {
+    create?: XOR<DotacaoOrcamentariaCreateWithoutContratosInput, DotacaoOrcamentariaUncheckedCreateWithoutContratosInput>
+    connectOrCreate?: DotacaoOrcamentariaCreateOrConnectWithoutContratosInput
+    upsert?: DotacaoOrcamentariaUpsertWithoutContratosInput
+    connect?: DotacaoOrcamentariaWhereUniqueInput
+    update?: XOR<DotacaoOrcamentariaUpdateWithoutContratosInput, DotacaoOrcamentariaUncheckedUpdateWithoutContratosInput>
+  }
+
+  export type ContratoCreateNestedOneWithoutEmpenhosInput = {
+    create?: XOR<ContratoCreateWithoutEmpenhosInput, ContratoUncheckedCreateWithoutEmpenhosInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutEmpenhosInput
+    connect?: ContratoWhereUniqueInput
+  }
+
+  export type DotacaoOrcamentariaCreateNestedOneWithoutEmpenhosInput = {
+    create?: XOR<DotacaoOrcamentariaCreateWithoutEmpenhosInput, DotacaoOrcamentariaUncheckedCreateWithoutEmpenhosInput>
+    connectOrCreate?: DotacaoOrcamentariaCreateOrConnectWithoutEmpenhosInput
+    connect?: DotacaoOrcamentariaWhereUniqueInput
+  }
+
+  export type EnumTipoEmpenhoFieldUpdateOperationsInput = {
+    set?: TipoEmpenho
+  }
+
+  export type EnumSituacaoEmpenhoFieldUpdateOperationsInput = {
+    set?: SituacaoEmpenho
+  }
+
+  export type ContratoUpdateOneRequiredWithoutEmpenhosNestedInput = {
+    create?: XOR<ContratoCreateWithoutEmpenhosInput, ContratoUncheckedCreateWithoutEmpenhosInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutEmpenhosInput
+    upsert?: ContratoUpsertWithoutEmpenhosInput
+    connect?: ContratoWhereUniqueInput
+    update?: XOR<ContratoUpdateWithoutEmpenhosInput, ContratoUncheckedUpdateWithoutEmpenhosInput>
+  }
+
+  export type DotacaoOrcamentariaUpdateOneWithoutEmpenhosNestedInput = {
+    create?: XOR<DotacaoOrcamentariaCreateWithoutEmpenhosInput, DotacaoOrcamentariaUncheckedCreateWithoutEmpenhosInput>
+    connectOrCreate?: DotacaoOrcamentariaCreateOrConnectWithoutEmpenhosInput
+    upsert?: DotacaoOrcamentariaUpsertWithoutEmpenhosInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: DotacaoOrcamentariaWhereUniqueInput
+    update?: XOR<DotacaoOrcamentariaUpdateWithoutEmpenhosInput, DotacaoOrcamentariaUncheckedUpdateWithoutEmpenhosInput>
+  }
+
+  export type ContratoCreateNestedOneWithoutReservasInput = {
+    create?: XOR<ContratoCreateWithoutReservasInput, ContratoUncheckedCreateWithoutReservasInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutReservasInput
+    connect?: ContratoWhereUniqueInput
+  }
+
+  export type ProcessoContratacaoCreateNestedOneWithoutReservasInput = {
+    create?: XOR<ProcessoContratacaoCreateWithoutReservasInput, ProcessoContratacaoUncheckedCreateWithoutReservasInput>
+    connectOrCreate?: ProcessoContratacaoCreateOrConnectWithoutReservasInput
+    connect?: ProcessoContratacaoWhereUniqueInput
+  }
+
+  export type EnumSituacaoReservaFieldUpdateOperationsInput = {
+    set?: SituacaoReserva
+  }
+
+  export type ContratoUpdateOneWithoutReservasNestedInput = {
+    create?: XOR<ContratoCreateWithoutReservasInput, ContratoUncheckedCreateWithoutReservasInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutReservasInput
+    upsert?: ContratoUpsertWithoutReservasInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: ContratoWhereUniqueInput
+    update?: XOR<ContratoUpdateWithoutReservasInput, ContratoUncheckedUpdateWithoutReservasInput>
+  }
+
+  export type ProcessoContratacaoUpdateOneWithoutReservasNestedInput = {
+    create?: XOR<ProcessoContratacaoCreateWithoutReservasInput, ProcessoContratacaoUncheckedCreateWithoutReservasInput>
+    connectOrCreate?: ProcessoContratacaoCreateOrConnectWithoutReservasInput
+    upsert?: ProcessoContratacaoUpsertWithoutReservasInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: ProcessoContratacaoWhereUniqueInput
+    update?: XOR<ProcessoContratacaoUpdateWithoutReservasInput, ProcessoContratacaoUncheckedUpdateWithoutReservasInput>
+  }
+
+  export type ContratoCreateNestedOneWithoutPublicacoesInput = {
+    create?: XOR<ContratoCreateWithoutPublicacoesInput, ContratoUncheckedCreateWithoutPublicacoesInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutPublicacoesInput
+    connect?: ContratoWhereUniqueInput
+  }
+
+  export type AlteracaoContratualCreateNestedOneWithoutPublicacoesInput = {
+    create?: XOR<AlteracaoContratualCreateWithoutPublicacoesInput, AlteracaoContratualUncheckedCreateWithoutPublicacoesInput>
+    connectOrCreate?: AlteracaoContratualCreateOrConnectWithoutPublicacoesInput
+    connect?: AlteracaoContratualWhereUniqueInput
+  }
+
+  export type DominioValorCreateNestedOneWithoutPublicacoesVeiculoInput = {
+    create?: XOR<DominioValorCreateWithoutPublicacoesVeiculoInput, DominioValorUncheckedCreateWithoutPublicacoesVeiculoInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutPublicacoesVeiculoInput
+    connect?: DominioValorWhereUniqueInput
+  }
+
+  export type ContratoUpdateOneWithoutPublicacoesNestedInput = {
+    create?: XOR<ContratoCreateWithoutPublicacoesInput, ContratoUncheckedCreateWithoutPublicacoesInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutPublicacoesInput
+    upsert?: ContratoUpsertWithoutPublicacoesInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: ContratoWhereUniqueInput
+    update?: XOR<ContratoUpdateWithoutPublicacoesInput, ContratoUncheckedUpdateWithoutPublicacoesInput>
+  }
+
+  export type AlteracaoContratualUpdateOneWithoutPublicacoesNestedInput = {
+    create?: XOR<AlteracaoContratualCreateWithoutPublicacoesInput, AlteracaoContratualUncheckedCreateWithoutPublicacoesInput>
+    connectOrCreate?: AlteracaoContratualCreateOrConnectWithoutPublicacoesInput
+    upsert?: AlteracaoContratualUpsertWithoutPublicacoesInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: AlteracaoContratualWhereUniqueInput
+    update?: XOR<AlteracaoContratualUpdateWithoutPublicacoesInput, AlteracaoContratualUncheckedUpdateWithoutPublicacoesInput>
+  }
+
+  export type DominioValorUpdateOneRequiredWithoutPublicacoesVeiculoNestedInput = {
+    create?: XOR<DominioValorCreateWithoutPublicacoesVeiculoInput, DominioValorUncheckedCreateWithoutPublicacoesVeiculoInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutPublicacoesVeiculoInput
+    upsert?: DominioValorUpsertWithoutPublicacoesVeiculoInput
+    connect?: DominioValorWhereUniqueInput
+    update?: XOR<DominioValorUpdateWithoutPublicacoesVeiculoInput, DominioValorUncheckedUpdateWithoutPublicacoesVeiculoInput>
+  }
+
+  export type ContratoCreateNestedOneWithoutDocumentosInput = {
+    create?: XOR<ContratoCreateWithoutDocumentosInput, ContratoUncheckedCreateWithoutDocumentosInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutDocumentosInput
+    connect?: ContratoWhereUniqueInput
+  }
+
+  export type AlteracaoContratualCreateNestedOneWithoutDocumentosInput = {
+    create?: XOR<AlteracaoContratualCreateWithoutDocumentosInput, AlteracaoContratualUncheckedCreateWithoutDocumentosInput>
+    connectOrCreate?: AlteracaoContratualCreateOrConnectWithoutDocumentosInput
+    connect?: AlteracaoContratualWhereUniqueInput
+  }
+
+  export type ProcessoContratacaoCreateNestedOneWithoutDocumentosInput = {
+    create?: XOR<ProcessoContratacaoCreateWithoutDocumentosInput, ProcessoContratacaoUncheckedCreateWithoutDocumentosInput>
+    connectOrCreate?: ProcessoContratacaoCreateOrConnectWithoutDocumentosInput
+    connect?: ProcessoContratacaoWhereUniqueInput
+  }
+
+  export type DominioValorCreateNestedOneWithoutDocumentosTipoInput = {
+    create?: XOR<DominioValorCreateWithoutDocumentosTipoInput, DominioValorUncheckedCreateWithoutDocumentosTipoInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutDocumentosTipoInput
+    connect?: DominioValorWhereUniqueInput
+  }
+
+  export type ContratoUpdateOneWithoutDocumentosNestedInput = {
+    create?: XOR<ContratoCreateWithoutDocumentosInput, ContratoUncheckedCreateWithoutDocumentosInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutDocumentosInput
+    upsert?: ContratoUpsertWithoutDocumentosInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: ContratoWhereUniqueInput
+    update?: XOR<ContratoUpdateWithoutDocumentosInput, ContratoUncheckedUpdateWithoutDocumentosInput>
+  }
+
+  export type AlteracaoContratualUpdateOneWithoutDocumentosNestedInput = {
+    create?: XOR<AlteracaoContratualCreateWithoutDocumentosInput, AlteracaoContratualUncheckedCreateWithoutDocumentosInput>
+    connectOrCreate?: AlteracaoContratualCreateOrConnectWithoutDocumentosInput
+    upsert?: AlteracaoContratualUpsertWithoutDocumentosInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: AlteracaoContratualWhereUniqueInput
+    update?: XOR<AlteracaoContratualUpdateWithoutDocumentosInput, AlteracaoContratualUncheckedUpdateWithoutDocumentosInput>
+  }
+
+  export type ProcessoContratacaoUpdateOneWithoutDocumentosNestedInput = {
+    create?: XOR<ProcessoContratacaoCreateWithoutDocumentosInput, ProcessoContratacaoUncheckedCreateWithoutDocumentosInput>
+    connectOrCreate?: ProcessoContratacaoCreateOrConnectWithoutDocumentosInput
+    upsert?: ProcessoContratacaoUpsertWithoutDocumentosInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: ProcessoContratacaoWhereUniqueInput
+    update?: XOR<ProcessoContratacaoUpdateWithoutDocumentosInput, ProcessoContratacaoUncheckedUpdateWithoutDocumentosInput>
+  }
+
+  export type DominioValorUpdateOneRequiredWithoutDocumentosTipoNestedInput = {
+    create?: XOR<DominioValorCreateWithoutDocumentosTipoInput, DominioValorUncheckedCreateWithoutDocumentosTipoInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutDocumentosTipoInput
+    upsert?: DominioValorUpsertWithoutDocumentosTipoInput
+    connect?: DominioValorWhereUniqueInput
+    update?: XOR<DominioValorUpdateWithoutDocumentosTipoInput, DominioValorUncheckedUpdateWithoutDocumentosTipoInput>
   }
 
   export type NestedStringFilter = {
@@ -34434,6 +44087,57 @@ export namespace Prisma {
     _min?: NestedEnumPeriodicidadeFilter
     _max?: NestedEnumPeriodicidadeFilter
   }
+
+  export type NestedEnumTipoEmpenhoFilter = {
+    equals?: TipoEmpenho
+    in?: Enumerable<TipoEmpenho>
+    notIn?: Enumerable<TipoEmpenho>
+    not?: NestedEnumTipoEmpenhoFilter | TipoEmpenho
+  }
+
+  export type NestedEnumSituacaoEmpenhoFilter = {
+    equals?: SituacaoEmpenho
+    in?: Enumerable<SituacaoEmpenho>
+    notIn?: Enumerable<SituacaoEmpenho>
+    not?: NestedEnumSituacaoEmpenhoFilter | SituacaoEmpenho
+  }
+
+  export type NestedEnumTipoEmpenhoWithAggregatesFilter = {
+    equals?: TipoEmpenho
+    in?: Enumerable<TipoEmpenho>
+    notIn?: Enumerable<TipoEmpenho>
+    not?: NestedEnumTipoEmpenhoWithAggregatesFilter | TipoEmpenho
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoEmpenhoFilter
+    _max?: NestedEnumTipoEmpenhoFilter
+  }
+
+  export type NestedEnumSituacaoEmpenhoWithAggregatesFilter = {
+    equals?: SituacaoEmpenho
+    in?: Enumerable<SituacaoEmpenho>
+    notIn?: Enumerable<SituacaoEmpenho>
+    not?: NestedEnumSituacaoEmpenhoWithAggregatesFilter | SituacaoEmpenho
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoEmpenhoFilter
+    _max?: NestedEnumSituacaoEmpenhoFilter
+  }
+
+  export type NestedEnumSituacaoReservaFilter = {
+    equals?: SituacaoReserva
+    in?: Enumerable<SituacaoReserva>
+    notIn?: Enumerable<SituacaoReserva>
+    not?: NestedEnumSituacaoReservaFilter | SituacaoReserva
+  }
+
+  export type NestedEnumSituacaoReservaWithAggregatesFilter = {
+    equals?: SituacaoReserva
+    in?: Enumerable<SituacaoReserva>
+    notIn?: Enumerable<SituacaoReserva>
+    not?: NestedEnumSituacaoReservaWithAggregatesFilter | SituacaoReserva
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoReservaFilter
+    _max?: NestedEnumSituacaoReservaFilter
+  }
   export type NestedJsonFilter = 
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase>, Exclude<keyof Required<NestedJsonFilterBase>, 'path'>>,
@@ -34717,6 +44421,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutDominioInput = {
@@ -34740,6 +44448,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutDominioInput = {
@@ -34833,6 +44545,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutChildrenInput = {
@@ -34856,6 +44572,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutChildrenInput = {
@@ -34884,6 +44604,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutParentInput = {
@@ -34907,6 +44631,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutParentInput = {
@@ -34958,6 +44686,11 @@ export namespace Prisma {
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutCategoriaContratacaoInput = {
@@ -34999,6 +44732,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutCategoriaContratacaoInput = {
@@ -35050,6 +44788,11 @@ export namespace Prisma {
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutModalidadeRefInput = {
@@ -35091,6 +44834,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutModalidadeRefInput = {
@@ -35142,6 +44890,11 @@ export namespace Prisma {
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutFundamentoLegalInput = {
@@ -35183,6 +44936,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutFundamentoLegalInput = {
@@ -35211,6 +44969,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     unidadeDemandante: UnidadeOrganizacionalCreateNestedOneWithoutProcessosDemandanteInput
     contratos?: ContratoCreateNestedManyWithoutProcessoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutProcessoInput
+    documentos?: DocumentoCreateNestedManyWithoutProcessoInput
   }
 
   export type ProcessoContratacaoUncheckedCreateWithoutModalidadePretendidaInput = {
@@ -35229,6 +44989,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     contratos?: ContratoUncheckedCreateNestedManyWithoutProcessoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutProcessoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutProcessoInput
   }
 
   export type ProcessoContratacaoCreateOrConnectWithoutModalidadePretendidaInput = {
@@ -35425,6 +45187,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     contrato: ContratoCreateNestedOneWithoutAlteracoesInput
     itens?: AlteracaoItemCreateNestedManyWithoutAlteracaoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutAlteracaoInput
+    documentos?: DocumentoCreateNestedManyWithoutAlteracaoInput
   }
 
   export type AlteracaoContratualUncheckedCreateWithoutFundamentoLegalInput = {
@@ -35449,6 +45213,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     itens?: AlteracaoItemUncheckedCreateNestedManyWithoutAlteracaoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutAlteracaoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutAlteracaoInput
   }
 
   export type AlteracaoContratualCreateOrConnectWithoutFundamentoLegalInput = {
@@ -35458,6 +45224,152 @@ export namespace Prisma {
 
   export type AlteracaoContratualCreateManyFundamentoLegalInputEnvelope = {
     data: Enumerable<AlteracaoContratualCreateManyFundamentoLegalInput>
+    skipDuplicates?: boolean
+  }
+
+  export type DotacaoOrcamentariaCreateWithoutNaturezaDespesaInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    fonteRecurso: DominioValorCreateNestedOneWithoutDotacoesFonteInput
+    contratos?: ContratoDotacaoCreateNestedManyWithoutDotacaoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutDotacaoInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedCreateWithoutNaturezaDespesaInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    fonteRecursoId: string
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contratos?: ContratoDotacaoUncheckedCreateNestedManyWithoutDotacaoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutDotacaoInput
+  }
+
+  export type DotacaoOrcamentariaCreateOrConnectWithoutNaturezaDespesaInput = {
+    where: DotacaoOrcamentariaWhereUniqueInput
+    create: XOR<DotacaoOrcamentariaCreateWithoutNaturezaDespesaInput, DotacaoOrcamentariaUncheckedCreateWithoutNaturezaDespesaInput>
+  }
+
+  export type DotacaoOrcamentariaCreateManyNaturezaDespesaInputEnvelope = {
+    data: Enumerable<DotacaoOrcamentariaCreateManyNaturezaDespesaInput>
+    skipDuplicates?: boolean
+  }
+
+  export type DotacaoOrcamentariaCreateWithoutFonteRecursoInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    naturezaDespesa: DominioValorCreateNestedOneWithoutDotacoesNaturezaInput
+    contratos?: ContratoDotacaoCreateNestedManyWithoutDotacaoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutDotacaoInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedCreateWithoutFonteRecursoInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    naturezaDespesaId: string
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contratos?: ContratoDotacaoUncheckedCreateNestedManyWithoutDotacaoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutDotacaoInput
+  }
+
+  export type DotacaoOrcamentariaCreateOrConnectWithoutFonteRecursoInput = {
+    where: DotacaoOrcamentariaWhereUniqueInput
+    create: XOR<DotacaoOrcamentariaCreateWithoutFonteRecursoInput, DotacaoOrcamentariaUncheckedCreateWithoutFonteRecursoInput>
+  }
+
+  export type DotacaoOrcamentariaCreateManyFonteRecursoInputEnvelope = {
+    data: Enumerable<DotacaoOrcamentariaCreateManyFonteRecursoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type PublicacaoCreateWithoutVeiculoInput = {
+    id?: string
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    contrato?: ContratoCreateNestedOneWithoutPublicacoesInput
+    alteracao?: AlteracaoContratualCreateNestedOneWithoutPublicacoesInput
+  }
+
+  export type PublicacaoUncheckedCreateWithoutVeiculoInput = {
+    id?: string
+    contratoId?: string | null
+    alteracaoId?: string | null
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PublicacaoCreateOrConnectWithoutVeiculoInput = {
+    where: PublicacaoWhereUniqueInput
+    create: XOR<PublicacaoCreateWithoutVeiculoInput, PublicacaoUncheckedCreateWithoutVeiculoInput>
+  }
+
+  export type PublicacaoCreateManyVeiculoInputEnvelope = {
+    data: Enumerable<PublicacaoCreateManyVeiculoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type DocumentoCreateWithoutTipoDocumentoInput = {
+    id?: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+    contrato?: ContratoCreateNestedOneWithoutDocumentosInput
+    alteracao?: AlteracaoContratualCreateNestedOneWithoutDocumentosInput
+    processo?: ProcessoContratacaoCreateNestedOneWithoutDocumentosInput
+  }
+
+  export type DocumentoUncheckedCreateWithoutTipoDocumentoInput = {
+    id?: string
+    contratoId?: string | null
+    alteracaoId?: string | null
+    processoId?: string | null
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+  }
+
+  export type DocumentoCreateOrConnectWithoutTipoDocumentoInput = {
+    where: DocumentoWhereUniqueInput
+    create: XOR<DocumentoCreateWithoutTipoDocumentoInput, DocumentoUncheckedCreateWithoutTipoDocumentoInput>
+  }
+
+  export type DocumentoCreateManyTipoDocumentoInputEnvelope = {
+    data: Enumerable<DocumentoCreateManyTipoDocumentoInput>
     skipDuplicates?: boolean
   }
 
@@ -35514,6 +45426,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutChildrenInput = {
@@ -35537,6 +45453,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUpsertWithWhereUniqueWithoutParentInput = {
@@ -35821,6 +45741,119 @@ export namespace Prisma {
     codigoLegado?: StringNullableFilter | string | null
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
+  }
+
+  export type DotacaoOrcamentariaUpsertWithWhereUniqueWithoutNaturezaDespesaInput = {
+    where: DotacaoOrcamentariaWhereUniqueInput
+    update: XOR<DotacaoOrcamentariaUpdateWithoutNaturezaDespesaInput, DotacaoOrcamentariaUncheckedUpdateWithoutNaturezaDespesaInput>
+    create: XOR<DotacaoOrcamentariaCreateWithoutNaturezaDespesaInput, DotacaoOrcamentariaUncheckedCreateWithoutNaturezaDespesaInput>
+  }
+
+  export type DotacaoOrcamentariaUpdateWithWhereUniqueWithoutNaturezaDespesaInput = {
+    where: DotacaoOrcamentariaWhereUniqueInput
+    data: XOR<DotacaoOrcamentariaUpdateWithoutNaturezaDespesaInput, DotacaoOrcamentariaUncheckedUpdateWithoutNaturezaDespesaInput>
+  }
+
+  export type DotacaoOrcamentariaUpdateManyWithWhereWithoutNaturezaDespesaInput = {
+    where: DotacaoOrcamentariaScalarWhereInput
+    data: XOR<DotacaoOrcamentariaUpdateManyMutationInput, DotacaoOrcamentariaUncheckedUpdateManyWithoutDotacoesNaturezaInput>
+  }
+
+  export type DotacaoOrcamentariaScalarWhereInput = {
+    AND?: Enumerable<DotacaoOrcamentariaScalarWhereInput>
+    OR?: Enumerable<DotacaoOrcamentariaScalarWhereInput>
+    NOT?: Enumerable<DotacaoOrcamentariaScalarWhereInput>
+    id?: StringFilter | string
+    exercicio?: IntFilter | number
+    codigo?: StringFilter | string
+    unidadeOrcamentaria?: StringNullableFilter | string | null
+    funcionalProgramatica?: StringNullableFilter | string | null
+    naturezaDespesaId?: StringFilter | string
+    fonteRecursoId?: StringFilter | string
+    descricao?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
+  export type DotacaoOrcamentariaUpsertWithWhereUniqueWithoutFonteRecursoInput = {
+    where: DotacaoOrcamentariaWhereUniqueInput
+    update: XOR<DotacaoOrcamentariaUpdateWithoutFonteRecursoInput, DotacaoOrcamentariaUncheckedUpdateWithoutFonteRecursoInput>
+    create: XOR<DotacaoOrcamentariaCreateWithoutFonteRecursoInput, DotacaoOrcamentariaUncheckedCreateWithoutFonteRecursoInput>
+  }
+
+  export type DotacaoOrcamentariaUpdateWithWhereUniqueWithoutFonteRecursoInput = {
+    where: DotacaoOrcamentariaWhereUniqueInput
+    data: XOR<DotacaoOrcamentariaUpdateWithoutFonteRecursoInput, DotacaoOrcamentariaUncheckedUpdateWithoutFonteRecursoInput>
+  }
+
+  export type DotacaoOrcamentariaUpdateManyWithWhereWithoutFonteRecursoInput = {
+    where: DotacaoOrcamentariaScalarWhereInput
+    data: XOR<DotacaoOrcamentariaUpdateManyMutationInput, DotacaoOrcamentariaUncheckedUpdateManyWithoutDotacoesFonteInput>
+  }
+
+  export type PublicacaoUpsertWithWhereUniqueWithoutVeiculoInput = {
+    where: PublicacaoWhereUniqueInput
+    update: XOR<PublicacaoUpdateWithoutVeiculoInput, PublicacaoUncheckedUpdateWithoutVeiculoInput>
+    create: XOR<PublicacaoCreateWithoutVeiculoInput, PublicacaoUncheckedCreateWithoutVeiculoInput>
+  }
+
+  export type PublicacaoUpdateWithWhereUniqueWithoutVeiculoInput = {
+    where: PublicacaoWhereUniqueInput
+    data: XOR<PublicacaoUpdateWithoutVeiculoInput, PublicacaoUncheckedUpdateWithoutVeiculoInput>
+  }
+
+  export type PublicacaoUpdateManyWithWhereWithoutVeiculoInput = {
+    where: PublicacaoScalarWhereInput
+    data: XOR<PublicacaoUpdateManyMutationInput, PublicacaoUncheckedUpdateManyWithoutPublicacoesVeiculoInput>
+  }
+
+  export type PublicacaoScalarWhereInput = {
+    AND?: Enumerable<PublicacaoScalarWhereInput>
+    OR?: Enumerable<PublicacaoScalarWhereInput>
+    NOT?: Enumerable<PublicacaoScalarWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringNullableFilter | string | null
+    alteracaoId?: StringNullableFilter | string | null
+    veiculoId?: StringFilter | string
+    dataPublicacao?: DateTimeFilter | Date | string
+    numeroEdicao?: StringNullableFilter | string | null
+    idPncp?: StringNullableFilter | string | null
+    url?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+  }
+
+  export type DocumentoUpsertWithWhereUniqueWithoutTipoDocumentoInput = {
+    where: DocumentoWhereUniqueInput
+    update: XOR<DocumentoUpdateWithoutTipoDocumentoInput, DocumentoUncheckedUpdateWithoutTipoDocumentoInput>
+    create: XOR<DocumentoCreateWithoutTipoDocumentoInput, DocumentoUncheckedCreateWithoutTipoDocumentoInput>
+  }
+
+  export type DocumentoUpdateWithWhereUniqueWithoutTipoDocumentoInput = {
+    where: DocumentoWhereUniqueInput
+    data: XOR<DocumentoUpdateWithoutTipoDocumentoInput, DocumentoUncheckedUpdateWithoutTipoDocumentoInput>
+  }
+
+  export type DocumentoUpdateManyWithWhereWithoutTipoDocumentoInput = {
+    where: DocumentoScalarWhereInput
+    data: XOR<DocumentoUpdateManyMutationInput, DocumentoUncheckedUpdateManyWithoutDocumentosTipoInput>
+  }
+
+  export type DocumentoScalarWhereInput = {
+    AND?: Enumerable<DocumentoScalarWhereInput>
+    OR?: Enumerable<DocumentoScalarWhereInput>
+    NOT?: Enumerable<DocumentoScalarWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringNullableFilter | string | null
+    alteracaoId?: StringNullableFilter | string | null
+    processoId?: StringNullableFilter | string | null
+    tipoDocumentoId?: StringFilter | string
+    nome?: StringFilter | string
+    storageKey?: StringNullableFilter | string | null
+    urlExterna?: StringNullableFilter | string | null
+    mimeType?: StringNullableFilter | string | null
+    tamanhoBytes?: IntNullableFilter | number | null
+    uploadedById?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
   }
 
   export type UnidadeOrganizacionalCreateWithoutOrgaoInput = {
@@ -36177,6 +46210,11 @@ export namespace Prisma {
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutUnidadeGestoraInput = {
@@ -36218,6 +46256,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutUnidadeGestoraInput = {
@@ -36276,6 +46319,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     modalidadePretendida?: DominioValorCreateNestedOneWithoutProcessosModalidadeInput
     contratos?: ContratoCreateNestedManyWithoutProcessoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutProcessoInput
+    documentos?: DocumentoCreateNestedManyWithoutProcessoInput
   }
 
   export type ProcessoContratacaoUncheckedCreateWithoutUnidadeDemandanteInput = {
@@ -36294,6 +46339,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     contratos?: ContratoUncheckedCreateNestedManyWithoutProcessoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutProcessoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutProcessoInput
   }
 
   export type ProcessoContratacaoCreateOrConnectWithoutUnidadeDemandanteInput = {
@@ -36681,6 +46728,11 @@ export namespace Prisma {
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutFornecedorInput = {
@@ -36722,6 +46774,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutFornecedorInput = {
@@ -37250,6 +47307,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutProcessosModalidadeInput = {
@@ -37273,6 +47334,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutProcessosModalidadeInput = {
@@ -37319,6 +47384,11 @@ export namespace Prisma {
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutProcessoInput = {
@@ -37360,6 +47430,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutProcessoInput = {
@@ -37369,6 +47444,76 @@ export namespace Prisma {
 
   export type ContratoCreateManyProcessoInputEnvelope = {
     data: Enumerable<ContratoCreateManyProcessoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ReservaOrcamentariaCreateWithoutProcessoInput = {
+    id?: string
+    numero: string
+    data: Date | string
+    valorCents: bigint | number
+    situacao?: SituacaoReserva
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contrato?: ContratoCreateNestedOneWithoutReservasInput
+  }
+
+  export type ReservaOrcamentariaUncheckedCreateWithoutProcessoInput = {
+    id?: string
+    contratoId?: string | null
+    numero: string
+    data: Date | string
+    valorCents: bigint | number
+    situacao?: SituacaoReserva
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservaOrcamentariaCreateOrConnectWithoutProcessoInput = {
+    where: ReservaOrcamentariaWhereUniqueInput
+    create: XOR<ReservaOrcamentariaCreateWithoutProcessoInput, ReservaOrcamentariaUncheckedCreateWithoutProcessoInput>
+  }
+
+  export type ReservaOrcamentariaCreateManyProcessoInputEnvelope = {
+    data: Enumerable<ReservaOrcamentariaCreateManyProcessoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type DocumentoCreateWithoutProcessoInput = {
+    id?: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+    contrato?: ContratoCreateNestedOneWithoutDocumentosInput
+    alteracao?: AlteracaoContratualCreateNestedOneWithoutDocumentosInput
+    tipoDocumento: DominioValorCreateNestedOneWithoutDocumentosTipoInput
+  }
+
+  export type DocumentoUncheckedCreateWithoutProcessoInput = {
+    id?: string
+    contratoId?: string | null
+    alteracaoId?: string | null
+    tipoDocumentoId: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+  }
+
+  export type DocumentoCreateOrConnectWithoutProcessoInput = {
+    where: DocumentoWhereUniqueInput
+    create: XOR<DocumentoCreateWithoutProcessoInput, DocumentoUncheckedCreateWithoutProcessoInput>
+  }
+
+  export type DocumentoCreateManyProcessoInputEnvelope = {
+    data: Enumerable<DocumentoCreateManyProcessoInput>
     skipDuplicates?: boolean
   }
 
@@ -37439,6 +47584,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutProcessosModalidadeInput = {
@@ -37462,6 +47611,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type ContratoUpsertWithWhereUniqueWithoutProcessoInput = {
@@ -37480,6 +47633,53 @@ export namespace Prisma {
     data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosInput>
   }
 
+  export type ReservaOrcamentariaUpsertWithWhereUniqueWithoutProcessoInput = {
+    where: ReservaOrcamentariaWhereUniqueInput
+    update: XOR<ReservaOrcamentariaUpdateWithoutProcessoInput, ReservaOrcamentariaUncheckedUpdateWithoutProcessoInput>
+    create: XOR<ReservaOrcamentariaCreateWithoutProcessoInput, ReservaOrcamentariaUncheckedCreateWithoutProcessoInput>
+  }
+
+  export type ReservaOrcamentariaUpdateWithWhereUniqueWithoutProcessoInput = {
+    where: ReservaOrcamentariaWhereUniqueInput
+    data: XOR<ReservaOrcamentariaUpdateWithoutProcessoInput, ReservaOrcamentariaUncheckedUpdateWithoutProcessoInput>
+  }
+
+  export type ReservaOrcamentariaUpdateManyWithWhereWithoutProcessoInput = {
+    where: ReservaOrcamentariaScalarWhereInput
+    data: XOR<ReservaOrcamentariaUpdateManyMutationInput, ReservaOrcamentariaUncheckedUpdateManyWithoutReservasInput>
+  }
+
+  export type ReservaOrcamentariaScalarWhereInput = {
+    AND?: Enumerable<ReservaOrcamentariaScalarWhereInput>
+    OR?: Enumerable<ReservaOrcamentariaScalarWhereInput>
+    NOT?: Enumerable<ReservaOrcamentariaScalarWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringNullableFilter | string | null
+    processoId?: StringNullableFilter | string | null
+    numero?: StringFilter | string
+    data?: DateTimeFilter | Date | string
+    valorCents?: BigIntFilter | bigint | number
+    situacao?: EnumSituacaoReservaFilter | SituacaoReserva
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
+  export type DocumentoUpsertWithWhereUniqueWithoutProcessoInput = {
+    where: DocumentoWhereUniqueInput
+    update: XOR<DocumentoUpdateWithoutProcessoInput, DocumentoUncheckedUpdateWithoutProcessoInput>
+    create: XOR<DocumentoCreateWithoutProcessoInput, DocumentoUncheckedCreateWithoutProcessoInput>
+  }
+
+  export type DocumentoUpdateWithWhereUniqueWithoutProcessoInput = {
+    where: DocumentoWhereUniqueInput
+    data: XOR<DocumentoUpdateWithoutProcessoInput, DocumentoUncheckedUpdateWithoutProcessoInput>
+  }
+
+  export type DocumentoUpdateManyWithWhereWithoutProcessoInput = {
+    where: DocumentoScalarWhereInput
+    data: XOR<DocumentoUpdateManyMutationInput, DocumentoUncheckedUpdateManyWithoutDocumentosInput>
+  }
+
   export type ProcessoContratacaoCreateWithoutContratosInput = {
     id?: string
     eProtocolo: string
@@ -37496,6 +47696,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     unidadeDemandante: UnidadeOrganizacionalCreateNestedOneWithoutProcessosDemandanteInput
     modalidadePretendida?: DominioValorCreateNestedOneWithoutProcessosModalidadeInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutProcessoInput
+    documentos?: DocumentoCreateNestedManyWithoutProcessoInput
   }
 
   export type ProcessoContratacaoUncheckedCreateWithoutContratosInput = {
@@ -37514,6 +47716,8 @@ export namespace Prisma {
     observacoes?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutProcessoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutProcessoInput
   }
 
   export type ProcessoContratacaoCreateOrConnectWithoutContratosInput = {
@@ -37542,6 +47746,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutContratosCategoriaInput = {
@@ -37565,6 +47773,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutContratosCategoriaInput = {
@@ -37593,6 +47805,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutContratosModalidadeInput = {
@@ -37616,6 +47832,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutContratosModalidadeInput = {
@@ -37644,6 +47864,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutContratosFundamentoInput = {
@@ -37667,6 +47891,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutContratosFundamentoInput = {
@@ -37882,6 +48110,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     fundamentoLegal?: DominioValorCreateNestedOneWithoutAlteracoesFundamentoInput
     itens?: AlteracaoItemCreateNestedManyWithoutAlteracaoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutAlteracaoInput
+    documentos?: DocumentoCreateNestedManyWithoutAlteracaoInput
   }
 
   export type AlteracaoContratualUncheckedCreateWithoutContratoInput = {
@@ -37906,6 +48136,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     itens?: AlteracaoItemUncheckedCreateNestedManyWithoutAlteracaoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutAlteracaoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutAlteracaoInput
   }
 
   export type AlteracaoContratualCreateOrConnectWithoutContratoInput = {
@@ -37915,6 +48147,174 @@ export namespace Prisma {
 
   export type AlteracaoContratualCreateManyContratoInputEnvelope = {
     data: Enumerable<AlteracaoContratualCreateManyContratoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoDotacaoCreateWithoutContratoInput = {
+    id?: string
+    exercicio: number
+    valorPrevistoCents: bigint | number
+    createdAt?: Date | string
+    dotacao: DotacaoOrcamentariaCreateNestedOneWithoutContratosInput
+  }
+
+  export type ContratoDotacaoUncheckedCreateWithoutContratoInput = {
+    id?: string
+    dotacaoId: string
+    exercicio: number
+    valorPrevistoCents: bigint | number
+    createdAt?: Date | string
+  }
+
+  export type ContratoDotacaoCreateOrConnectWithoutContratoInput = {
+    where: ContratoDotacaoWhereUniqueInput
+    create: XOR<ContratoDotacaoCreateWithoutContratoInput, ContratoDotacaoUncheckedCreateWithoutContratoInput>
+  }
+
+  export type ContratoDotacaoCreateManyContratoInputEnvelope = {
+    data: Enumerable<ContratoDotacaoCreateManyContratoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type EmpenhoCreateWithoutContratoInput = {
+    id?: string
+    numero: string
+    exercicio: number
+    tipo?: TipoEmpenho
+    data: Date | string
+    valorCents: bigint | number
+    valorLiquidadoCents?: bigint | number
+    valorPagoCents?: bigint | number
+    situacao?: SituacaoEmpenho
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dotacao?: DotacaoOrcamentariaCreateNestedOneWithoutEmpenhosInput
+  }
+
+  export type EmpenhoUncheckedCreateWithoutContratoInput = {
+    id?: string
+    dotacaoId?: string | null
+    numero: string
+    exercicio: number
+    tipo?: TipoEmpenho
+    data: Date | string
+    valorCents: bigint | number
+    valorLiquidadoCents?: bigint | number
+    valorPagoCents?: bigint | number
+    situacao?: SituacaoEmpenho
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmpenhoCreateOrConnectWithoutContratoInput = {
+    where: EmpenhoWhereUniqueInput
+    create: XOR<EmpenhoCreateWithoutContratoInput, EmpenhoUncheckedCreateWithoutContratoInput>
+  }
+
+  export type EmpenhoCreateManyContratoInputEnvelope = {
+    data: Enumerable<EmpenhoCreateManyContratoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ReservaOrcamentariaCreateWithoutContratoInput = {
+    id?: string
+    numero: string
+    data: Date | string
+    valorCents: bigint | number
+    situacao?: SituacaoReserva
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutReservasInput
+  }
+
+  export type ReservaOrcamentariaUncheckedCreateWithoutContratoInput = {
+    id?: string
+    processoId?: string | null
+    numero: string
+    data: Date | string
+    valorCents: bigint | number
+    situacao?: SituacaoReserva
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservaOrcamentariaCreateOrConnectWithoutContratoInput = {
+    where: ReservaOrcamentariaWhereUniqueInput
+    create: XOR<ReservaOrcamentariaCreateWithoutContratoInput, ReservaOrcamentariaUncheckedCreateWithoutContratoInput>
+  }
+
+  export type ReservaOrcamentariaCreateManyContratoInputEnvelope = {
+    data: Enumerable<ReservaOrcamentariaCreateManyContratoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type PublicacaoCreateWithoutContratoInput = {
+    id?: string
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    alteracao?: AlteracaoContratualCreateNestedOneWithoutPublicacoesInput
+    veiculo: DominioValorCreateNestedOneWithoutPublicacoesVeiculoInput
+  }
+
+  export type PublicacaoUncheckedCreateWithoutContratoInput = {
+    id?: string
+    alteracaoId?: string | null
+    veiculoId: string
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PublicacaoCreateOrConnectWithoutContratoInput = {
+    where: PublicacaoWhereUniqueInput
+    create: XOR<PublicacaoCreateWithoutContratoInput, PublicacaoUncheckedCreateWithoutContratoInput>
+  }
+
+  export type PublicacaoCreateManyContratoInputEnvelope = {
+    data: Enumerable<PublicacaoCreateManyContratoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type DocumentoCreateWithoutContratoInput = {
+    id?: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+    alteracao?: AlteracaoContratualCreateNestedOneWithoutDocumentosInput
+    processo?: ProcessoContratacaoCreateNestedOneWithoutDocumentosInput
+    tipoDocumento: DominioValorCreateNestedOneWithoutDocumentosTipoInput
+  }
+
+  export type DocumentoUncheckedCreateWithoutContratoInput = {
+    id?: string
+    alteracaoId?: string | null
+    processoId?: string | null
+    tipoDocumentoId: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+  }
+
+  export type DocumentoCreateOrConnectWithoutContratoInput = {
+    where: DocumentoWhereUniqueInput
+    create: XOR<DocumentoCreateWithoutContratoInput, DocumentoUncheckedCreateWithoutContratoInput>
+  }
+
+  export type DocumentoCreateManyContratoInputEnvelope = {
+    data: Enumerable<DocumentoCreateManyContratoInput>
     skipDuplicates?: boolean
   }
 
@@ -37939,6 +48339,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     unidadeDemandante?: UnidadeOrganizacionalUpdateOneRequiredWithoutProcessosDemandanteNestedInput
     modalidadePretendida?: DominioValorUpdateOneWithoutProcessosModalidadeNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutProcessoNestedInput
+    documentos?: DocumentoUpdateManyWithoutProcessoNestedInput
   }
 
   export type ProcessoContratacaoUncheckedUpdateWithoutContratosInput = {
@@ -37957,6 +48359,8 @@ export namespace Prisma {
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutProcessoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutProcessoNestedInput
   }
 
   export type DominioValorUpsertWithoutContratosCategoriaInput = {
@@ -37985,6 +48389,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutContratosCategoriaInput = {
@@ -38008,6 +48416,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUpsertWithoutContratosModalidadeInput = {
@@ -38036,6 +48448,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutContratosModalidadeInput = {
@@ -38059,6 +48475,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUpsertWithoutContratosFundamentoInput = {
@@ -38087,6 +48507,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutContratosFundamentoInput = {
@@ -38110,6 +48534,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type FornecedorUpsertWithoutContratosInput = {
@@ -38256,6 +48684,117 @@ export namespace Prisma {
     data: XOR<AlteracaoContratualUpdateManyMutationInput, AlteracaoContratualUncheckedUpdateManyWithoutAlteracoesInput>
   }
 
+  export type ContratoDotacaoUpsertWithWhereUniqueWithoutContratoInput = {
+    where: ContratoDotacaoWhereUniqueInput
+    update: XOR<ContratoDotacaoUpdateWithoutContratoInput, ContratoDotacaoUncheckedUpdateWithoutContratoInput>
+    create: XOR<ContratoDotacaoCreateWithoutContratoInput, ContratoDotacaoUncheckedCreateWithoutContratoInput>
+  }
+
+  export type ContratoDotacaoUpdateWithWhereUniqueWithoutContratoInput = {
+    where: ContratoDotacaoWhereUniqueInput
+    data: XOR<ContratoDotacaoUpdateWithoutContratoInput, ContratoDotacaoUncheckedUpdateWithoutContratoInput>
+  }
+
+  export type ContratoDotacaoUpdateManyWithWhereWithoutContratoInput = {
+    where: ContratoDotacaoScalarWhereInput
+    data: XOR<ContratoDotacaoUpdateManyMutationInput, ContratoDotacaoUncheckedUpdateManyWithoutDotacoesInput>
+  }
+
+  export type ContratoDotacaoScalarWhereInput = {
+    AND?: Enumerable<ContratoDotacaoScalarWhereInput>
+    OR?: Enumerable<ContratoDotacaoScalarWhereInput>
+    NOT?: Enumerable<ContratoDotacaoScalarWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringFilter | string
+    dotacaoId?: StringFilter | string
+    exercicio?: IntFilter | number
+    valorPrevistoCents?: BigIntFilter | bigint | number
+    createdAt?: DateTimeFilter | Date | string
+  }
+
+  export type EmpenhoUpsertWithWhereUniqueWithoutContratoInput = {
+    where: EmpenhoWhereUniqueInput
+    update: XOR<EmpenhoUpdateWithoutContratoInput, EmpenhoUncheckedUpdateWithoutContratoInput>
+    create: XOR<EmpenhoCreateWithoutContratoInput, EmpenhoUncheckedCreateWithoutContratoInput>
+  }
+
+  export type EmpenhoUpdateWithWhereUniqueWithoutContratoInput = {
+    where: EmpenhoWhereUniqueInput
+    data: XOR<EmpenhoUpdateWithoutContratoInput, EmpenhoUncheckedUpdateWithoutContratoInput>
+  }
+
+  export type EmpenhoUpdateManyWithWhereWithoutContratoInput = {
+    where: EmpenhoScalarWhereInput
+    data: XOR<EmpenhoUpdateManyMutationInput, EmpenhoUncheckedUpdateManyWithoutEmpenhosInput>
+  }
+
+  export type EmpenhoScalarWhereInput = {
+    AND?: Enumerable<EmpenhoScalarWhereInput>
+    OR?: Enumerable<EmpenhoScalarWhereInput>
+    NOT?: Enumerable<EmpenhoScalarWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringFilter | string
+    dotacaoId?: StringNullableFilter | string | null
+    numero?: StringFilter | string
+    exercicio?: IntFilter | number
+    tipo?: EnumTipoEmpenhoFilter | TipoEmpenho
+    data?: DateTimeFilter | Date | string
+    valorCents?: BigIntFilter | bigint | number
+    valorLiquidadoCents?: BigIntFilter | bigint | number
+    valorPagoCents?: BigIntFilter | bigint | number
+    situacao?: EnumSituacaoEmpenhoFilter | SituacaoEmpenho
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
+  export type ReservaOrcamentariaUpsertWithWhereUniqueWithoutContratoInput = {
+    where: ReservaOrcamentariaWhereUniqueInput
+    update: XOR<ReservaOrcamentariaUpdateWithoutContratoInput, ReservaOrcamentariaUncheckedUpdateWithoutContratoInput>
+    create: XOR<ReservaOrcamentariaCreateWithoutContratoInput, ReservaOrcamentariaUncheckedCreateWithoutContratoInput>
+  }
+
+  export type ReservaOrcamentariaUpdateWithWhereUniqueWithoutContratoInput = {
+    where: ReservaOrcamentariaWhereUniqueInput
+    data: XOR<ReservaOrcamentariaUpdateWithoutContratoInput, ReservaOrcamentariaUncheckedUpdateWithoutContratoInput>
+  }
+
+  export type ReservaOrcamentariaUpdateManyWithWhereWithoutContratoInput = {
+    where: ReservaOrcamentariaScalarWhereInput
+    data: XOR<ReservaOrcamentariaUpdateManyMutationInput, ReservaOrcamentariaUncheckedUpdateManyWithoutReservasInput>
+  }
+
+  export type PublicacaoUpsertWithWhereUniqueWithoutContratoInput = {
+    where: PublicacaoWhereUniqueInput
+    update: XOR<PublicacaoUpdateWithoutContratoInput, PublicacaoUncheckedUpdateWithoutContratoInput>
+    create: XOR<PublicacaoCreateWithoutContratoInput, PublicacaoUncheckedCreateWithoutContratoInput>
+  }
+
+  export type PublicacaoUpdateWithWhereUniqueWithoutContratoInput = {
+    where: PublicacaoWhereUniqueInput
+    data: XOR<PublicacaoUpdateWithoutContratoInput, PublicacaoUncheckedUpdateWithoutContratoInput>
+  }
+
+  export type PublicacaoUpdateManyWithWhereWithoutContratoInput = {
+    where: PublicacaoScalarWhereInput
+    data: XOR<PublicacaoUpdateManyMutationInput, PublicacaoUncheckedUpdateManyWithoutPublicacoesInput>
+  }
+
+  export type DocumentoUpsertWithWhereUniqueWithoutContratoInput = {
+    where: DocumentoWhereUniqueInput
+    update: XOR<DocumentoUpdateWithoutContratoInput, DocumentoUncheckedUpdateWithoutContratoInput>
+    create: XOR<DocumentoCreateWithoutContratoInput, DocumentoUncheckedCreateWithoutContratoInput>
+  }
+
+  export type DocumentoUpdateWithWhereUniqueWithoutContratoInput = {
+    where: DocumentoWhereUniqueInput
+    data: XOR<DocumentoUpdateWithoutContratoInput, DocumentoUncheckedUpdateWithoutContratoInput>
+  }
+
+  export type DocumentoUpdateManyWithWhereWithoutContratoInput = {
+    where: DocumentoScalarWhereInput
+    data: XOR<DocumentoUpdateManyMutationInput, DocumentoUncheckedUpdateManyWithoutDocumentosInput>
+  }
+
   export type ContratoCreateWithoutResponsaveisInput = {
     id?: string
     numeroGms: string
@@ -38295,6 +48834,11 @@ export namespace Prisma {
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutResponsaveisInput = {
@@ -38336,6 +48880,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutResponsaveisInput = {
@@ -38422,6 +48971,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutResponsaveisInput = {
@@ -38463,6 +49017,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ServidorUpsertWithoutResponsaveisInput = {
@@ -38539,6 +49098,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutRateiosInput = {
@@ -38580,6 +49144,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutRateiosInput = {
@@ -38672,6 +49241,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutRateiosInput = {
@@ -38713,6 +49287,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type UnidadeOrganizacionalUpsertWithoutRateiosInput = {
@@ -38795,6 +49374,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutAlteracoesInput = {
@@ -38836,6 +49420,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutAlteracoesInput = {
@@ -38864,6 +49453,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutAlteracoesFundamentoInput = {
@@ -38887,6 +49480,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutAlteracoesFundamentoInput = {
@@ -38921,6 +49518,76 @@ export namespace Prisma {
 
   export type AlteracaoItemCreateManyAlteracaoInputEnvelope = {
     data: Enumerable<AlteracaoItemCreateManyAlteracaoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type PublicacaoCreateWithoutAlteracaoInput = {
+    id?: string
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+    contrato?: ContratoCreateNestedOneWithoutPublicacoesInput
+    veiculo: DominioValorCreateNestedOneWithoutPublicacoesVeiculoInput
+  }
+
+  export type PublicacaoUncheckedCreateWithoutAlteracaoInput = {
+    id?: string
+    contratoId?: string | null
+    veiculoId: string
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PublicacaoCreateOrConnectWithoutAlteracaoInput = {
+    where: PublicacaoWhereUniqueInput
+    create: XOR<PublicacaoCreateWithoutAlteracaoInput, PublicacaoUncheckedCreateWithoutAlteracaoInput>
+  }
+
+  export type PublicacaoCreateManyAlteracaoInputEnvelope = {
+    data: Enumerable<PublicacaoCreateManyAlteracaoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type DocumentoCreateWithoutAlteracaoInput = {
+    id?: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+    contrato?: ContratoCreateNestedOneWithoutDocumentosInput
+    processo?: ProcessoContratacaoCreateNestedOneWithoutDocumentosInput
+    tipoDocumento: DominioValorCreateNestedOneWithoutDocumentosTipoInput
+  }
+
+  export type DocumentoUncheckedCreateWithoutAlteracaoInput = {
+    id?: string
+    contratoId?: string | null
+    processoId?: string | null
+    tipoDocumentoId: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+  }
+
+  export type DocumentoCreateOrConnectWithoutAlteracaoInput = {
+    where: DocumentoWhereUniqueInput
+    create: XOR<DocumentoCreateWithoutAlteracaoInput, DocumentoUncheckedCreateWithoutAlteracaoInput>
+  }
+
+  export type DocumentoCreateManyAlteracaoInputEnvelope = {
+    data: Enumerable<DocumentoCreateManyAlteracaoInput>
     skipDuplicates?: boolean
   }
 
@@ -38968,6 +49635,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutAlteracoesInput = {
@@ -39009,6 +49681,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type DominioValorUpsertWithoutAlteracoesFundamentoInput = {
@@ -39037,6 +49714,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutAlteracoesFundamentoInput = {
@@ -39060,6 +49741,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type AlteracaoItemUpsertWithWhereUniqueWithoutAlteracaoInput = {
@@ -39092,6 +49777,38 @@ export namespace Prisma {
     createdAt?: DateTimeFilter | Date | string
   }
 
+  export type PublicacaoUpsertWithWhereUniqueWithoutAlteracaoInput = {
+    where: PublicacaoWhereUniqueInput
+    update: XOR<PublicacaoUpdateWithoutAlteracaoInput, PublicacaoUncheckedUpdateWithoutAlteracaoInput>
+    create: XOR<PublicacaoCreateWithoutAlteracaoInput, PublicacaoUncheckedCreateWithoutAlteracaoInput>
+  }
+
+  export type PublicacaoUpdateWithWhereUniqueWithoutAlteracaoInput = {
+    where: PublicacaoWhereUniqueInput
+    data: XOR<PublicacaoUpdateWithoutAlteracaoInput, PublicacaoUncheckedUpdateWithoutAlteracaoInput>
+  }
+
+  export type PublicacaoUpdateManyWithWhereWithoutAlteracaoInput = {
+    where: PublicacaoScalarWhereInput
+    data: XOR<PublicacaoUpdateManyMutationInput, PublicacaoUncheckedUpdateManyWithoutPublicacoesInput>
+  }
+
+  export type DocumentoUpsertWithWhereUniqueWithoutAlteracaoInput = {
+    where: DocumentoWhereUniqueInput
+    update: XOR<DocumentoUpdateWithoutAlteracaoInput, DocumentoUncheckedUpdateWithoutAlteracaoInput>
+    create: XOR<DocumentoCreateWithoutAlteracaoInput, DocumentoUncheckedCreateWithoutAlteracaoInput>
+  }
+
+  export type DocumentoUpdateWithWhereUniqueWithoutAlteracaoInput = {
+    where: DocumentoWhereUniqueInput
+    data: XOR<DocumentoUpdateWithoutAlteracaoInput, DocumentoUncheckedUpdateWithoutAlteracaoInput>
+  }
+
+  export type DocumentoUpdateManyWithWhereWithoutAlteracaoInput = {
+    where: DocumentoScalarWhereInput
+    data: XOR<DocumentoUpdateManyMutationInput, DocumentoUncheckedUpdateManyWithoutDocumentosInput>
+  }
+
   export type AlteracaoContratualCreateWithoutItensInput = {
     id?: string
     tipo: TipoAlteracao
@@ -39114,6 +49831,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     contrato: ContratoCreateNestedOneWithoutAlteracoesInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutAlteracoesFundamentoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutAlteracaoInput
+    documentos?: DocumentoCreateNestedManyWithoutAlteracaoInput
   }
 
   export type AlteracaoContratualUncheckedCreateWithoutItensInput = {
@@ -39138,6 +49857,8 @@ export namespace Prisma {
     codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutAlteracaoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutAlteracaoInput
   }
 
   export type AlteracaoContratualCreateOrConnectWithoutItensInput = {
@@ -39246,6 +49967,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contrato?: ContratoUpdateOneRequiredWithoutAlteracoesNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutAlteracoesFundamentoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutAlteracaoNestedInput
+    documentos?: DocumentoUpdateManyWithoutAlteracaoNestedInput
   }
 
   export type AlteracaoContratualUncheckedUpdateWithoutItensInput = {
@@ -39270,6 +49993,8 @@ export namespace Prisma {
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutAlteracaoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutAlteracaoNestedInput
   }
 
   export type ItemContratoUpsertWithoutAlteracaoItensInput = {
@@ -39367,6 +50092,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutCatalogoPorCategoriaInput = {
@@ -39390,6 +50119,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutCatalogoPorCategoriaInput = {
@@ -39418,6 +50151,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutCatalogoUnidadeMedidaInput = {
@@ -39441,6 +50178,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutCatalogoUnidadeMedidaInput = {
@@ -39550,6 +50291,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutCatalogoPorCategoriaInput = {
@@ -39573,6 +50318,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUpsertWithoutCatalogoUnidadeMedidaInput = {
@@ -39601,6 +50350,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutCatalogoUnidadeMedidaInput = {
@@ -39624,6 +50377,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type ItemContratoUpsertWithWhereUniqueWithoutCatalogoItemInput = {
@@ -39679,6 +50436,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutAtributosPorCategoriaInput = {
@@ -39702,6 +50463,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutAtributosPorCategoriaInput = {
@@ -39735,6 +50500,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutAtributosPorCategoriaInput = {
@@ -39758,6 +50527,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type ContratoCreateWithoutItensInput = {
@@ -39799,6 +50572,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutItensInput = {
@@ -39840,6 +50618,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutItensInput = {
@@ -39901,6 +50684,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorUncheckedCreateWithoutItensUnidadeMedidaInput = {
@@ -39924,6 +50711,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
   }
 
   export type DominioValorCreateOrConnectWithoutItensUnidadeMedidaInput = {
@@ -40071,6 +50862,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutItensInput = {
@@ -40112,6 +50908,11 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type CatalogoItemUpsertWithoutItensContratoInput = {
@@ -40173,6 +50974,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutItensUnidadeMedidaInput = {
@@ -40196,6 +51001,10 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type UnidadeOrganizacionalUpsertWithoutItensDestinoInput = {
@@ -40278,6 +51087,2086 @@ export namespace Prisma {
   export type AlteracaoItemUpdateManyWithWhereWithoutItemContratoInput = {
     where: AlteracaoItemScalarWhereInput
     data: XOR<AlteracaoItemUpdateManyMutationInput, AlteracaoItemUncheckedUpdateManyWithoutAlteracaoItensInput>
+  }
+
+  export type DominioValorCreateWithoutDotacoesNaturezaInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
+    catalogoPorCategoria?: CatalogoItemCreateNestedManyWithoutCategoriaItemInput
+    catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
+    atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
+    itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
+  }
+
+  export type DominioValorUncheckedCreateWithoutDotacoesNaturezaInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
+    catalogoPorCategoria?: CatalogoItemUncheckedCreateNestedManyWithoutCategoriaItemInput
+    catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
+    atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
+    itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
+  }
+
+  export type DominioValorCreateOrConnectWithoutDotacoesNaturezaInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutDotacoesNaturezaInput, DominioValorUncheckedCreateWithoutDotacoesNaturezaInput>
+  }
+
+  export type DominioValorCreateWithoutDotacoesFonteInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
+    catalogoPorCategoria?: CatalogoItemCreateNestedManyWithoutCategoriaItemInput
+    catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
+    atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
+    itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
+  }
+
+  export type DominioValorUncheckedCreateWithoutDotacoesFonteInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
+    catalogoPorCategoria?: CatalogoItemUncheckedCreateNestedManyWithoutCategoriaItemInput
+    catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
+    atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
+    itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
+  }
+
+  export type DominioValorCreateOrConnectWithoutDotacoesFonteInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutDotacoesFonteInput, DominioValorUncheckedCreateWithoutDotacoesFonteInput>
+  }
+
+  export type ContratoDotacaoCreateWithoutDotacaoInput = {
+    id?: string
+    exercicio: number
+    valorPrevistoCents: bigint | number
+    createdAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutDotacoesInput
+  }
+
+  export type ContratoDotacaoUncheckedCreateWithoutDotacaoInput = {
+    id?: string
+    contratoId: string
+    exercicio: number
+    valorPrevistoCents: bigint | number
+    createdAt?: Date | string
+  }
+
+  export type ContratoDotacaoCreateOrConnectWithoutDotacaoInput = {
+    where: ContratoDotacaoWhereUniqueInput
+    create: XOR<ContratoDotacaoCreateWithoutDotacaoInput, ContratoDotacaoUncheckedCreateWithoutDotacaoInput>
+  }
+
+  export type ContratoDotacaoCreateManyDotacaoInputEnvelope = {
+    data: Enumerable<ContratoDotacaoCreateManyDotacaoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type EmpenhoCreateWithoutDotacaoInput = {
+    id?: string
+    numero: string
+    exercicio: number
+    tipo?: TipoEmpenho
+    data: Date | string
+    valorCents: bigint | number
+    valorLiquidadoCents?: bigint | number
+    valorPagoCents?: bigint | number
+    situacao?: SituacaoEmpenho
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutEmpenhosInput
+  }
+
+  export type EmpenhoUncheckedCreateWithoutDotacaoInput = {
+    id?: string
+    contratoId: string
+    numero: string
+    exercicio: number
+    tipo?: TipoEmpenho
+    data: Date | string
+    valorCents: bigint | number
+    valorLiquidadoCents?: bigint | number
+    valorPagoCents?: bigint | number
+    situacao?: SituacaoEmpenho
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type EmpenhoCreateOrConnectWithoutDotacaoInput = {
+    where: EmpenhoWhereUniqueInput
+    create: XOR<EmpenhoCreateWithoutDotacaoInput, EmpenhoUncheckedCreateWithoutDotacaoInput>
+  }
+
+  export type EmpenhoCreateManyDotacaoInputEnvelope = {
+    data: Enumerable<EmpenhoCreateManyDotacaoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type DominioValorUpsertWithoutDotacoesNaturezaInput = {
+    update: XOR<DominioValorUpdateWithoutDotacoesNaturezaInput, DominioValorUncheckedUpdateWithoutDotacoesNaturezaInput>
+    create: XOR<DominioValorCreateWithoutDotacoesNaturezaInput, DominioValorUncheckedCreateWithoutDotacoesNaturezaInput>
+  }
+
+  export type DominioValorUpdateWithoutDotacoesNaturezaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
+    catalogoPorCategoria?: CatalogoItemUpdateManyWithoutCategoriaItemNestedInput
+    catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
+    atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
+    itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateWithoutDotacoesNaturezaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
+    catalogoPorCategoria?: CatalogoItemUncheckedUpdateManyWithoutCategoriaItemNestedInput
+    catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
+    atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
+    itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
+  }
+
+  export type DominioValorUpsertWithoutDotacoesFonteInput = {
+    update: XOR<DominioValorUpdateWithoutDotacoesFonteInput, DominioValorUncheckedUpdateWithoutDotacoesFonteInput>
+    create: XOR<DominioValorCreateWithoutDotacoesFonteInput, DominioValorUncheckedCreateWithoutDotacoesFonteInput>
+  }
+
+  export type DominioValorUpdateWithoutDotacoesFonteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
+    catalogoPorCategoria?: CatalogoItemUpdateManyWithoutCategoriaItemNestedInput
+    catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
+    atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
+    itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateWithoutDotacoesFonteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
+    catalogoPorCategoria?: CatalogoItemUncheckedUpdateManyWithoutCategoriaItemNestedInput
+    catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
+    atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
+    itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
+  }
+
+  export type ContratoDotacaoUpsertWithWhereUniqueWithoutDotacaoInput = {
+    where: ContratoDotacaoWhereUniqueInput
+    update: XOR<ContratoDotacaoUpdateWithoutDotacaoInput, ContratoDotacaoUncheckedUpdateWithoutDotacaoInput>
+    create: XOR<ContratoDotacaoCreateWithoutDotacaoInput, ContratoDotacaoUncheckedCreateWithoutDotacaoInput>
+  }
+
+  export type ContratoDotacaoUpdateWithWhereUniqueWithoutDotacaoInput = {
+    where: ContratoDotacaoWhereUniqueInput
+    data: XOR<ContratoDotacaoUpdateWithoutDotacaoInput, ContratoDotacaoUncheckedUpdateWithoutDotacaoInput>
+  }
+
+  export type ContratoDotacaoUpdateManyWithWhereWithoutDotacaoInput = {
+    where: ContratoDotacaoScalarWhereInput
+    data: XOR<ContratoDotacaoUpdateManyMutationInput, ContratoDotacaoUncheckedUpdateManyWithoutContratosInput>
+  }
+
+  export type EmpenhoUpsertWithWhereUniqueWithoutDotacaoInput = {
+    where: EmpenhoWhereUniqueInput
+    update: XOR<EmpenhoUpdateWithoutDotacaoInput, EmpenhoUncheckedUpdateWithoutDotacaoInput>
+    create: XOR<EmpenhoCreateWithoutDotacaoInput, EmpenhoUncheckedCreateWithoutDotacaoInput>
+  }
+
+  export type EmpenhoUpdateWithWhereUniqueWithoutDotacaoInput = {
+    where: EmpenhoWhereUniqueInput
+    data: XOR<EmpenhoUpdateWithoutDotacaoInput, EmpenhoUncheckedUpdateWithoutDotacaoInput>
+  }
+
+  export type EmpenhoUpdateManyWithWhereWithoutDotacaoInput = {
+    where: EmpenhoScalarWhereInput
+    data: XOR<EmpenhoUpdateManyMutationInput, EmpenhoUncheckedUpdateManyWithoutEmpenhosInput>
+  }
+
+  export type ContratoCreateWithoutDotacoesInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutDotacoesInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutDotacoesInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutDotacoesInput, ContratoUncheckedCreateWithoutDotacoesInput>
+  }
+
+  export type DotacaoOrcamentariaCreateWithoutContratosInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    naturezaDespesa: DominioValorCreateNestedOneWithoutDotacoesNaturezaInput
+    fonteRecurso: DominioValorCreateNestedOneWithoutDotacoesFonteInput
+    empenhos?: EmpenhoCreateNestedManyWithoutDotacaoInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedCreateWithoutContratosInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    naturezaDespesaId: string
+    fonteRecursoId: string
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutDotacaoInput
+  }
+
+  export type DotacaoOrcamentariaCreateOrConnectWithoutContratosInput = {
+    where: DotacaoOrcamentariaWhereUniqueInput
+    create: XOR<DotacaoOrcamentariaCreateWithoutContratosInput, DotacaoOrcamentariaUncheckedCreateWithoutContratosInput>
+  }
+
+  export type ContratoUpsertWithoutDotacoesInput = {
+    update: XOR<ContratoUpdateWithoutDotacoesInput, ContratoUncheckedUpdateWithoutDotacoesInput>
+    create: XOR<ContratoCreateWithoutDotacoesInput, ContratoUncheckedCreateWithoutDotacoesInput>
+  }
+
+  export type ContratoUpdateWithoutDotacoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutDotacoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type DotacaoOrcamentariaUpsertWithoutContratosInput = {
+    update: XOR<DotacaoOrcamentariaUpdateWithoutContratosInput, DotacaoOrcamentariaUncheckedUpdateWithoutContratosInput>
+    create: XOR<DotacaoOrcamentariaCreateWithoutContratosInput, DotacaoOrcamentariaUncheckedCreateWithoutContratosInput>
+  }
+
+  export type DotacaoOrcamentariaUpdateWithoutContratosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    naturezaDespesa?: DominioValorUpdateOneRequiredWithoutDotacoesNaturezaNestedInput
+    fonteRecurso?: DominioValorUpdateOneRequiredWithoutDotacoesFonteNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutDotacaoNestedInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedUpdateWithoutContratosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    naturezaDespesaId?: StringFieldUpdateOperationsInput | string
+    fonteRecursoId?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutDotacaoNestedInput
+  }
+
+  export type ContratoCreateWithoutEmpenhosInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutEmpenhosInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutEmpenhosInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutEmpenhosInput, ContratoUncheckedCreateWithoutEmpenhosInput>
+  }
+
+  export type DotacaoOrcamentariaCreateWithoutEmpenhosInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    naturezaDespesa: DominioValorCreateNestedOneWithoutDotacoesNaturezaInput
+    fonteRecurso: DominioValorCreateNestedOneWithoutDotacoesFonteInput
+    contratos?: ContratoDotacaoCreateNestedManyWithoutDotacaoInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedCreateWithoutEmpenhosInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    naturezaDespesaId: string
+    fonteRecursoId: string
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contratos?: ContratoDotacaoUncheckedCreateNestedManyWithoutDotacaoInput
+  }
+
+  export type DotacaoOrcamentariaCreateOrConnectWithoutEmpenhosInput = {
+    where: DotacaoOrcamentariaWhereUniqueInput
+    create: XOR<DotacaoOrcamentariaCreateWithoutEmpenhosInput, DotacaoOrcamentariaUncheckedCreateWithoutEmpenhosInput>
+  }
+
+  export type ContratoUpsertWithoutEmpenhosInput = {
+    update: XOR<ContratoUpdateWithoutEmpenhosInput, ContratoUncheckedUpdateWithoutEmpenhosInput>
+    create: XOR<ContratoCreateWithoutEmpenhosInput, ContratoUncheckedCreateWithoutEmpenhosInput>
+  }
+
+  export type ContratoUpdateWithoutEmpenhosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutEmpenhosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type DotacaoOrcamentariaUpsertWithoutEmpenhosInput = {
+    update: XOR<DotacaoOrcamentariaUpdateWithoutEmpenhosInput, DotacaoOrcamentariaUncheckedUpdateWithoutEmpenhosInput>
+    create: XOR<DotacaoOrcamentariaCreateWithoutEmpenhosInput, DotacaoOrcamentariaUncheckedCreateWithoutEmpenhosInput>
+  }
+
+  export type DotacaoOrcamentariaUpdateWithoutEmpenhosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    naturezaDespesa?: DominioValorUpdateOneRequiredWithoutDotacoesNaturezaNestedInput
+    fonteRecurso?: DominioValorUpdateOneRequiredWithoutDotacoesFonteNestedInput
+    contratos?: ContratoDotacaoUpdateManyWithoutDotacaoNestedInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedUpdateWithoutEmpenhosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    naturezaDespesaId?: StringFieldUpdateOperationsInput | string
+    fonteRecursoId?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratos?: ContratoDotacaoUncheckedUpdateManyWithoutDotacaoNestedInput
+  }
+
+  export type ContratoCreateWithoutReservasInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutReservasInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutReservasInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutReservasInput, ContratoUncheckedCreateWithoutReservasInput>
+  }
+
+  export type ProcessoContratacaoCreateWithoutReservasInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidadeDemandante: UnidadeOrganizacionalCreateNestedOneWithoutProcessosDemandanteInput
+    modalidadePretendida?: DominioValorCreateNestedOneWithoutProcessosModalidadeInput
+    contratos?: ContratoCreateNestedManyWithoutProcessoInput
+    documentos?: DocumentoCreateNestedManyWithoutProcessoInput
+  }
+
+  export type ProcessoContratacaoUncheckedCreateWithoutReservasInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    unidadeDemandanteId: string
+    modalidadePretendidaId?: string | null
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contratos?: ContratoUncheckedCreateNestedManyWithoutProcessoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutProcessoInput
+  }
+
+  export type ProcessoContratacaoCreateOrConnectWithoutReservasInput = {
+    where: ProcessoContratacaoWhereUniqueInput
+    create: XOR<ProcessoContratacaoCreateWithoutReservasInput, ProcessoContratacaoUncheckedCreateWithoutReservasInput>
+  }
+
+  export type ContratoUpsertWithoutReservasInput = {
+    update: XOR<ContratoUpdateWithoutReservasInput, ContratoUncheckedUpdateWithoutReservasInput>
+    create: XOR<ContratoCreateWithoutReservasInput, ContratoUncheckedCreateWithoutReservasInput>
+  }
+
+  export type ContratoUpdateWithoutReservasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutReservasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ProcessoContratacaoUpsertWithoutReservasInput = {
+    update: XOR<ProcessoContratacaoUpdateWithoutReservasInput, ProcessoContratacaoUncheckedUpdateWithoutReservasInput>
+    create: XOR<ProcessoContratacaoCreateWithoutReservasInput, ProcessoContratacaoUncheckedCreateWithoutReservasInput>
+  }
+
+  export type ProcessoContratacaoUpdateWithoutReservasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidadeDemandante?: UnidadeOrganizacionalUpdateOneRequiredWithoutProcessosDemandanteNestedInput
+    modalidadePretendida?: DominioValorUpdateOneWithoutProcessosModalidadeNestedInput
+    contratos?: ContratoUpdateManyWithoutProcessoNestedInput
+    documentos?: DocumentoUpdateManyWithoutProcessoNestedInput
+  }
+
+  export type ProcessoContratacaoUncheckedUpdateWithoutReservasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    unidadeDemandanteId?: StringFieldUpdateOperationsInput | string
+    modalidadePretendidaId?: NullableStringFieldUpdateOperationsInput | string | null
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratos?: ContratoUncheckedUpdateManyWithoutProcessoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutProcessoNestedInput
+  }
+
+  export type ContratoCreateWithoutPublicacoesInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutPublicacoesInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutPublicacoesInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutPublicacoesInput, ContratoUncheckedCreateWithoutPublicacoesInput>
+  }
+
+  export type AlteracaoContratualCreateWithoutPublicacoesInput = {
+    id?: string
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutAlteracoesInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutAlteracoesFundamentoInput
+    itens?: AlteracaoItemCreateNestedManyWithoutAlteracaoInput
+    documentos?: DocumentoCreateNestedManyWithoutAlteracaoInput
+  }
+
+  export type AlteracaoContratualUncheckedCreateWithoutPublicacoesInput = {
+    id?: string
+    contratoId: string
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    fundamentoLegalId?: string | null
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    itens?: AlteracaoItemUncheckedCreateNestedManyWithoutAlteracaoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutAlteracaoInput
+  }
+
+  export type AlteracaoContratualCreateOrConnectWithoutPublicacoesInput = {
+    where: AlteracaoContratualWhereUniqueInput
+    create: XOR<AlteracaoContratualCreateWithoutPublicacoesInput, AlteracaoContratualUncheckedCreateWithoutPublicacoesInput>
+  }
+
+  export type DominioValorCreateWithoutPublicacoesVeiculoInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
+    catalogoPorCategoria?: CatalogoItemCreateNestedManyWithoutCategoriaItemInput
+    catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
+    atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
+    itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    documentosTipo?: DocumentoCreateNestedManyWithoutTipoDocumentoInput
+  }
+
+  export type DominioValorUncheckedCreateWithoutPublicacoesVeiculoInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
+    catalogoPorCategoria?: CatalogoItemUncheckedCreateNestedManyWithoutCategoriaItemInput
+    catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
+    atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
+    itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    documentosTipo?: DocumentoUncheckedCreateNestedManyWithoutTipoDocumentoInput
+  }
+
+  export type DominioValorCreateOrConnectWithoutPublicacoesVeiculoInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutPublicacoesVeiculoInput, DominioValorUncheckedCreateWithoutPublicacoesVeiculoInput>
+  }
+
+  export type ContratoUpsertWithoutPublicacoesInput = {
+    update: XOR<ContratoUpdateWithoutPublicacoesInput, ContratoUncheckedUpdateWithoutPublicacoesInput>
+    create: XOR<ContratoCreateWithoutPublicacoesInput, ContratoUncheckedCreateWithoutPublicacoesInput>
+  }
+
+  export type ContratoUpdateWithoutPublicacoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutPublicacoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type AlteracaoContratualUpsertWithoutPublicacoesInput = {
+    update: XOR<AlteracaoContratualUpdateWithoutPublicacoesInput, AlteracaoContratualUncheckedUpdateWithoutPublicacoesInput>
+    create: XOR<AlteracaoContratualCreateWithoutPublicacoesInput, AlteracaoContratualUncheckedCreateWithoutPublicacoesInput>
+  }
+
+  export type AlteracaoContratualUpdateWithoutPublicacoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutAlteracoesNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutAlteracoesFundamentoNestedInput
+    itens?: AlteracaoItemUpdateManyWithoutAlteracaoNestedInput
+    documentos?: DocumentoUpdateManyWithoutAlteracaoNestedInput
+  }
+
+  export type AlteracaoContratualUncheckedUpdateWithoutPublicacoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    itens?: AlteracaoItemUncheckedUpdateManyWithoutAlteracaoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutAlteracaoNestedInput
+  }
+
+  export type DominioValorUpsertWithoutPublicacoesVeiculoInput = {
+    update: XOR<DominioValorUpdateWithoutPublicacoesVeiculoInput, DominioValorUncheckedUpdateWithoutPublicacoesVeiculoInput>
+    create: XOR<DominioValorCreateWithoutPublicacoesVeiculoInput, DominioValorUncheckedCreateWithoutPublicacoesVeiculoInput>
+  }
+
+  export type DominioValorUpdateWithoutPublicacoesVeiculoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
+    catalogoPorCategoria?: CatalogoItemUpdateManyWithoutCategoriaItemNestedInput
+    catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
+    atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
+    itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateWithoutPublicacoesVeiculoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
+    catalogoPorCategoria?: CatalogoItemUncheckedUpdateManyWithoutCategoriaItemNestedInput
+    catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
+    atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
+    itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
+  }
+
+  export type ContratoCreateWithoutDocumentosInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutDocumentosInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutDocumentosInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutDocumentosInput, ContratoUncheckedCreateWithoutDocumentosInput>
+  }
+
+  export type AlteracaoContratualCreateWithoutDocumentosInput = {
+    id?: string
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutAlteracoesInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutAlteracoesFundamentoInput
+    itens?: AlteracaoItemCreateNestedManyWithoutAlteracaoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutAlteracaoInput
+  }
+
+  export type AlteracaoContratualUncheckedCreateWithoutDocumentosInput = {
+    id?: string
+    contratoId: string
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    fundamentoLegalId?: string | null
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    itens?: AlteracaoItemUncheckedCreateNestedManyWithoutAlteracaoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutAlteracaoInput
+  }
+
+  export type AlteracaoContratualCreateOrConnectWithoutDocumentosInput = {
+    where: AlteracaoContratualWhereUniqueInput
+    create: XOR<AlteracaoContratualCreateWithoutDocumentosInput, AlteracaoContratualUncheckedCreateWithoutDocumentosInput>
+  }
+
+  export type ProcessoContratacaoCreateWithoutDocumentosInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidadeDemandante: UnidadeOrganizacionalCreateNestedOneWithoutProcessosDemandanteInput
+    modalidadePretendida?: DominioValorCreateNestedOneWithoutProcessosModalidadeInput
+    contratos?: ContratoCreateNestedManyWithoutProcessoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutProcessoInput
+  }
+
+  export type ProcessoContratacaoUncheckedCreateWithoutDocumentosInput = {
+    id?: string
+    eProtocolo: string
+    ano: number
+    objetoResumo: string
+    unidadeDemandanteId: string
+    modalidadePretendidaId?: string | null
+    valorEstimadoCents?: bigint | number | null
+    etpConcluido?: boolean
+    dataEtp?: Date | string | null
+    termoReferenciaConcluido?: boolean
+    dataTermoReferencia?: Date | string | null
+    situacao?: SituacaoProcesso
+    observacoes?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contratos?: ContratoUncheckedCreateNestedManyWithoutProcessoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutProcessoInput
+  }
+
+  export type ProcessoContratacaoCreateOrConnectWithoutDocumentosInput = {
+    where: ProcessoContratacaoWhereUniqueInput
+    create: XOR<ProcessoContratacaoCreateWithoutDocumentosInput, ProcessoContratacaoUncheckedCreateWithoutDocumentosInput>
+  }
+
+  export type DominioValorCreateWithoutDocumentosTipoInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
+    catalogoPorCategoria?: CatalogoItemCreateNestedManyWithoutCategoriaItemInput
+    catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
+    atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
+    itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoCreateNestedManyWithoutVeiculoInput
+  }
+
+  export type DominioValorUncheckedCreateWithoutDocumentosTipoInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
+    catalogoPorCategoria?: CatalogoItemUncheckedCreateNestedManyWithoutCategoriaItemInput
+    catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
+    atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
+    itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutNaturezaDespesaInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedCreateNestedManyWithoutFonteRecursoInput
+    publicacoesVeiculo?: PublicacaoUncheckedCreateNestedManyWithoutVeiculoInput
+  }
+
+  export type DominioValorCreateOrConnectWithoutDocumentosTipoInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutDocumentosTipoInput, DominioValorUncheckedCreateWithoutDocumentosTipoInput>
+  }
+
+  export type ContratoUpsertWithoutDocumentosInput = {
+    update: XOR<ContratoUpdateWithoutDocumentosInput, ContratoUncheckedUpdateWithoutDocumentosInput>
+    create: XOR<ContratoCreateWithoutDocumentosInput, ContratoUncheckedCreateWithoutDocumentosInput>
+  }
+
+  export type ContratoUpdateWithoutDocumentosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutDocumentosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type AlteracaoContratualUpsertWithoutDocumentosInput = {
+    update: XOR<AlteracaoContratualUpdateWithoutDocumentosInput, AlteracaoContratualUncheckedUpdateWithoutDocumentosInput>
+    create: XOR<AlteracaoContratualCreateWithoutDocumentosInput, AlteracaoContratualUncheckedCreateWithoutDocumentosInput>
+  }
+
+  export type AlteracaoContratualUpdateWithoutDocumentosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutAlteracoesNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutAlteracoesFundamentoNestedInput
+    itens?: AlteracaoItemUpdateManyWithoutAlteracaoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutAlteracaoNestedInput
+  }
+
+  export type AlteracaoContratualUncheckedUpdateWithoutDocumentosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    itens?: AlteracaoItemUncheckedUpdateManyWithoutAlteracaoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutAlteracaoNestedInput
+  }
+
+  export type ProcessoContratacaoUpsertWithoutDocumentosInput = {
+    update: XOR<ProcessoContratacaoUpdateWithoutDocumentosInput, ProcessoContratacaoUncheckedUpdateWithoutDocumentosInput>
+    create: XOR<ProcessoContratacaoCreateWithoutDocumentosInput, ProcessoContratacaoUncheckedCreateWithoutDocumentosInput>
+  }
+
+  export type ProcessoContratacaoUpdateWithoutDocumentosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidadeDemandante?: UnidadeOrganizacionalUpdateOneRequiredWithoutProcessosDemandanteNestedInput
+    modalidadePretendida?: DominioValorUpdateOneWithoutProcessosModalidadeNestedInput
+    contratos?: ContratoUpdateManyWithoutProcessoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutProcessoNestedInput
+  }
+
+  export type ProcessoContratacaoUncheckedUpdateWithoutDocumentosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    eProtocolo?: StringFieldUpdateOperationsInput | string
+    ano?: IntFieldUpdateOperationsInput | number
+    objetoResumo?: StringFieldUpdateOperationsInput | string
+    unidadeDemandanteId?: StringFieldUpdateOperationsInput | string
+    modalidadePretendidaId?: NullableStringFieldUpdateOperationsInput | string | null
+    valorEstimadoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    etpConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataEtp?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    termoReferenciaConcluido?: BoolFieldUpdateOperationsInput | boolean
+    dataTermoReferencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    situacao?: EnumSituacaoProcessoFieldUpdateOperationsInput | SituacaoProcesso
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratos?: ContratoUncheckedUpdateManyWithoutProcessoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutProcessoNestedInput
+  }
+
+  export type DominioValorUpsertWithoutDocumentosTipoInput = {
+    update: XOR<DominioValorUpdateWithoutDocumentosTipoInput, DominioValorUncheckedUpdateWithoutDocumentosTipoInput>
+    create: XOR<DominioValorCreateWithoutDocumentosTipoInput, DominioValorUncheckedCreateWithoutDocumentosTipoInput>
+  }
+
+  export type DominioValorUpdateWithoutDocumentosTipoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
+    catalogoPorCategoria?: CatalogoItemUpdateManyWithoutCategoriaItemNestedInput
+    catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
+    atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
+    itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateWithoutDocumentosTipoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
+    catalogoPorCategoria?: CatalogoItemUncheckedUpdateManyWithoutCategoriaItemNestedInput
+    catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
+    atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
+    itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
   }
 
   export type UnidadeOrganizacionalCreateManyMunicipioInput = {
@@ -40506,6 +53395,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutDominioInput = {
@@ -40529,6 +53422,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateManyWithoutValoresInput = {
@@ -40764,6 +53661,55 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type DotacaoOrcamentariaCreateManyNaturezaDespesaInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    fonteRecursoId: string
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DotacaoOrcamentariaCreateManyFonteRecursoInput = {
+    id?: string
+    exercicio: number
+    codigo: string
+    unidadeOrcamentaria?: string | null
+    funcionalProgramatica?: string | null
+    naturezaDespesaId: string
+    descricao?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PublicacaoCreateManyVeiculoInput = {
+    id?: string
+    contratoId?: string | null
+    alteracaoId?: string | null
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+  }
+
+  export type DocumentoCreateManyTipoDocumentoInput = {
+    id?: string
+    contratoId?: string | null
+    alteracaoId?: string | null
+    processoId?: string | null
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+  }
+
   export type DominioValorUpdateWithoutParentInput = {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
@@ -40785,6 +53731,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutParentInput = {
@@ -40808,6 +53758,10 @@ export namespace Prisma {
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
     alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
+    dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
+    publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+    documentosTipo?: DocumentoUncheckedUpdateManyWithoutTipoDocumentoNestedInput
   }
 
   export type DominioValorUncheckedUpdateManyWithoutChildrenInput = {
@@ -40862,6 +53816,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutCategoriaContratacaoInput = {
@@ -40903,6 +53862,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosCategoriaInput = {
@@ -40981,6 +53945,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutModalidadeRefInput = {
@@ -41022,6 +53991,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosModalidadeInput = {
@@ -41100,6 +54074,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutFundamentoLegalInput = {
@@ -41141,6 +54120,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosFundamentoInput = {
@@ -41196,6 +54180,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     unidadeDemandante?: UnidadeOrganizacionalUpdateOneRequiredWithoutProcessosDemandanteNestedInput
     contratos?: ContratoUpdateManyWithoutProcessoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutProcessoNestedInput
+    documentos?: DocumentoUpdateManyWithoutProcessoNestedInput
   }
 
   export type ProcessoContratacaoUncheckedUpdateWithoutModalidadePretendidaInput = {
@@ -41214,6 +54200,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contratos?: ContratoUncheckedUpdateManyWithoutProcessoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutProcessoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutProcessoNestedInput
   }
 
   export type ProcessoContratacaoUncheckedUpdateManyWithoutProcessosModalidadeInput = {
@@ -41433,6 +54421,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contrato?: ContratoUpdateOneRequiredWithoutAlteracoesNestedInput
     itens?: AlteracaoItemUpdateManyWithoutAlteracaoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutAlteracaoNestedInput
+    documentos?: DocumentoUpdateManyWithoutAlteracaoNestedInput
   }
 
   export type AlteracaoContratualUncheckedUpdateWithoutFundamentoLegalInput = {
@@ -41457,6 +54447,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     itens?: AlteracaoItemUncheckedUpdateManyWithoutAlteracaoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutAlteracaoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutAlteracaoNestedInput
   }
 
   export type AlteracaoContratualUncheckedUpdateManyWithoutAlteracoesFundamentoInput = {
@@ -41480,6 +54472,161 @@ export namespace Prisma {
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DotacaoOrcamentariaUpdateWithoutNaturezaDespesaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fonteRecurso?: DominioValorUpdateOneRequiredWithoutDotacoesFonteNestedInput
+    contratos?: ContratoDotacaoUpdateManyWithoutDotacaoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutDotacaoNestedInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedUpdateWithoutNaturezaDespesaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    fonteRecursoId?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratos?: ContratoDotacaoUncheckedUpdateManyWithoutDotacaoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutDotacaoNestedInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedUpdateManyWithoutDotacoesNaturezaInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    fonteRecursoId?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DotacaoOrcamentariaUpdateWithoutFonteRecursoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    naturezaDespesa?: DominioValorUpdateOneRequiredWithoutDotacoesNaturezaNestedInput
+    contratos?: ContratoDotacaoUpdateManyWithoutDotacaoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutDotacaoNestedInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedUpdateWithoutFonteRecursoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    naturezaDespesaId?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratos?: ContratoDotacaoUncheckedUpdateManyWithoutDotacaoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutDotacaoNestedInput
+  }
+
+  export type DotacaoOrcamentariaUncheckedUpdateManyWithoutDotacoesFonteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    codigo?: StringFieldUpdateOperationsInput | string
+    unidadeOrcamentaria?: NullableStringFieldUpdateOperationsInput | string | null
+    funcionalProgramatica?: NullableStringFieldUpdateOperationsInput | string | null
+    naturezaDespesaId?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublicacaoUpdateWithoutVeiculoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneWithoutPublicacoesNestedInput
+    alteracao?: AlteracaoContratualUpdateOneWithoutPublicacoesNestedInput
+  }
+
+  export type PublicacaoUncheckedUpdateWithoutVeiculoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublicacaoUncheckedUpdateManyWithoutPublicacoesVeiculoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoUpdateWithoutTipoDocumentoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneWithoutDocumentosNestedInput
+    alteracao?: AlteracaoContratualUpdateOneWithoutDocumentosNestedInput
+    processo?: ProcessoContratacaoUpdateOneWithoutDocumentosNestedInput
+  }
+
+  export type DocumentoUncheckedUpdateWithoutTipoDocumentoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoUncheckedUpdateManyWithoutDocumentosTipoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UnidadeOrganizacionalCreateManyOrgaoInput = {
@@ -41812,6 +54959,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutUnidadeGestoraInput = {
@@ -41853,6 +55005,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosGestoraInput = {
@@ -41938,6 +55095,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     modalidadePretendida?: DominioValorUpdateOneWithoutProcessosModalidadeNestedInput
     contratos?: ContratoUpdateManyWithoutProcessoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutProcessoNestedInput
+    documentos?: DocumentoUpdateManyWithoutProcessoNestedInput
   }
 
   export type ProcessoContratacaoUncheckedUpdateWithoutUnidadeDemandanteInput = {
@@ -41956,6 +55115,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     contratos?: ContratoUncheckedUpdateManyWithoutProcessoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutProcessoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutProcessoNestedInput
   }
 
   export type ProcessoContratacaoUncheckedUpdateManyWithoutProcessosDemandanteInput = {
@@ -42188,6 +55349,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutFornecedorInput = {
@@ -42229,6 +55395,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosInput = {
@@ -42345,6 +55516,31 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type ReservaOrcamentariaCreateManyProcessoInput = {
+    id?: string
+    contratoId?: string | null
+    numero: string
+    data: Date | string
+    valorCents: bigint | number
+    situacao?: SituacaoReserva
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type DocumentoCreateManyProcessoInput = {
+    id?: string
+    contratoId?: string | null
+    alteracaoId?: string | null
+    tipoDocumentoId: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
+  }
+
   export type ContratoUpdateWithoutProcessoInput = {
     id?: StringFieldUpdateOperationsInput | string
     numeroGms?: StringFieldUpdateOperationsInput | string
@@ -42384,6 +55580,11 @@ export namespace Prisma {
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutProcessoInput = {
@@ -42425,6 +55626,86 @@ export namespace Prisma {
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ReservaOrcamentariaUpdateWithoutProcessoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: StringFieldUpdateOperationsInput | string
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoReservaFieldUpdateOperationsInput | SituacaoReserva
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneWithoutReservasNestedInput
+  }
+
+  export type ReservaOrcamentariaUncheckedUpdateWithoutProcessoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numero?: StringFieldUpdateOperationsInput | string
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoReservaFieldUpdateOperationsInput | SituacaoReserva
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservaOrcamentariaUncheckedUpdateManyWithoutReservasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numero?: StringFieldUpdateOperationsInput | string
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoReservaFieldUpdateOperationsInput | SituacaoReserva
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoUpdateWithoutProcessoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneWithoutDocumentosNestedInput
+    alteracao?: AlteracaoContratualUpdateOneWithoutDocumentosNestedInput
+    tipoDocumento?: DominioValorUpdateOneRequiredWithoutDocumentosTipoNestedInput
+  }
+
+  export type DocumentoUncheckedUpdateWithoutProcessoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoDocumentoId?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoUncheckedUpdateManyWithoutDocumentosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoDocumentoId?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ContratoResponsavelCreateManyContratoInput = {
@@ -42485,6 +55766,65 @@ export namespace Prisma {
     codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type ContratoDotacaoCreateManyContratoInput = {
+    id?: string
+    dotacaoId: string
+    exercicio: number
+    valorPrevistoCents: bigint | number
+    createdAt?: Date | string
+  }
+
+  export type EmpenhoCreateManyContratoInput = {
+    id?: string
+    dotacaoId?: string | null
+    numero: string
+    exercicio: number
+    tipo?: TipoEmpenho
+    data: Date | string
+    valorCents: bigint | number
+    valorLiquidadoCents?: bigint | number
+    valorPagoCents?: bigint | number
+    situacao?: SituacaoEmpenho
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ReservaOrcamentariaCreateManyContratoInput = {
+    id?: string
+    processoId?: string | null
+    numero: string
+    data: Date | string
+    valorCents: bigint | number
+    situacao?: SituacaoReserva
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type PublicacaoCreateManyContratoInput = {
+    id?: string
+    alteracaoId?: string | null
+    veiculoId: string
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+  }
+
+  export type DocumentoCreateManyContratoInput = {
+    id?: string
+    alteracaoId?: string | null
+    processoId?: string | null
+    tipoDocumentoId: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
+    createdAt?: Date | string
   }
 
   export type ContratoResponsavelUpdateWithoutContratoInput = {
@@ -42602,6 +55942,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     fundamentoLegal?: DominioValorUpdateOneWithoutAlteracoesFundamentoNestedInput
     itens?: AlteracaoItemUpdateManyWithoutAlteracaoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutAlteracaoNestedInput
+    documentos?: DocumentoUpdateManyWithoutAlteracaoNestedInput
   }
 
   export type AlteracaoContratualUncheckedUpdateWithoutContratoInput = {
@@ -42626,6 +55968,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     itens?: AlteracaoItemUncheckedUpdateManyWithoutAlteracaoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutAlteracaoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutAlteracaoNestedInput
   }
 
   export type AlteracaoContratualUncheckedUpdateManyWithoutAlteracoesInput = {
@@ -42651,6 +55995,158 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type ContratoDotacaoUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    valorPrevistoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dotacao?: DotacaoOrcamentariaUpdateOneRequiredWithoutContratosNestedInput
+  }
+
+  export type ContratoDotacaoUncheckedUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dotacaoId?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    valorPrevistoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoDotacaoUncheckedUpdateManyWithoutDotacoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dotacaoId?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    valorPrevistoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmpenhoUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    tipo?: EnumTipoEmpenhoFieldUpdateOperationsInput | TipoEmpenho
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorLiquidadoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorPagoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoEmpenhoFieldUpdateOperationsInput | SituacaoEmpenho
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dotacao?: DotacaoOrcamentariaUpdateOneWithoutEmpenhosNestedInput
+  }
+
+  export type EmpenhoUncheckedUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dotacaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numero?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    tipo?: EnumTipoEmpenhoFieldUpdateOperationsInput | TipoEmpenho
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorLiquidadoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorPagoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoEmpenhoFieldUpdateOperationsInput | SituacaoEmpenho
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmpenhoUncheckedUpdateManyWithoutEmpenhosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dotacaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numero?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    tipo?: EnumTipoEmpenhoFieldUpdateOperationsInput | TipoEmpenho
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorLiquidadoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorPagoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoEmpenhoFieldUpdateOperationsInput | SituacaoEmpenho
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ReservaOrcamentariaUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: StringFieldUpdateOperationsInput | string
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoReservaFieldUpdateOperationsInput | SituacaoReserva
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutReservasNestedInput
+  }
+
+  export type ReservaOrcamentariaUncheckedUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numero?: StringFieldUpdateOperationsInput | string
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoReservaFieldUpdateOperationsInput | SituacaoReserva
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublicacaoUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracao?: AlteracaoContratualUpdateOneWithoutPublicacoesNestedInput
+    veiculo?: DominioValorUpdateOneRequiredWithoutPublicacoesVeiculoNestedInput
+  }
+
+  export type PublicacaoUncheckedUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    veiculoId?: StringFieldUpdateOperationsInput | string
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublicacaoUncheckedUpdateManyWithoutPublicacoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    veiculoId?: StringFieldUpdateOperationsInput | string
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracao?: AlteracaoContratualUpdateOneWithoutDocumentosNestedInput
+    processo?: ProcessoContratacaoUpdateOneWithoutDocumentosNestedInput
+    tipoDocumento?: DominioValorUpdateOneRequiredWithoutDocumentosTipoNestedInput
+  }
+
+  export type DocumentoUncheckedUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    alteracaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoDocumentoId?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AlteracaoItemCreateManyAlteracaoInput = {
     id?: string
     itemContratoId?: string | null
@@ -42658,6 +56154,31 @@ export namespace Prisma {
     quantidadeDelta: Decimal | DecimalJsLike | number | string
     valorUnitarioNovoCents?: bigint | number | null
     observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type PublicacaoCreateManyAlteracaoInput = {
+    id?: string
+    contratoId?: string | null
+    veiculoId: string
+    dataPublicacao: Date | string
+    numeroEdicao?: string | null
+    idPncp?: string | null
+    url?: string | null
+    createdAt?: Date | string
+  }
+
+  export type DocumentoCreateManyAlteracaoInput = {
+    id?: string
+    contratoId?: string | null
+    processoId?: string | null
+    tipoDocumentoId: string
+    nome: string
+    storageKey?: string | null
+    urlExterna?: string | null
+    mimeType?: string | null
+    tamanhoBytes?: number | null
+    uploadedById?: string | null
     createdAt?: Date | string
   }
 
@@ -42688,6 +56209,56 @@ export namespace Prisma {
     quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
     valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type PublicacaoUpdateWithoutAlteracaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneWithoutPublicacoesNestedInput
+    veiculo?: DominioValorUpdateOneRequiredWithoutPublicacoesVeiculoNestedInput
+  }
+
+  export type PublicacaoUncheckedUpdateWithoutAlteracaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    veiculoId?: StringFieldUpdateOperationsInput | string
+    dataPublicacao?: DateTimeFieldUpdateOperationsInput | Date | string
+    numeroEdicao?: NullableStringFieldUpdateOperationsInput | string | null
+    idPncp?: NullableStringFieldUpdateOperationsInput | string | null
+    url?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DocumentoUpdateWithoutAlteracaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneWithoutDocumentosNestedInput
+    processo?: ProcessoContratacaoUpdateOneWithoutDocumentosNestedInput
+    tipoDocumento?: DominioValorUpdateOneRequiredWithoutDocumentosTipoNestedInput
+  }
+
+  export type DocumentoUncheckedUpdateWithoutAlteracaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    tipoDocumentoId?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    storageKey?: NullableStringFieldUpdateOperationsInput | string | null
+    urlExterna?: NullableStringFieldUpdateOperationsInput | string | null
+    mimeType?: NullableStringFieldUpdateOperationsInput | string | null
+    tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
+    uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -42829,6 +56400,83 @@ export namespace Prisma {
     valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
     observacao?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoDotacaoCreateManyDotacaoInput = {
+    id?: string
+    contratoId: string
+    exercicio: number
+    valorPrevistoCents: bigint | number
+    createdAt?: Date | string
+  }
+
+  export type EmpenhoCreateManyDotacaoInput = {
+    id?: string
+    contratoId: string
+    numero: string
+    exercicio: number
+    tipo?: TipoEmpenho
+    data: Date | string
+    valorCents: bigint | number
+    valorLiquidadoCents?: bigint | number
+    valorPagoCents?: bigint | number
+    situacao?: SituacaoEmpenho
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContratoDotacaoUpdateWithoutDotacaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    valorPrevistoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutDotacoesNestedInput
+  }
+
+  export type ContratoDotacaoUncheckedUpdateWithoutDotacaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    valorPrevistoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoDotacaoUncheckedUpdateManyWithoutContratosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    valorPrevistoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type EmpenhoUpdateWithoutDotacaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numero?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    tipo?: EnumTipoEmpenhoFieldUpdateOperationsInput | TipoEmpenho
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorLiquidadoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorPagoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoEmpenhoFieldUpdateOperationsInput | SituacaoEmpenho
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutEmpenhosNestedInput
+  }
+
+  export type EmpenhoUncheckedUpdateWithoutDotacaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    numero?: StringFieldUpdateOperationsInput | string
+    exercicio?: IntFieldUpdateOperationsInput | number
+    tipo?: EnumTipoEmpenhoFieldUpdateOperationsInput | TipoEmpenho
+    data?: DateTimeFieldUpdateOperationsInput | Date | string
+    valorCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorLiquidadoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorPagoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    situacao?: EnumSituacaoEmpenhoFieldUpdateOperationsInput | SituacaoEmpenho
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

@@ -3,3 +3,4 @@ export * from './lookups';
 export * from './partes';
 export * from './itens';
 export * from './alteracoes';
+export * from './orcamento';

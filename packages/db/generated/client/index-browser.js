@@ -380,6 +380,83 @@ exports.Prisma.ItemContratoScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.DotacaoOrcamentariaScalarFieldEnum = {
+  id: 'id',
+  exercicio: 'exercicio',
+  codigo: 'codigo',
+  unidadeOrcamentaria: 'unidadeOrcamentaria',
+  funcionalProgramatica: 'funcionalProgramatica',
+  naturezaDespesaId: 'naturezaDespesaId',
+  fonteRecursoId: 'fonteRecursoId',
+  descricao: 'descricao',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ContratoDotacaoScalarFieldEnum = {
+  id: 'id',
+  contratoId: 'contratoId',
+  dotacaoId: 'dotacaoId',
+  exercicio: 'exercicio',
+  valorPrevistoCents: 'valorPrevistoCents',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.EmpenhoScalarFieldEnum = {
+  id: 'id',
+  contratoId: 'contratoId',
+  dotacaoId: 'dotacaoId',
+  numero: 'numero',
+  exercicio: 'exercicio',
+  tipo: 'tipo',
+  data: 'data',
+  valorCents: 'valorCents',
+  valorLiquidadoCents: 'valorLiquidadoCents',
+  valorPagoCents: 'valorPagoCents',
+  situacao: 'situacao',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReservaOrcamentariaScalarFieldEnum = {
+  id: 'id',
+  contratoId: 'contratoId',
+  processoId: 'processoId',
+  numero: 'numero',
+  data: 'data',
+  valorCents: 'valorCents',
+  situacao: 'situacao',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PublicacaoScalarFieldEnum = {
+  id: 'id',
+  contratoId: 'contratoId',
+  alteracaoId: 'alteracaoId',
+  veiculoId: 'veiculoId',
+  dataPublicacao: 'dataPublicacao',
+  numeroEdicao: 'numeroEdicao',
+  idPncp: 'idPncp',
+  url: 'url',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.DocumentoScalarFieldEnum = {
+  id: 'id',
+  contratoId: 'contratoId',
+  alteracaoId: 'alteracaoId',
+  processoId: 'processoId',
+  tipoDocumentoId: 'tipoDocumentoId',
+  nome: 'nome',
+  storageKey: 'storageKey',
+  urlExterna: 'urlExterna',
+  mimeType: 'mimeType',
+  tamanhoBytes: 'tamanhoBytes',
+  uploadedById: 'uploadedById',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.AuditLogScalarFieldEnum = {
   id: 'id',
   tabela: 'tabela',
@@ -578,6 +655,25 @@ exports.Periodicidade = {
   ANUAL: 'ANUAL'
 };
 
+exports.TipoEmpenho = {
+  ORDINARIO: 'ORDINARIO',
+  ESTIMATIVO: 'ESTIMATIVO',
+  GLOBAL: 'GLOBAL'
+};
+
+exports.SituacaoEmpenho = {
+  EMITIDO: 'EMITIDO',
+  LIQUIDADO: 'LIQUIDADO',
+  PAGO: 'PAGO',
+  ANULADO: 'ANULADO'
+};
+
+exports.SituacaoReserva = {
+  ATIVA: 'ATIVA',
+  BAIXADA: 'BAIXADA',
+  CANCELADA: 'CANCELADA'
+};
+
 exports.Prisma.ModelName = {
   UnidadeFsp: 'UnidadeFsp',
   Municipio: 'Municipio',
@@ -598,6 +694,12 @@ exports.Prisma.ModelName = {
   CatalogoItem: 'CatalogoItem',
   ItemAtributoDef: 'ItemAtributoDef',
   ItemContrato: 'ItemContrato',
+  DotacaoOrcamentaria: 'DotacaoOrcamentaria',
+  ContratoDotacao: 'ContratoDotacao',
+  Empenho: 'Empenho',
+  ReservaOrcamentaria: 'ReservaOrcamentaria',
+  Publicacao: 'Publicacao',
+  Documento: 'Documento',
   AuditLog: 'AuditLog',
   User: 'User'
 };

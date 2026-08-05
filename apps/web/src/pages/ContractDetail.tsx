@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useContract, useDeleteContract } from '../hooks/useContracts';
 import {
   Button,
@@ -11,7 +12,7 @@ import {
   StatusBadge,
   useToast,
 } from '@painel/ui';
-import { getErrorMessage } from '../lib/http';
+import { getErrorMessage, http } from '../lib/http';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 
 export default function ContractDetail() {
@@ -21,6 +22,22 @@ export default function ContractDetail() {
   const deleteContract = useDeleteContract();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
+
+  const { data: dotacoes } = useQuery({
+    queryKey: ['contrato-dotacoes', id],
+    queryFn: async () => (await http.get(`/contracts/${id}/dotacoes`)).data,
+    enabled: Boolean(id),
+  });
+  const { data: empenhos } = useQuery({
+    queryKey: ['contrato-empenhos', id],
+    queryFn: async () => (await http.get(`/contracts/${id}/empenhos`)).data,
+    enabled: Boolean(id),
+  });
+  const { data: publicacoes } = useQuery({
+    queryKey: ['contrato-publicacoes', id],
+    queryFn: async () => (await http.get(`/contracts/${id}/publicacoes`)).data,
+    enabled: Boolean(id),
+  });
 
   const handleDelete = async () => {
     if (!confirm.pending) return;
@@ -172,6 +189,57 @@ export default function ContractDetail() {
                 <p className="text-[var(--font-size-xs)] text-[var(--text-muted)]">Fim original</p>
                 <p className="mt-1 font-semibold">{contract.dataFimOrig || '—'}</p>
               </div>
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <p className="text-[var(--font-size-xs)] text-[var(--text-muted)]">Dotações</p>
+              {dotacoes?.length ? (
+                dotacoes.map((d: any) => (
+                  <p key={d.id} className="text-[var(--font-size-sm)]">
+                    {d.exercicio} · {d.dotacao?.codigo}
+                    {' · '}
+                    {(d.valorPrevisto ?? 0).toLocaleString('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
+                    })}
+                    {d.dotacao?.fonteRecurso?.label ? ` · ${d.dotacao.fonteRecurso.label}` : ''}
+                  </p>
+                ))
+              ) : (
+                <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Nenhuma dotação.</p>
+              )}
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <p className="text-[var(--font-size-xs)] text-[var(--text-muted)]">Empenhos</p>
+              {empenhos?.length ? (
+                empenhos.map((e: any) => (
+                  <p key={e.id} className="text-[var(--font-size-sm)]">
+                    {e.numero}/{e.exercicio} · {e.situacao}
+                    {' · '}
+                    {(e.valor ?? 0).toLocaleString('pt-BR', {
+                      style: 'currency',
+                      currency: 'BRL',
+                    })}
+                  </p>
+                ))
+              ) : (
+                <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Nenhum empenho.</p>
+              )}
+            </div>
+
+            <div className="mt-4 space-y-2">
+              <p className="text-[var(--font-size-xs)] text-[var(--text-muted)]">Publicações</p>
+              {publicacoes?.length ? (
+                publicacoes.map((p: any) => (
+                  <p key={p.id} className="text-[var(--font-size-sm)]">
+                    {p.veiculo?.codigo || '—'} · {String(p.dataPublicacao).slice(0, 10)}
+                    {p.idPncp ? ` · ${p.idPncp}` : ''}
+                  </p>
+                ))
+              ) : (
+                <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Nenhuma publicação.</p>
+              )}
             </div>
           </section>
         </Card>
