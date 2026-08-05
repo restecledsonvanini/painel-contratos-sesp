@@ -200,23 +200,77 @@ async function main() {
       }
     }
 
-    const servicos = [
-      { titulo: 'Locação de viaturas', descricao: 'Frota caracterizada e descaracterizada' },
-      { titulo: 'Fornecimento de gêneros alimentícios', descricao: 'Unidades prisionais e operacionais' },
-      { titulo: 'Manutenção de sistemas de segurança', descricao: 'CFTV, alarmes e controle de acesso' },
-      { titulo: 'Limpeza e conservação', descricao: 'Postos de trabalho em sedes administrativas' },
+    const catalogoSeed = [
+      { nome: 'Locação de viaturas', descricao: 'Frota caracterizada e descaracterizada', cat: 'VEICULO', um: 'UN' },
+      { nome: 'Fornecimento de gêneros alimentícios', descricao: 'Unidades prisionais e operacionais', cat: 'ALIMENTO', um: 'KG' },
+      { nome: 'Manutenção de sistemas de segurança', descricao: 'CFTV, alarmes e controle de acesso', cat: 'SERVICO', um: 'SERVICO' },
+      { nome: 'Limpeza e conservação', descricao: 'Postos de trabalho em sedes administrativas', cat: 'POSTO_TRABALHO', um: 'POSTO' },
+      { nome: 'SUV operacional', descricao: 'Veículo tipo SUV para uso operacional', cat: 'VEICULO', um: 'UN' },
+      { nome: 'Kit APH', descricao: 'Kit de atendimento pré-hospitalar', cat: 'EQUIPAMENTO_TATICO', um: 'UN' },
     ];
 
-    for (const s of servicos) {
-      const existing = await tx.servico.findFirst({ where: { titulo: s.titulo } });
-      if (existing) {
-        await tx.servico.update({
-          where: { id: existing.id },
-          data: { descricao: s.descricao },
-        });
-      } else {
-        await tx.servico.create({ data: s });
-      }
+    for (const item of catalogoSeed) {
+      const cat = await tx.dominioValor.findFirstOrThrow({
+        where: { dominio: { slug: 'categoria-item' }, codigo: item.cat },
+      });
+      const um = await tx.dominioValor.findFirstOrThrow({
+        where: { dominio: { slug: 'unidade-medida' }, codigo: item.um },
+      });
+      await tx.catalogoItem.upsert({
+        where: { categoriaItemId_nome: { categoriaItemId: cat.id, nome: item.nome } },
+        update: { descricao: item.descricao, unidadeMedidaPadraoId: um.id, ativo: true },
+        create: {
+          categoriaItemId: cat.id,
+          nome: item.nome,
+          descricao: item.descricao,
+          unidadeMedidaPadraoId: um.id,
+          ativo: true,
+        },
+      });
+    }
+
+    const catVeiculo = await tx.dominioValor.findFirstOrThrow({
+      where: { dominio: { slug: 'categoria-item' }, codigo: 'VEICULO' },
+    });
+    const catImovel = await tx.dominioValor.findFirstOrThrow({
+      where: { dominio: { slug: 'categoria-item' }, codigo: 'IMOVEL' },
+    });
+
+    const atributosSeed = [
+      { categoriaItemId: catVeiculo.id, chave: 'tipoVeiculo', label: 'Tipo de veículo', tipo: 'SELECAO' as const, dominioSlug: 'tipo-veiculo', ordem: 1 },
+      { categoriaItemId: catVeiculo.id, chave: 'caracterizacao', label: 'Caracterização', tipo: 'SELECAO' as const, ordem: 2, ajuda: 'CARACTERIZADA ou DESCARACTERIZADA' },
+      { categoriaItemId: catVeiculo.id, chave: 'modalidadeUso', label: 'Modalidade de uso', tipo: 'SELECAO' as const, ordem: 3 },
+      { categoriaItemId: catImovel.id, chave: 'metragemM2', label: 'Metragem (m²)', tipo: 'NUMERO' as const, unidade: 'm²', ordem: 1, obrigatorio: true },
+      { categoriaItemId: catImovel.id, chave: 'destinacaoImovel', label: 'Destinação', tipo: 'SELECAO' as const, dominioSlug: 'destinacao-imovel', ordem: 2 },
+    ];
+
+    for (const a of atributosSeed) {
+      await tx.itemAtributoDef.upsert({
+        where: {
+          categoriaItemId_chave: { categoriaItemId: a.categoriaItemId, chave: a.chave },
+        },
+        update: {
+          label: a.label,
+          tipo: a.tipo,
+          dominioSlug: a.dominioSlug ?? null,
+          unidade: a.unidade ?? null,
+          ordem: a.ordem,
+          obrigatorio: a.obrigatorio ?? false,
+          ajuda: a.ajuda ?? null,
+          ativo: true,
+        },
+        create: {
+          categoriaItemId: a.categoriaItemId,
+          chave: a.chave,
+          label: a.label,
+          tipo: a.tipo,
+          dominioSlug: a.dominioSlug ?? null,
+          unidade: a.unidade ?? null,
+          ordem: a.ordem,
+          obrigatorio: a.obrigatorio ?? false,
+          ajuda: a.ajuda ?? null,
+        },
+      });
     }
 
     const pmprOrgao = await tx.orgao.findUniqueOrThrow({ where: { sigla: 'PMPR' } });
@@ -383,6 +437,7 @@ async function main() {
 
       if (existing) {
         await tx.aditivo.deleteMany({ where: { contratoId: existing.id } });
+        await tx.itemContrato.deleteMany({ where: { contratoId: existing.id } });
         await tx.contratoResponsavel.deleteMany({ where: { contratoId: existing.id } });
         await tx.contratoRateio.deleteMany({ where: { contratoId: existing.id } });
         await tx.contrato.update({ where: { id: existing.id }, data: baseData });
@@ -422,6 +477,29 @@ async function main() {
         },
       });
 
+      if (c.numeroGms === '456') {
+        const catalogo = await tx.catalogoItem.findFirstOrThrow({
+          where: { nome: 'SUV operacional' },
+        });
+        await tx.itemContrato.create({
+          data: {
+            contratoId,
+            sequencia: 1,
+            catalogoItemId: catalogo.id,
+            quantidade: 40,
+            unidadeMedidaId: catalogo.unidadeMedidaPadraoId,
+            valorUnitarioCents: BigInt(10_000_00),
+            periodicidade: 'MENSAL',
+            unidadeDestinoId: c.unidadeGestoraId,
+            atributos: {
+              tipoVeiculo: 'SUV',
+              caracterizacao: 'DESCARACTERIZADA',
+              modalidadeUso: 'LOCACAO',
+            },
+          },
+        });
+      }
+
       if (c.aditivo) {
         await tx.aditivo.create({
           data: {
@@ -445,6 +523,9 @@ async function main() {
     unidadesFsp: await prisma.unidadeFsp.count(),
     fornecedores: await prisma.fornecedor.count(),
     servidores: await prisma.servidor.count(),
+    catalogoItens: await prisma.catalogoItem.count(),
+    itemAtributos: await prisma.itemAtributoDef.count(),
+    itemContratos: await prisma.itemContrato.count(),
     contratos: await prisma.contrato.count(),
   };
 

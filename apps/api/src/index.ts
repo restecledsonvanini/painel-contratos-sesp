@@ -6,6 +6,8 @@ import referencesRouter from './routes/references';
 import lookupsRouter from './routes/lookups';
 import organizacaoRouter from './routes/organizacao';
 import partesRouter from './routes/partes';
+import catalogoRouter from './routes/catalogo';
+import { contratoItensRouter } from './routes/catalogo';
 import { authenticate } from './middleware/auth';
 import { errorHandler } from './lib/errors';
 import { registerBigIntJson } from './lib/bigint-json';
@@ -33,10 +35,12 @@ function mountApi(base: string) {
     res.type('json').json(publicApiCatalog);
   });
   app.use(`${base}/contracts`, contractsRouter);
+  app.use(`${base}/contracts/:id/itens`, contratoItensRouter);
   app.use(`${base}/references`, referencesRouter);
   app.use(base, lookupsRouter);
   app.use(base, organizacaoRouter);
   app.use(base, partesRouter);
+  app.use(base, catalogoRouter);
   app.get(`${base}/health`, (_req, res) => res.json({ ok: true, version: 'v1' }));
 }
 

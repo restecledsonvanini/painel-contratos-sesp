@@ -119,6 +119,26 @@ enum SituacaoProcesso {
   CANCELADO
 }
 
+enum Periodicidade {
+  UNICA
+  DIARIA
+  MENSAL
+  ANUAL
+}
+
+enum TipoAtributo {
+  TEXTO
+  TEXTO_LONGO
+  NUMERO
+  MOEDA
+  DATA
+  BOOLEANO
+  SELECAO
+  MULTI_SELECAO
+  MUNICIPIO
+  UNIDADE
+}
+
 model UnidadeFsp {
   id    String @id @default(uuid())
   sigla String @unique
@@ -133,6 +153,7 @@ model Municipio {
   regiaoAdministrativa String?
   unidades             UnidadeOrganizacional[]
   fornecedores         Fornecedor[]
+  itensExecucao        ItemContrato[]          @relation("ItemMunicipioExecucao")
 
   @@index([uf, nome])
 }
@@ -169,6 +190,10 @@ model DominioValor {
   contratosModalidade  Contrato[]             @relation("ContratoModalidade")
   contratosFundamento  Contrato[]             @relation("ContratoFundamento")
   processosModalidade  ProcessoContratacao[]  @relation("ProcessoModalidade")
+  catalogoPorCategoria CatalogoItem[]         @relation("CatalogoCategoria")
+  catalogoUnidadeMedida CatalogoItem[]        @relation("CatalogoUnidadeMedida")
+  atributosPorCategoria ItemAtributoDef[]     @relation("AtributoCategoria")
+  itensUnidadeMedida   ItemContrato[]         @relation("ItemUnidadeMedida")
 
   @@unique([dominioId, codigo])
   @@index([dominioId, ativo, ordem])
@@ -204,6 +229,7 @@ model UnidadeOrganizacional {
   contratosGestora Contrato[]         @relation("ContratoUnidadeGestora")
   rateios     ContratoRateio[]
   processosDemandante ProcessoContratacao[] @relation("ProcessoUnidadeDemandante")
+  itensDestino ItemContrato[]         @relation("ItemUnidadeDestino")
   createdAt   DateTime                @default(now())
   updatedAt   DateTime                @updatedAt
 
@@ -352,6 +378,7 @@ model Contrato {
   codigoLegado             String?
   responsaveis             ContratoResponsavel[]
   rateios                  ContratoRateio[]
+  itens                    ItemContrato[]
   aditivos                 Aditivo[]
   createdAt                DateTime               @default(now())
   updatedAt                DateTime               @updatedAt
@@ -408,11 +435,71 @@ model Aditivo {
   createdAt           DateTime  @default(now())
 }
 
-model Servico {
-  id        String   @id @default(uuid())
-  titulo    String
-  descricao String?
-  createdAt DateTime @default(now())
+model CatalogoItem {
+  id                     String        @id @default(uuid())
+  categoriaItemId        String
+  categoriaItem          DominioValor  @relation("CatalogoCategoria", fields: [categoriaItemId], references: [id])
+  codigo                 String?
+  nome                   String
+  descricao              String?
+  unidadeMedidaPadraoId  String
+  unidadeMedidaPadrao    DominioValor  @relation("CatalogoUnidadeMedida", fields: [unidadeMedidaPadraoId], references: [id])
+  atributosPadrao        Json?
+  ativo                  Boolean       @default(true)
+  itensContrato          ItemContrato[]
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  @@unique([categoriaItemId, nome])
+  @@index([nome])
+  @@index([ativo])
+}
+
+model ItemAtributoDef {
+  id               String       @id @default(uuid())
+  categoriaItemId  String
+  categoriaItem    DominioValor @relation("AtributoCategoria", fields: [categoriaItemId], references: [id])
+  chave            String
+  label            String
+  tipo             TipoAtributo
+  dominioSlug      String?
+  obrigatorio      Boolean      @default(false)
+  unidade          String?
+  ordem            Int          @default(0)
+  ajuda            String?
+  ativo            Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@unique([categoriaItemId, chave])
+  @@index([categoriaItemId, ativo, ordem])
+}
+
+model ItemContrato {
+  id                    String                 @id @default(uuid())
+  contratoId            String
+  contrato              Contrato               @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  sequencia             Int
+  catalogoItemId        String
+  catalogoItem          CatalogoItem           @relation(fields: [catalogoItemId], references: [id])
+  descricaoComplementar String?
+  quantidade            Decimal                @db.Decimal(14, 4)
+  unidadeMedidaId       String
+  unidadeMedida         DominioValor           @relation("ItemUnidadeMedida", fields: [unidadeMedidaId], references: [id])
+  valorUnitarioCents    BigInt
+  periodicidade         Periodicidade          @default(UNICA)
+  unidadeDestinoId      String?
+  unidadeDestino        UnidadeOrganizacional? @relation("ItemUnidadeDestino", fields: [unidadeDestinoId], references: [id])
+  municipioExecucaoId   String?
+  municipioExecucao     Municipio?             @relation("ItemMunicipioExecucao", fields: [municipioExecucaoId], references: [id])
+  enderecoExecucao      String?
+  atributos             Json?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  @@unique([contratoId, sequencia])
+  @@index([catalogoItemId])
+  @@index([unidadeDestinoId])
 }
 
 model AuditLog {

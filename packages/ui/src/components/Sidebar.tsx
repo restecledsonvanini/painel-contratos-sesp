@@ -28,8 +28,8 @@ const navItems: NavItem[] = [
   { label: 'Novo contrato', to: '/contracts/new', icon: FilePlus2 },
   { label: 'Fornecedores', to: '/fornecedores', icon: Briefcase },
   { label: 'Servidores', to: '/servidores', icon: Users },
+  { label: 'Catálogo de itens', to: '/catalogo-itens', icon: Wrench },
   { label: 'Unidades FSP', to: '/unidades-fsp', icon: Shield },
-  { label: 'Serviços', to: '/servicos', icon: Wrench },
   { label: 'Listas suspensas', to: '/dominios', icon: ListTree },
 ];
 

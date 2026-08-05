@@ -114,6 +114,41 @@ export default function ContractDetail() {
           </section>
 
           <section>
+            <h2 className="mb-3 text-[var(--font-size-lg)] font-bold text-[var(--primary)]">Itens</h2>
+            <div className="space-y-2">
+              {contract.itens?.length ? (
+                contract.itens.map((item: any) => (
+                  <div
+                    key={item.id}
+                    className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3"
+                  >
+                    <p className="font-semibold">
+                      {item.sequencia}. {item.catalogoNome || item.catalogoItemId}
+                      {item.categoria ? ` · ${item.categoria}` : ''}
+                    </p>
+                    <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">
+                      {item.quantidade} {item.unidadeMedida || 'un'}
+                      {' · '}
+                      {(item.valorUnitario ?? 0).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}
+                      {' unit. · total '}
+                      {(item.valorTotal ?? 0).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL',
+                      })}
+                      {item.periodicidade ? ` · ${item.periodicidade}` : ''}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Nenhum item.</p>
+              )}
+            </div>
+          </section>
+
+          <section>
             <h2 className="mb-3 text-[var(--font-size-lg)] font-bold text-[var(--primary)]">Financeiro e vigência</h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div>

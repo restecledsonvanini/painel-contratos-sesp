@@ -18,6 +18,16 @@ const contractInclude = {
   rateios: {
     include: { unidade: { select: { id: true, sigla: true, nome: true } } },
   },
+  itens: {
+    orderBy: { sequencia: 'asc' as const },
+    include: {
+      catalogoItem: {
+        include: { categoriaItem: { select: { id: true, codigo: true, label: true } } },
+      },
+      unidadeMedida: { select: { id: true, codigo: true, label: true } },
+      unidadeDestino: { select: { id: true, sigla: true, nome: true } },
+    },
+  },
 } as const;
 
 export type ContractInclude = typeof contractInclude;
@@ -170,6 +180,19 @@ export const contratoRepository = {
         quantidade?: number | null;
         observacao?: string | null;
       }>;
+      itens?: Array<{
+        sequencia?: number;
+        catalogoItemId: string;
+        descricaoComplementar?: string | null;
+        quantidade: number;
+        unidadeMedidaId?: string;
+        valorUnitarioCents: number;
+        periodicidade?: string;
+        unidadeDestinoId?: string | null;
+        municipioExecucaoId?: string | null;
+        enderecoExecucao?: string | null;
+        atributos?: Record<string, unknown> | null;
+      }>;
       aditivos?: Array<{
         numAditivo: number;
         protocoloAdit: string;
@@ -301,6 +324,33 @@ export const contratoRepository = {
         });
       }
 
+      let seq = 1;
+      for (const item of input.itens ?? []) {
+        const catalogo = await tx.catalogoItem.findUnique({ where: { id: item.catalogoItemId } });
+        if (!catalogo) {
+          throw Object.assign(new Error(`Catálogo ${item.catalogoItemId} não encontrado`), {
+            status: 400,
+          });
+        }
+        await tx.itemContrato.create({
+          data: {
+            contratoId: contrato.id,
+            sequencia: item.sequencia ?? seq,
+            catalogoItemId: item.catalogoItemId,
+            descricaoComplementar: item.descricaoComplementar ?? null,
+            quantidade: item.quantidade,
+            unidadeMedidaId: item.unidadeMedidaId ?? catalogo.unidadeMedidaPadraoId,
+            valorUnitarioCents: BigInt(item.valorUnitarioCents),
+            periodicidade: (item.periodicidade as never) ?? 'UNICA',
+            unidadeDestinoId: item.unidadeDestinoId ?? null,
+            municipioExecucaoId: item.municipioExecucaoId ?? null,
+            enderecoExecucao: item.enderecoExecucao ?? null,
+            atributos: item.atributos ?? undefined,
+          },
+        });
+        seq += 1;
+      }
+
       for (const a of input.aditivos ?? []) {
         await tx.aditivo.create({
           data: {
@@ -426,6 +476,7 @@ export const contratoRepository = {
     const db = getPrisma();
     await db.$transaction(async (tx) => {
       await tx.aditivo.deleteMany({ where: { contratoId: id } });
+      await tx.itemContrato.deleteMany({ where: { contratoId: id } });
       await tx.contratoResponsavel.deleteMany({ where: { contratoId: id } });
       await tx.contratoRateio.deleteMany({ where: { contratoId: id } });
       await tx.contrato.delete({ where: { id } });

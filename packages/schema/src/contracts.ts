@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ItemContratoCreateSchema } from './itens';
 
 const uuid = z.string().uuid();
 
@@ -144,6 +145,7 @@ export const ContractCreateSchema = z
     fiscalId: uuid.optional(),
     responsaveis: z.array(ContratoResponsavelCreateSchema).optional(),
     rateios: z.array(ContratoRateioCreateSchema).optional(),
+    itens: z.array(ItemContratoCreateSchema).optional(),
     aditivos: z.array(AditivoCreateSchema).optional(),
   })
   .superRefine((data, ctx) => {
@@ -248,6 +250,7 @@ export const ContractCreateSchema = z
       fiscalId: raw.fiscalId ?? null,
       responsaveis: raw.responsaveis,
       rateios: raw.rateios,
+      itens: raw.itens,
       aditivos: raw.aditivos,
     };
   });

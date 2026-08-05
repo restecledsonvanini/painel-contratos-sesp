@@ -2,6 +2,7 @@ import { getPrisma } from '../lib/prisma';
 import { writeAuditLog } from '../lib/audit';
 import { fornecedorRepository } from './fornecedorRepository';
 import { servidorRepository } from './servidorRepository';
+import { catalogoRepository } from './catalogoRepository';
 import type { FornecedorCreateInput, ServidorCreateInput } from '@painel/schema';
 
 type AuditArgs = {
@@ -157,19 +158,43 @@ export const referenciaRepository = {
 
   servicos: {
     list: async () => {
-      const rows = await getPrisma().servico.findMany({ orderBy: { titulo: 'asc' } });
-      return rows.map((item) => ({ ...item, descricao: item.descricao ?? '' }));
+      const rows = await catalogoRepository.listAll();
+      return rows.map((item) => ({
+        id: item.id,
+        titulo: item.nome,
+        descricao: item.descricao ?? '',
+      }));
     },
     get: async (id: string) => {
-      const record = await getPrisma().servico.findUnique({ where: { id } });
-      return record ? { ...record, descricao: record.descricao ?? '' } : null;
+      const record = await catalogoRepository.get(id);
+      return { id: record.id, titulo: record.nome, descricao: record.descricao ?? '' };
     },
-    create: async (data: { titulo: string; descricao?: string | null }, changedBy: string | null) => {
-      const record = await getPrisma().servico.create({
-        data: { titulo: data.titulo, descricao: data.descricao || null },
+    create: async (
+      data: { titulo: string; descricao?: string | null },
+      changedBy: string | null,
+    ) => {
+      const db = getPrisma();
+      const cat = await db.dominioValor.findFirst({
+        where: { dominio: { slug: 'categoria-item' }, codigo: 'SERVICO' },
       });
-      await audit({ tabela: 'servico', registroId: record.id, action: 'create', changedBy, diff: record });
-      return { ...record, descricao: record.descricao ?? '' };
+      const um = await db.dominioValor.findFirst({
+        where: { dominio: { slug: 'unidade-medida' }, codigo: 'SERVICO' },
+      });
+      if (!cat || !um) throw new Error('Domínios categoria-item/unidade-medida ausentes');
+      const record = await catalogoRepository.create({
+        categoriaItemId: cat.id,
+        nome: data.titulo,
+        descricao: data.descricao ?? null,
+        unidadeMedidaPadraoId: um.id,
+      });
+      await audit({
+        tabela: 'catalogoItem',
+        registroId: record.id,
+        action: 'create',
+        changedBy,
+        diff: record,
+      });
+      return { id: record.id, titulo: record.nome, descricao: record.descricao ?? '' };
     },
     update: async (
       id: string,
@@ -177,25 +202,28 @@ export const referenciaRepository = {
       existing: { titulo: string; descricao: string | null },
       changedBy: string | null,
     ) => {
-      const updated = await getPrisma().servico.update({
-        where: { id },
-        data: {
-          titulo: data.titulo ?? existing.titulo,
-          descricao: data.descricao === undefined ? existing.descricao : data.descricao || null,
-        },
+      const updated = await catalogoRepository.update(id, {
+        nome: data.titulo,
+        descricao: data.descricao === undefined ? existing.descricao : data.descricao,
       });
       await audit({
-        tabela: 'servico',
+        tabela: 'catalogoItem',
         registroId: updated.id,
         action: 'update',
         changedBy,
         diff: { before: existing, patch: data },
       });
-      return { ...updated, descricao: updated.descricao ?? '' };
+      return { id: updated.id, titulo: updated.nome, descricao: updated.descricao ?? '' };
     },
     remove: async (id: string, existing: { id: string }, changedBy: string | null) => {
-      await getPrisma().servico.delete({ where: { id } });
-      await audit({ tabela: 'servico', registroId: existing.id, action: 'delete', changedBy, diff: existing });
+      await catalogoRepository.remove(id);
+      await audit({
+        tabela: 'catalogoItem',
+        registroId: existing.id,
+        action: 'delete',
+        changedBy,
+        diff: existing,
+      });
     },
   },
 };

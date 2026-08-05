@@ -10,8 +10,8 @@ const FornecedoresList = lazy(() => import('./pages/FornecedoresList'));
 const FornecedoresForm = lazy(() => import('./pages/FornecedoresForm'));
 const ServidoresList = lazy(() => import('./pages/ServidoresList'));
 const ServidoresForm = lazy(() => import('./pages/ServidoresForm'));
-const ServicosList = lazy(() => import('./pages/ServicosList'));
-const ServicosForm = lazy(() => import('./pages/ServicosForm'));
+const CatalogoList = lazy(() => import('./pages/CatalogoList'));
+const CatalogoForm = lazy(() => import('./pages/CatalogoForm'));
 const UnidadesFspList = lazy(() => import('./pages/UnidadesFspList'));
 const UnidadesFspForm = lazy(() => import('./pages/UnidadesFspForm'));
 const DevUi = lazy(() => import('./pages/DevUi'));
@@ -47,9 +47,12 @@ export default function App() {
           <Route path="/entidades-gestoras/new" element={<Navigate to="/servidores/new" replace />} />
           <Route path="/entidades-gestoras/:id/edit" element={<RedirectEdit toBase="/servidores" />} />
 
-          <Route path="/servicos" element={<ServicosList />} />
-          <Route path="/servicos/new" element={<ServicosForm />} />
-          <Route path="/servicos/:id/edit" element={<ServicosForm />} />
+          <Route path="/catalogo-itens" element={<CatalogoList />} />
+          <Route path="/catalogo-itens/new" element={<CatalogoForm />} />
+          <Route path="/catalogo-itens/:id/edit" element={<CatalogoForm />} />
+          <Route path="/servicos" element={<Navigate to="/catalogo-itens" replace />} />
+          <Route path="/servicos/new" element={<Navigate to="/catalogo-itens/new" replace />} />
+          <Route path="/servicos/:id/edit" element={<RedirectEdit toBase="/catalogo-itens" />} />
           <Route path="/unidades-fsp" element={<UnidadesFspList />} />
           <Route path="/unidades-fsp/new" element={<UnidadesFspForm />} />
           <Route path="/unidades-fsp/:id/edit" element={<UnidadesFspForm />} />

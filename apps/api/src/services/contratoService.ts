@@ -119,6 +119,29 @@ function mapContractRecord(record: any) {
       quantidade: r.quantidade != null ? Number(r.quantidade) : null,
       observacao: r.observacao,
     })),
+    itens: record.itens?.map((item: any) => {
+      const qtd = Number(item.quantidade);
+      const unit = Number(item.valorUnitarioCents);
+      return {
+        id: item.id,
+        sequencia: item.sequencia,
+        catalogoItemId: item.catalogoItemId,
+        catalogoNome: item.catalogoItem?.nome,
+        categoria: item.catalogoItem?.categoriaItem?.codigo,
+        descricaoComplementar: item.descricaoComplementar,
+        quantidade: qtd,
+        unidadeMedidaId: item.unidadeMedidaId,
+        unidadeMedida: item.unidadeMedida?.codigo,
+        valorUnitarioCents: unit,
+        valorUnitario: unit / 100,
+        valorTotalCents: Math.round(qtd * unit),
+        valorTotal: (qtd * unit) / 100,
+        periodicidade: item.periodicidade,
+        unidadeDestinoId: item.unidadeDestinoId,
+        unidadeDestinoSigla: item.unidadeDestino?.sigla,
+        atributos: item.atributos,
+      };
+    }),
     aditivos: record.aditivos?.map((aditivo: any) => ({
       id: aditivo.id,
       numAditivo: aditivo.numAditivo,

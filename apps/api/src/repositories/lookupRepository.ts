@@ -130,6 +130,11 @@ export const lookupRepository = {
       return servidorRepository.searchLookup(query);
     }
 
+    if (slug === 'catalogo' || slug === 'catalogo-itens') {
+      const { catalogoRepository } = await import('./catalogoRepository');
+      return catalogoRepository.searchLookup(query);
+    }
+
     // Domínio genérico por slug
     const dominio = await db.dominio.findUnique({ where: { slug } });
     if (!dominio) return null;

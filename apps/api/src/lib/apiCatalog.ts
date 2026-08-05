@@ -34,6 +34,13 @@ export const publicApiCatalog = {
       sancoes: { method: 'POST', path: `${API_BASE}/fornecedores/:id/sancoes` },
     },
     servidores: { method: 'GET', path: `${API_BASE}/servidores` },
+    catalogoItens: {
+      list: { method: 'GET', path: `${API_BASE}/catalogo-itens` },
+      atributos: { method: 'GET', path: `${API_BASE}/categorias-item/:id/atributos` },
+    },
+    contractItens: {
+      list: { method: 'GET', path: `${API_BASE}/contracts/:id/itens` },
+    },
     contracts: {
       list: { method: 'GET', path: `${API_BASE}/contracts` },
       get: { method: 'GET', path: `${API_BASE}/contracts/:id` },
@@ -55,15 +62,18 @@ export const publicApiCatalog = {
         note: 'alias → Servidor (compat)',
       },
       fornecedores: { method: 'GET', path: `${API_BASE}/references/fornecedores` },
-      servicos: { method: 'GET', path: `${API_BASE}/references/servicos` },
+      servicos: {
+        method: 'GET',
+        path: `${API_BASE}/references/servicos`,
+        note: 'alias → CatalogoItem (compat)',
+      },
     },
   },
   tryNow: [
     `http://localhost:${process.env.PORT || 8888}${API_BASE}/health`,
     `http://localhost:${process.env.PORT || 8888}${API_BASE}/lookups`,
-    `http://localhost:${process.env.PORT || 8888}${API_BASE}/lookups/fornecedores?q=loc`,
-    `http://localhost:${process.env.PORT || 8888}${API_BASE}/fornecedores?flat=true`,
-    `http://localhost:${process.env.PORT || 8888}${API_BASE}/servidores?flat=true`,
+    `http://localhost:${process.env.PORT || 8888}${API_BASE}/lookups/catalogo?q=suv`,
+    `http://localhost:${process.env.PORT || 8888}${API_BASE}/catalogo-itens?flat=true`,
     `http://localhost:${process.env.PORT || 8888}${API_BASE}/contracts`,
   ],
 } as const;

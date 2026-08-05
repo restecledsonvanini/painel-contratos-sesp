@@ -308,11 +308,51 @@ exports.Prisma.AditivoScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.ServicoScalarFieldEnum = {
+exports.Prisma.CatalogoItemScalarFieldEnum = {
   id: 'id',
-  titulo: 'titulo',
+  categoriaItemId: 'categoriaItemId',
+  codigo: 'codigo',
+  nome: 'nome',
   descricao: 'descricao',
-  createdAt: 'createdAt'
+  unidadeMedidaPadraoId: 'unidadeMedidaPadraoId',
+  atributosPadrao: 'atributosPadrao',
+  ativo: 'ativo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ItemAtributoDefScalarFieldEnum = {
+  id: 'id',
+  categoriaItemId: 'categoriaItemId',
+  chave: 'chave',
+  label: 'label',
+  tipo: 'tipo',
+  dominioSlug: 'dominioSlug',
+  obrigatorio: 'obrigatorio',
+  unidade: 'unidade',
+  ordem: 'ordem',
+  ajuda: 'ajuda',
+  ativo: 'ativo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ItemContratoScalarFieldEnum = {
+  id: 'id',
+  contratoId: 'contratoId',
+  sequencia: 'sequencia',
+  catalogoItemId: 'catalogoItemId',
+  descricaoComplementar: 'descricaoComplementar',
+  quantidade: 'quantidade',
+  unidadeMedidaId: 'unidadeMedidaId',
+  valorUnitarioCents: 'valorUnitarioCents',
+  periodicidade: 'periodicidade',
+  unidadeDestinoId: 'unidadeDestinoId',
+  municipioExecucaoId: 'municipioExecucaoId',
+  enderecoExecucao: 'enderecoExecucao',
+  atributos: 'atributos',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.AuditLogScalarFieldEnum = {
@@ -471,6 +511,26 @@ exports.PapelResponsavel = {
   PREPOSTO_CONTRATADA: 'PREPOSTO_CONTRATADA'
 };
 
+exports.TipoAtributo = {
+  TEXTO: 'TEXTO',
+  TEXTO_LONGO: 'TEXTO_LONGO',
+  NUMERO: 'NUMERO',
+  MOEDA: 'MOEDA',
+  DATA: 'DATA',
+  BOOLEANO: 'BOOLEANO',
+  SELECAO: 'SELECAO',
+  MULTI_SELECAO: 'MULTI_SELECAO',
+  MUNICIPIO: 'MUNICIPIO',
+  UNIDADE: 'UNIDADE'
+};
+
+exports.Periodicidade = {
+  UNICA: 'UNICA',
+  DIARIA: 'DIARIA',
+  MENSAL: 'MENSAL',
+  ANUAL: 'ANUAL'
+};
+
 exports.Prisma.ModelName = {
   UnidadeFsp: 'UnidadeFsp',
   Municipio: 'Municipio',
@@ -487,7 +547,9 @@ exports.Prisma.ModelName = {
   ContratoResponsavel: 'ContratoResponsavel',
   ContratoRateio: 'ContratoRateio',
   Aditivo: 'Aditivo',
-  Servico: 'Servico',
+  CatalogoItem: 'CatalogoItem',
+  ItemAtributoDef: 'ItemAtributoDef',
+  ItemContrato: 'ItemContrato',
   AuditLog: 'AuditLog',
   User: 'User'
 };

@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm, Controller, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQuery } from '@tanstack/react-query';
 import { ContractCreateSchema } from '@painel/schema';
-import { Button, Input, Page, Textarea, useToast } from '@painel/ui';
+import { Button, FieldArrayList, Input, Page, Textarea, useToast } from '@painel/ui';
 import { useCreateContract, useUpdateContract, useContract } from '../hooks/useContracts';
 import {
   useFornecedores,
@@ -11,7 +12,14 @@ import {
   useUnidadesOrganizacionais,
 } from '../hooks/useReferences';
 import { LookupSelect } from '../components/LookupSelect';
-import { getErrorMessage } from '../lib/http';
+import { getErrorMessage, http } from '../lib/http';
+
+type CatalogoOption = {
+  id: string;
+  nome: string;
+  unidadeMedidaPadraoId?: string;
+  categoriaItem?: { codigo: string; label: string };
+};
 
 export default function ContractForm() {
   const navigate = useNavigate();
@@ -23,6 +31,10 @@ export default function ContractForm() {
   const { data: unidades, isLoading: unidadesLoading } = useUnidadesOrganizacionais();
   const { data: fornecedores, isLoading: fornecedoresLoading } = useFornecedores();
   const { data: servidores, isLoading: servidoresLoading } = useServidores();
+  const { data: catalogo } = useQuery({
+    queryKey: ['catalogo-itens', 'form'],
+    queryFn: async () => (await http.get<CatalogoOption[]>('/catalogo-itens?flat=true')).data,
+  });
 
   const form = useForm({
     resolver: zodResolver(ContractCreateSchema as any),
@@ -43,10 +55,17 @@ export default function ContractForm() {
       dataFimOrig: '',
       status: 'vigente',
       observacoes: '',
+      itens: [] as Array<{
+        catalogoItemId: string;
+        quantidade: number;
+        valorUnitario: number;
+        periodicidade: 'UNICA' | 'DIARIA' | 'MENSAL' | 'ANUAL';
+      }>,
     },
   });
 
   const { register, handleSubmit, setValue, control, formState: { errors } } = form;
+  const itensArray = useFieldArray({ control, name: 'itens' });
 
   useEffect(() => {
     if (existingContract && id) {
@@ -101,10 +120,14 @@ export default function ContractForm() {
   const onSubmit = async (data: any) => {
     try {
       if (id) {
-        await updateContract.mutateAsync({ id, payload: data });
+        const { itens: _itens, ...payload } = data;
+        await updateContract.mutateAsync({ id, payload });
         toast.success('Contrato atualizado.');
       } else {
-        await createContract.mutateAsync(data);
+        const itens = (data.itens ?? []).filter(
+          (item: { catalogoItemId?: string }) => Boolean(item.catalogoItemId),
+        );
+        await createContract.mutateAsync({ ...data, itens });
         toast.success('Contrato criado.');
       }
       navigate('/contracts');
@@ -120,7 +143,7 @@ export default function ContractForm() {
   return (
     <Page
       title={id ? 'Editar contrato' : 'Novo contrato'}
-      description="Identificação, partes, vigência e valor — responsáveis viram designações no servidor."
+      description="Identificação, partes, itens, vigência e valor — responsáveis viram designações no servidor."
     >
       <form onSubmit={handleSubmit(onSubmit)} className="app-form Form-Grade">
         <div className="app-form__panel">
@@ -254,6 +277,98 @@ export default function ContractForm() {
             </div>
             <div className="app-form__span-3">
               <Textarea label="Observações" rows={3} {...register('observacoes')} />
+            </div>
+
+            <div className="app-form__span-3">
+              <h3 className="mb-2 text-[var(--font-size-md)] font-semibold text-[var(--primary)]">
+                Itens do contrato
+              </h3>
+              {id ? (
+                <div className="space-y-2">
+                  {existingContract?.itens?.length ? (
+                    existingContract.itens.map((item: any) => (
+                      <div
+                        key={item.id}
+                        className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-muted)] p-3 text-[var(--font-size-sm)]"
+                      >
+                        <strong>{item.catalogoNome || item.catalogoItemId}</strong>
+                        {' · '}
+                        {item.quantidade} {item.unidadeMedida || 'un'}
+                        {' · '}
+                        {(item.valorUnitario ?? 0).toLocaleString('pt-BR', {
+                          style: 'currency',
+                          currency: 'BRL',
+                        })}
+                        {item.periodicidade ? ` · ${item.periodicidade}` : ''}
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">
+                      Nenhum item. Edição de itens fica na API aninhada (próximas fatias).
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <FieldArrayList
+                  items={itensArray.fields}
+                  onAdd={() =>
+                    itensArray.append({
+                      catalogoItemId: '',
+                      quantidade: 1,
+                      valorUnitario: 0,
+                      periodicidade: 'UNICA',
+                    })
+                  }
+                  onRemove={(index) => itensArray.remove(index)}
+                  addLabel="Adicionar item"
+                  emptyLabel="Nenhum item — opcional no cadastro inicial."
+                  renderItem={(_item, index) => (
+                    <div className="app-form__grid is-dense">
+                      <div className="app-form__span-3">
+                        <span className="field-label">Item do catálogo</span>
+                        <select
+                          className="select-field"
+                          {...register(`itens.${index}.catalogoItemId` as const)}
+                        >
+                          <option value="">Selecione…</option>
+                          {catalogo?.map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.categoriaItem?.codigo ? `${c.categoriaItem.codigo} · ` : ''}
+                              {c.nome}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <Input
+                        label="Quantidade"
+                        type="number"
+                        step="0.0001"
+                        {...register(`itens.${index}.quantidade` as const, { valueAsNumber: true })}
+                      />
+                      <Input
+                        label="Valor unitário (R$)"
+                        type="number"
+                        step="0.01"
+                        {...register(`itens.${index}.valorUnitario` as const, {
+                          valueAsNumber: true,
+                        })}
+                      />
+                      <div>
+                        <span className="field-label">Periodicidade</span>
+                        <select
+                          className="select-field"
+                          {...register(`itens.${index}.periodicidade` as const)}
+                        >
+                          <option value="UNICA">Única</option>
+                          <option value="DIARIA">Diária</option>
+                          <option value="MENSAL">Mensal</option>
+                          <option value="ANUAL">Anual</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                />
+              )}
             </div>
           </div>
 

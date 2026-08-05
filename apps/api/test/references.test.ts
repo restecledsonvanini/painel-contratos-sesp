@@ -19,7 +19,7 @@ async function dbReady() {
 describe('references API integration', () => {
   let ready = false;
   const createdFornecedorIds: string[] = [];
-  const createdServicoIds: string[] = [];
+  const createdCatalogoIds: string[] = [];
 
   beforeAll(async () => {
     ready = await dbReady();
@@ -31,8 +31,8 @@ describe('references API integration', () => {
     if (createdFornecedorIds.length) {
       await db.fornecedor.deleteMany({ where: { id: { in: createdFornecedorIds.splice(0) } } });
     }
-    if (createdServicoIds.length) {
-      await db.servico.deleteMany({ where: { id: { in: createdServicoIds.splice(0) } } });
+    if (createdCatalogoIds.length) {
+      await db.catalogoItem.deleteMany({ where: { id: { in: createdCatalogoIds.splice(0) } } });
     }
   });
 
@@ -70,27 +70,46 @@ describe('references API integration', () => {
     createdFornecedorIds.pop();
   });
 
-  it('persists servico and validates payload', async () => {
+  it('persists catalogo-itens and servicos alias', async () => {
     if (!ready) return;
 
-    const invalid = await request(app).post('/.netlify/functions/api/references/servicos').send({});
+    const invalid = await request(app).post('/api/v1/catalogo-itens').send({});
     expect(invalid.status).toBe(400);
     expect(invalid.body.error.code).toBe('VALIDATION_ERROR');
 
+    const db = getPrisma();
+    const cat = await db.dominioValor.findFirstOrThrow({
+      where: { dominio: { slug: 'categoria-item' }, codigo: 'SERVICO' },
+    });
+    const um = await db.dominioValor.findFirstOrThrow({
+      where: { dominio: { slug: 'unidade-medida' }, codigo: 'SERVICO' },
+    });
+
     const createRes = await request(app)
-      .post('/.netlify/functions/api/references/servicos')
-      .send({ titulo: 'Monitoramento', descricao: '24/7' });
+      .post('/api/v1/catalogo-itens')
+      .send({
+        nome: `Monitoramento ${Date.now()}`,
+        descricao: '24/7',
+        categoriaItemId: cat.id,
+        unidadeMedidaPadraoId: um.id,
+      });
     expect(createRes.status).toBe(201);
-    createdServicoIds.push(createRes.body.id);
+    createdCatalogoIds.push(createRes.body.id);
 
-    const getRes = await request(app).get(
-      `/.netlify/functions/api/references/servicos/${createRes.body.id}`
-    );
-    expect(getRes.status).toBe(200);
-    expect(getRes.body.titulo).toBe('Monitoramento');
+    const lookupRes = await request(app).get('/api/v1/lookups/catalogo?q=Monitoramento');
+    expect(lookupRes.status).toBe(200);
+    expect(lookupRes.body.data.some((item: any) => item.id === createRes.body.id)).toBe(true);
 
-    await request(app).delete(`/.netlify/functions/api/references/servicos/${createRes.body.id}`);
-    createdServicoIds.pop();
+    const aliasRes = await request(app)
+      .post('/.netlify/functions/api/references/servicos')
+      .send({ titulo: `Alias ${Date.now()}`, descricao: 'legado' });
+    expect(aliasRes.status).toBe(201);
+    createdCatalogoIds.push(aliasRes.body.id);
+    expect(aliasRes.body.titulo).toBeTruthy();
+
+    await request(app).delete(`/api/v1/catalogo-itens/${createRes.body.id}`);
+    await request(app).delete(`/.netlify/functions/api/references/servicos/${aliasRes.body.id}`);
+    createdCatalogoIds.length = 0;
     await disconnectPrisma();
   });
 });

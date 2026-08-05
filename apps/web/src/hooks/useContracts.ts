@@ -37,6 +37,19 @@ export interface Contract {
   dataFimVigenciaOriginal?: string | null;
   status?: string;
   observacoes?: string | null;
+  itens?: Array<{
+    id: string;
+    sequencia: number;
+    catalogoItemId: string;
+    catalogoNome?: string;
+    categoria?: string;
+    quantidade: number;
+    unidadeMedida?: string;
+    valorUnitario?: number;
+    valorTotal?: number;
+    periodicidade?: string;
+    atributos?: Record<string, unknown> | null;
+  }>;
   aditivos?: Array<{
     numAditivo: number;
     protocoloAdit: string;
