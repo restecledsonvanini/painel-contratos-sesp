@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Card, Page, Textarea } from '@painel/ui';
 import { http, getErrorMessage } from '../lib/http';
+import { useAuth } from '../providers/AuthProvider';
 
 type TipoEntidade = 'fornecedor' | 'servidor';
 
@@ -51,6 +52,8 @@ function formatErros(erros: unknown): string {
 }
 
 export default function ImportacaoWizard() {
+  const { hasMinRole } = useAuth();
+  const canImport = hasMinRole('ADMIN');
   const [tipoEntidade, setTipoEntidade] = useState<TipoEntidade>('fornecedor');
   const [csv, setCsv] = useState(SAMPLES.fornecedor);
   const [lote, setLote] = useState<Lote | null>(null);
@@ -104,12 +107,16 @@ export default function ImportacaoWizard() {
       }
     >
       <Card variant="bordered" className="space-y-4 p-4">
+        {!canImport ? (
+          <p className="text-sm text-red-700">Importação exige papel ADMIN. Faça login como administrador.</p>
+        ) : null}
         <div className="flex flex-wrap gap-3 items-center">
           <label className="text-sm font-medium">
             Entidade{' '}
             <select
               className="ml-2 border rounded px-2 py-1"
               value={tipoEntidade}
+              disabled={!canImport}
               onChange={(e) => onChangeTipo(e.target.value as TipoEntidade)}
             >
               <option value="fornecedor">Fornecedor</option>
@@ -118,6 +125,7 @@ export default function ImportacaoWizard() {
           </label>
           <Button
             variant="ghost"
+            disabled={!canImport}
             onClick={() => {
               setCsv(SAMPLES[tipoEntidade]);
               setLote(null);
@@ -126,12 +134,18 @@ export default function ImportacaoWizard() {
           >
             Restaurar exemplo
           </Button>
-          <Button onClick={() => dryRun.mutate()} disabled={dryRun.isPending}>
+          <Button onClick={() => dryRun.mutate()} disabled={!canImport || dryRun.isPending}>
             {dryRun.isPending ? 'Validando…' : '1. Dry-run'}
           </Button>
           <Button
             variant="ghost"
-            disabled={!lote || lote.linhasComErro > 0 || lote.situacao === 'APLICADO' || aplicar.isPending}
+            disabled={
+              !canImport ||
+              !lote ||
+              lote.linhasComErro > 0 ||
+              lote.situacao === 'APLICADO' ||
+              aplicar.isPending
+            }
             onClick={() => lote && aplicar.mutate(lote.id)}
           >
             {aplicar.isPending ? 'Aplicando…' : '2. Aplicar'}

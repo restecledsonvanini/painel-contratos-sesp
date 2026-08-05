@@ -34,7 +34,7 @@ export const alertaRepository = {
     return db.alertaConfig.findMany({ orderBy: { tipo: 'asc' } });
   },
 
-  async list(query: AlertaQuery) {
+  async list(query: AlertaQuery, scope?: { orgaoId?: string | null }) {
     const db = getPrisma();
     return db.alerta.findMany({
       where: {
@@ -46,6 +46,9 @@ export const alertaRepository = {
           : query.reconhecido === false
             ? { reconhecidoEm: null }
             : {}),
+        ...(scope?.orgaoId
+          ? { contrato: { unidadeGestora: { orgaoId: scope.orgaoId } } }
+          : {}),
       },
       include: {
         contrato: {

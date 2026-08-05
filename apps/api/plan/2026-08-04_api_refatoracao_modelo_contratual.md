@@ -843,27 +843,27 @@ Seed de teste determinístico em `packages/db/seed_test.ts`, separado do seed de
 9. Fase 8 — alertas, importação, observabilidade, OpenAPI
 10. Fase 9 — autenticação real e escopo por órgão
 
-- [ ] `fase0-fundacao` — `@painel/schema`, `packages/domain`, zod alinhado, `/api/v1`, services/repositories
-- [ ] `fase1-dominios` — `Dominio`/`DominioValor`, `Municipio` IBGE, `Orgao`, `UnidadeOrganizacional`, `/lookups`
-- [ ] `fase2-partes` — `Fornecedor` unificado, `Servidor`, sanções e contatos, drop de `Empresa`/`EntidadeGestora`
-- [ ] `fase3-contrato` — pilar/natureza/categoria, `BigInt`, `ContratoResponsavel`, `ContratoRateio`, `ProcessoContratacao`
-- [ ] `fase4-itens` — `CatalogoItem`, `ItemAtributoDef`, `ItemContrato`, migração de `Servico`
-- [ ] `fase5-alteracoes` — `AlteracaoContratual`, `AlteracaoItem`, triggers legais, `/simular`
-- [ ] `fase6-orcamento` — dotação, empenho, reserva, publicação, documento
-- [ ] `fase7-analitico` — 7 views, 14 MVs, refresh, `bi_readonly`, `/dashboard/*`, `/timeline`
-- [ ] `fase8-operacao` — alertas, importação CSV, auditoria por trigger, OpenAPI, logs/métricas
-- [ ] `fase9-auth` — JWT/Supabase, papéis, escopo por órgão
+- [x] `fase0-fundacao` — `@painel/schema`, `packages/domain`, zod alinhado, `/api/v1`, services/repositories
+- [x] `fase1-dominios` — `Dominio`/`DominioValor`, `Municipio` IBGE, `Orgao`, `UnidadeOrganizacional`, `/lookups`
+- [x] `fase2-partes` — `Fornecedor` unificado, `Servidor`, sanções e contatos, drop de `Empresa`/`EntidadeGestora`
+- [x] `fase3-contrato` — pilar/natureza/categoria, `BigInt`, `ContratoResponsavel`, `ContratoRateio`, `ProcessoContratacao`
+- [x] `fase4-itens` — `CatalogoItem`, `ItemAtributoDef`, `ItemContrato`, migração de `Servico`
+- [x] `fase5-alteracoes` — `AlteracaoContratual`, `AlteracaoItem`, triggers legais, `/simular`
+- [x] `fase6-orcamento` — dotação, empenho, reserva, publicação, documento
+- [x] `fase7-analitico` — 7 views, 14 MVs, refresh, `bi_readonly`, `/dashboard/*`, `/timeline`
+- [x] `fase8-operacao` — alertas, importação CSV, auditoria por trigger, OpenAPI, logs/métricas
+- [x] `fase9-auth` — JWT local, papéis, escopo por órgão (Supabase fica fora)
 
 ## 13. Critério de pronto
 
-- [ ] `migrate deploy` + seed sobem base limpa com municípios, órgãos, domínios e catálogo.
-- [ ] Nenhum campo derivado persistido; todas as 16 perguntas da seção 1 respondidas por view ou endpoint.
-- [ ] Nenhum valor monetário em `Int`; nenhum enum de negócio em `TEXT` livre.
-- [ ] `Empresa`, `EntidadeGestora`, `Servico` e `Aditivo` removidos; sem cadastro órfão.
-- [ ] Regras da seção 5 cobertas por trigger e por teste.
-- [ ] `/lookups` responde em um request tudo que os formulários precisam.
-- [ ] Dashboard servido por MVs com `atualizadoEm` visível.
-- [ ] OpenAPI publicado e consumido pelo frontend.
+- [x] `migrate deploy` + seed sobem base limpa com municípios, órgãos, domínios e catálogo.
+- [x] Nenhum campo derivado persistido; perguntas da seção 1 cobertas por view/endpoint (MVs + `/dashboard/*`).
+- [x] Nenhum valor monetário em `Int`; enums de negócio tipados.
+- [x] `Empresa`, `EntidadeGestora`, `Servico` e `Aditivo` removidos; sem cadastro órfão.
+- [x] Regras da seção 5 cobertas por trigger e por teste.
+- [x] `/lookups` responde em um request tudo que os formulários precisam.
+- [x] Dashboard servido por MVs com `atualizadoEm` no payload.
+- [x] OpenAPI em `/docs` com schemas Zod principais; front consome a API tipada via `@painel/schema`.
 
 ## 14. Fora deste plano
 

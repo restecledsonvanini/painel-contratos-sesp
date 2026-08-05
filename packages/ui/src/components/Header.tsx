@@ -27,7 +27,17 @@ export function Header({ trailing }: { trailing?: React.ReactNode }) {
 
       <label className="app-header__search">
         <Search size={16} aria-hidden />
-        <input type="search" placeholder="Buscar contratos..." aria-label="Buscar contratos" />
+        <input
+          type="search"
+          placeholder="Buscar… (Ctrl+K)"
+          aria-label="Buscar contratos"
+          readOnly
+          onFocus={(e) => {
+            e.currentTarget.blur();
+            window.dispatchEvent(new CustomEvent('painel:open-command-palette'));
+          }}
+          onClick={() => window.dispatchEvent(new CustomEvent('painel:open-command-palette'))}
+        />
       </label>
 
       {trailing}

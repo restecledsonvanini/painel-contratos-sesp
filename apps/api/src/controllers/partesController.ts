@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { getOrgaoScope } from '../lib/audit';
 import { routeParam } from '../lib/params';
 import { fornecedorService, servidorService } from '../services/partesService';
 
@@ -78,9 +79,12 @@ export async function deleteFornecedorSancao(req: Request, res: Response) {
 }
 
 export async function listServidores(req: Request, res: Response) {
+  const scope = getOrgaoScope(req);
   const flat = String(req.query.flat || '') === 'true';
-  if (flat) return res.status(200).json(await servidorService.listAll());
-  return res.status(200).json(await servidorService.list(req.query as Record<string, unknown>));
+  if (flat) return res.status(200).json(await servidorService.listAll(scope));
+  return res
+    .status(200)
+    .json(await servidorService.list(req.query as Record<string, unknown>, scope));
 }
 
 export async function getServidor(req: Request, res: Response) {

@@ -4,7 +4,8 @@ import { alertaRepository } from '../repositories/alertaRepository';
 import { importacaoRepository } from '../repositories/importacaoRepository';
 
 export const alertaService = {
-  list: (query: AlertaQuery) => alertaRepository.list(query),
+  list: (query: AlertaQuery, scope?: { orgaoId?: string | null }) =>
+    alertaRepository.list(query, scope),
   configs: () => alertaRepository.listConfigs(),
   reconhecer: (id: string) => alertaRepository.reconhecer(id, getActorFromContext()),
   async gerar() {

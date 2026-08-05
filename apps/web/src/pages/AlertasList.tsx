@@ -16,6 +16,7 @@ import {
   TableRow,
 } from '@painel/ui';
 import { http, getErrorMessage } from '../lib/http';
+import { useAuth } from '../providers/AuthProvider';
 
 type Alerta = {
   id: string;
@@ -37,6 +38,8 @@ const sevVariant: Record<string, 'default' | 'warning' | 'danger' | 'success'> =
 export default function AlertasList() {
   const qc = useQueryClient();
   const [somenteAbertos, setSomenteAbertos] = useState(true);
+  const { hasMinRole, token } = useAuth();
+  const canAct = !token || hasMinRole('COLABORADOR');
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['alertas', somenteAbertos],
@@ -89,12 +92,16 @@ export default function AlertasList() {
           <Button variant="ghost" onClick={() => setSomenteAbertos((v) => !v)}>
             {somenteAbertos ? 'Mostrar todos' : 'Só abertos'}
           </Button>
-          <Button onClick={() => gerar.mutate()} disabled={gerar.isPending}>
-            {gerar.isPending ? 'Gerando…' : 'Atualizar alertas'}
-          </Button>
-          <Link to="/importacao">
-            <Button variant="ghost">Importação</Button>
-          </Link>
+          {canAct ? (
+            <Button onClick={() => gerar.mutate()} disabled={gerar.isPending}>
+              {gerar.isPending ? 'Gerando…' : 'Atualizar alertas'}
+            </Button>
+          ) : null}
+          {hasMinRole('ADMIN') ? (
+            <Link to="/importacao">
+              <Button variant="ghost">Importação</Button>
+            </Link>
+          ) : null}
         </div>
       }
     >
@@ -124,7 +131,7 @@ export default function AlertasList() {
                   </TableCell>
                   <TableCell>{a.mensagem}</TableCell>
                   <TableCell>
-                    {!a.reconhecidoEm ? (
+                    {!a.reconhecidoEm && canAct ? (
                       <Button
                         size="sm"
                         variant="ghost"
@@ -133,8 +140,10 @@ export default function AlertasList() {
                       >
                         Reconhecer
                       </Button>
-                    ) : (
+                    ) : a.reconhecidoEm ? (
                       <span className="text-sm opacity-70">Reconhecido</span>
+                    ) : (
+                      <span className="text-sm opacity-70">—</span>
                     )}
                   </TableCell>
                 </TableRow>

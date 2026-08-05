@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import { AlertaQuerySchema, ImportacaoCreateSchema } from '@painel/schema';
+import { getOrgaoScope } from '../lib/audit';
 import { routeParam } from '../lib/params';
 import { alertaService, importacaoService } from '../services/operacaoService';
 
 export async function listAlertas(req: Request, res: Response) {
   const query = AlertaQuerySchema.parse(req.query);
-  return res.status(200).json(await alertaService.list(query));
+  return res.status(200).json(await alertaService.list(query, getOrgaoScope(req)));
 }
 
 export async function listAlertaConfigs(_req: Request, res: Response) {

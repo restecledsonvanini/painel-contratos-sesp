@@ -9,12 +9,13 @@ const detailInclude = {
 } as const;
 
 export const servidorRepository = {
-  async list(query: Record<string, unknown> = {}) {
+  async list(query: Record<string, unknown> = {}, scope?: { orgaoId?: string | null }) {
     const { page, pageSize, q } = parsePagination(query);
     const { skip, take } = skipTake(page, pageSize);
     const ativoOnly = String(query.ativo ?? 'true') !== 'false';
     const where = {
       ...(ativoOnly ? { ativo: true } : {}),
+      ...(scope?.orgaoId ? { orgaoId: scope.orgaoId } : {}),
       ...(q
         ? {
             OR: [
@@ -39,9 +40,12 @@ export const servidorRepository = {
     return { data: rows, meta: paginationMeta(total, page, pageSize) };
   },
 
-  async listAll() {
+  async listAll(scope?: { orgaoId?: string | null }) {
     return getPrisma().servidor.findMany({
-      where: { ativo: true },
+      where: {
+        ativo: true,
+        ...(scope?.orgaoId ? { orgaoId: scope.orgaoId } : {}),
+      },
       orderBy: { nome: 'asc' },
       include: detailInclude,
     });

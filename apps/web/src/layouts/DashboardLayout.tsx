@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Header, Sidebar, useSidebar } from '@painel/ui';
 import { useAuth } from '../providers/AuthProvider';
+import { CommandPalette } from '../components/CommandPalette';
 
 function AuthTrailing() {
   const { user, token, logout } = useAuth();
@@ -33,6 +34,7 @@ function ShellFrame({ children }: { children: React.ReactNode }) {
         <Header trailing={<AuthTrailing />} />
         <main className="app-main Seção-Main">{children}</main>
       </div>
+      <CommandPalette />
     </div>
   );
 }

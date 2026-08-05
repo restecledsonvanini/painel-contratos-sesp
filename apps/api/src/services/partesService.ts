@@ -42,8 +42,9 @@ export const fornecedorService = {
 };
 
 export const servidorService = {
-  list: (query: Record<string, unknown>) => servidorRepository.list(query),
-  listAll: () => servidorRepository.listAll(),
+  list: (query: Record<string, unknown>, scope?: { orgaoId?: string | null }) =>
+    servidorRepository.list(query, scope),
+  listAll: (scope?: { orgaoId?: string | null }) => servidorRepository.listAll(scope),
   get: (id: string) => servidorRepository.get(id),
   create: (body: unknown) => servidorRepository.create(ServidorCreateSchema.parse(body)),
   update: (id: string, body: unknown) =>

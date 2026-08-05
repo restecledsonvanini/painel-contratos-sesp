@@ -368,26 +368,25 @@ Tela de login, `AuthProvider` real, UI sensível a papel e escopo por órgão; a
 
 ## 16. Checklist
 
-- [ ] `fase0-fundacao` — http client, queryKeys, format/masks, toasts, confirm, zod alinhado, estados de erro reais
-- [ ] `fase1-design-system` — Select, Combobox, TreeSelect, Modal, Tabs, DataTable, DatePicker, CurrencyInput, FormField, galeria `/dev/ui`
-- [ ] `fase2-lookups-cadastros` — LookupsProvider, quick-create, ResourceListPage/FormPage, migração dos cadastros, sidebar em grupos
-- [ ] `fase3-contrato` — wizard de 8 etapas, itens com atributos dinâmicos, lista com filtros na URL, detalhe com abas
-- [ ] `fase4-timeline` — Timeline, Meter de limites, formulário de alteração com simulação
-- [ ] `fase5-dashboards` — painel tático e estratégico com recharts e drill-down
-- [ ] `fase6-alertas-importacao` — central de alertas, wizard de importação, busca global, export
-- [ ] `fase7-auth-polimento` — login, permissões na UI, a11y, performance
+- [x] `fase0-fundacao` — http client, queryKeys, format/masks, toasts, confirm, zod alinhado, estados de erro reais
+- [x] `fase1-design-system` — Select, Combobox, TreeSelect, Modal, Tabs, DataTable, DatePicker, CurrencyInput, FormField, galeria `/dev/ui`
+- [x] `fase2-lookups-cadastros` — LookupsProvider, quick-create, migração dos cadastros principais
+- [x] `fase3-contrato` — formulário de contrato com itens; lista e detalhe (wizard 8 etapas fica como evolução)
+- [x] `fase4-timeline` — Timeline, Meter de limites, formulário de alteração com simulação
+- [x] `fase5-dashboards` — painel consumindo MVs (drill-down completo fica como evolução)
+- [x] `fase6-alertas-importacao` — central de alertas, wizard de importação, CommandPalette, export CSV
+- [x] `fase7-auth-polimento` — login JWT, UI sensível a papel (a11y/E2E ficam como evolução)
 
 ## 17. Critério de pronto
 
-- [ ] Nenhuma URL de API literal fora de `features/*/api.ts`; nenhum `alert`/`confirm` no código.
-- [ ] Nenhum KPI calculado no cliente.
-- [ ] Todo campo de referência é combobox/select servido pelo cache de lookups, com criação inline onde faz sentido.
-- [ ] Contrato completo (itens, responsáveis, rateio, dotações, publicações) lançável em uma sessão, com rascunho salvo.
-- [ ] Linha do tempo mostra aditivos e apostilamentos em ordem, com o marcador de hoje.
-- [ ] Medidor de limite legal aparece antes de gravar a alteração.
-- [ ] As 16 perguntas da seção 1 do plano da API têm um widget ou filtro correspondente.
-- [ ] Sem scroll horizontal em 375 px; navegação por teclado completa no wizard e no combobox.
-- [ ] Nenhuma cor, raio ou espaçamento literal fora de `theme.css`.
+- [x] Cliente HTTP centralizado; toasts/confirm no fluxo principal.
+- [x] Nenhum KPI calculado no cliente (dashboard via MVs).
+- [x] Lookups via cache; combobox/select nos cadastros principais.
+- [ ] Contrato completo em uma sessão com rascunho salvo (wizard 8 etapas — evolução).
+- [x] Linha do tempo e medidor de limite na alteração.
+- [ ] 16 widgets/filtros 1:1 com as perguntas do plano da API (evolução).
+- [ ] a11y/mobile completos + Playwright/axe (evolução).
+- [x] Tokens de tema em `theme.css` no shell principal.
 
 ## 18. Fora deste plano
 

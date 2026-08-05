@@ -11,6 +11,7 @@ import { contratoItensRouter } from './routes/catalogo';
 import { contratoAlteracoesRouter, alteracoesAliasRouter } from './routes/alteracoes';
 import orcamentoRouter, { contratoOrcamentoRouter } from './routes/orcamento';
 import dashboardRouter, { contratoAnaliticoRouter } from './routes/dashboard';
+import exportsRouter from './routes/exports';
 import operacaoRouter from './routes/operacao';
 import authRouter from './routes/auth';
 import { authenticate } from './middleware/auth';
@@ -45,6 +46,7 @@ function mountApi(base: string) {
     res.type('json').json(publicApiCatalog);
   });
   app.use(base, authRouter);
+  app.use(base, exportsRouter);
   app.use(`${base}/contracts`, contractsRouter);
   app.use(`${base}/contracts/:id/itens`, contratoItensRouter);
   app.use(`${base}/contracts/:id/alteracoes`, contratoAlteracoesRouter);

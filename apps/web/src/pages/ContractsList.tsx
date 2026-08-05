@@ -16,16 +16,19 @@ import {
   TableRow,
   useToast,
 } from '@painel/ui';
-import { Plus } from 'lucide-react';
+import { Download, Plus } from 'lucide-react';
 import { useContracts, useDeleteContract } from '../hooks/useContracts';
-import { getErrorMessage } from '../lib/http';
+import { getErrorMessage, http } from '../lib/http';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
+import { useAuth } from '../providers/AuthProvider';
 
 export default function ContractsList() {
   const { data, isLoading, error, refetch } = useContracts();
   const deleteContract = useDeleteContract();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
+  const { hasMinRole, token } = useAuth();
+  const canWrite = !token || hasMinRole('COLABORADOR');
   const contracts = Array.isArray(data) ? data.filter(Boolean) : [];
 
   const handleDelete = async () => {
@@ -37,6 +40,21 @@ export default function ContractsList() {
       toast.error('Falha ao excluir contrato.', getErrorMessage(err));
     }
   };
+
+  async function exportCsv() {
+    try {
+      const res = await http.get('/exports/contratos.csv', { responseType: 'blob' });
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'contratos.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('Exportação iniciada.');
+    } catch (err) {
+      toast.error('Falha ao exportar.', getErrorMessage(err));
+    }
+  }
 
   if (isLoading) {
     return (
@@ -64,12 +82,20 @@ export default function ContractsList() {
       title="Contratos"
       description="Lista e gestão dos contratos cadastrados."
       actions={
-        <Link to="/contracts/new">
-          <Button>
-            <Plus size={16} />
-            Novo contrato
+        <div className="flex flex-wrap gap-2">
+          <Button variant="ghost" onClick={() => void exportCsv()}>
+            <Download size={16} />
+            Exportar CSV
           </Button>
-        </Link>
+          {canWrite ? (
+            <Link to="/contracts/new">
+              <Button>
+                <Plus size={16} />
+                Novo contrato
+              </Button>
+            </Link>
+          ) : null}
+        </div>
       }
     >
       <Card variant="bordered" className="overflow-hidden">
@@ -130,20 +156,28 @@ export default function ContractsList() {
                             Ver
                           </Button>
                         </Link>
-                        <Link to={`/contracts/${contract.id}/edit`}>
-                          <Button size="sm" variant="ghost">
-                            Editar
-                          </Button>
-                        </Link>
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          onClick={() =>
-                            confirm.ask(contract.id, 'Excluir contrato?', 'Esta ação não pode ser desfeita.')
-                          }
-                        >
-                          Excluir
-                        </Button>
+                        {canWrite ? (
+                          <>
+                            <Link to={`/contracts/${contract.id}/edit`}>
+                              <Button size="sm" variant="ghost">
+                                Editar
+                              </Button>
+                            </Link>
+                            <Button
+                              size="sm"
+                              variant="danger"
+                              onClick={() =>
+                                confirm.ask(
+                                  contract.id,
+                                  'Excluir contrato?',
+                                  'Esta ação não pode ser desfeita.',
+                                )
+                              }
+                            >
+                              Excluir
+                            </Button>
+                          </>
+                        ) : null}
                       </div>
                     </TableCell>
                   </TableRow>
