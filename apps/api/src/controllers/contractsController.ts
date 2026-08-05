@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { ContractCreateSchema, ContractUpdateSchema } from '@painel/schema';
+import { getOrgaoScope } from '../lib/audit';
 import { routeParam } from '../lib/params';
 import { contratoService } from '../services/contratoService';
 
-export async function listContracts(_req: Request, res: Response) {
-  return res.status(200).json(await contratoService.list());
+export async function listContracts(req: Request, res: Response) {
+  return res.status(200).json(await contratoService.list(getOrgaoScope(req)));
 }
 
 export async function getContract(req: Request, res: Response) {

@@ -115,8 +115,11 @@ function monthsBetween(start: Date, end: Date) {
 export const contratoRepository = {
   include: contractInclude,
 
-  async findMany() {
+  async findMany(scope?: { orgaoId?: string | null }) {
     return getPrisma().contrato.findMany({
+      where: scope?.orgaoId
+        ? { unidadeGestora: { orgaoId: scope.orgaoId } }
+        : undefined,
       orderBy: { createdAt: 'desc' },
       include: contractInclude,
     });

@@ -27,9 +27,9 @@ import {
   updateEmpenho,
 } from '../controllers/orcamentoController';
 import { asyncHandler } from '../lib/errors';
-import { requireRole } from '../middleware/rbac';
+import { requireMinRole } from '../middleware/rbac';
 
-const writeRoles = requireRole(['colaborador', 'admin']);
+const writeRoles = requireMinRole('COLABORADOR');
 
 const router = Router();
 

@@ -45,11 +45,15 @@ describe('alertas, importação e observabilidade', () => {
 
   it('gera alertas idempotente e lista/reconhece', async () => {
     if (!ready) return;
-    const gerar1 = await request(app).post('/api/v1/admin/gerar-alertas');
+    const gerar1 = await request(app)
+      .post('/api/v1/admin/gerar-alertas')
+      .set('Authorization', 'Bearer colaborador');
     expect(gerar1.status).toBe(200);
     expect(gerar1.body.ok).toBe(true);
 
-    const gerar2 = await request(app).post('/api/v1/admin/gerar-alertas');
+    const gerar2 = await request(app)
+      .post('/api/v1/admin/gerar-alertas')
+      .set('Authorization', 'Bearer colaborador');
     expect(gerar2.status).toBe(200);
     expect(gerar2.body.created).toBe(0);
 
@@ -59,7 +63,9 @@ describe('alertas, importação e observabilidade', () => {
 
     if (list.body.length) {
       const id = list.body[0].id;
-      const ack = await request(app).post(`/api/v1/alertas/${id}/reconhecer`);
+      const ack = await request(app)
+        .post(`/api/v1/alertas/${id}/reconhecer`)
+        .set('Authorization', 'Bearer colaborador');
       expect(ack.status).toBe(200);
       expect(ack.body.reconhecidoEm).toBeTruthy();
     }
@@ -74,32 +80,42 @@ describe('alertas, importação e observabilidade', () => {
       '00011122233,Linha Invalida CNPJ Curto,JURIDICA,',
     ].join('\n');
 
-    const dry = await request(app).post('/api/v1/importacoes').send({
-      nomeArquivo: 'teste.csv',
-      tipoEntidade: 'fornecedor',
-      csv,
-    });
+    const dry = await request(app)
+      .post('/api/v1/importacoes')
+      .set('Authorization', 'Bearer admin')
+      .send({
+        nomeArquivo: 'teste.csv',
+        tipoEntidade: 'fornecedor',
+        csv,
+      });
     expect(dry.status).toBe(201);
     expect(dry.body.linhasValidas).toBe(1);
     expect(dry.body.linhasComErro).toBe(1);
     expect(dry.body.situacao).toBe('VALIDADO');
 
-    const applyFail = await request(app).post(`/api/v1/importacoes/${dry.body.id}/aplicar`);
+    const applyFail = await request(app)
+      .post(`/api/v1/importacoes/${dry.body.id}/aplicar`)
+      .set('Authorization', 'Bearer admin');
     expect(applyFail.status).toBe(400);
 
     const csvOk = [
       'documento,razaoSocial,tipoPessoa,nomeFantasia',
       `${doc},Fornecedor Import Teste SA,JURIDICA,Import Test`,
     ].join('\n');
-    const dryOk = await request(app).post('/api/v1/importacoes').send({
-      nomeArquivo: 'teste-ok.csv',
-      tipoEntidade: 'fornecedor',
-      csv: csvOk,
-    });
+    const dryOk = await request(app)
+      .post('/api/v1/importacoes')
+      .set('Authorization', 'Bearer admin')
+      .send({
+        nomeArquivo: 'teste-ok.csv',
+        tipoEntidade: 'fornecedor',
+        csv: csvOk,
+      });
     expect(dryOk.status).toBe(201);
     expect(dryOk.body.linhasComErro).toBe(0);
 
-    const applied = await request(app).post(`/api/v1/importacoes/${dryOk.body.id}/aplicar`);
+    const applied = await request(app)
+      .post(`/api/v1/importacoes/${dryOk.body.id}/aplicar`)
+      .set('Authorization', 'Bearer admin');
     expect(applied.status).toBe(200);
     expect(applied.body.situacao).toBe('APLICADO');
     expect(applied.body.linhas[0].registroCriadoId).toBeTruthy();

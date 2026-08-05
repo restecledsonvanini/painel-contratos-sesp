@@ -27,10 +27,10 @@ import {
   updateUnidadeFsp,
 } from '../controllers/referenceController';
 import { asyncHandler } from '../lib/errors';
-import { requireRole } from '../middleware/rbac';
+import { requireMinRole } from '../middleware/rbac';
 
 const router = Router();
-const writeRoles = requireRole(['colaborador', 'admin']);
+const writeRoles = requireMinRole('COLABORADOR');
 
 router.get('/empresas', asyncHandler(listEmpresas));
 router.post('/empresas', writeRoles, asyncHandler(createEmpresa));

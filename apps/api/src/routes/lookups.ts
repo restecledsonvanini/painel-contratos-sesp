@@ -10,10 +10,10 @@ import {
   updateDominioValor,
 } from '../controllers/lookupsController';
 import { asyncHandler } from '../lib/errors';
-import { requireRole } from '../middleware/rbac';
+import { requireMinRole } from '../middleware/rbac';
 
 const router = Router();
-const writeRoles = requireRole(['colaborador', 'admin']);
+const writeRoles = requireMinRole('ADMIN');
 
 router.get('/lookups', asyncHandler(getLookups));
 router.get('/lookups/:slug', asyncHandler(getLookupSlug));

@@ -18,10 +18,10 @@ import {
   updateServidor,
 } from '../controllers/partesController';
 import { asyncHandler } from '../lib/errors';
-import { requireRole } from '../middleware/rbac';
+import { requireMinRole } from '../middleware/rbac';
 
 const router = Router();
-const writeRoles = requireRole(['colaborador', 'admin']);
+const writeRoles = requireMinRole('COLABORADOR');
 
 router.get('/fornecedores', asyncHandler(listFornecedores));
 router.post('/fornecedores', writeRoles, asyncHandler(createFornecedor));

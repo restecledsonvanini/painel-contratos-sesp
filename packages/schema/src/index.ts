@@ -5,3 +5,4 @@ export * from './itens';
 export * from './alteracoes';
 export * from './orcamento';
 export * from './operacao';
+export * from './auth';

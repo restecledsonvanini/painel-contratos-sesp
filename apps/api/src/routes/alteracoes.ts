@@ -9,9 +9,9 @@ import {
   updateAlteracao,
 } from '../controllers/alteracaoController';
 import { asyncHandler } from '../lib/errors';
-import { requireRole } from '../middleware/rbac';
+import { requireMinRole } from '../middleware/rbac';
 
-const writeRoles = requireRole(['colaborador', 'admin']);
+const writeRoles = requireMinRole('GESTOR');
 
 /** Montado em /contracts/:id/alteracoes */
 export const contratoAlteracoesRouter = Router({ mergeParams: true });

@@ -16,10 +16,10 @@ import {
   updateItemContrato,
 } from '../controllers/catalogoController';
 import { asyncHandler } from '../lib/errors';
-import { requireRole } from '../middleware/rbac';
+import { requireMinRole } from '../middleware/rbac';
 
 const router = Router();
-const writeRoles = requireRole(['colaborador', 'admin']);
+const writeRoles = requireMinRole('COLABORADOR');
 
 router.get('/catalogo-itens', asyncHandler(listCatalogo));
 router.post('/catalogo-itens', writeRoles, asyncHandler(createCatalogoItem));

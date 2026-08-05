@@ -203,6 +203,14 @@ enum SituacaoImportacao {
   REJEITADO
 }
 
+enum Role {
+  LEITOR
+  COLABORADOR
+  FISCAL
+  GESTOR
+  ADMIN
+}
+
 model UnidadeFsp {
   id    String @id @default(uuid())
   sigla String @unique
@@ -270,15 +278,16 @@ model DominioValor {
 }
 
 model Orgao {
-  id        String                  @id @default(uuid())
-  sigla     String                  @unique
-  nome      String
-  tipo      TipoOrgao
-  ativo     Boolean                 @default(true)
-  unidades  UnidadeOrganizacional[]
+  id         String                  @id @default(uuid())
+  sigla      String                  @unique
+  nome       String
+  tipo       TipoOrgao
+  ativo      Boolean                 @default(true)
+  unidades   UnidadeOrganizacional[]
   servidores Servidor[]
-  createdAt DateTime                @default(now())
-  updatedAt DateTime                @updatedAt
+  usuarios   Usuario[]
+  createdAt  DateTime                @default(now())
+  updatedAt  DateTime                @updatedAt
 }
 
 model UnidadeOrganizacional {
@@ -361,21 +370,22 @@ model FornecedorSancao {
 }
 
 model Servidor {
-  id           String               @id @default(uuid())
+  id           String                 @id @default(uuid())
   nome         String
-  cpf          String?              @unique
-  rgFuncional  String?              @unique
+  cpf          String?                @unique
+  rgFuncional  String?                @unique
   cargo        String?
   orgaoId      String?
-  orgao        Orgao?               @relation(fields: [orgaoId], references: [id])
+  orgao        Orgao?                 @relation(fields: [orgaoId], references: [id])
   unidadeId    String?
   unidade      UnidadeOrganizacional? @relation(fields: [unidadeId], references: [id])
   email        String?
   telefone     String?
-  ativo        Boolean              @default(true)
+  ativo        Boolean                @default(true)
   responsaveis ContratoResponsavel[]
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
+  usuarios     Usuario[]
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
 
   @@index([nome])
   @@index([orgaoId])
@@ -816,10 +826,22 @@ model AuditLog {
   @@index([changedAt])
 }
 
-model User {
-  id        String   @id @default(uuid())
-  sub       String?  @unique
-  email     String?  @unique
-  role      String   @default("colaborador")
-  createdAt DateTime @default(now())
+model Usuario {
+  id           String    @id @default(uuid())
+  sub          String?   @unique
+  email        String?   @unique
+  nome         String?
+  passwordHash String?
+  role         Role      @default(COLABORADOR)
+  servidorId   String?
+  servidor     Servidor? @relation(fields: [servidorId], references: [id])
+  orgaoId      String?
+  orgao        Orgao?    @relation(fields: [orgaoId], references: [id])
+  ativo        Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([role, ativo])
+  @@index([orgaoId])
+  @@index([servidorId])
 }

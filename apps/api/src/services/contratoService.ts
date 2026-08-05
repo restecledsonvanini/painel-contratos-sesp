@@ -177,8 +177,8 @@ async function loadMappedContract(id: string) {
 }
 
 export const contratoService = {
-  async list() {
-    const records = await contratoRepository.findMany();
+  async list(scope?: { orgaoId?: string | null }) {
+    const records = await contratoRepository.findMany(scope);
     return records.map(mapContractRecord);
   },
 

@@ -50,6 +50,7 @@ describe('alteracoes API', () => {
     if (!ready) return;
     const res = await request(app)
       .post(`/api/v1/contracts/${contratoId}/alteracoes/simular`)
+      .set('Authorization', 'Bearer gestor')
       .send({
         tipo: 'ADITIVO_PRAZO',
         objetoDescricao: 'Prorrogação teste',
@@ -66,6 +67,7 @@ describe('alteracoes API', () => {
     if (!ready) return;
     const res = await request(app)
       .post(`/api/v1/alteracoes/${contratoId}/simular`)
+      .set('Authorization', 'Bearer gestor')
       .send({
         tipo: 'APOSTILAMENTO_REAJUSTE',
         objetoDescricao: 'Reajuste inválido',
@@ -81,6 +83,7 @@ describe('alteracoes API', () => {
     if (!ready) return;
     const res = await request(app)
       .post(`/api/v1/contracts/${contratoId}/alteracoes`)
+      .set('Authorization', 'Bearer gestor')
       .send({
         tipo: 'ADITIVO_PRAZO',
         objetoDescricao: 'Minuta de prorrogação',

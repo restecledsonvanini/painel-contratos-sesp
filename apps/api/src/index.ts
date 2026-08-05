@@ -12,6 +12,7 @@ import { contratoAlteracoesRouter, alteracoesAliasRouter } from './routes/altera
 import orcamentoRouter, { contratoOrcamentoRouter } from './routes/orcamento';
 import dashboardRouter, { contratoAnaliticoRouter } from './routes/dashboard';
 import operacaoRouter from './routes/operacao';
+import authRouter from './routes/auth';
 import { authenticate } from './middleware/auth';
 import { errorHandler } from './lib/errors';
 import { registerBigIntJson } from './lib/bigint-json';
@@ -43,6 +44,7 @@ function mountApi(base: string) {
   app.get(base, (_req, res) => {
     res.type('json').json(publicApiCatalog);
   });
+  app.use(base, authRouter);
   app.use(`${base}/contracts`, contractsRouter);
   app.use(`${base}/contracts/:id/itens`, contratoItensRouter);
   app.use(`${base}/contracts/:id/alteracoes`, contratoAlteracoesRouter);

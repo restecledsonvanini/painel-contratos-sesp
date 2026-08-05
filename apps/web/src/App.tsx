@@ -16,6 +16,7 @@ const AlteracaoForm = lazy(() => import('./pages/AlteracaoForm'));
 const DotacoesList = lazy(() => import('./pages/DotacoesList'));
 const AlertasList = lazy(() => import('./pages/AlertasList'));
 const ImportacaoWizard = lazy(() => import('./pages/ImportacaoWizard'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
 const UnidadesFspList = lazy(() => import('./pages/UnidadesFspList'));
 const UnidadesFspForm = lazy(() => import('./pages/UnidadesFspForm'));
 const DevUi = lazy(() => import('./pages/DevUi'));
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="/dotacoes" element={<DotacoesList />} />
           <Route path="/alertas" element={<AlertasList />} />
           <Route path="/importacao" element={<ImportacaoWizard />} />
+          <Route path="/login" element={<LoginPage />} />
 
           <Route path="/fornecedores" element={<FornecedoresList />} />
           <Route path="/fornecedores/new" element={<FornecedoresForm />} />

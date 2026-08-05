@@ -20,10 +20,10 @@ import {
   refreshAnalytics,
 } from '../controllers/dashboardController';
 import { asyncHandler } from '../lib/errors';
-import { requireRole } from '../middleware/rbac';
+import { requireMinRole } from '../middleware/rbac';
 
 const router = Router();
-const adminRoles = requireRole(['admin', 'colaborador']);
+const adminRoles = requireMinRole('ADMIN');
 
 router.get('/dashboard/kpis', asyncHandler(getKpis));
 router.get('/dashboard/vencimentos', asyncHandler(getVencimentos));

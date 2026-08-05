@@ -62,7 +62,9 @@ describe('dashboard analitico API', () => {
 
   it('refresh analytics responde ok', async () => {
     if (!ready) return;
-    const res = await request(app).post('/api/v1/admin/refresh-analytics');
+    const res = await request(app)
+      .post('/api/v1/admin/refresh-analytics')
+      .set('Authorization', 'Bearer admin');
     expect(res.status).toBe(200);
     expect(res.body.ok).toBe(true);
     await disconnectPrisma();

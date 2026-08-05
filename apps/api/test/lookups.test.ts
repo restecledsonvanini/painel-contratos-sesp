@@ -41,6 +41,7 @@ describe('lookups API', () => {
   it('CRUD valor em dominio editavel', async () => {
     const create = await request(app)
       .post('/api/v1/dominios/unidade-medida/valores')
+      .set('Authorization', 'Bearer admin')
       .send({ codigo: `TEST_${Date.now()}`, label: 'Unidade teste', ordem: 99 });
     if (create.status === 503) {
       console.warn('Skipping — database unavailable');
@@ -49,9 +50,9 @@ describe('lookups API', () => {
     expect(create.status).toBe(201);
     expect(create.body.id).toBeTruthy();
 
-    const del = await request(app).delete(
-      `/api/v1/dominios/unidade-medida/valores/${create.body.id}`,
-    );
+    const del = await request(app)
+      .delete(`/api/v1/dominios/unidade-medida/valores/${create.body.id}`)
+      .set('Authorization', 'Bearer admin');
     expect(del.status).toBe(200);
     expect(del.body.ativo).toBe(false);
   });

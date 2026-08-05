@@ -35,6 +35,10 @@ export function forbidden(message = 'Forbidden') {
   return new AppError(403, 'FORBIDDEN', message);
 }
 
+export function unauthorized(message = 'Unauthorized') {
+  return new AppError(401, 'UNAUTHORIZED', message);
+}
+
 export function legalRuleViolation(message: string, details?: unknown) {
   return new AppError(422, 'LEGAL_RULE_VIOLATION', message, details);
 }

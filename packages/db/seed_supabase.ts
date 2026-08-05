@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
+import { randomBytes, scryptSync } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { PrismaClient } from './generated/client/index.js';
 import { DOMINIOS_SEED } from './seed/dominios.js';
@@ -9,6 +10,12 @@ process.env.DATABASE_URL ||= 'postgresql://painel:pass@localhost:5434/painel_db'
 
 const prisma = new PrismaClient();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+function hashPassword(password: string): string {
+  const salt = randomBytes(16);
+  const hash = scryptSync(password, salt, 64);
+  return `scrypt$${salt.toString('hex')}$${hash.toString('hex')}`;
+}
 
 type MunicipioJson = { codigoIbge: string; nome: string; uf: string };
 
@@ -652,6 +659,58 @@ async function main() {
     });
   }
 
+  // Usuários demo (fatia 9)
+  const orgaoSesp = await prisma.orgao.findFirst({ where: { sigla: 'SESP' } });
+  const servidorGestor = await prisma.servidor.findFirst({ where: { cpf: '12345678901' } });
+  const demoUsers = [
+    {
+      email: 'admin@sesp.pr.gov.br',
+      nome: 'Administrador SESP',
+      password: 'admin123',
+      role: 'ADMIN' as const,
+      orgaoId: null as string | null,
+      servidorId: null as string | null,
+    },
+    {
+      email: 'gestor@sesp.pr.gov.br',
+      nome: 'Gestor Contratos',
+      password: 'gestor123',
+      role: 'GESTOR' as const,
+      orgaoId: orgaoSesp?.id ?? null,
+      servidorId: servidorGestor?.id ?? null,
+    },
+    {
+      email: 'leitor@sesp.pr.gov.br',
+      nome: 'Leitor Escopo SESP',
+      password: 'leitor123',
+      role: 'LEITOR' as const,
+      orgaoId: orgaoSesp?.id ?? null,
+      servidorId: null as string | null,
+    },
+  ];
+  for (const u of demoUsers) {
+    await prisma.usuario.upsert({
+      where: { email: u.email },
+      update: {
+        nome: u.nome,
+        role: u.role,
+        orgaoId: u.orgaoId,
+        servidorId: u.servidorId,
+        passwordHash: hashPassword(u.password),
+        ativo: true,
+      },
+      create: {
+        email: u.email,
+        nome: u.nome,
+        role: u.role,
+        orgaoId: u.orgaoId,
+        servidorId: u.servidorId,
+        passwordHash: hashPassword(u.password),
+        ativo: true,
+      },
+    });
+  }
+
   const counts = {
     municipios: municipiosCount,
     dominios: await prisma.dominio.count(),
@@ -670,6 +729,7 @@ async function main() {
     publicacoes: await prisma.publicacao.count(),
     documentos: await prisma.documento.count(),
     alertas: await prisma.alerta.count().catch(() => 0),
+    usuarios: await prisma.usuario.count().catch(() => 0),
     contratos: await prisma.contrato.count(),
   };
 

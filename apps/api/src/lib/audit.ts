@@ -1,9 +1,19 @@
 import { Request } from 'express';
 import { getPrisma } from './prisma';
-import { getRequestId } from './requestContext';
+import { getActorFromContext, getRequestId } from './requestContext';
+import { normalizeRole } from './authTypes';
 
 export function getActorId(req: Request): string | null {
-  return (req as any).user?.id ?? null;
+  return req.user?.id ?? getActorFromContext() ?? null;
+}
+
+/** Escopo de órgão: ADMIN sem filtro; demais com orgaoId no token. */
+export function getOrgaoScope(req: Request): { orgaoId?: string | null } {
+  const user = req.user;
+  if (!user) return {};
+  if (normalizeRole(user.role) === 'ADMIN') return {};
+  if (!user.orgaoId) return {};
+  return { orgaoId: user.orgaoId };
 }
 
 export async function writeAuditLog(input: {

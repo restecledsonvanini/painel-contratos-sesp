@@ -16,6 +16,11 @@ export const publicApiCatalog = {
     healthDb: { method: 'GET', path: `${API_BASE}/health/db` },
     metrics: { method: 'GET', path: `${API_BASE}/metrics` },
     docs: { method: 'GET', path: `${API_BASE}/docs` },
+    auth: {
+      login: { method: 'POST', path: `${API_BASE}/auth/login` },
+      me: { method: 'GET', path: `${API_BASE}/auth/me` },
+      usuarios: { method: 'GET', path: `${API_BASE}/usuarios` },
+    },
     lookups: {
       all: { method: 'GET', path: `${API_BASE}/lookups` },
       search: { method: 'GET', path: `${API_BASE}/lookups/:slug?q=&page=` },

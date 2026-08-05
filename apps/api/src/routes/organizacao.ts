@@ -14,10 +14,10 @@ import {
   updateUnidade,
 } from '../controllers/lookupsController';
 import { asyncHandler } from '../lib/errors';
-import { requireRole } from '../middleware/rbac';
+import { requireMinRole } from '../middleware/rbac';
 
 const router = Router();
-const writeRoles = requireRole(['colaborador', 'admin']);
+const writeRoles = requireMinRole('COLABORADOR');
 
 router.get('/orgaos', asyncHandler(listOrgaos));
 router.post('/orgaos', writeRoles, asyncHandler(createOrgao));

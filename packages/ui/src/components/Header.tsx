@@ -3,7 +3,7 @@ import React from 'react';
 import { useSidebar } from '../SidebarContext';
 import { useTheme } from '../ThemeProvider';
 
-export function Header() {
+export function Header({ trailing }: { trailing?: React.ReactNode }) {
   const { mobileOpen, toggleMobile } = useSidebar();
   const { mode, toggle } = useTheme();
   const isDark = mode === 'dark';
@@ -29,6 +29,8 @@ export function Header() {
         <Search size={16} aria-hidden />
         <input type="search" placeholder="Buscar contratos..." aria-label="Buscar contratos" />
       </label>
+
+      {trailing}
 
       <button
         type="button"

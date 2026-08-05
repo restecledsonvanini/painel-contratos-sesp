@@ -520,12 +520,18 @@ exports.Prisma.AuditLogScalarFieldEnum = {
   changedAt: 'changedAt'
 };
 
-exports.Prisma.UserScalarFieldEnum = {
+exports.Prisma.UsuarioScalarFieldEnum = {
   id: 'id',
   sub: 'sub',
   email: 'email',
+  nome: 'nome',
+  passwordHash: 'passwordHash',
   role: 'role',
-  createdAt: 'createdAt'
+  servidorId: 'servidorId',
+  orgaoId: 'orgaoId',
+  ativo: 'ativo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -749,6 +755,14 @@ exports.SituacaoImportacao = {
   REJEITADO: 'REJEITADO'
 };
 
+exports.Role = {
+  LEITOR: 'LEITOR',
+  COLABORADOR: 'COLABORADOR',
+  FISCAL: 'FISCAL',
+  GESTOR: 'GESTOR',
+  ADMIN: 'ADMIN'
+};
+
 exports.Prisma.ModelName = {
   UnidadeFsp: 'UnidadeFsp',
   Municipio: 'Municipio',
@@ -780,7 +794,7 @@ exports.Prisma.ModelName = {
   ImportacaoLote: 'ImportacaoLote',
   ImportacaoLinha: 'ImportacaoLinha',
   AuditLog: 'AuditLog',
-  User: 'User'
+  Usuario: 'Usuario'
 };
 
 /**
