@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import {
+  Bell,
   Briefcase,
   ChevronLeft,
   ChevronRight,
@@ -8,6 +9,7 @@ import {
   LayoutDashboard,
   ListTree,
   Shield,
+  Upload,
   Users,
   Wallet,
   Wrench,
@@ -31,6 +33,8 @@ const navItems: NavItem[] = [
   { label: 'Servidores', to: '/servidores', icon: Users },
   { label: 'Catálogo de itens', to: '/catalogo-itens', icon: Wrench },
   { label: 'Dotações', to: '/dotacoes', icon: Wallet },
+  { label: 'Alertas', to: '/alertas', icon: Bell },
+  { label: 'Importação', to: '/importacao', icon: Upload },
   { label: 'Unidades FSP', to: '/unidades-fsp', icon: Shield },
   { label: 'Listas suspensas', to: '/dominios', icon: ListTree },
 ];

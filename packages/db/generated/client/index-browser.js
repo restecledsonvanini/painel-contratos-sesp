@@ -457,6 +457,57 @@ exports.Prisma.DocumentoScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AlertaConfigScalarFieldEnum = {
+  id: 'id',
+  tipo: 'tipo',
+  janelasDias: 'janelasDias',
+  ativo: 'ativo',
+  destinatarios: 'destinatarios',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AlertaScalarFieldEnum = {
+  id: 'id',
+  contratoId: 'contratoId',
+  tipo: 'tipo',
+  severidade: 'severidade',
+  janelaDias: 'janelaDias',
+  mensagem: 'mensagem',
+  dataReferencia: 'dataReferencia',
+  reconhecidoPorId: 'reconhecidoPorId',
+  reconhecidoEm: 'reconhecidoEm',
+  resolvidoEm: 'resolvidoEm',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ImportacaoLoteScalarFieldEnum = {
+  id: 'id',
+  nomeArquivo: 'nomeArquivo',
+  tipoEntidade: 'tipoEntidade',
+  situacao: 'situacao',
+  totalLinhas: 'totalLinhas',
+  linhasValidas: 'linhasValidas',
+  linhasComErro: 'linhasComErro',
+  executadoPorId: 'executadoPorId',
+  dryRun: 'dryRun',
+  resumo: 'resumo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ImportacaoLinhaScalarFieldEnum = {
+  id: 'id',
+  loteId: 'loteId',
+  numeroLinha: 'numeroLinha',
+  payloadOriginal: 'payloadOriginal',
+  payloadNormalizado: 'payloadNormalizado',
+  erros: 'erros',
+  registroCriadoId: 'registroCriadoId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.AuditLogScalarFieldEnum = {
   id: 'id',
   tabela: 'tabela',
@@ -465,6 +516,7 @@ exports.Prisma.AuditLogScalarFieldEnum = {
   diff: 'diff',
   changedBy: 'changedBy',
   source: 'source',
+  requestId: 'requestId',
   changedAt: 'changedAt'
 };
 
@@ -674,6 +726,29 @@ exports.SituacaoReserva = {
   CANCELADA: 'CANCELADA'
 };
 
+exports.TipoAlerta = {
+  VENCIMENTO: 'VENCIMENTO',
+  LIMITE_ACRESCIMO: 'LIMITE_ACRESCIMO',
+  PRORROGACAO_ESGOTADA: 'PRORROGACAO_ESGOTADA',
+  PUBLICACAO_PENDENTE: 'PUBLICACAO_PENDENTE',
+  GARANTIA_VENCENDO: 'GARANTIA_VENCENDO',
+  REAJUSTE_DEVIDO: 'REAJUSTE_DEVIDO',
+  FORNECEDOR_SANCIONADO: 'FORNECEDOR_SANCIONADO'
+};
+
+exports.SeveridadeAlerta = {
+  INFO: 'INFO',
+  ATENCAO: 'ATENCAO',
+  CRITICO: 'CRITICO'
+};
+
+exports.SituacaoImportacao = {
+  RECEBIDO: 'RECEBIDO',
+  VALIDADO: 'VALIDADO',
+  APLICADO: 'APLICADO',
+  REJEITADO: 'REJEITADO'
+};
+
 exports.Prisma.ModelName = {
   UnidadeFsp: 'UnidadeFsp',
   Municipio: 'Municipio',
@@ -700,6 +775,10 @@ exports.Prisma.ModelName = {
   ReservaOrcamentaria: 'ReservaOrcamentaria',
   Publicacao: 'Publicacao',
   Documento: 'Documento',
+  AlertaConfig: 'AlertaConfig',
+  Alerta: 'Alerta',
+  ImportacaoLote: 'ImportacaoLote',
+  ImportacaoLinha: 'ImportacaoLinha',
   AuditLog: 'AuditLog',
   User: 'User'
 };

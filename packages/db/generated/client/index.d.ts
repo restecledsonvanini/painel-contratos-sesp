@@ -328,6 +328,7 @@ export type ContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
     reservas: ReservaOrcamentariaPayload<ExtArgs>[]
     publicacoes: PublicacaoPayload<ExtArgs>[]
     documentos: DocumentoPayload<ExtArgs>[]
+    alertas: AlertaPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -738,6 +739,103 @@ export type DocumentoPayload<ExtArgs extends $Extensions.Args = $Extensions.Defa
  * 
  */
 export type Documento = runtime.Types.DefaultSelection<DocumentoPayload>
+export type AlertaConfigPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "AlertaConfig"
+  objects: {}
+  scalars: $Extensions.GetResult<{
+    id: string
+    tipo: TipoAlerta
+    janelasDias: number[]
+    ativo: boolean
+    destinatarios: Prisma.JsonValue | null
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["alertaConfig"]>
+  composites: {}
+}
+
+/**
+ * Model AlertaConfig
+ * 
+ */
+export type AlertaConfig = runtime.Types.DefaultSelection<AlertaConfigPayload>
+export type AlertaPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "Alerta"
+  objects: {
+    contrato: ContratoPayload<ExtArgs>
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    contratoId: string
+    tipo: TipoAlerta
+    severidade: SeveridadeAlerta
+    janelaDias: number | null
+    mensagem: string
+    dataReferencia: Date
+    reconhecidoPorId: string | null
+    reconhecidoEm: Date | null
+    resolvidoEm: Date | null
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["alerta"]>
+  composites: {}
+}
+
+/**
+ * Model Alerta
+ * 
+ */
+export type Alerta = runtime.Types.DefaultSelection<AlertaPayload>
+export type ImportacaoLotePayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "ImportacaoLote"
+  objects: {
+    linhas: ImportacaoLinhaPayload<ExtArgs>[]
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    nomeArquivo: string
+    tipoEntidade: string
+    situacao: SituacaoImportacao
+    totalLinhas: number
+    linhasValidas: number
+    linhasComErro: number
+    executadoPorId: string | null
+    dryRun: boolean
+    resumo: Prisma.JsonValue | null
+    createdAt: Date
+    updatedAt: Date
+  }, ExtArgs["result"]["importacaoLote"]>
+  composites: {}
+}
+
+/**
+ * Model ImportacaoLote
+ * 
+ */
+export type ImportacaoLote = runtime.Types.DefaultSelection<ImportacaoLotePayload>
+export type ImportacaoLinhaPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "ImportacaoLinha"
+  objects: {
+    lote: ImportacaoLotePayload<ExtArgs>
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    loteId: string
+    numeroLinha: number
+    payloadOriginal: Prisma.JsonValue
+    payloadNormalizado: Prisma.JsonValue | null
+    erros: Prisma.JsonValue | null
+    registroCriadoId: string | null
+    createdAt: Date
+  }, ExtArgs["result"]["importacaoLinha"]>
+  composites: {}
+}
+
+/**
+ * Model ImportacaoLinha
+ * 
+ */
+export type ImportacaoLinha = runtime.Types.DefaultSelection<ImportacaoLinhaPayload>
 export type AuditLogPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
   name: "AuditLog"
   objects: {}
@@ -749,6 +847,7 @@ export type AuditLogPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
     diff: Prisma.JsonValue
     changedBy: string | null
     source: string | null
+    requestId: string | null
     changedAt: Date
   }, ExtArgs["result"]["auditLog"]>
   composites: {}
@@ -1009,6 +1108,38 @@ export const SituacaoReserva: {
 };
 
 export type SituacaoReserva = (typeof SituacaoReserva)[keyof typeof SituacaoReserva]
+
+
+export const TipoAlerta: {
+  VENCIMENTO: 'VENCIMENTO',
+  LIMITE_ACRESCIMO: 'LIMITE_ACRESCIMO',
+  PRORROGACAO_ESGOTADA: 'PRORROGACAO_ESGOTADA',
+  PUBLICACAO_PENDENTE: 'PUBLICACAO_PENDENTE',
+  GARANTIA_VENCENDO: 'GARANTIA_VENCENDO',
+  REAJUSTE_DEVIDO: 'REAJUSTE_DEVIDO',
+  FORNECEDOR_SANCIONADO: 'FORNECEDOR_SANCIONADO'
+};
+
+export type TipoAlerta = (typeof TipoAlerta)[keyof typeof TipoAlerta]
+
+
+export const SeveridadeAlerta: {
+  INFO: 'INFO',
+  ATENCAO: 'ATENCAO',
+  CRITICO: 'CRITICO'
+};
+
+export type SeveridadeAlerta = (typeof SeveridadeAlerta)[keyof typeof SeveridadeAlerta]
+
+
+export const SituacaoImportacao: {
+  RECEBIDO: 'RECEBIDO',
+  VALIDADO: 'VALIDADO',
+  APLICADO: 'APLICADO',
+  REJEITADO: 'REJEITADO'
+};
+
+export type SituacaoImportacao = (typeof SituacaoImportacao)[keyof typeof SituacaoImportacao]
 
 
 /**
@@ -1385,6 +1516,46 @@ export class PrismaClient<
     * ```
     */
   get documento(): Prisma.DocumentoDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.alertaConfig`: Exposes CRUD operations for the **AlertaConfig** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AlertaConfigs
+    * const alertaConfigs = await prisma.alertaConfig.findMany()
+    * ```
+    */
+  get alertaConfig(): Prisma.AlertaConfigDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.alerta`: Exposes CRUD operations for the **Alerta** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Alertas
+    * const alertas = await prisma.alerta.findMany()
+    * ```
+    */
+  get alerta(): Prisma.AlertaDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.importacaoLote`: Exposes CRUD operations for the **ImportacaoLote** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ImportacaoLotes
+    * const importacaoLotes = await prisma.importacaoLote.findMany()
+    * ```
+    */
+  get importacaoLote(): Prisma.ImportacaoLoteDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.importacaoLinha`: Exposes CRUD operations for the **ImportacaoLinha** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more ImportacaoLinhas
+    * const importacaoLinhas = await prisma.importacaoLinha.findMany()
+    * ```
+    */
+  get importacaoLinha(): Prisma.ImportacaoLinhaDelegate<GlobalReject, ExtArgs>;
 
   /**
    * `prisma.auditLog`: Exposes CRUD operations for the **AuditLog** model.
@@ -1913,6 +2084,10 @@ export namespace Prisma {
     ReservaOrcamentaria: 'ReservaOrcamentaria',
     Publicacao: 'Publicacao',
     Documento: 'Documento',
+    AlertaConfig: 'AlertaConfig',
+    Alerta: 'Alerta',
+    ImportacaoLote: 'ImportacaoLote',
+    ImportacaoLinha: 'ImportacaoLinha',
     AuditLog: 'AuditLog',
     User: 'User'
   };
@@ -1931,7 +2106,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     meta: {
-      modelProps: 'unidadeFsp' | 'municipio' | 'dominio' | 'dominioValor' | 'orgao' | 'unidadeOrganizacional' | 'fornecedor' | 'fornecedorContato' | 'fornecedorSancao' | 'servidor' | 'processoContratacao' | 'contrato' | 'contratoResponsavel' | 'contratoRateio' | 'alteracaoContratual' | 'alteracaoItem' | 'catalogoItem' | 'itemAtributoDef' | 'itemContrato' | 'dotacaoOrcamentaria' | 'contratoDotacao' | 'empenho' | 'reservaOrcamentaria' | 'publicacao' | 'documento' | 'auditLog' | 'user'
+      modelProps: 'unidadeFsp' | 'municipio' | 'dominio' | 'dominioValor' | 'orgao' | 'unidadeOrganizacional' | 'fornecedor' | 'fornecedorContato' | 'fornecedorSancao' | 'servidor' | 'processoContratacao' | 'contrato' | 'contratoResponsavel' | 'contratoRateio' | 'alteracaoContratual' | 'alteracaoItem' | 'catalogoItem' | 'itemAtributoDef' | 'itemContrato' | 'dotacaoOrcamentaria' | 'contratoDotacao' | 'empenho' | 'reservaOrcamentaria' | 'publicacao' | 'documento' | 'alertaConfig' | 'alerta' | 'importacaoLote' | 'importacaoLinha' | 'auditLog' | 'user'
       txIsolationLevel: Prisma.TransactionIsolationLevel
     },
     model: {
@@ -3560,6 +3735,266 @@ export namespace Prisma {
           }
         }
       }
+      AlertaConfig: {
+        payload: AlertaConfigPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.AlertaConfigFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaConfigPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AlertaConfigFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaConfigPayload>
+          }
+          findFirst: {
+            args: Prisma.AlertaConfigFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaConfigPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AlertaConfigFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaConfigPayload>
+          }
+          findMany: {
+            args: Prisma.AlertaConfigFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaConfigPayload>[]
+          }
+          create: {
+            args: Prisma.AlertaConfigCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaConfigPayload>
+          }
+          createMany: {
+            args: Prisma.AlertaConfigCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.AlertaConfigDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaConfigPayload>
+          }
+          update: {
+            args: Prisma.AlertaConfigUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaConfigPayload>
+          }
+          deleteMany: {
+            args: Prisma.AlertaConfigDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AlertaConfigUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.AlertaConfigUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaConfigPayload>
+          }
+          aggregate: {
+            args: Prisma.AlertaConfigAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateAlertaConfig>
+          }
+          groupBy: {
+            args: Prisma.AlertaConfigGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<AlertaConfigGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AlertaConfigCountArgs<ExtArgs>,
+            result: $Utils.Optional<AlertaConfigCountAggregateOutputType> | number
+          }
+        }
+      }
+      Alerta: {
+        payload: AlertaPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.AlertaFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AlertaFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaPayload>
+          }
+          findFirst: {
+            args: Prisma.AlertaFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AlertaFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaPayload>
+          }
+          findMany: {
+            args: Prisma.AlertaFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaPayload>[]
+          }
+          create: {
+            args: Prisma.AlertaCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaPayload>
+          }
+          createMany: {
+            args: Prisma.AlertaCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.AlertaDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaPayload>
+          }
+          update: {
+            args: Prisma.AlertaUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaPayload>
+          }
+          deleteMany: {
+            args: Prisma.AlertaDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AlertaUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.AlertaUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlertaPayload>
+          }
+          aggregate: {
+            args: Prisma.AlertaAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateAlerta>
+          }
+          groupBy: {
+            args: Prisma.AlertaGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<AlertaGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AlertaCountArgs<ExtArgs>,
+            result: $Utils.Optional<AlertaCountAggregateOutputType> | number
+          }
+        }
+      }
+      ImportacaoLote: {
+        payload: ImportacaoLotePayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.ImportacaoLoteFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLotePayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ImportacaoLoteFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLotePayload>
+          }
+          findFirst: {
+            args: Prisma.ImportacaoLoteFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLotePayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ImportacaoLoteFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLotePayload>
+          }
+          findMany: {
+            args: Prisma.ImportacaoLoteFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLotePayload>[]
+          }
+          create: {
+            args: Prisma.ImportacaoLoteCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLotePayload>
+          }
+          createMany: {
+            args: Prisma.ImportacaoLoteCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.ImportacaoLoteDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLotePayload>
+          }
+          update: {
+            args: Prisma.ImportacaoLoteUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLotePayload>
+          }
+          deleteMany: {
+            args: Prisma.ImportacaoLoteDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ImportacaoLoteUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.ImportacaoLoteUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLotePayload>
+          }
+          aggregate: {
+            args: Prisma.ImportacaoLoteAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateImportacaoLote>
+          }
+          groupBy: {
+            args: Prisma.ImportacaoLoteGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<ImportacaoLoteGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ImportacaoLoteCountArgs<ExtArgs>,
+            result: $Utils.Optional<ImportacaoLoteCountAggregateOutputType> | number
+          }
+        }
+      }
+      ImportacaoLinha: {
+        payload: ImportacaoLinhaPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.ImportacaoLinhaFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLinhaPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.ImportacaoLinhaFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLinhaPayload>
+          }
+          findFirst: {
+            args: Prisma.ImportacaoLinhaFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLinhaPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.ImportacaoLinhaFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLinhaPayload>
+          }
+          findMany: {
+            args: Prisma.ImportacaoLinhaFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLinhaPayload>[]
+          }
+          create: {
+            args: Prisma.ImportacaoLinhaCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLinhaPayload>
+          }
+          createMany: {
+            args: Prisma.ImportacaoLinhaCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.ImportacaoLinhaDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLinhaPayload>
+          }
+          update: {
+            args: Prisma.ImportacaoLinhaUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLinhaPayload>
+          }
+          deleteMany: {
+            args: Prisma.ImportacaoLinhaDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.ImportacaoLinhaUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.ImportacaoLinhaUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<ImportacaoLinhaPayload>
+          }
+          aggregate: {
+            args: Prisma.ImportacaoLinhaAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateImportacaoLinha>
+          }
+          groupBy: {
+            args: Prisma.ImportacaoLinhaGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<ImportacaoLinhaGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.ImportacaoLinhaCountArgs<ExtArgs>,
+            result: $Utils.Optional<ImportacaoLinhaCountAggregateOutputType> | number
+          }
+        }
+      }
       AuditLog: {
         payload: AuditLogPayload<ExtArgs>
         operations: {
@@ -4411,6 +4846,7 @@ export namespace Prisma {
     reservas: number
     publicacoes: number
     documentos: number
+    alertas: number
   }
 
   export type ContratoCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -4423,6 +4859,7 @@ export namespace Prisma {
     reservas?: boolean | ContratoCountOutputTypeCountReservasArgs
     publicacoes?: boolean | ContratoCountOutputTypeCountPublicacoesArgs
     documentos?: boolean | ContratoCountOutputTypeCountDocumentosArgs
+    alertas?: boolean | ContratoCountOutputTypeCountAlertasArgs
   }
 
   // Custom InputTypes
@@ -4507,6 +4944,14 @@ export namespace Prisma {
    */
   export type ContratoCountOutputTypeCountDocumentosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: DocumentoWhereInput
+  }
+
+
+  /**
+   * ContratoCountOutputType without action
+   */
+  export type ContratoCountOutputTypeCountAlertasArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: AlertaWhereInput
   }
 
 
@@ -4687,6 +5132,41 @@ export namespace Prisma {
    */
   export type DotacaoOrcamentariaCountOutputTypeCountEmpenhosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: EmpenhoWhereInput
+  }
+
+
+
+  /**
+   * Count Type ImportacaoLoteCountOutputType
+   */
+
+
+  export type ImportacaoLoteCountOutputType = {
+    linhas: number
+  }
+
+  export type ImportacaoLoteCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    linhas?: boolean | ImportacaoLoteCountOutputTypeCountLinhasArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * ImportacaoLoteCountOutputType without action
+   */
+  export type ImportacaoLoteCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLoteCountOutputType
+     */
+    select?: ImportacaoLoteCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * ImportacaoLoteCountOutputType without action
+   */
+  export type ImportacaoLoteCountOutputTypeCountLinhasArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ImportacaoLinhaWhereInput
   }
 
 
@@ -16610,6 +17090,7 @@ export namespace Prisma {
     reservas?: boolean | Contrato$reservasArgs<ExtArgs>
     publicacoes?: boolean | Contrato$publicacoesArgs<ExtArgs>
     documentos?: boolean | Contrato$documentosArgs<ExtArgs>
+    alertas?: boolean | Contrato$alertasArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["contrato"]>
 
@@ -16667,6 +17148,7 @@ export namespace Prisma {
     reservas?: boolean | Contrato$reservasArgs<ExtArgs>
     publicacoes?: boolean | Contrato$publicacoesArgs<ExtArgs>
     documentos?: boolean | Contrato$documentosArgs<ExtArgs>
+    alertas?: boolean | Contrato$alertasArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }
 
@@ -17069,6 +17551,8 @@ export namespace Prisma {
     publicacoes<T extends Contrato$publicacoesArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$publicacoesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<PublicacaoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     documentos<T extends Contrato$documentosArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$documentosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    alertas<T extends Contrato$alertasArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$alertasArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -17611,6 +18095,27 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Enumerable<DocumentoScalarFieldEnum>
+  }
+
+
+  /**
+   * Contrato.alertas
+   */
+  export type Contrato$alertasArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alerta
+     */
+    select?: AlertaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlertaInclude<ExtArgs> | null
+    where?: AlertaWhereInput
+    orderBy?: Enumerable<AlertaOrderByWithRelationInput>
+    cursor?: AlertaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<AlertaScalarFieldEnum>
   }
 
 
@@ -31004,6 +31509,3970 @@ export namespace Prisma {
 
 
   /**
+   * Model AlertaConfig
+   */
+
+
+  export type AggregateAlertaConfig = {
+    _count: AlertaConfigCountAggregateOutputType | null
+    _avg: AlertaConfigAvgAggregateOutputType | null
+    _sum: AlertaConfigSumAggregateOutputType | null
+    _min: AlertaConfigMinAggregateOutputType | null
+    _max: AlertaConfigMaxAggregateOutputType | null
+  }
+
+  export type AlertaConfigAvgAggregateOutputType = {
+    janelasDias: number | null
+  }
+
+  export type AlertaConfigSumAggregateOutputType = {
+    janelasDias: number[] | null
+  }
+
+  export type AlertaConfigMinAggregateOutputType = {
+    id: string | null
+    tipo: TipoAlerta | null
+    ativo: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AlertaConfigMaxAggregateOutputType = {
+    id: string | null
+    tipo: TipoAlerta | null
+    ativo: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AlertaConfigCountAggregateOutputType = {
+    id: number
+    tipo: number
+    janelasDias: number
+    ativo: number
+    destinatarios: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AlertaConfigAvgAggregateInputType = {
+    janelasDias?: true
+  }
+
+  export type AlertaConfigSumAggregateInputType = {
+    janelasDias?: true
+  }
+
+  export type AlertaConfigMinAggregateInputType = {
+    id?: true
+    tipo?: true
+    ativo?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AlertaConfigMaxAggregateInputType = {
+    id?: true
+    tipo?: true
+    ativo?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AlertaConfigCountAggregateInputType = {
+    id?: true
+    tipo?: true
+    janelasDias?: true
+    ativo?: true
+    destinatarios?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AlertaConfigAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AlertaConfig to aggregate.
+     */
+    where?: AlertaConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlertaConfigs to fetch.
+     */
+    orderBy?: Enumerable<AlertaConfigOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AlertaConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlertaConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlertaConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AlertaConfigs
+    **/
+    _count?: true | AlertaConfigCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AlertaConfigAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AlertaConfigSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AlertaConfigMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AlertaConfigMaxAggregateInputType
+  }
+
+  export type GetAlertaConfigAggregateType<T extends AlertaConfigAggregateArgs> = {
+        [P in keyof T & keyof AggregateAlertaConfig]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAlertaConfig[P]>
+      : GetScalarType<T[P], AggregateAlertaConfig[P]>
+  }
+
+
+
+
+  export type AlertaConfigGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: AlertaConfigWhereInput
+    orderBy?: Enumerable<AlertaConfigOrderByWithAggregationInput>
+    by: AlertaConfigScalarFieldEnum[]
+    having?: AlertaConfigScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AlertaConfigCountAggregateInputType | true
+    _avg?: AlertaConfigAvgAggregateInputType
+    _sum?: AlertaConfigSumAggregateInputType
+    _min?: AlertaConfigMinAggregateInputType
+    _max?: AlertaConfigMaxAggregateInputType
+  }
+
+
+  export type AlertaConfigGroupByOutputType = {
+    id: string
+    tipo: TipoAlerta
+    janelasDias: number[]
+    ativo: boolean
+    destinatarios: JsonValue | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AlertaConfigCountAggregateOutputType | null
+    _avg: AlertaConfigAvgAggregateOutputType | null
+    _sum: AlertaConfigSumAggregateOutputType | null
+    _min: AlertaConfigMinAggregateOutputType | null
+    _max: AlertaConfigMaxAggregateOutputType | null
+  }
+
+  type GetAlertaConfigGroupByPayload<T extends AlertaConfigGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<AlertaConfigGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AlertaConfigGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AlertaConfigGroupByOutputType[P]>
+            : GetScalarType<T[P], AlertaConfigGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AlertaConfigSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    tipo?: boolean
+    janelasDias?: boolean
+    ativo?: boolean
+    destinatarios?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["alertaConfig"]>
+
+  export type AlertaConfigSelectScalar = {
+    id?: boolean
+    tipo?: boolean
+    janelasDias?: boolean
+    ativo?: boolean
+    destinatarios?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+
+  type AlertaConfigGetPayload<S extends boolean | null | undefined | AlertaConfigArgs> = $Types.GetResult<AlertaConfigPayload, S>
+
+  type AlertaConfigCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<AlertaConfigFindManyArgs, 'select' | 'include'> & {
+      select?: AlertaConfigCountAggregateInputType | true
+    }
+
+  export interface AlertaConfigDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AlertaConfig'], meta: { name: 'AlertaConfig' } }
+    /**
+     * Find zero or one AlertaConfig that matches the filter.
+     * @param {AlertaConfigFindUniqueArgs} args - Arguments to find a AlertaConfig
+     * @example
+     * // Get one AlertaConfig
+     * const alertaConfig = await prisma.alertaConfig.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends AlertaConfigFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, AlertaConfigFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'AlertaConfig'> extends True ? Prisma__AlertaConfigClient<$Types.GetResult<AlertaConfigPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__AlertaConfigClient<$Types.GetResult<AlertaConfigPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one AlertaConfig that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {AlertaConfigFindUniqueOrThrowArgs} args - Arguments to find a AlertaConfig
+     * @example
+     * // Get one AlertaConfig
+     * const alertaConfig = await prisma.alertaConfig.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends AlertaConfigFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlertaConfigFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__AlertaConfigClient<$Types.GetResult<AlertaConfigPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first AlertaConfig that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaConfigFindFirstArgs} args - Arguments to find a AlertaConfig
+     * @example
+     * // Get one AlertaConfig
+     * const alertaConfig = await prisma.alertaConfig.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends AlertaConfigFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, AlertaConfigFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'AlertaConfig'> extends True ? Prisma__AlertaConfigClient<$Types.GetResult<AlertaConfigPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__AlertaConfigClient<$Types.GetResult<AlertaConfigPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first AlertaConfig that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaConfigFindFirstOrThrowArgs} args - Arguments to find a AlertaConfig
+     * @example
+     * // Get one AlertaConfig
+     * const alertaConfig = await prisma.alertaConfig.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends AlertaConfigFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlertaConfigFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__AlertaConfigClient<$Types.GetResult<AlertaConfigPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more AlertaConfigs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaConfigFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AlertaConfigs
+     * const alertaConfigs = await prisma.alertaConfig.findMany()
+     * 
+     * // Get first 10 AlertaConfigs
+     * const alertaConfigs = await prisma.alertaConfig.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const alertaConfigWithIdOnly = await prisma.alertaConfig.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends AlertaConfigFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlertaConfigFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<AlertaConfigPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a AlertaConfig.
+     * @param {AlertaConfigCreateArgs} args - Arguments to create a AlertaConfig.
+     * @example
+     * // Create one AlertaConfig
+     * const AlertaConfig = await prisma.alertaConfig.create({
+     *   data: {
+     *     // ... data to create a AlertaConfig
+     *   }
+     * })
+     * 
+    **/
+    create<T extends AlertaConfigCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, AlertaConfigCreateArgs<ExtArgs>>
+    ): Prisma__AlertaConfigClient<$Types.GetResult<AlertaConfigPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many AlertaConfigs.
+     *     @param {AlertaConfigCreateManyArgs} args - Arguments to create many AlertaConfigs.
+     *     @example
+     *     // Create many AlertaConfigs
+     *     const alertaConfig = await prisma.alertaConfig.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends AlertaConfigCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlertaConfigCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a AlertaConfig.
+     * @param {AlertaConfigDeleteArgs} args - Arguments to delete one AlertaConfig.
+     * @example
+     * // Delete one AlertaConfig
+     * const AlertaConfig = await prisma.alertaConfig.delete({
+     *   where: {
+     *     // ... filter to delete one AlertaConfig
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends AlertaConfigDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, AlertaConfigDeleteArgs<ExtArgs>>
+    ): Prisma__AlertaConfigClient<$Types.GetResult<AlertaConfigPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one AlertaConfig.
+     * @param {AlertaConfigUpdateArgs} args - Arguments to update one AlertaConfig.
+     * @example
+     * // Update one AlertaConfig
+     * const alertaConfig = await prisma.alertaConfig.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends AlertaConfigUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, AlertaConfigUpdateArgs<ExtArgs>>
+    ): Prisma__AlertaConfigClient<$Types.GetResult<AlertaConfigPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more AlertaConfigs.
+     * @param {AlertaConfigDeleteManyArgs} args - Arguments to filter AlertaConfigs to delete.
+     * @example
+     * // Delete a few AlertaConfigs
+     * const { count } = await prisma.alertaConfig.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends AlertaConfigDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlertaConfigDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AlertaConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaConfigUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AlertaConfigs
+     * const alertaConfig = await prisma.alertaConfig.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends AlertaConfigUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, AlertaConfigUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AlertaConfig.
+     * @param {AlertaConfigUpsertArgs} args - Arguments to update or create a AlertaConfig.
+     * @example
+     * // Update or create a AlertaConfig
+     * const alertaConfig = await prisma.alertaConfig.upsert({
+     *   create: {
+     *     // ... data to create a AlertaConfig
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AlertaConfig we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends AlertaConfigUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, AlertaConfigUpsertArgs<ExtArgs>>
+    ): Prisma__AlertaConfigClient<$Types.GetResult<AlertaConfigPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of AlertaConfigs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaConfigCountArgs} args - Arguments to filter AlertaConfigs to count.
+     * @example
+     * // Count the number of AlertaConfigs
+     * const count = await prisma.alertaConfig.count({
+     *   where: {
+     *     // ... the filter for the AlertaConfigs we want to count
+     *   }
+     * })
+    **/
+    count<T extends AlertaConfigCountArgs>(
+      args?: Subset<T, AlertaConfigCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AlertaConfigCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AlertaConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaConfigAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AlertaConfigAggregateArgs>(args: Subset<T, AlertaConfigAggregateArgs>): Prisma.PrismaPromise<GetAlertaConfigAggregateType<T>>
+
+    /**
+     * Group by AlertaConfig.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaConfigGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AlertaConfigGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AlertaConfigGroupByArgs['orderBy'] }
+        : { orderBy?: AlertaConfigGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AlertaConfigGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlertaConfigGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AlertaConfig.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__AlertaConfigClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * AlertaConfig base type for findUnique actions
+   */
+  export type AlertaConfigFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlertaConfig
+     */
+    select?: AlertaConfigSelect<ExtArgs> | null
+    /**
+     * Filter, which AlertaConfig to fetch.
+     */
+    where: AlertaConfigWhereUniqueInput
+  }
+
+  /**
+   * AlertaConfig findUnique
+   */
+  export interface AlertaConfigFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends AlertaConfigFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * AlertaConfig findUniqueOrThrow
+   */
+  export type AlertaConfigFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlertaConfig
+     */
+    select?: AlertaConfigSelect<ExtArgs> | null
+    /**
+     * Filter, which AlertaConfig to fetch.
+     */
+    where: AlertaConfigWhereUniqueInput
+  }
+
+
+  /**
+   * AlertaConfig base type for findFirst actions
+   */
+  export type AlertaConfigFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlertaConfig
+     */
+    select?: AlertaConfigSelect<ExtArgs> | null
+    /**
+     * Filter, which AlertaConfig to fetch.
+     */
+    where?: AlertaConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlertaConfigs to fetch.
+     */
+    orderBy?: Enumerable<AlertaConfigOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AlertaConfigs.
+     */
+    cursor?: AlertaConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlertaConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlertaConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AlertaConfigs.
+     */
+    distinct?: Enumerable<AlertaConfigScalarFieldEnum>
+  }
+
+  /**
+   * AlertaConfig findFirst
+   */
+  export interface AlertaConfigFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends AlertaConfigFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * AlertaConfig findFirstOrThrow
+   */
+  export type AlertaConfigFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlertaConfig
+     */
+    select?: AlertaConfigSelect<ExtArgs> | null
+    /**
+     * Filter, which AlertaConfig to fetch.
+     */
+    where?: AlertaConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlertaConfigs to fetch.
+     */
+    orderBy?: Enumerable<AlertaConfigOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AlertaConfigs.
+     */
+    cursor?: AlertaConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlertaConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlertaConfigs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AlertaConfigs.
+     */
+    distinct?: Enumerable<AlertaConfigScalarFieldEnum>
+  }
+
+
+  /**
+   * AlertaConfig findMany
+   */
+  export type AlertaConfigFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlertaConfig
+     */
+    select?: AlertaConfigSelect<ExtArgs> | null
+    /**
+     * Filter, which AlertaConfigs to fetch.
+     */
+    where?: AlertaConfigWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlertaConfigs to fetch.
+     */
+    orderBy?: Enumerable<AlertaConfigOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AlertaConfigs.
+     */
+    cursor?: AlertaConfigWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlertaConfigs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlertaConfigs.
+     */
+    skip?: number
+    distinct?: Enumerable<AlertaConfigScalarFieldEnum>
+  }
+
+
+  /**
+   * AlertaConfig create
+   */
+  export type AlertaConfigCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlertaConfig
+     */
+    select?: AlertaConfigSelect<ExtArgs> | null
+    /**
+     * The data needed to create a AlertaConfig.
+     */
+    data: XOR<AlertaConfigCreateInput, AlertaConfigUncheckedCreateInput>
+  }
+
+
+  /**
+   * AlertaConfig createMany
+   */
+  export type AlertaConfigCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AlertaConfigs.
+     */
+    data: Enumerable<AlertaConfigCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * AlertaConfig update
+   */
+  export type AlertaConfigUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlertaConfig
+     */
+    select?: AlertaConfigSelect<ExtArgs> | null
+    /**
+     * The data needed to update a AlertaConfig.
+     */
+    data: XOR<AlertaConfigUpdateInput, AlertaConfigUncheckedUpdateInput>
+    /**
+     * Choose, which AlertaConfig to update.
+     */
+    where: AlertaConfigWhereUniqueInput
+  }
+
+
+  /**
+   * AlertaConfig updateMany
+   */
+  export type AlertaConfigUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AlertaConfigs.
+     */
+    data: XOR<AlertaConfigUpdateManyMutationInput, AlertaConfigUncheckedUpdateManyInput>
+    /**
+     * Filter which AlertaConfigs to update
+     */
+    where?: AlertaConfigWhereInput
+  }
+
+
+  /**
+   * AlertaConfig upsert
+   */
+  export type AlertaConfigUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlertaConfig
+     */
+    select?: AlertaConfigSelect<ExtArgs> | null
+    /**
+     * The filter to search for the AlertaConfig to update in case it exists.
+     */
+    where: AlertaConfigWhereUniqueInput
+    /**
+     * In case the AlertaConfig found by the `where` argument doesn't exist, create a new AlertaConfig with this data.
+     */
+    create: XOR<AlertaConfigCreateInput, AlertaConfigUncheckedCreateInput>
+    /**
+     * In case the AlertaConfig was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AlertaConfigUpdateInput, AlertaConfigUncheckedUpdateInput>
+  }
+
+
+  /**
+   * AlertaConfig delete
+   */
+  export type AlertaConfigDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlertaConfig
+     */
+    select?: AlertaConfigSelect<ExtArgs> | null
+    /**
+     * Filter which AlertaConfig to delete.
+     */
+    where: AlertaConfigWhereUniqueInput
+  }
+
+
+  /**
+   * AlertaConfig deleteMany
+   */
+  export type AlertaConfigDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AlertaConfigs to delete
+     */
+    where?: AlertaConfigWhereInput
+  }
+
+
+  /**
+   * AlertaConfig without action
+   */
+  export type AlertaConfigArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlertaConfig
+     */
+    select?: AlertaConfigSelect<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model Alerta
+   */
+
+
+  export type AggregateAlerta = {
+    _count: AlertaCountAggregateOutputType | null
+    _avg: AlertaAvgAggregateOutputType | null
+    _sum: AlertaSumAggregateOutputType | null
+    _min: AlertaMinAggregateOutputType | null
+    _max: AlertaMaxAggregateOutputType | null
+  }
+
+  export type AlertaAvgAggregateOutputType = {
+    janelaDias: number | null
+  }
+
+  export type AlertaSumAggregateOutputType = {
+    janelaDias: number | null
+  }
+
+  export type AlertaMinAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    tipo: TipoAlerta | null
+    severidade: SeveridadeAlerta | null
+    janelaDias: number | null
+    mensagem: string | null
+    dataReferencia: Date | null
+    reconhecidoPorId: string | null
+    reconhecidoEm: Date | null
+    resolvidoEm: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AlertaMaxAggregateOutputType = {
+    id: string | null
+    contratoId: string | null
+    tipo: TipoAlerta | null
+    severidade: SeveridadeAlerta | null
+    janelaDias: number | null
+    mensagem: string | null
+    dataReferencia: Date | null
+    reconhecidoPorId: string | null
+    reconhecidoEm: Date | null
+    resolvidoEm: Date | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type AlertaCountAggregateOutputType = {
+    id: number
+    contratoId: number
+    tipo: number
+    severidade: number
+    janelaDias: number
+    mensagem: number
+    dataReferencia: number
+    reconhecidoPorId: number
+    reconhecidoEm: number
+    resolvidoEm: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type AlertaAvgAggregateInputType = {
+    janelaDias?: true
+  }
+
+  export type AlertaSumAggregateInputType = {
+    janelaDias?: true
+  }
+
+  export type AlertaMinAggregateInputType = {
+    id?: true
+    contratoId?: true
+    tipo?: true
+    severidade?: true
+    janelaDias?: true
+    mensagem?: true
+    dataReferencia?: true
+    reconhecidoPorId?: true
+    reconhecidoEm?: true
+    resolvidoEm?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AlertaMaxAggregateInputType = {
+    id?: true
+    contratoId?: true
+    tipo?: true
+    severidade?: true
+    janelaDias?: true
+    mensagem?: true
+    dataReferencia?: true
+    reconhecidoPorId?: true
+    reconhecidoEm?: true
+    resolvidoEm?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type AlertaCountAggregateInputType = {
+    id?: true
+    contratoId?: true
+    tipo?: true
+    severidade?: true
+    janelaDias?: true
+    mensagem?: true
+    dataReferencia?: true
+    reconhecidoPorId?: true
+    reconhecidoEm?: true
+    resolvidoEm?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type AlertaAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Alerta to aggregate.
+     */
+    where?: AlertaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Alertas to fetch.
+     */
+    orderBy?: Enumerable<AlertaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AlertaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Alertas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Alertas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Alertas
+    **/
+    _count?: true | AlertaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AlertaAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AlertaSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AlertaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AlertaMaxAggregateInputType
+  }
+
+  export type GetAlertaAggregateType<T extends AlertaAggregateArgs> = {
+        [P in keyof T & keyof AggregateAlerta]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAlerta[P]>
+      : GetScalarType<T[P], AggregateAlerta[P]>
+  }
+
+
+
+
+  export type AlertaGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: AlertaWhereInput
+    orderBy?: Enumerable<AlertaOrderByWithAggregationInput>
+    by: AlertaScalarFieldEnum[]
+    having?: AlertaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AlertaCountAggregateInputType | true
+    _avg?: AlertaAvgAggregateInputType
+    _sum?: AlertaSumAggregateInputType
+    _min?: AlertaMinAggregateInputType
+    _max?: AlertaMaxAggregateInputType
+  }
+
+
+  export type AlertaGroupByOutputType = {
+    id: string
+    contratoId: string
+    tipo: TipoAlerta
+    severidade: SeveridadeAlerta
+    janelaDias: number | null
+    mensagem: string
+    dataReferencia: Date
+    reconhecidoPorId: string | null
+    reconhecidoEm: Date | null
+    resolvidoEm: Date | null
+    createdAt: Date
+    updatedAt: Date
+    _count: AlertaCountAggregateOutputType | null
+    _avg: AlertaAvgAggregateOutputType | null
+    _sum: AlertaSumAggregateOutputType | null
+    _min: AlertaMinAggregateOutputType | null
+    _max: AlertaMaxAggregateOutputType | null
+  }
+
+  type GetAlertaGroupByPayload<T extends AlertaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<AlertaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AlertaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AlertaGroupByOutputType[P]>
+            : GetScalarType<T[P], AlertaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AlertaSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    contratoId?: boolean
+    tipo?: boolean
+    severidade?: boolean
+    janelaDias?: boolean
+    mensagem?: boolean
+    dataReferencia?: boolean
+    reconhecidoPorId?: boolean
+    reconhecidoEm?: boolean
+    resolvidoEm?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    contrato?: boolean | ContratoArgs<ExtArgs>
+  }, ExtArgs["result"]["alerta"]>
+
+  export type AlertaSelectScalar = {
+    id?: boolean
+    contratoId?: boolean
+    tipo?: boolean
+    severidade?: boolean
+    janelaDias?: boolean
+    mensagem?: boolean
+    dataReferencia?: boolean
+    reconhecidoPorId?: boolean
+    reconhecidoEm?: boolean
+    resolvidoEm?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type AlertaInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contrato?: boolean | ContratoArgs<ExtArgs>
+  }
+
+
+  type AlertaGetPayload<S extends boolean | null | undefined | AlertaArgs> = $Types.GetResult<AlertaPayload, S>
+
+  type AlertaCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<AlertaFindManyArgs, 'select' | 'include'> & {
+      select?: AlertaCountAggregateInputType | true
+    }
+
+  export interface AlertaDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Alerta'], meta: { name: 'Alerta' } }
+    /**
+     * Find zero or one Alerta that matches the filter.
+     * @param {AlertaFindUniqueArgs} args - Arguments to find a Alerta
+     * @example
+     * // Get one Alerta
+     * const alerta = await prisma.alerta.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends AlertaFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, AlertaFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Alerta'> extends True ? Prisma__AlertaClient<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__AlertaClient<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one Alerta that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {AlertaFindUniqueOrThrowArgs} args - Arguments to find a Alerta
+     * @example
+     * // Get one Alerta
+     * const alerta = await prisma.alerta.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends AlertaFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlertaFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__AlertaClient<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first Alerta that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaFindFirstArgs} args - Arguments to find a Alerta
+     * @example
+     * // Get one Alerta
+     * const alerta = await prisma.alerta.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends AlertaFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, AlertaFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Alerta'> extends True ? Prisma__AlertaClient<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__AlertaClient<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first Alerta that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaFindFirstOrThrowArgs} args - Arguments to find a Alerta
+     * @example
+     * // Get one Alerta
+     * const alerta = await prisma.alerta.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends AlertaFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlertaFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__AlertaClient<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more Alertas that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Alertas
+     * const alertas = await prisma.alerta.findMany()
+     * 
+     * // Get first 10 Alertas
+     * const alertas = await prisma.alerta.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const alertaWithIdOnly = await prisma.alerta.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends AlertaFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlertaFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a Alerta.
+     * @param {AlertaCreateArgs} args - Arguments to create a Alerta.
+     * @example
+     * // Create one Alerta
+     * const Alerta = await prisma.alerta.create({
+     *   data: {
+     *     // ... data to create a Alerta
+     *   }
+     * })
+     * 
+    **/
+    create<T extends AlertaCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, AlertaCreateArgs<ExtArgs>>
+    ): Prisma__AlertaClient<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many Alertas.
+     *     @param {AlertaCreateManyArgs} args - Arguments to create many Alertas.
+     *     @example
+     *     // Create many Alertas
+     *     const alerta = await prisma.alerta.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends AlertaCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlertaCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Alerta.
+     * @param {AlertaDeleteArgs} args - Arguments to delete one Alerta.
+     * @example
+     * // Delete one Alerta
+     * const Alerta = await prisma.alerta.delete({
+     *   where: {
+     *     // ... filter to delete one Alerta
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends AlertaDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, AlertaDeleteArgs<ExtArgs>>
+    ): Prisma__AlertaClient<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one Alerta.
+     * @param {AlertaUpdateArgs} args - Arguments to update one Alerta.
+     * @example
+     * // Update one Alerta
+     * const alerta = await prisma.alerta.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends AlertaUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, AlertaUpdateArgs<ExtArgs>>
+    ): Prisma__AlertaClient<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more Alertas.
+     * @param {AlertaDeleteManyArgs} args - Arguments to filter Alertas to delete.
+     * @example
+     * // Delete a few Alertas
+     * const { count } = await prisma.alerta.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends AlertaDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlertaDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Alertas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Alertas
+     * const alerta = await prisma.alerta.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends AlertaUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, AlertaUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Alerta.
+     * @param {AlertaUpsertArgs} args - Arguments to update or create a Alerta.
+     * @example
+     * // Update or create a Alerta
+     * const alerta = await prisma.alerta.upsert({
+     *   create: {
+     *     // ... data to create a Alerta
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Alerta we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends AlertaUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, AlertaUpsertArgs<ExtArgs>>
+    ): Prisma__AlertaClient<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of Alertas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaCountArgs} args - Arguments to filter Alertas to count.
+     * @example
+     * // Count the number of Alertas
+     * const count = await prisma.alerta.count({
+     *   where: {
+     *     // ... the filter for the Alertas we want to count
+     *   }
+     * })
+    **/
+    count<T extends AlertaCountArgs>(
+      args?: Subset<T, AlertaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AlertaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Alerta.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AlertaAggregateArgs>(args: Subset<T, AlertaAggregateArgs>): Prisma.PrismaPromise<GetAlertaAggregateType<T>>
+
+    /**
+     * Group by Alerta.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlertaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AlertaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AlertaGroupByArgs['orderBy'] }
+        : { orderBy?: AlertaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AlertaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlertaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Alerta.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__AlertaClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    contrato<T extends ContratoArgs<ExtArgs> = {}>(args?: Subset<T, ContratoArgs<ExtArgs>>): Prisma__ContratoClient<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * Alerta base type for findUnique actions
+   */
+  export type AlertaFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alerta
+     */
+    select?: AlertaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlertaInclude<ExtArgs> | null
+    /**
+     * Filter, which Alerta to fetch.
+     */
+    where: AlertaWhereUniqueInput
+  }
+
+  /**
+   * Alerta findUnique
+   */
+  export interface AlertaFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends AlertaFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Alerta findUniqueOrThrow
+   */
+  export type AlertaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alerta
+     */
+    select?: AlertaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlertaInclude<ExtArgs> | null
+    /**
+     * Filter, which Alerta to fetch.
+     */
+    where: AlertaWhereUniqueInput
+  }
+
+
+  /**
+   * Alerta base type for findFirst actions
+   */
+  export type AlertaFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alerta
+     */
+    select?: AlertaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlertaInclude<ExtArgs> | null
+    /**
+     * Filter, which Alerta to fetch.
+     */
+    where?: AlertaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Alertas to fetch.
+     */
+    orderBy?: Enumerable<AlertaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Alertas.
+     */
+    cursor?: AlertaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Alertas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Alertas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Alertas.
+     */
+    distinct?: Enumerable<AlertaScalarFieldEnum>
+  }
+
+  /**
+   * Alerta findFirst
+   */
+  export interface AlertaFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends AlertaFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * Alerta findFirstOrThrow
+   */
+  export type AlertaFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alerta
+     */
+    select?: AlertaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlertaInclude<ExtArgs> | null
+    /**
+     * Filter, which Alerta to fetch.
+     */
+    where?: AlertaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Alertas to fetch.
+     */
+    orderBy?: Enumerable<AlertaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Alertas.
+     */
+    cursor?: AlertaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Alertas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Alertas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Alertas.
+     */
+    distinct?: Enumerable<AlertaScalarFieldEnum>
+  }
+
+
+  /**
+   * Alerta findMany
+   */
+  export type AlertaFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alerta
+     */
+    select?: AlertaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlertaInclude<ExtArgs> | null
+    /**
+     * Filter, which Alertas to fetch.
+     */
+    where?: AlertaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Alertas to fetch.
+     */
+    orderBy?: Enumerable<AlertaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Alertas.
+     */
+    cursor?: AlertaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Alertas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Alertas.
+     */
+    skip?: number
+    distinct?: Enumerable<AlertaScalarFieldEnum>
+  }
+
+
+  /**
+   * Alerta create
+   */
+  export type AlertaCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alerta
+     */
+    select?: AlertaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlertaInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Alerta.
+     */
+    data: XOR<AlertaCreateInput, AlertaUncheckedCreateInput>
+  }
+
+
+  /**
+   * Alerta createMany
+   */
+  export type AlertaCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Alertas.
+     */
+    data: Enumerable<AlertaCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * Alerta update
+   */
+  export type AlertaUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alerta
+     */
+    select?: AlertaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlertaInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Alerta.
+     */
+    data: XOR<AlertaUpdateInput, AlertaUncheckedUpdateInput>
+    /**
+     * Choose, which Alerta to update.
+     */
+    where: AlertaWhereUniqueInput
+  }
+
+
+  /**
+   * Alerta updateMany
+   */
+  export type AlertaUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Alertas.
+     */
+    data: XOR<AlertaUpdateManyMutationInput, AlertaUncheckedUpdateManyInput>
+    /**
+     * Filter which Alertas to update
+     */
+    where?: AlertaWhereInput
+  }
+
+
+  /**
+   * Alerta upsert
+   */
+  export type AlertaUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alerta
+     */
+    select?: AlertaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlertaInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Alerta to update in case it exists.
+     */
+    where: AlertaWhereUniqueInput
+    /**
+     * In case the Alerta found by the `where` argument doesn't exist, create a new Alerta with this data.
+     */
+    create: XOR<AlertaCreateInput, AlertaUncheckedCreateInput>
+    /**
+     * In case the Alerta was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AlertaUpdateInput, AlertaUncheckedUpdateInput>
+  }
+
+
+  /**
+   * Alerta delete
+   */
+  export type AlertaDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alerta
+     */
+    select?: AlertaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlertaInclude<ExtArgs> | null
+    /**
+     * Filter which Alerta to delete.
+     */
+    where: AlertaWhereUniqueInput
+  }
+
+
+  /**
+   * Alerta deleteMany
+   */
+  export type AlertaDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Alertas to delete
+     */
+    where?: AlertaWhereInput
+  }
+
+
+  /**
+   * Alerta without action
+   */
+  export type AlertaArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Alerta
+     */
+    select?: AlertaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlertaInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model ImportacaoLote
+   */
+
+
+  export type AggregateImportacaoLote = {
+    _count: ImportacaoLoteCountAggregateOutputType | null
+    _avg: ImportacaoLoteAvgAggregateOutputType | null
+    _sum: ImportacaoLoteSumAggregateOutputType | null
+    _min: ImportacaoLoteMinAggregateOutputType | null
+    _max: ImportacaoLoteMaxAggregateOutputType | null
+  }
+
+  export type ImportacaoLoteAvgAggregateOutputType = {
+    totalLinhas: number | null
+    linhasValidas: number | null
+    linhasComErro: number | null
+  }
+
+  export type ImportacaoLoteSumAggregateOutputType = {
+    totalLinhas: number | null
+    linhasValidas: number | null
+    linhasComErro: number | null
+  }
+
+  export type ImportacaoLoteMinAggregateOutputType = {
+    id: string | null
+    nomeArquivo: string | null
+    tipoEntidade: string | null
+    situacao: SituacaoImportacao | null
+    totalLinhas: number | null
+    linhasValidas: number | null
+    linhasComErro: number | null
+    executadoPorId: string | null
+    dryRun: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ImportacaoLoteMaxAggregateOutputType = {
+    id: string | null
+    nomeArquivo: string | null
+    tipoEntidade: string | null
+    situacao: SituacaoImportacao | null
+    totalLinhas: number | null
+    linhasValidas: number | null
+    linhasComErro: number | null
+    executadoPorId: string | null
+    dryRun: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type ImportacaoLoteCountAggregateOutputType = {
+    id: number
+    nomeArquivo: number
+    tipoEntidade: number
+    situacao: number
+    totalLinhas: number
+    linhasValidas: number
+    linhasComErro: number
+    executadoPorId: number
+    dryRun: number
+    resumo: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type ImportacaoLoteAvgAggregateInputType = {
+    totalLinhas?: true
+    linhasValidas?: true
+    linhasComErro?: true
+  }
+
+  export type ImportacaoLoteSumAggregateInputType = {
+    totalLinhas?: true
+    linhasValidas?: true
+    linhasComErro?: true
+  }
+
+  export type ImportacaoLoteMinAggregateInputType = {
+    id?: true
+    nomeArquivo?: true
+    tipoEntidade?: true
+    situacao?: true
+    totalLinhas?: true
+    linhasValidas?: true
+    linhasComErro?: true
+    executadoPorId?: true
+    dryRun?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ImportacaoLoteMaxAggregateInputType = {
+    id?: true
+    nomeArquivo?: true
+    tipoEntidade?: true
+    situacao?: true
+    totalLinhas?: true
+    linhasValidas?: true
+    linhasComErro?: true
+    executadoPorId?: true
+    dryRun?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type ImportacaoLoteCountAggregateInputType = {
+    id?: true
+    nomeArquivo?: true
+    tipoEntidade?: true
+    situacao?: true
+    totalLinhas?: true
+    linhasValidas?: true
+    linhasComErro?: true
+    executadoPorId?: true
+    dryRun?: true
+    resumo?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type ImportacaoLoteAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ImportacaoLote to aggregate.
+     */
+    where?: ImportacaoLoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportacaoLotes to fetch.
+     */
+    orderBy?: Enumerable<ImportacaoLoteOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ImportacaoLoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportacaoLotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportacaoLotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ImportacaoLotes
+    **/
+    _count?: true | ImportacaoLoteCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ImportacaoLoteAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ImportacaoLoteSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ImportacaoLoteMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ImportacaoLoteMaxAggregateInputType
+  }
+
+  export type GetImportacaoLoteAggregateType<T extends ImportacaoLoteAggregateArgs> = {
+        [P in keyof T & keyof AggregateImportacaoLote]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateImportacaoLote[P]>
+      : GetScalarType<T[P], AggregateImportacaoLote[P]>
+  }
+
+
+
+
+  export type ImportacaoLoteGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ImportacaoLoteWhereInput
+    orderBy?: Enumerable<ImportacaoLoteOrderByWithAggregationInput>
+    by: ImportacaoLoteScalarFieldEnum[]
+    having?: ImportacaoLoteScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ImportacaoLoteCountAggregateInputType | true
+    _avg?: ImportacaoLoteAvgAggregateInputType
+    _sum?: ImportacaoLoteSumAggregateInputType
+    _min?: ImportacaoLoteMinAggregateInputType
+    _max?: ImportacaoLoteMaxAggregateInputType
+  }
+
+
+  export type ImportacaoLoteGroupByOutputType = {
+    id: string
+    nomeArquivo: string
+    tipoEntidade: string
+    situacao: SituacaoImportacao
+    totalLinhas: number
+    linhasValidas: number
+    linhasComErro: number
+    executadoPorId: string | null
+    dryRun: boolean
+    resumo: JsonValue | null
+    createdAt: Date
+    updatedAt: Date
+    _count: ImportacaoLoteCountAggregateOutputType | null
+    _avg: ImportacaoLoteAvgAggregateOutputType | null
+    _sum: ImportacaoLoteSumAggregateOutputType | null
+    _min: ImportacaoLoteMinAggregateOutputType | null
+    _max: ImportacaoLoteMaxAggregateOutputType | null
+  }
+
+  type GetImportacaoLoteGroupByPayload<T extends ImportacaoLoteGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<ImportacaoLoteGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ImportacaoLoteGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ImportacaoLoteGroupByOutputType[P]>
+            : GetScalarType<T[P], ImportacaoLoteGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ImportacaoLoteSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    nomeArquivo?: boolean
+    tipoEntidade?: boolean
+    situacao?: boolean
+    totalLinhas?: boolean
+    linhasValidas?: boolean
+    linhasComErro?: boolean
+    executadoPorId?: boolean
+    dryRun?: boolean
+    resumo?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    linhas?: boolean | ImportacaoLote$linhasArgs<ExtArgs>
+    _count?: boolean | ImportacaoLoteCountOutputTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["importacaoLote"]>
+
+  export type ImportacaoLoteSelectScalar = {
+    id?: boolean
+    nomeArquivo?: boolean
+    tipoEntidade?: boolean
+    situacao?: boolean
+    totalLinhas?: boolean
+    linhasValidas?: boolean
+    linhasComErro?: boolean
+    executadoPorId?: boolean
+    dryRun?: boolean
+    resumo?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type ImportacaoLoteInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    linhas?: boolean | ImportacaoLote$linhasArgs<ExtArgs>
+    _count?: boolean | ImportacaoLoteCountOutputTypeArgs<ExtArgs>
+  }
+
+
+  type ImportacaoLoteGetPayload<S extends boolean | null | undefined | ImportacaoLoteArgs> = $Types.GetResult<ImportacaoLotePayload, S>
+
+  type ImportacaoLoteCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<ImportacaoLoteFindManyArgs, 'select' | 'include'> & {
+      select?: ImportacaoLoteCountAggregateInputType | true
+    }
+
+  export interface ImportacaoLoteDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ImportacaoLote'], meta: { name: 'ImportacaoLote' } }
+    /**
+     * Find zero or one ImportacaoLote that matches the filter.
+     * @param {ImportacaoLoteFindUniqueArgs} args - Arguments to find a ImportacaoLote
+     * @example
+     * // Get one ImportacaoLote
+     * const importacaoLote = await prisma.importacaoLote.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends ImportacaoLoteFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, ImportacaoLoteFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'ImportacaoLote'> extends True ? Prisma__ImportacaoLoteClient<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__ImportacaoLoteClient<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one ImportacaoLote that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {ImportacaoLoteFindUniqueOrThrowArgs} args - Arguments to find a ImportacaoLote
+     * @example
+     * // Get one ImportacaoLote
+     * const importacaoLote = await prisma.importacaoLote.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends ImportacaoLoteFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ImportacaoLoteFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__ImportacaoLoteClient<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first ImportacaoLote that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLoteFindFirstArgs} args - Arguments to find a ImportacaoLote
+     * @example
+     * // Get one ImportacaoLote
+     * const importacaoLote = await prisma.importacaoLote.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends ImportacaoLoteFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, ImportacaoLoteFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'ImportacaoLote'> extends True ? Prisma__ImportacaoLoteClient<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__ImportacaoLoteClient<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first ImportacaoLote that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLoteFindFirstOrThrowArgs} args - Arguments to find a ImportacaoLote
+     * @example
+     * // Get one ImportacaoLote
+     * const importacaoLote = await prisma.importacaoLote.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends ImportacaoLoteFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ImportacaoLoteFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__ImportacaoLoteClient<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more ImportacaoLotes that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLoteFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ImportacaoLotes
+     * const importacaoLotes = await prisma.importacaoLote.findMany()
+     * 
+     * // Get first 10 ImportacaoLotes
+     * const importacaoLotes = await prisma.importacaoLote.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const importacaoLoteWithIdOnly = await prisma.importacaoLote.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends ImportacaoLoteFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ImportacaoLoteFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a ImportacaoLote.
+     * @param {ImportacaoLoteCreateArgs} args - Arguments to create a ImportacaoLote.
+     * @example
+     * // Create one ImportacaoLote
+     * const ImportacaoLote = await prisma.importacaoLote.create({
+     *   data: {
+     *     // ... data to create a ImportacaoLote
+     *   }
+     * })
+     * 
+    **/
+    create<T extends ImportacaoLoteCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, ImportacaoLoteCreateArgs<ExtArgs>>
+    ): Prisma__ImportacaoLoteClient<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many ImportacaoLotes.
+     *     @param {ImportacaoLoteCreateManyArgs} args - Arguments to create many ImportacaoLotes.
+     *     @example
+     *     // Create many ImportacaoLotes
+     *     const importacaoLote = await prisma.importacaoLote.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends ImportacaoLoteCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ImportacaoLoteCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ImportacaoLote.
+     * @param {ImportacaoLoteDeleteArgs} args - Arguments to delete one ImportacaoLote.
+     * @example
+     * // Delete one ImportacaoLote
+     * const ImportacaoLote = await prisma.importacaoLote.delete({
+     *   where: {
+     *     // ... filter to delete one ImportacaoLote
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends ImportacaoLoteDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, ImportacaoLoteDeleteArgs<ExtArgs>>
+    ): Prisma__ImportacaoLoteClient<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one ImportacaoLote.
+     * @param {ImportacaoLoteUpdateArgs} args - Arguments to update one ImportacaoLote.
+     * @example
+     * // Update one ImportacaoLote
+     * const importacaoLote = await prisma.importacaoLote.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends ImportacaoLoteUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, ImportacaoLoteUpdateArgs<ExtArgs>>
+    ): Prisma__ImportacaoLoteClient<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more ImportacaoLotes.
+     * @param {ImportacaoLoteDeleteManyArgs} args - Arguments to filter ImportacaoLotes to delete.
+     * @example
+     * // Delete a few ImportacaoLotes
+     * const { count } = await prisma.importacaoLote.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends ImportacaoLoteDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ImportacaoLoteDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ImportacaoLotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLoteUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ImportacaoLotes
+     * const importacaoLote = await prisma.importacaoLote.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends ImportacaoLoteUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, ImportacaoLoteUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ImportacaoLote.
+     * @param {ImportacaoLoteUpsertArgs} args - Arguments to update or create a ImportacaoLote.
+     * @example
+     * // Update or create a ImportacaoLote
+     * const importacaoLote = await prisma.importacaoLote.upsert({
+     *   create: {
+     *     // ... data to create a ImportacaoLote
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ImportacaoLote we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends ImportacaoLoteUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, ImportacaoLoteUpsertArgs<ExtArgs>>
+    ): Prisma__ImportacaoLoteClient<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of ImportacaoLotes.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLoteCountArgs} args - Arguments to filter ImportacaoLotes to count.
+     * @example
+     * // Count the number of ImportacaoLotes
+     * const count = await prisma.importacaoLote.count({
+     *   where: {
+     *     // ... the filter for the ImportacaoLotes we want to count
+     *   }
+     * })
+    **/
+    count<T extends ImportacaoLoteCountArgs>(
+      args?: Subset<T, ImportacaoLoteCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ImportacaoLoteCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ImportacaoLote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLoteAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ImportacaoLoteAggregateArgs>(args: Subset<T, ImportacaoLoteAggregateArgs>): Prisma.PrismaPromise<GetImportacaoLoteAggregateType<T>>
+
+    /**
+     * Group by ImportacaoLote.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLoteGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ImportacaoLoteGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ImportacaoLoteGroupByArgs['orderBy'] }
+        : { orderBy?: ImportacaoLoteGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ImportacaoLoteGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetImportacaoLoteGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ImportacaoLote.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__ImportacaoLoteClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    linhas<T extends ImportacaoLote$linhasArgs<ExtArgs> = {}>(args?: Subset<T, ImportacaoLote$linhasArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * ImportacaoLote base type for findUnique actions
+   */
+  export type ImportacaoLoteFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLote
+     */
+    select?: ImportacaoLoteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLoteInclude<ExtArgs> | null
+    /**
+     * Filter, which ImportacaoLote to fetch.
+     */
+    where: ImportacaoLoteWhereUniqueInput
+  }
+
+  /**
+   * ImportacaoLote findUnique
+   */
+  export interface ImportacaoLoteFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ImportacaoLoteFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ImportacaoLote findUniqueOrThrow
+   */
+  export type ImportacaoLoteFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLote
+     */
+    select?: ImportacaoLoteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLoteInclude<ExtArgs> | null
+    /**
+     * Filter, which ImportacaoLote to fetch.
+     */
+    where: ImportacaoLoteWhereUniqueInput
+  }
+
+
+  /**
+   * ImportacaoLote base type for findFirst actions
+   */
+  export type ImportacaoLoteFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLote
+     */
+    select?: ImportacaoLoteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLoteInclude<ExtArgs> | null
+    /**
+     * Filter, which ImportacaoLote to fetch.
+     */
+    where?: ImportacaoLoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportacaoLotes to fetch.
+     */
+    orderBy?: Enumerable<ImportacaoLoteOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ImportacaoLotes.
+     */
+    cursor?: ImportacaoLoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportacaoLotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportacaoLotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ImportacaoLotes.
+     */
+    distinct?: Enumerable<ImportacaoLoteScalarFieldEnum>
+  }
+
+  /**
+   * ImportacaoLote findFirst
+   */
+  export interface ImportacaoLoteFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ImportacaoLoteFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ImportacaoLote findFirstOrThrow
+   */
+  export type ImportacaoLoteFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLote
+     */
+    select?: ImportacaoLoteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLoteInclude<ExtArgs> | null
+    /**
+     * Filter, which ImportacaoLote to fetch.
+     */
+    where?: ImportacaoLoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportacaoLotes to fetch.
+     */
+    orderBy?: Enumerable<ImportacaoLoteOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ImportacaoLotes.
+     */
+    cursor?: ImportacaoLoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportacaoLotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportacaoLotes.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ImportacaoLotes.
+     */
+    distinct?: Enumerable<ImportacaoLoteScalarFieldEnum>
+  }
+
+
+  /**
+   * ImportacaoLote findMany
+   */
+  export type ImportacaoLoteFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLote
+     */
+    select?: ImportacaoLoteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLoteInclude<ExtArgs> | null
+    /**
+     * Filter, which ImportacaoLotes to fetch.
+     */
+    where?: ImportacaoLoteWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportacaoLotes to fetch.
+     */
+    orderBy?: Enumerable<ImportacaoLoteOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ImportacaoLotes.
+     */
+    cursor?: ImportacaoLoteWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportacaoLotes from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportacaoLotes.
+     */
+    skip?: number
+    distinct?: Enumerable<ImportacaoLoteScalarFieldEnum>
+  }
+
+
+  /**
+   * ImportacaoLote create
+   */
+  export type ImportacaoLoteCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLote
+     */
+    select?: ImportacaoLoteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLoteInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ImportacaoLote.
+     */
+    data: XOR<ImportacaoLoteCreateInput, ImportacaoLoteUncheckedCreateInput>
+  }
+
+
+  /**
+   * ImportacaoLote createMany
+   */
+  export type ImportacaoLoteCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ImportacaoLotes.
+     */
+    data: Enumerable<ImportacaoLoteCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * ImportacaoLote update
+   */
+  export type ImportacaoLoteUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLote
+     */
+    select?: ImportacaoLoteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLoteInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ImportacaoLote.
+     */
+    data: XOR<ImportacaoLoteUpdateInput, ImportacaoLoteUncheckedUpdateInput>
+    /**
+     * Choose, which ImportacaoLote to update.
+     */
+    where: ImportacaoLoteWhereUniqueInput
+  }
+
+
+  /**
+   * ImportacaoLote updateMany
+   */
+  export type ImportacaoLoteUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ImportacaoLotes.
+     */
+    data: XOR<ImportacaoLoteUpdateManyMutationInput, ImportacaoLoteUncheckedUpdateManyInput>
+    /**
+     * Filter which ImportacaoLotes to update
+     */
+    where?: ImportacaoLoteWhereInput
+  }
+
+
+  /**
+   * ImportacaoLote upsert
+   */
+  export type ImportacaoLoteUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLote
+     */
+    select?: ImportacaoLoteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLoteInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ImportacaoLote to update in case it exists.
+     */
+    where: ImportacaoLoteWhereUniqueInput
+    /**
+     * In case the ImportacaoLote found by the `where` argument doesn't exist, create a new ImportacaoLote with this data.
+     */
+    create: XOR<ImportacaoLoteCreateInput, ImportacaoLoteUncheckedCreateInput>
+    /**
+     * In case the ImportacaoLote was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ImportacaoLoteUpdateInput, ImportacaoLoteUncheckedUpdateInput>
+  }
+
+
+  /**
+   * ImportacaoLote delete
+   */
+  export type ImportacaoLoteDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLote
+     */
+    select?: ImportacaoLoteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLoteInclude<ExtArgs> | null
+    /**
+     * Filter which ImportacaoLote to delete.
+     */
+    where: ImportacaoLoteWhereUniqueInput
+  }
+
+
+  /**
+   * ImportacaoLote deleteMany
+   */
+  export type ImportacaoLoteDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ImportacaoLotes to delete
+     */
+    where?: ImportacaoLoteWhereInput
+  }
+
+
+  /**
+   * ImportacaoLote.linhas
+   */
+  export type ImportacaoLote$linhasArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLinha
+     */
+    select?: ImportacaoLinhaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLinhaInclude<ExtArgs> | null
+    where?: ImportacaoLinhaWhereInput
+    orderBy?: Enumerable<ImportacaoLinhaOrderByWithRelationInput>
+    cursor?: ImportacaoLinhaWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ImportacaoLinhaScalarFieldEnum>
+  }
+
+
+  /**
+   * ImportacaoLote without action
+   */
+  export type ImportacaoLoteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLote
+     */
+    select?: ImportacaoLoteSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLoteInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model ImportacaoLinha
+   */
+
+
+  export type AggregateImportacaoLinha = {
+    _count: ImportacaoLinhaCountAggregateOutputType | null
+    _avg: ImportacaoLinhaAvgAggregateOutputType | null
+    _sum: ImportacaoLinhaSumAggregateOutputType | null
+    _min: ImportacaoLinhaMinAggregateOutputType | null
+    _max: ImportacaoLinhaMaxAggregateOutputType | null
+  }
+
+  export type ImportacaoLinhaAvgAggregateOutputType = {
+    numeroLinha: number | null
+  }
+
+  export type ImportacaoLinhaSumAggregateOutputType = {
+    numeroLinha: number | null
+  }
+
+  export type ImportacaoLinhaMinAggregateOutputType = {
+    id: string | null
+    loteId: string | null
+    numeroLinha: number | null
+    registroCriadoId: string | null
+    createdAt: Date | null
+  }
+
+  export type ImportacaoLinhaMaxAggregateOutputType = {
+    id: string | null
+    loteId: string | null
+    numeroLinha: number | null
+    registroCriadoId: string | null
+    createdAt: Date | null
+  }
+
+  export type ImportacaoLinhaCountAggregateOutputType = {
+    id: number
+    loteId: number
+    numeroLinha: number
+    payloadOriginal: number
+    payloadNormalizado: number
+    erros: number
+    registroCriadoId: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type ImportacaoLinhaAvgAggregateInputType = {
+    numeroLinha?: true
+  }
+
+  export type ImportacaoLinhaSumAggregateInputType = {
+    numeroLinha?: true
+  }
+
+  export type ImportacaoLinhaMinAggregateInputType = {
+    id?: true
+    loteId?: true
+    numeroLinha?: true
+    registroCriadoId?: true
+    createdAt?: true
+  }
+
+  export type ImportacaoLinhaMaxAggregateInputType = {
+    id?: true
+    loteId?: true
+    numeroLinha?: true
+    registroCriadoId?: true
+    createdAt?: true
+  }
+
+  export type ImportacaoLinhaCountAggregateInputType = {
+    id?: true
+    loteId?: true
+    numeroLinha?: true
+    payloadOriginal?: true
+    payloadNormalizado?: true
+    erros?: true
+    registroCriadoId?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type ImportacaoLinhaAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ImportacaoLinha to aggregate.
+     */
+    where?: ImportacaoLinhaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportacaoLinhas to fetch.
+     */
+    orderBy?: Enumerable<ImportacaoLinhaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: ImportacaoLinhaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportacaoLinhas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportacaoLinhas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned ImportacaoLinhas
+    **/
+    _count?: true | ImportacaoLinhaCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: ImportacaoLinhaAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ImportacaoLinhaSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: ImportacaoLinhaMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: ImportacaoLinhaMaxAggregateInputType
+  }
+
+  export type GetImportacaoLinhaAggregateType<T extends ImportacaoLinhaAggregateArgs> = {
+        [P in keyof T & keyof AggregateImportacaoLinha]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateImportacaoLinha[P]>
+      : GetScalarType<T[P], AggregateImportacaoLinha[P]>
+  }
+
+
+
+
+  export type ImportacaoLinhaGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ImportacaoLinhaWhereInput
+    orderBy?: Enumerable<ImportacaoLinhaOrderByWithAggregationInput>
+    by: ImportacaoLinhaScalarFieldEnum[]
+    having?: ImportacaoLinhaScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: ImportacaoLinhaCountAggregateInputType | true
+    _avg?: ImportacaoLinhaAvgAggregateInputType
+    _sum?: ImportacaoLinhaSumAggregateInputType
+    _min?: ImportacaoLinhaMinAggregateInputType
+    _max?: ImportacaoLinhaMaxAggregateInputType
+  }
+
+
+  export type ImportacaoLinhaGroupByOutputType = {
+    id: string
+    loteId: string
+    numeroLinha: number
+    payloadOriginal: JsonValue
+    payloadNormalizado: JsonValue | null
+    erros: JsonValue | null
+    registroCriadoId: string | null
+    createdAt: Date
+    _count: ImportacaoLinhaCountAggregateOutputType | null
+    _avg: ImportacaoLinhaAvgAggregateOutputType | null
+    _sum: ImportacaoLinhaSumAggregateOutputType | null
+    _min: ImportacaoLinhaMinAggregateOutputType | null
+    _max: ImportacaoLinhaMaxAggregateOutputType | null
+  }
+
+  type GetImportacaoLinhaGroupByPayload<T extends ImportacaoLinhaGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<ImportacaoLinhaGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof ImportacaoLinhaGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], ImportacaoLinhaGroupByOutputType[P]>
+            : GetScalarType<T[P], ImportacaoLinhaGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type ImportacaoLinhaSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    loteId?: boolean
+    numeroLinha?: boolean
+    payloadOriginal?: boolean
+    payloadNormalizado?: boolean
+    erros?: boolean
+    registroCriadoId?: boolean
+    createdAt?: boolean
+    lote?: boolean | ImportacaoLoteArgs<ExtArgs>
+  }, ExtArgs["result"]["importacaoLinha"]>
+
+  export type ImportacaoLinhaSelectScalar = {
+    id?: boolean
+    loteId?: boolean
+    numeroLinha?: boolean
+    payloadOriginal?: boolean
+    payloadNormalizado?: boolean
+    erros?: boolean
+    registroCriadoId?: boolean
+    createdAt?: boolean
+  }
+
+  export type ImportacaoLinhaInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    lote?: boolean | ImportacaoLoteArgs<ExtArgs>
+  }
+
+
+  type ImportacaoLinhaGetPayload<S extends boolean | null | undefined | ImportacaoLinhaArgs> = $Types.GetResult<ImportacaoLinhaPayload, S>
+
+  type ImportacaoLinhaCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<ImportacaoLinhaFindManyArgs, 'select' | 'include'> & {
+      select?: ImportacaoLinhaCountAggregateInputType | true
+    }
+
+  export interface ImportacaoLinhaDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['ImportacaoLinha'], meta: { name: 'ImportacaoLinha' } }
+    /**
+     * Find zero or one ImportacaoLinha that matches the filter.
+     * @param {ImportacaoLinhaFindUniqueArgs} args - Arguments to find a ImportacaoLinha
+     * @example
+     * // Get one ImportacaoLinha
+     * const importacaoLinha = await prisma.importacaoLinha.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends ImportacaoLinhaFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, ImportacaoLinhaFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'ImportacaoLinha'> extends True ? Prisma__ImportacaoLinhaClient<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__ImportacaoLinhaClient<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one ImportacaoLinha that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {ImportacaoLinhaFindUniqueOrThrowArgs} args - Arguments to find a ImportacaoLinha
+     * @example
+     * // Get one ImportacaoLinha
+     * const importacaoLinha = await prisma.importacaoLinha.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends ImportacaoLinhaFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ImportacaoLinhaFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__ImportacaoLinhaClient<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first ImportacaoLinha that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLinhaFindFirstArgs} args - Arguments to find a ImportacaoLinha
+     * @example
+     * // Get one ImportacaoLinha
+     * const importacaoLinha = await prisma.importacaoLinha.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends ImportacaoLinhaFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, ImportacaoLinhaFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'ImportacaoLinha'> extends True ? Prisma__ImportacaoLinhaClient<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__ImportacaoLinhaClient<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first ImportacaoLinha that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLinhaFindFirstOrThrowArgs} args - Arguments to find a ImportacaoLinha
+     * @example
+     * // Get one ImportacaoLinha
+     * const importacaoLinha = await prisma.importacaoLinha.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends ImportacaoLinhaFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, ImportacaoLinhaFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__ImportacaoLinhaClient<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more ImportacaoLinhas that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLinhaFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all ImportacaoLinhas
+     * const importacaoLinhas = await prisma.importacaoLinha.findMany()
+     * 
+     * // Get first 10 ImportacaoLinhas
+     * const importacaoLinhas = await prisma.importacaoLinha.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const importacaoLinhaWithIdOnly = await prisma.importacaoLinha.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends ImportacaoLinhaFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ImportacaoLinhaFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a ImportacaoLinha.
+     * @param {ImportacaoLinhaCreateArgs} args - Arguments to create a ImportacaoLinha.
+     * @example
+     * // Create one ImportacaoLinha
+     * const ImportacaoLinha = await prisma.importacaoLinha.create({
+     *   data: {
+     *     // ... data to create a ImportacaoLinha
+     *   }
+     * })
+     * 
+    **/
+    create<T extends ImportacaoLinhaCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, ImportacaoLinhaCreateArgs<ExtArgs>>
+    ): Prisma__ImportacaoLinhaClient<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many ImportacaoLinhas.
+     *     @param {ImportacaoLinhaCreateManyArgs} args - Arguments to create many ImportacaoLinhas.
+     *     @example
+     *     // Create many ImportacaoLinhas
+     *     const importacaoLinha = await prisma.importacaoLinha.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends ImportacaoLinhaCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ImportacaoLinhaCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a ImportacaoLinha.
+     * @param {ImportacaoLinhaDeleteArgs} args - Arguments to delete one ImportacaoLinha.
+     * @example
+     * // Delete one ImportacaoLinha
+     * const ImportacaoLinha = await prisma.importacaoLinha.delete({
+     *   where: {
+     *     // ... filter to delete one ImportacaoLinha
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends ImportacaoLinhaDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, ImportacaoLinhaDeleteArgs<ExtArgs>>
+    ): Prisma__ImportacaoLinhaClient<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one ImportacaoLinha.
+     * @param {ImportacaoLinhaUpdateArgs} args - Arguments to update one ImportacaoLinha.
+     * @example
+     * // Update one ImportacaoLinha
+     * const importacaoLinha = await prisma.importacaoLinha.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends ImportacaoLinhaUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, ImportacaoLinhaUpdateArgs<ExtArgs>>
+    ): Prisma__ImportacaoLinhaClient<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more ImportacaoLinhas.
+     * @param {ImportacaoLinhaDeleteManyArgs} args - Arguments to filter ImportacaoLinhas to delete.
+     * @example
+     * // Delete a few ImportacaoLinhas
+     * const { count } = await prisma.importacaoLinha.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends ImportacaoLinhaDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, ImportacaoLinhaDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more ImportacaoLinhas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLinhaUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many ImportacaoLinhas
+     * const importacaoLinha = await prisma.importacaoLinha.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends ImportacaoLinhaUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, ImportacaoLinhaUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one ImportacaoLinha.
+     * @param {ImportacaoLinhaUpsertArgs} args - Arguments to update or create a ImportacaoLinha.
+     * @example
+     * // Update or create a ImportacaoLinha
+     * const importacaoLinha = await prisma.importacaoLinha.upsert({
+     *   create: {
+     *     // ... data to create a ImportacaoLinha
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the ImportacaoLinha we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends ImportacaoLinhaUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, ImportacaoLinhaUpsertArgs<ExtArgs>>
+    ): Prisma__ImportacaoLinhaClient<$Types.GetResult<ImportacaoLinhaPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of ImportacaoLinhas.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLinhaCountArgs} args - Arguments to filter ImportacaoLinhas to count.
+     * @example
+     * // Count the number of ImportacaoLinhas
+     * const count = await prisma.importacaoLinha.count({
+     *   where: {
+     *     // ... the filter for the ImportacaoLinhas we want to count
+     *   }
+     * })
+    **/
+    count<T extends ImportacaoLinhaCountArgs>(
+      args?: Subset<T, ImportacaoLinhaCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], ImportacaoLinhaCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a ImportacaoLinha.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLinhaAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends ImportacaoLinhaAggregateArgs>(args: Subset<T, ImportacaoLinhaAggregateArgs>): Prisma.PrismaPromise<GetImportacaoLinhaAggregateType<T>>
+
+    /**
+     * Group by ImportacaoLinha.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {ImportacaoLinhaGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends ImportacaoLinhaGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: ImportacaoLinhaGroupByArgs['orderBy'] }
+        : { orderBy?: ImportacaoLinhaGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, ImportacaoLinhaGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetImportacaoLinhaGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for ImportacaoLinha.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__ImportacaoLinhaClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    lote<T extends ImportacaoLoteArgs<ExtArgs> = {}>(args?: Subset<T, ImportacaoLoteArgs<ExtArgs>>): Prisma__ImportacaoLoteClient<$Types.GetResult<ImportacaoLotePayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * ImportacaoLinha base type for findUnique actions
+   */
+  export type ImportacaoLinhaFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLinha
+     */
+    select?: ImportacaoLinhaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLinhaInclude<ExtArgs> | null
+    /**
+     * Filter, which ImportacaoLinha to fetch.
+     */
+    where: ImportacaoLinhaWhereUniqueInput
+  }
+
+  /**
+   * ImportacaoLinha findUnique
+   */
+  export interface ImportacaoLinhaFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ImportacaoLinhaFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ImportacaoLinha findUniqueOrThrow
+   */
+  export type ImportacaoLinhaFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLinha
+     */
+    select?: ImportacaoLinhaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLinhaInclude<ExtArgs> | null
+    /**
+     * Filter, which ImportacaoLinha to fetch.
+     */
+    where: ImportacaoLinhaWhereUniqueInput
+  }
+
+
+  /**
+   * ImportacaoLinha base type for findFirst actions
+   */
+  export type ImportacaoLinhaFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLinha
+     */
+    select?: ImportacaoLinhaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLinhaInclude<ExtArgs> | null
+    /**
+     * Filter, which ImportacaoLinha to fetch.
+     */
+    where?: ImportacaoLinhaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportacaoLinhas to fetch.
+     */
+    orderBy?: Enumerable<ImportacaoLinhaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ImportacaoLinhas.
+     */
+    cursor?: ImportacaoLinhaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportacaoLinhas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportacaoLinhas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ImportacaoLinhas.
+     */
+    distinct?: Enumerable<ImportacaoLinhaScalarFieldEnum>
+  }
+
+  /**
+   * ImportacaoLinha findFirst
+   */
+  export interface ImportacaoLinhaFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends ImportacaoLinhaFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * ImportacaoLinha findFirstOrThrow
+   */
+  export type ImportacaoLinhaFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLinha
+     */
+    select?: ImportacaoLinhaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLinhaInclude<ExtArgs> | null
+    /**
+     * Filter, which ImportacaoLinha to fetch.
+     */
+    where?: ImportacaoLinhaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportacaoLinhas to fetch.
+     */
+    orderBy?: Enumerable<ImportacaoLinhaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for ImportacaoLinhas.
+     */
+    cursor?: ImportacaoLinhaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportacaoLinhas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportacaoLinhas.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of ImportacaoLinhas.
+     */
+    distinct?: Enumerable<ImportacaoLinhaScalarFieldEnum>
+  }
+
+
+  /**
+   * ImportacaoLinha findMany
+   */
+  export type ImportacaoLinhaFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLinha
+     */
+    select?: ImportacaoLinhaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLinhaInclude<ExtArgs> | null
+    /**
+     * Filter, which ImportacaoLinhas to fetch.
+     */
+    where?: ImportacaoLinhaWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of ImportacaoLinhas to fetch.
+     */
+    orderBy?: Enumerable<ImportacaoLinhaOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing ImportacaoLinhas.
+     */
+    cursor?: ImportacaoLinhaWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` ImportacaoLinhas from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` ImportacaoLinhas.
+     */
+    skip?: number
+    distinct?: Enumerable<ImportacaoLinhaScalarFieldEnum>
+  }
+
+
+  /**
+   * ImportacaoLinha create
+   */
+  export type ImportacaoLinhaCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLinha
+     */
+    select?: ImportacaoLinhaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLinhaInclude<ExtArgs> | null
+    /**
+     * The data needed to create a ImportacaoLinha.
+     */
+    data: XOR<ImportacaoLinhaCreateInput, ImportacaoLinhaUncheckedCreateInput>
+  }
+
+
+  /**
+   * ImportacaoLinha createMany
+   */
+  export type ImportacaoLinhaCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many ImportacaoLinhas.
+     */
+    data: Enumerable<ImportacaoLinhaCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * ImportacaoLinha update
+   */
+  export type ImportacaoLinhaUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLinha
+     */
+    select?: ImportacaoLinhaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLinhaInclude<ExtArgs> | null
+    /**
+     * The data needed to update a ImportacaoLinha.
+     */
+    data: XOR<ImportacaoLinhaUpdateInput, ImportacaoLinhaUncheckedUpdateInput>
+    /**
+     * Choose, which ImportacaoLinha to update.
+     */
+    where: ImportacaoLinhaWhereUniqueInput
+  }
+
+
+  /**
+   * ImportacaoLinha updateMany
+   */
+  export type ImportacaoLinhaUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update ImportacaoLinhas.
+     */
+    data: XOR<ImportacaoLinhaUpdateManyMutationInput, ImportacaoLinhaUncheckedUpdateManyInput>
+    /**
+     * Filter which ImportacaoLinhas to update
+     */
+    where?: ImportacaoLinhaWhereInput
+  }
+
+
+  /**
+   * ImportacaoLinha upsert
+   */
+  export type ImportacaoLinhaUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLinha
+     */
+    select?: ImportacaoLinhaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLinhaInclude<ExtArgs> | null
+    /**
+     * The filter to search for the ImportacaoLinha to update in case it exists.
+     */
+    where: ImportacaoLinhaWhereUniqueInput
+    /**
+     * In case the ImportacaoLinha found by the `where` argument doesn't exist, create a new ImportacaoLinha with this data.
+     */
+    create: XOR<ImportacaoLinhaCreateInput, ImportacaoLinhaUncheckedCreateInput>
+    /**
+     * In case the ImportacaoLinha was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<ImportacaoLinhaUpdateInput, ImportacaoLinhaUncheckedUpdateInput>
+  }
+
+
+  /**
+   * ImportacaoLinha delete
+   */
+  export type ImportacaoLinhaDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLinha
+     */
+    select?: ImportacaoLinhaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLinhaInclude<ExtArgs> | null
+    /**
+     * Filter which ImportacaoLinha to delete.
+     */
+    where: ImportacaoLinhaWhereUniqueInput
+  }
+
+
+  /**
+   * ImportacaoLinha deleteMany
+   */
+  export type ImportacaoLinhaDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which ImportacaoLinhas to delete
+     */
+    where?: ImportacaoLinhaWhereInput
+  }
+
+
+  /**
+   * ImportacaoLinha without action
+   */
+  export type ImportacaoLinhaArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ImportacaoLinha
+     */
+    select?: ImportacaoLinhaSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ImportacaoLinhaInclude<ExtArgs> | null
+  }
+
+
+
+  /**
    * Model AuditLog
    */
 
@@ -31021,6 +35490,7 @@ export namespace Prisma {
     action: string | null
     changedBy: string | null
     source: string | null
+    requestId: string | null
     changedAt: Date | null
   }
 
@@ -31031,6 +35501,7 @@ export namespace Prisma {
     action: string | null
     changedBy: string | null
     source: string | null
+    requestId: string | null
     changedAt: Date | null
   }
 
@@ -31042,6 +35513,7 @@ export namespace Prisma {
     diff: number
     changedBy: number
     source: number
+    requestId: number
     changedAt: number
     _all: number
   }
@@ -31054,6 +35526,7 @@ export namespace Prisma {
     action?: true
     changedBy?: true
     source?: true
+    requestId?: true
     changedAt?: true
   }
 
@@ -31064,6 +35537,7 @@ export namespace Prisma {
     action?: true
     changedBy?: true
     source?: true
+    requestId?: true
     changedAt?: true
   }
 
@@ -31075,6 +35549,7 @@ export namespace Prisma {
     diff?: true
     changedBy?: true
     source?: true
+    requestId?: true
     changedAt?: true
     _all?: true
   }
@@ -31160,6 +35635,7 @@ export namespace Prisma {
     diff: JsonValue
     changedBy: string | null
     source: string | null
+    requestId: string | null
     changedAt: Date
     _count: AuditLogCountAggregateOutputType | null
     _min: AuditLogMinAggregateOutputType | null
@@ -31188,6 +35664,7 @@ export namespace Prisma {
     diff?: boolean
     changedBy?: boolean
     source?: boolean
+    requestId?: boolean
     changedAt?: boolean
   }, ExtArgs["result"]["auditLog"]>
 
@@ -31199,6 +35676,7 @@ export namespace Prisma {
     diff?: boolean
     changedBy?: boolean
     source?: boolean
+    requestId?: boolean
     changedAt?: boolean
   }
 
@@ -33223,6 +37701,69 @@ export namespace Prisma {
   export type DocumentoScalarFieldEnum = (typeof DocumentoScalarFieldEnum)[keyof typeof DocumentoScalarFieldEnum]
 
 
+  export const AlertaConfigScalarFieldEnum: {
+    id: 'id',
+    tipo: 'tipo',
+    janelasDias: 'janelasDias',
+    ativo: 'ativo',
+    destinatarios: 'destinatarios',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AlertaConfigScalarFieldEnum = (typeof AlertaConfigScalarFieldEnum)[keyof typeof AlertaConfigScalarFieldEnum]
+
+
+  export const AlertaScalarFieldEnum: {
+    id: 'id',
+    contratoId: 'contratoId',
+    tipo: 'tipo',
+    severidade: 'severidade',
+    janelaDias: 'janelaDias',
+    mensagem: 'mensagem',
+    dataReferencia: 'dataReferencia',
+    reconhecidoPorId: 'reconhecidoPorId',
+    reconhecidoEm: 'reconhecidoEm',
+    resolvidoEm: 'resolvidoEm',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AlertaScalarFieldEnum = (typeof AlertaScalarFieldEnum)[keyof typeof AlertaScalarFieldEnum]
+
+
+  export const ImportacaoLoteScalarFieldEnum: {
+    id: 'id',
+    nomeArquivo: 'nomeArquivo',
+    tipoEntidade: 'tipoEntidade',
+    situacao: 'situacao',
+    totalLinhas: 'totalLinhas',
+    linhasValidas: 'linhasValidas',
+    linhasComErro: 'linhasComErro',
+    executadoPorId: 'executadoPorId',
+    dryRun: 'dryRun',
+    resumo: 'resumo',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type ImportacaoLoteScalarFieldEnum = (typeof ImportacaoLoteScalarFieldEnum)[keyof typeof ImportacaoLoteScalarFieldEnum]
+
+
+  export const ImportacaoLinhaScalarFieldEnum: {
+    id: 'id',
+    loteId: 'loteId',
+    numeroLinha: 'numeroLinha',
+    payloadOriginal: 'payloadOriginal',
+    payloadNormalizado: 'payloadNormalizado',
+    erros: 'erros',
+    registroCriadoId: 'registroCriadoId',
+    createdAt: 'createdAt'
+  };
+
+  export type ImportacaoLinhaScalarFieldEnum = (typeof ImportacaoLinhaScalarFieldEnum)[keyof typeof ImportacaoLinhaScalarFieldEnum]
+
+
   export const AuditLogScalarFieldEnum: {
     id: 'id',
     tabela: 'tabela',
@@ -33231,6 +37772,7 @@ export namespace Prisma {
     diff: 'diff',
     changedBy: 'changedBy',
     source: 'source',
+    requestId: 'requestId',
     changedAt: 'changedAt'
   };
 
@@ -34134,6 +38676,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaListRelationFilter
     publicacoes?: PublicacaoListRelationFilter
     documentos?: DocumentoListRelationFilter
+    alertas?: AlertaListRelationFilter
   }
 
   export type ContratoOrderByWithRelationInput = {
@@ -34187,6 +38730,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaOrderByRelationAggregateInput
     publicacoes?: PublicacaoOrderByRelationAggregateInput
     documentos?: DocumentoOrderByRelationAggregateInput
+    alertas?: AlertaOrderByRelationAggregateInput
   }
 
   export type ContratoWhereUniqueInput = {
@@ -35280,6 +39824,278 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter | Date | string
   }
 
+  export type AlertaConfigWhereInput = {
+    AND?: Enumerable<AlertaConfigWhereInput>
+    OR?: Enumerable<AlertaConfigWhereInput>
+    NOT?: Enumerable<AlertaConfigWhereInput>
+    id?: StringFilter | string
+    tipo?: EnumTipoAlertaFilter | TipoAlerta
+    janelasDias?: IntNullableListFilter
+    ativo?: BoolFilter | boolean
+    destinatarios?: JsonNullableFilter
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
+  export type AlertaConfigOrderByWithRelationInput = {
+    id?: SortOrder
+    tipo?: SortOrder
+    janelasDias?: SortOrder
+    ativo?: SortOrder
+    destinatarios?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlertaConfigWhereUniqueInput = {
+    id?: string
+    tipo?: TipoAlerta
+  }
+
+  export type AlertaConfigOrderByWithAggregationInput = {
+    id?: SortOrder
+    tipo?: SortOrder
+    janelasDias?: SortOrder
+    ativo?: SortOrder
+    destinatarios?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AlertaConfigCountOrderByAggregateInput
+    _avg?: AlertaConfigAvgOrderByAggregateInput
+    _max?: AlertaConfigMaxOrderByAggregateInput
+    _min?: AlertaConfigMinOrderByAggregateInput
+    _sum?: AlertaConfigSumOrderByAggregateInput
+  }
+
+  export type AlertaConfigScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<AlertaConfigScalarWhereWithAggregatesInput>
+    OR?: Enumerable<AlertaConfigScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<AlertaConfigScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    tipo?: EnumTipoAlertaWithAggregatesFilter | TipoAlerta
+    janelasDias?: IntNullableListFilter
+    ativo?: BoolWithAggregatesFilter | boolean
+    destinatarios?: JsonNullableWithAggregatesFilter
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type AlertaWhereInput = {
+    AND?: Enumerable<AlertaWhereInput>
+    OR?: Enumerable<AlertaWhereInput>
+    NOT?: Enumerable<AlertaWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringFilter | string
+    tipo?: EnumTipoAlertaFilter | TipoAlerta
+    severidade?: EnumSeveridadeAlertaFilter | SeveridadeAlerta
+    janelaDias?: IntNullableFilter | number | null
+    mensagem?: StringFilter | string
+    dataReferencia?: DateTimeFilter | Date | string
+    reconhecidoPorId?: StringNullableFilter | string | null
+    reconhecidoEm?: DateTimeNullableFilter | Date | string | null
+    resolvidoEm?: DateTimeNullableFilter | Date | string | null
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    contrato?: XOR<ContratoRelationFilter, ContratoWhereInput>
+  }
+
+  export type AlertaOrderByWithRelationInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    tipo?: SortOrder
+    severidade?: SortOrder
+    janelaDias?: SortOrderInput | SortOrder
+    mensagem?: SortOrder
+    dataReferencia?: SortOrder
+    reconhecidoPorId?: SortOrderInput | SortOrder
+    reconhecidoEm?: SortOrderInput | SortOrder
+    resolvidoEm?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    contrato?: ContratoOrderByWithRelationInput
+  }
+
+  export type AlertaWhereUniqueInput = {
+    id?: string
+    contratoId_tipo_dataReferencia?: AlertaContratoIdTipoDataReferenciaCompoundUniqueInput
+  }
+
+  export type AlertaOrderByWithAggregationInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    tipo?: SortOrder
+    severidade?: SortOrder
+    janelaDias?: SortOrderInput | SortOrder
+    mensagem?: SortOrder
+    dataReferencia?: SortOrder
+    reconhecidoPorId?: SortOrderInput | SortOrder
+    reconhecidoEm?: SortOrderInput | SortOrder
+    resolvidoEm?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AlertaCountOrderByAggregateInput
+    _avg?: AlertaAvgOrderByAggregateInput
+    _max?: AlertaMaxOrderByAggregateInput
+    _min?: AlertaMinOrderByAggregateInput
+    _sum?: AlertaSumOrderByAggregateInput
+  }
+
+  export type AlertaScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<AlertaScalarWhereWithAggregatesInput>
+    OR?: Enumerable<AlertaScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<AlertaScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    contratoId?: StringWithAggregatesFilter | string
+    tipo?: EnumTipoAlertaWithAggregatesFilter | TipoAlerta
+    severidade?: EnumSeveridadeAlertaWithAggregatesFilter | SeveridadeAlerta
+    janelaDias?: IntNullableWithAggregatesFilter | number | null
+    mensagem?: StringWithAggregatesFilter | string
+    dataReferencia?: DateTimeWithAggregatesFilter | Date | string
+    reconhecidoPorId?: StringNullableWithAggregatesFilter | string | null
+    reconhecidoEm?: DateTimeNullableWithAggregatesFilter | Date | string | null
+    resolvidoEm?: DateTimeNullableWithAggregatesFilter | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type ImportacaoLoteWhereInput = {
+    AND?: Enumerable<ImportacaoLoteWhereInput>
+    OR?: Enumerable<ImportacaoLoteWhereInput>
+    NOT?: Enumerable<ImportacaoLoteWhereInput>
+    id?: StringFilter | string
+    nomeArquivo?: StringFilter | string
+    tipoEntidade?: StringFilter | string
+    situacao?: EnumSituacaoImportacaoFilter | SituacaoImportacao
+    totalLinhas?: IntFilter | number
+    linhasValidas?: IntFilter | number
+    linhasComErro?: IntFilter | number
+    executadoPorId?: StringNullableFilter | string | null
+    dryRun?: BoolFilter | boolean
+    resumo?: JsonNullableFilter
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+    linhas?: ImportacaoLinhaListRelationFilter
+  }
+
+  export type ImportacaoLoteOrderByWithRelationInput = {
+    id?: SortOrder
+    nomeArquivo?: SortOrder
+    tipoEntidade?: SortOrder
+    situacao?: SortOrder
+    totalLinhas?: SortOrder
+    linhasValidas?: SortOrder
+    linhasComErro?: SortOrder
+    executadoPorId?: SortOrderInput | SortOrder
+    dryRun?: SortOrder
+    resumo?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    linhas?: ImportacaoLinhaOrderByRelationAggregateInput
+  }
+
+  export type ImportacaoLoteWhereUniqueInput = {
+    id?: string
+  }
+
+  export type ImportacaoLoteOrderByWithAggregationInput = {
+    id?: SortOrder
+    nomeArquivo?: SortOrder
+    tipoEntidade?: SortOrder
+    situacao?: SortOrder
+    totalLinhas?: SortOrder
+    linhasValidas?: SortOrder
+    linhasComErro?: SortOrder
+    executadoPorId?: SortOrderInput | SortOrder
+    dryRun?: SortOrder
+    resumo?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: ImportacaoLoteCountOrderByAggregateInput
+    _avg?: ImportacaoLoteAvgOrderByAggregateInput
+    _max?: ImportacaoLoteMaxOrderByAggregateInput
+    _min?: ImportacaoLoteMinOrderByAggregateInput
+    _sum?: ImportacaoLoteSumOrderByAggregateInput
+  }
+
+  export type ImportacaoLoteScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<ImportacaoLoteScalarWhereWithAggregatesInput>
+    OR?: Enumerable<ImportacaoLoteScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<ImportacaoLoteScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    nomeArquivo?: StringWithAggregatesFilter | string
+    tipoEntidade?: StringWithAggregatesFilter | string
+    situacao?: EnumSituacaoImportacaoWithAggregatesFilter | SituacaoImportacao
+    totalLinhas?: IntWithAggregatesFilter | number
+    linhasValidas?: IntWithAggregatesFilter | number
+    linhasComErro?: IntWithAggregatesFilter | number
+    executadoPorId?: StringNullableWithAggregatesFilter | string | null
+    dryRun?: BoolWithAggregatesFilter | boolean
+    resumo?: JsonNullableWithAggregatesFilter
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type ImportacaoLinhaWhereInput = {
+    AND?: Enumerable<ImportacaoLinhaWhereInput>
+    OR?: Enumerable<ImportacaoLinhaWhereInput>
+    NOT?: Enumerable<ImportacaoLinhaWhereInput>
+    id?: StringFilter | string
+    loteId?: StringFilter | string
+    numeroLinha?: IntFilter | number
+    payloadOriginal?: JsonFilter
+    payloadNormalizado?: JsonNullableFilter
+    erros?: JsonNullableFilter
+    registroCriadoId?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    lote?: XOR<ImportacaoLoteRelationFilter, ImportacaoLoteWhereInput>
+  }
+
+  export type ImportacaoLinhaOrderByWithRelationInput = {
+    id?: SortOrder
+    loteId?: SortOrder
+    numeroLinha?: SortOrder
+    payloadOriginal?: SortOrder
+    payloadNormalizado?: SortOrderInput | SortOrder
+    erros?: SortOrderInput | SortOrder
+    registroCriadoId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    lote?: ImportacaoLoteOrderByWithRelationInput
+  }
+
+  export type ImportacaoLinhaWhereUniqueInput = {
+    id?: string
+  }
+
+  export type ImportacaoLinhaOrderByWithAggregationInput = {
+    id?: SortOrder
+    loteId?: SortOrder
+    numeroLinha?: SortOrder
+    payloadOriginal?: SortOrder
+    payloadNormalizado?: SortOrderInput | SortOrder
+    erros?: SortOrderInput | SortOrder
+    registroCriadoId?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: ImportacaoLinhaCountOrderByAggregateInput
+    _avg?: ImportacaoLinhaAvgOrderByAggregateInput
+    _max?: ImportacaoLinhaMaxOrderByAggregateInput
+    _min?: ImportacaoLinhaMinOrderByAggregateInput
+    _sum?: ImportacaoLinhaSumOrderByAggregateInput
+  }
+
+  export type ImportacaoLinhaScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<ImportacaoLinhaScalarWhereWithAggregatesInput>
+    OR?: Enumerable<ImportacaoLinhaScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<ImportacaoLinhaScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    loteId?: StringWithAggregatesFilter | string
+    numeroLinha?: IntWithAggregatesFilter | number
+    payloadOriginal?: JsonWithAggregatesFilter
+    payloadNormalizado?: JsonNullableWithAggregatesFilter
+    erros?: JsonNullableWithAggregatesFilter
+    registroCriadoId?: StringNullableWithAggregatesFilter | string | null
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
   export type AuditLogWhereInput = {
     AND?: Enumerable<AuditLogWhereInput>
     OR?: Enumerable<AuditLogWhereInput>
@@ -35291,6 +40107,7 @@ export namespace Prisma {
     diff?: JsonFilter
     changedBy?: StringNullableFilter | string | null
     source?: StringNullableFilter | string | null
+    requestId?: StringNullableFilter | string | null
     changedAt?: DateTimeFilter | Date | string
   }
 
@@ -35302,6 +40119,7 @@ export namespace Prisma {
     diff?: SortOrder
     changedBy?: SortOrderInput | SortOrder
     source?: SortOrderInput | SortOrder
+    requestId?: SortOrderInput | SortOrder
     changedAt?: SortOrder
   }
 
@@ -35317,6 +40135,7 @@ export namespace Prisma {
     diff?: SortOrder
     changedBy?: SortOrderInput | SortOrder
     source?: SortOrderInput | SortOrder
+    requestId?: SortOrderInput | SortOrder
     changedAt?: SortOrder
     _count?: AuditLogCountOrderByAggregateInput
     _max?: AuditLogMaxOrderByAggregateInput
@@ -35334,6 +40153,7 @@ export namespace Prisma {
     diff?: JsonWithAggregatesFilter
     changedBy?: StringNullableWithAggregatesFilter | string | null
     source?: StringNullableWithAggregatesFilter | string | null
+    requestId?: StringNullableWithAggregatesFilter | string | null
     changedAt?: DateTimeWithAggregatesFilter | Date | string
   }
 
@@ -36480,6 +41300,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateInput = {
@@ -36527,6 +41348,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUpdateInput = {
@@ -36574,6 +41396,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateInput = {
@@ -36621,6 +41444,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoCreateManyInput = {
@@ -37998,6 +42822,365 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type AlertaConfigCreateInput = {
+    id?: string
+    tipo: TipoAlerta
+    janelasDias?: AlertaConfigCreatejanelasDiasInput | Enumerable<number>
+    ativo?: boolean
+    destinatarios?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertaConfigUncheckedCreateInput = {
+    id?: string
+    tipo: TipoAlerta
+    janelasDias?: AlertaConfigCreatejanelasDiasInput | Enumerable<number>
+    ativo?: boolean
+    destinatarios?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertaConfigUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlertaFieldUpdateOperationsInput | TipoAlerta
+    janelasDias?: AlertaConfigUpdatejanelasDiasInput | Enumerable<number>
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    destinatarios?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertaConfigUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlertaFieldUpdateOperationsInput | TipoAlerta
+    janelasDias?: AlertaConfigUpdatejanelasDiasInput | Enumerable<number>
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    destinatarios?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertaConfigCreateManyInput = {
+    id?: string
+    tipo: TipoAlerta
+    janelasDias?: AlertaConfigCreatejanelasDiasInput | Enumerable<number>
+    ativo?: boolean
+    destinatarios?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertaConfigUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlertaFieldUpdateOperationsInput | TipoAlerta
+    janelasDias?: AlertaConfigUpdatejanelasDiasInput | Enumerable<number>
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    destinatarios?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertaConfigUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlertaFieldUpdateOperationsInput | TipoAlerta
+    janelasDias?: AlertaConfigUpdatejanelasDiasInput | Enumerable<number>
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    destinatarios?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertaCreateInput = {
+    id?: string
+    tipo: TipoAlerta
+    severidade?: SeveridadeAlerta
+    janelaDias?: number | null
+    mensagem: string
+    dataReferencia: Date | string
+    reconhecidoPorId?: string | null
+    reconhecidoEm?: Date | string | null
+    resolvidoEm?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutAlertasInput
+  }
+
+  export type AlertaUncheckedCreateInput = {
+    id?: string
+    contratoId: string
+    tipo: TipoAlerta
+    severidade?: SeveridadeAlerta
+    janelaDias?: number | null
+    mensagem: string
+    dataReferencia: Date | string
+    reconhecidoPorId?: string | null
+    reconhecidoEm?: Date | string | null
+    resolvidoEm?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertaUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlertaFieldUpdateOperationsInput | TipoAlerta
+    severidade?: EnumSeveridadeAlertaFieldUpdateOperationsInput | SeveridadeAlerta
+    janelaDias?: NullableIntFieldUpdateOperationsInput | number | null
+    mensagem?: StringFieldUpdateOperationsInput | string
+    dataReferencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    reconhecidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconhecidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutAlertasNestedInput
+  }
+
+  export type AlertaUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlertaFieldUpdateOperationsInput | TipoAlerta
+    severidade?: EnumSeveridadeAlertaFieldUpdateOperationsInput | SeveridadeAlerta
+    janelaDias?: NullableIntFieldUpdateOperationsInput | number | null
+    mensagem?: StringFieldUpdateOperationsInput | string
+    dataReferencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    reconhecidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconhecidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertaCreateManyInput = {
+    id?: string
+    contratoId: string
+    tipo: TipoAlerta
+    severidade?: SeveridadeAlerta
+    janelaDias?: number | null
+    mensagem: string
+    dataReferencia: Date | string
+    reconhecidoPorId?: string | null
+    reconhecidoEm?: Date | string | null
+    resolvidoEm?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertaUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlertaFieldUpdateOperationsInput | TipoAlerta
+    severidade?: EnumSeveridadeAlertaFieldUpdateOperationsInput | SeveridadeAlerta
+    janelaDias?: NullableIntFieldUpdateOperationsInput | number | null
+    mensagem?: StringFieldUpdateOperationsInput | string
+    dataReferencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    reconhecidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconhecidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertaUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlertaFieldUpdateOperationsInput | TipoAlerta
+    severidade?: EnumSeveridadeAlertaFieldUpdateOperationsInput | SeveridadeAlerta
+    janelaDias?: NullableIntFieldUpdateOperationsInput | number | null
+    mensagem?: StringFieldUpdateOperationsInput | string
+    dataReferencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    reconhecidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconhecidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportacaoLoteCreateInput = {
+    id?: string
+    nomeArquivo: string
+    tipoEntidade: string
+    situacao?: SituacaoImportacao
+    totalLinhas?: number
+    linhasValidas?: number
+    linhasComErro?: number
+    executadoPorId?: string | null
+    dryRun?: boolean
+    resumo?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    linhas?: ImportacaoLinhaCreateNestedManyWithoutLoteInput
+  }
+
+  export type ImportacaoLoteUncheckedCreateInput = {
+    id?: string
+    nomeArquivo: string
+    tipoEntidade: string
+    situacao?: SituacaoImportacao
+    totalLinhas?: number
+    linhasValidas?: number
+    linhasComErro?: number
+    executadoPorId?: string | null
+    dryRun?: boolean
+    resumo?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    linhas?: ImportacaoLinhaUncheckedCreateNestedManyWithoutLoteInput
+  }
+
+  export type ImportacaoLoteUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeArquivo?: StringFieldUpdateOperationsInput | string
+    tipoEntidade?: StringFieldUpdateOperationsInput | string
+    situacao?: EnumSituacaoImportacaoFieldUpdateOperationsInput | SituacaoImportacao
+    totalLinhas?: IntFieldUpdateOperationsInput | number
+    linhasValidas?: IntFieldUpdateOperationsInput | number
+    linhasComErro?: IntFieldUpdateOperationsInput | number
+    executadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    dryRun?: BoolFieldUpdateOperationsInput | boolean
+    resumo?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    linhas?: ImportacaoLinhaUpdateManyWithoutLoteNestedInput
+  }
+
+  export type ImportacaoLoteUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeArquivo?: StringFieldUpdateOperationsInput | string
+    tipoEntidade?: StringFieldUpdateOperationsInput | string
+    situacao?: EnumSituacaoImportacaoFieldUpdateOperationsInput | SituacaoImportacao
+    totalLinhas?: IntFieldUpdateOperationsInput | number
+    linhasValidas?: IntFieldUpdateOperationsInput | number
+    linhasComErro?: IntFieldUpdateOperationsInput | number
+    executadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    dryRun?: BoolFieldUpdateOperationsInput | boolean
+    resumo?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    linhas?: ImportacaoLinhaUncheckedUpdateManyWithoutLoteNestedInput
+  }
+
+  export type ImportacaoLoteCreateManyInput = {
+    id?: string
+    nomeArquivo: string
+    tipoEntidade: string
+    situacao?: SituacaoImportacao
+    totalLinhas?: number
+    linhasValidas?: number
+    linhasComErro?: number
+    executadoPorId?: string | null
+    dryRun?: boolean
+    resumo?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ImportacaoLoteUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeArquivo?: StringFieldUpdateOperationsInput | string
+    tipoEntidade?: StringFieldUpdateOperationsInput | string
+    situacao?: EnumSituacaoImportacaoFieldUpdateOperationsInput | SituacaoImportacao
+    totalLinhas?: IntFieldUpdateOperationsInput | number
+    linhasValidas?: IntFieldUpdateOperationsInput | number
+    linhasComErro?: IntFieldUpdateOperationsInput | number
+    executadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    dryRun?: BoolFieldUpdateOperationsInput | boolean
+    resumo?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportacaoLoteUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeArquivo?: StringFieldUpdateOperationsInput | string
+    tipoEntidade?: StringFieldUpdateOperationsInput | string
+    situacao?: EnumSituacaoImportacaoFieldUpdateOperationsInput | SituacaoImportacao
+    totalLinhas?: IntFieldUpdateOperationsInput | number
+    linhasValidas?: IntFieldUpdateOperationsInput | number
+    linhasComErro?: IntFieldUpdateOperationsInput | number
+    executadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    dryRun?: BoolFieldUpdateOperationsInput | boolean
+    resumo?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportacaoLinhaCreateInput = {
+    id?: string
+    numeroLinha: number
+    payloadOriginal: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: string | null
+    createdAt?: Date | string
+    lote: ImportacaoLoteCreateNestedOneWithoutLinhasInput
+  }
+
+  export type ImportacaoLinhaUncheckedCreateInput = {
+    id?: string
+    loteId: string
+    numeroLinha: number
+    payloadOriginal: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ImportacaoLinhaUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroLinha?: IntFieldUpdateOperationsInput | number
+    payloadOriginal?: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    lote?: ImportacaoLoteUpdateOneRequiredWithoutLinhasNestedInput
+  }
+
+  export type ImportacaoLinhaUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    loteId?: StringFieldUpdateOperationsInput | string
+    numeroLinha?: IntFieldUpdateOperationsInput | number
+    payloadOriginal?: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportacaoLinhaCreateManyInput = {
+    id?: string
+    loteId: string
+    numeroLinha: number
+    payloadOriginal: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ImportacaoLinhaUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroLinha?: IntFieldUpdateOperationsInput | number
+    payloadOriginal?: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportacaoLinhaUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    loteId?: StringFieldUpdateOperationsInput | string
+    numeroLinha?: IntFieldUpdateOperationsInput | number
+    payloadOriginal?: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type AuditLogCreateInput = {
     id?: string
     tabela: string
@@ -38006,6 +43189,7 @@ export namespace Prisma {
     diff: JsonNullValueInput | InputJsonValue
     changedBy?: string | null
     source?: string | null
+    requestId?: string | null
     changedAt?: Date | string
   }
 
@@ -38017,6 +43201,7 @@ export namespace Prisma {
     diff: JsonNullValueInput | InputJsonValue
     changedBy?: string | null
     source?: string | null
+    requestId?: string | null
     changedAt?: Date | string
   }
 
@@ -38028,6 +43213,7 @@ export namespace Prisma {
     diff?: JsonNullValueInput | InputJsonValue
     changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
+    requestId?: NullableStringFieldUpdateOperationsInput | string | null
     changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -38039,6 +43225,7 @@ export namespace Prisma {
     diff?: JsonNullValueInput | InputJsonValue
     changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
+    requestId?: NullableStringFieldUpdateOperationsInput | string | null
     changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -38050,6 +43237,7 @@ export namespace Prisma {
     diff: JsonNullValueInput | InputJsonValue
     changedBy?: string | null
     source?: string | null
+    requestId?: string | null
     changedAt?: Date | string
   }
 
@@ -38061,6 +43249,7 @@ export namespace Prisma {
     diff?: JsonNullValueInput | InputJsonValue
     changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
+    requestId?: NullableStringFieldUpdateOperationsInput | string | null
     changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -38072,6 +43261,7 @@ export namespace Prisma {
     diff?: JsonNullValueInput | InputJsonValue
     changedBy?: NullableStringFieldUpdateOperationsInput | string | null
     source?: NullableStringFieldUpdateOperationsInput | string | null
+    requestId?: NullableStringFieldUpdateOperationsInput | string | null
     changedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -39194,11 +44384,21 @@ export namespace Prisma {
     none?: EmpenhoWhereInput
   }
 
+  export type AlertaListRelationFilter = {
+    every?: AlertaWhereInput
+    some?: AlertaWhereInput
+    none?: AlertaWhereInput
+  }
+
   export type ContratoDotacaoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type EmpenhoOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AlertaOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -40354,6 +45554,223 @@ export namespace Prisma {
   export type DocumentoSumOrderByAggregateInput = {
     tamanhoBytes?: SortOrder
   }
+
+  export type EnumTipoAlertaFilter = {
+    equals?: TipoAlerta
+    in?: Enumerable<TipoAlerta>
+    notIn?: Enumerable<TipoAlerta>
+    not?: NestedEnumTipoAlertaFilter | TipoAlerta
+  }
+
+  export type IntNullableListFilter = {
+    equals?: Enumerable<number> | null
+    has?: number | null
+    hasEvery?: Enumerable<number>
+    hasSome?: Enumerable<number>
+    isEmpty?: boolean
+  }
+
+  export type AlertaConfigCountOrderByAggregateInput = {
+    id?: SortOrder
+    tipo?: SortOrder
+    janelasDias?: SortOrder
+    ativo?: SortOrder
+    destinatarios?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlertaConfigAvgOrderByAggregateInput = {
+    janelasDias?: SortOrder
+  }
+
+  export type AlertaConfigMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tipo?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlertaConfigMinOrderByAggregateInput = {
+    id?: SortOrder
+    tipo?: SortOrder
+    ativo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlertaConfigSumOrderByAggregateInput = {
+    janelasDias?: SortOrder
+  }
+
+  export type EnumTipoAlertaWithAggregatesFilter = {
+    equals?: TipoAlerta
+    in?: Enumerable<TipoAlerta>
+    notIn?: Enumerable<TipoAlerta>
+    not?: NestedEnumTipoAlertaWithAggregatesFilter | TipoAlerta
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoAlertaFilter
+    _max?: NestedEnumTipoAlertaFilter
+  }
+
+  export type EnumSeveridadeAlertaFilter = {
+    equals?: SeveridadeAlerta
+    in?: Enumerable<SeveridadeAlerta>
+    notIn?: Enumerable<SeveridadeAlerta>
+    not?: NestedEnumSeveridadeAlertaFilter | SeveridadeAlerta
+  }
+
+  export type AlertaContratoIdTipoDataReferenciaCompoundUniqueInput = {
+    contratoId: string
+    tipo: TipoAlerta
+    dataReferencia: Date | string
+  }
+
+  export type AlertaCountOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    tipo?: SortOrder
+    severidade?: SortOrder
+    janelaDias?: SortOrder
+    mensagem?: SortOrder
+    dataReferencia?: SortOrder
+    reconhecidoPorId?: SortOrder
+    reconhecidoEm?: SortOrder
+    resolvidoEm?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlertaAvgOrderByAggregateInput = {
+    janelaDias?: SortOrder
+  }
+
+  export type AlertaMaxOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    tipo?: SortOrder
+    severidade?: SortOrder
+    janelaDias?: SortOrder
+    mensagem?: SortOrder
+    dataReferencia?: SortOrder
+    reconhecidoPorId?: SortOrder
+    reconhecidoEm?: SortOrder
+    resolvidoEm?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlertaMinOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    tipo?: SortOrder
+    severidade?: SortOrder
+    janelaDias?: SortOrder
+    mensagem?: SortOrder
+    dataReferencia?: SortOrder
+    reconhecidoPorId?: SortOrder
+    reconhecidoEm?: SortOrder
+    resolvidoEm?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlertaSumOrderByAggregateInput = {
+    janelaDias?: SortOrder
+  }
+
+  export type EnumSeveridadeAlertaWithAggregatesFilter = {
+    equals?: SeveridadeAlerta
+    in?: Enumerable<SeveridadeAlerta>
+    notIn?: Enumerable<SeveridadeAlerta>
+    not?: NestedEnumSeveridadeAlertaWithAggregatesFilter | SeveridadeAlerta
+    _count?: NestedIntFilter
+    _min?: NestedEnumSeveridadeAlertaFilter
+    _max?: NestedEnumSeveridadeAlertaFilter
+  }
+
+  export type EnumSituacaoImportacaoFilter = {
+    equals?: SituacaoImportacao
+    in?: Enumerable<SituacaoImportacao>
+    notIn?: Enumerable<SituacaoImportacao>
+    not?: NestedEnumSituacaoImportacaoFilter | SituacaoImportacao
+  }
+
+  export type ImportacaoLinhaListRelationFilter = {
+    every?: ImportacaoLinhaWhereInput
+    some?: ImportacaoLinhaWhereInput
+    none?: ImportacaoLinhaWhereInput
+  }
+
+  export type ImportacaoLinhaOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type ImportacaoLoteCountOrderByAggregateInput = {
+    id?: SortOrder
+    nomeArquivo?: SortOrder
+    tipoEntidade?: SortOrder
+    situacao?: SortOrder
+    totalLinhas?: SortOrder
+    linhasValidas?: SortOrder
+    linhasComErro?: SortOrder
+    executadoPorId?: SortOrder
+    dryRun?: SortOrder
+    resumo?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ImportacaoLoteAvgOrderByAggregateInput = {
+    totalLinhas?: SortOrder
+    linhasValidas?: SortOrder
+    linhasComErro?: SortOrder
+  }
+
+  export type ImportacaoLoteMaxOrderByAggregateInput = {
+    id?: SortOrder
+    nomeArquivo?: SortOrder
+    tipoEntidade?: SortOrder
+    situacao?: SortOrder
+    totalLinhas?: SortOrder
+    linhasValidas?: SortOrder
+    linhasComErro?: SortOrder
+    executadoPorId?: SortOrder
+    dryRun?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ImportacaoLoteMinOrderByAggregateInput = {
+    id?: SortOrder
+    nomeArquivo?: SortOrder
+    tipoEntidade?: SortOrder
+    situacao?: SortOrder
+    totalLinhas?: SortOrder
+    linhasValidas?: SortOrder
+    linhasComErro?: SortOrder
+    executadoPorId?: SortOrder
+    dryRun?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type ImportacaoLoteSumOrderByAggregateInput = {
+    totalLinhas?: SortOrder
+    linhasValidas?: SortOrder
+    linhasComErro?: SortOrder
+  }
+
+  export type EnumSituacaoImportacaoWithAggregatesFilter = {
+    equals?: SituacaoImportacao
+    in?: Enumerable<SituacaoImportacao>
+    notIn?: Enumerable<SituacaoImportacao>
+    not?: NestedEnumSituacaoImportacaoWithAggregatesFilter | SituacaoImportacao
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoImportacaoFilter
+    _max?: NestedEnumSituacaoImportacaoFilter
+  }
   export type JsonFilter = 
     | PatchUndefined<
         Either<Required<JsonFilterBase>, Exclude<keyof Required<JsonFilterBase>, 'path'>>,
@@ -40377,35 +45794,44 @@ export namespace Prisma {
     not?: InputJsonValue | JsonNullValueFilter
   }
 
-  export type AuditLogCountOrderByAggregateInput = {
-    id?: SortOrder
-    tabela?: SortOrder
-    registroId?: SortOrder
-    action?: SortOrder
-    diff?: SortOrder
-    changedBy?: SortOrder
-    source?: SortOrder
-    changedAt?: SortOrder
+  export type ImportacaoLoteRelationFilter = {
+    is?: ImportacaoLoteWhereInput | null
+    isNot?: ImportacaoLoteWhereInput | null
   }
 
-  export type AuditLogMaxOrderByAggregateInput = {
+  export type ImportacaoLinhaCountOrderByAggregateInput = {
     id?: SortOrder
-    tabela?: SortOrder
-    registroId?: SortOrder
-    action?: SortOrder
-    changedBy?: SortOrder
-    source?: SortOrder
-    changedAt?: SortOrder
+    loteId?: SortOrder
+    numeroLinha?: SortOrder
+    payloadOriginal?: SortOrder
+    payloadNormalizado?: SortOrder
+    erros?: SortOrder
+    registroCriadoId?: SortOrder
+    createdAt?: SortOrder
   }
 
-  export type AuditLogMinOrderByAggregateInput = {
+  export type ImportacaoLinhaAvgOrderByAggregateInput = {
+    numeroLinha?: SortOrder
+  }
+
+  export type ImportacaoLinhaMaxOrderByAggregateInput = {
     id?: SortOrder
-    tabela?: SortOrder
-    registroId?: SortOrder
-    action?: SortOrder
-    changedBy?: SortOrder
-    source?: SortOrder
-    changedAt?: SortOrder
+    loteId?: SortOrder
+    numeroLinha?: SortOrder
+    registroCriadoId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ImportacaoLinhaMinOrderByAggregateInput = {
+    id?: SortOrder
+    loteId?: SortOrder
+    numeroLinha?: SortOrder
+    registroCriadoId?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type ImportacaoLinhaSumOrderByAggregateInput = {
+    numeroLinha?: SortOrder
   }
   export type JsonWithAggregatesFilter = 
     | PatchUndefined<
@@ -40431,6 +45857,40 @@ export namespace Prisma {
     _count?: NestedIntFilter
     _min?: NestedJsonFilter
     _max?: NestedJsonFilter
+  }
+
+  export type AuditLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    tabela?: SortOrder
+    registroId?: SortOrder
+    action?: SortOrder
+    diff?: SortOrder
+    changedBy?: SortOrder
+    source?: SortOrder
+    requestId?: SortOrder
+    changedAt?: SortOrder
+  }
+
+  export type AuditLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    tabela?: SortOrder
+    registroId?: SortOrder
+    action?: SortOrder
+    changedBy?: SortOrder
+    source?: SortOrder
+    requestId?: SortOrder
+    changedAt?: SortOrder
+  }
+
+  export type AuditLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    tabela?: SortOrder
+    registroId?: SortOrder
+    action?: SortOrder
+    changedBy?: SortOrder
+    source?: SortOrder
+    requestId?: SortOrder
+    changedAt?: SortOrder
   }
 
   export type UserCountOrderByAggregateInput = {
@@ -42186,6 +47646,13 @@ export namespace Prisma {
     connect?: Enumerable<DocumentoWhereUniqueInput>
   }
 
+  export type AlertaCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<AlertaCreateWithoutContratoInput>, Enumerable<AlertaUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<AlertaCreateOrConnectWithoutContratoInput>
+    createMany?: AlertaCreateManyContratoInputEnvelope
+    connect?: Enumerable<AlertaWhereUniqueInput>
+  }
+
   export type ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput = {
     create?: XOR<Enumerable<ContratoResponsavelCreateWithoutContratoInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutContratoInput>>
     connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutContratoInput>
@@ -42247,6 +47714,13 @@ export namespace Prisma {
     connectOrCreate?: Enumerable<DocumentoCreateOrConnectWithoutContratoInput>
     createMany?: DocumentoCreateManyContratoInputEnvelope
     connect?: Enumerable<DocumentoWhereUniqueInput>
+  }
+
+  export type AlertaUncheckedCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<AlertaCreateWithoutContratoInput>, Enumerable<AlertaUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<AlertaCreateOrConnectWithoutContratoInput>
+    createMany?: AlertaCreateManyContratoInputEnvelope
+    connect?: Enumerable<AlertaWhereUniqueInput>
   }
 
   export type EnumPilarOrcamentarioFieldUpdateOperationsInput = {
@@ -42463,6 +47937,20 @@ export namespace Prisma {
     deleteMany?: Enumerable<DocumentoScalarWhereInput>
   }
 
+  export type AlertaUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<AlertaCreateWithoutContratoInput>, Enumerable<AlertaUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<AlertaCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<AlertaUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: AlertaCreateManyContratoInputEnvelope
+    set?: Enumerable<AlertaWhereUniqueInput>
+    disconnect?: Enumerable<AlertaWhereUniqueInput>
+    delete?: Enumerable<AlertaWhereUniqueInput>
+    connect?: Enumerable<AlertaWhereUniqueInput>
+    update?: Enumerable<AlertaUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<AlertaUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<AlertaScalarWhereInput>
+  }
+
   export type ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput = {
     create?: XOR<Enumerable<ContratoResponsavelCreateWithoutContratoInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutContratoInput>>
     connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutContratoInput>
@@ -42587,6 +48075,20 @@ export namespace Prisma {
     update?: Enumerable<DocumentoUpdateWithWhereUniqueWithoutContratoInput>
     updateMany?: Enumerable<DocumentoUpdateManyWithWhereWithoutContratoInput>
     deleteMany?: Enumerable<DocumentoScalarWhereInput>
+  }
+
+  export type AlertaUncheckedUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<AlertaCreateWithoutContratoInput>, Enumerable<AlertaUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<AlertaCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<AlertaUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: AlertaCreateManyContratoInputEnvelope
+    set?: Enumerable<AlertaWhereUniqueInput>
+    disconnect?: Enumerable<AlertaWhereUniqueInput>
+    delete?: Enumerable<AlertaWhereUniqueInput>
+    connect?: Enumerable<AlertaWhereUniqueInput>
+    update?: Enumerable<AlertaUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<AlertaUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<AlertaScalarWhereInput>
   }
 
   export type ContratoCreateNestedOneWithoutResponsaveisInput = {
@@ -43451,6 +48953,97 @@ export namespace Prisma {
     update?: XOR<DominioValorUpdateWithoutDocumentosTipoInput, DominioValorUncheckedUpdateWithoutDocumentosTipoInput>
   }
 
+  export type AlertaConfigCreatejanelasDiasInput = {
+    set: Enumerable<number>
+  }
+
+  export type EnumTipoAlertaFieldUpdateOperationsInput = {
+    set?: TipoAlerta
+  }
+
+  export type AlertaConfigUpdatejanelasDiasInput = {
+    set?: Enumerable<number>
+    push?: number | Enumerable<number>
+  }
+
+  export type ContratoCreateNestedOneWithoutAlertasInput = {
+    create?: XOR<ContratoCreateWithoutAlertasInput, ContratoUncheckedCreateWithoutAlertasInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutAlertasInput
+    connect?: ContratoWhereUniqueInput
+  }
+
+  export type EnumSeveridadeAlertaFieldUpdateOperationsInput = {
+    set?: SeveridadeAlerta
+  }
+
+  export type ContratoUpdateOneRequiredWithoutAlertasNestedInput = {
+    create?: XOR<ContratoCreateWithoutAlertasInput, ContratoUncheckedCreateWithoutAlertasInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutAlertasInput
+    upsert?: ContratoUpsertWithoutAlertasInput
+    connect?: ContratoWhereUniqueInput
+    update?: XOR<ContratoUpdateWithoutAlertasInput, ContratoUncheckedUpdateWithoutAlertasInput>
+  }
+
+  export type ImportacaoLinhaCreateNestedManyWithoutLoteInput = {
+    create?: XOR<Enumerable<ImportacaoLinhaCreateWithoutLoteInput>, Enumerable<ImportacaoLinhaUncheckedCreateWithoutLoteInput>>
+    connectOrCreate?: Enumerable<ImportacaoLinhaCreateOrConnectWithoutLoteInput>
+    createMany?: ImportacaoLinhaCreateManyLoteInputEnvelope
+    connect?: Enumerable<ImportacaoLinhaWhereUniqueInput>
+  }
+
+  export type ImportacaoLinhaUncheckedCreateNestedManyWithoutLoteInput = {
+    create?: XOR<Enumerable<ImportacaoLinhaCreateWithoutLoteInput>, Enumerable<ImportacaoLinhaUncheckedCreateWithoutLoteInput>>
+    connectOrCreate?: Enumerable<ImportacaoLinhaCreateOrConnectWithoutLoteInput>
+    createMany?: ImportacaoLinhaCreateManyLoteInputEnvelope
+    connect?: Enumerable<ImportacaoLinhaWhereUniqueInput>
+  }
+
+  export type EnumSituacaoImportacaoFieldUpdateOperationsInput = {
+    set?: SituacaoImportacao
+  }
+
+  export type ImportacaoLinhaUpdateManyWithoutLoteNestedInput = {
+    create?: XOR<Enumerable<ImportacaoLinhaCreateWithoutLoteInput>, Enumerable<ImportacaoLinhaUncheckedCreateWithoutLoteInput>>
+    connectOrCreate?: Enumerable<ImportacaoLinhaCreateOrConnectWithoutLoteInput>
+    upsert?: Enumerable<ImportacaoLinhaUpsertWithWhereUniqueWithoutLoteInput>
+    createMany?: ImportacaoLinhaCreateManyLoteInputEnvelope
+    set?: Enumerable<ImportacaoLinhaWhereUniqueInput>
+    disconnect?: Enumerable<ImportacaoLinhaWhereUniqueInput>
+    delete?: Enumerable<ImportacaoLinhaWhereUniqueInput>
+    connect?: Enumerable<ImportacaoLinhaWhereUniqueInput>
+    update?: Enumerable<ImportacaoLinhaUpdateWithWhereUniqueWithoutLoteInput>
+    updateMany?: Enumerable<ImportacaoLinhaUpdateManyWithWhereWithoutLoteInput>
+    deleteMany?: Enumerable<ImportacaoLinhaScalarWhereInput>
+  }
+
+  export type ImportacaoLinhaUncheckedUpdateManyWithoutLoteNestedInput = {
+    create?: XOR<Enumerable<ImportacaoLinhaCreateWithoutLoteInput>, Enumerable<ImportacaoLinhaUncheckedCreateWithoutLoteInput>>
+    connectOrCreate?: Enumerable<ImportacaoLinhaCreateOrConnectWithoutLoteInput>
+    upsert?: Enumerable<ImportacaoLinhaUpsertWithWhereUniqueWithoutLoteInput>
+    createMany?: ImportacaoLinhaCreateManyLoteInputEnvelope
+    set?: Enumerable<ImportacaoLinhaWhereUniqueInput>
+    disconnect?: Enumerable<ImportacaoLinhaWhereUniqueInput>
+    delete?: Enumerable<ImportacaoLinhaWhereUniqueInput>
+    connect?: Enumerable<ImportacaoLinhaWhereUniqueInput>
+    update?: Enumerable<ImportacaoLinhaUpdateWithWhereUniqueWithoutLoteInput>
+    updateMany?: Enumerable<ImportacaoLinhaUpdateManyWithWhereWithoutLoteInput>
+    deleteMany?: Enumerable<ImportacaoLinhaScalarWhereInput>
+  }
+
+  export type ImportacaoLoteCreateNestedOneWithoutLinhasInput = {
+    create?: XOR<ImportacaoLoteCreateWithoutLinhasInput, ImportacaoLoteUncheckedCreateWithoutLinhasInput>
+    connectOrCreate?: ImportacaoLoteCreateOrConnectWithoutLinhasInput
+    connect?: ImportacaoLoteWhereUniqueInput
+  }
+
+  export type ImportacaoLoteUpdateOneRequiredWithoutLinhasNestedInput = {
+    create?: XOR<ImportacaoLoteCreateWithoutLinhasInput, ImportacaoLoteUncheckedCreateWithoutLinhasInput>
+    connectOrCreate?: ImportacaoLoteCreateOrConnectWithoutLinhasInput
+    upsert?: ImportacaoLoteUpsertWithoutLinhasInput
+    connect?: ImportacaoLoteWhereUniqueInput
+    update?: XOR<ImportacaoLoteUpdateWithoutLinhasInput, ImportacaoLoteUncheckedUpdateWithoutLinhasInput>
+  }
+
   export type NestedStringFilter = {
     equals?: string
     in?: Enumerable<string> | string
@@ -44138,6 +49731,57 @@ export namespace Prisma {
     _min?: NestedEnumSituacaoReservaFilter
     _max?: NestedEnumSituacaoReservaFilter
   }
+
+  export type NestedEnumTipoAlertaFilter = {
+    equals?: TipoAlerta
+    in?: Enumerable<TipoAlerta>
+    notIn?: Enumerable<TipoAlerta>
+    not?: NestedEnumTipoAlertaFilter | TipoAlerta
+  }
+
+  export type NestedEnumTipoAlertaWithAggregatesFilter = {
+    equals?: TipoAlerta
+    in?: Enumerable<TipoAlerta>
+    notIn?: Enumerable<TipoAlerta>
+    not?: NestedEnumTipoAlertaWithAggregatesFilter | TipoAlerta
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoAlertaFilter
+    _max?: NestedEnumTipoAlertaFilter
+  }
+
+  export type NestedEnumSeveridadeAlertaFilter = {
+    equals?: SeveridadeAlerta
+    in?: Enumerable<SeveridadeAlerta>
+    notIn?: Enumerable<SeveridadeAlerta>
+    not?: NestedEnumSeveridadeAlertaFilter | SeveridadeAlerta
+  }
+
+  export type NestedEnumSeveridadeAlertaWithAggregatesFilter = {
+    equals?: SeveridadeAlerta
+    in?: Enumerable<SeveridadeAlerta>
+    notIn?: Enumerable<SeveridadeAlerta>
+    not?: NestedEnumSeveridadeAlertaWithAggregatesFilter | SeveridadeAlerta
+    _count?: NestedIntFilter
+    _min?: NestedEnumSeveridadeAlertaFilter
+    _max?: NestedEnumSeveridadeAlertaFilter
+  }
+
+  export type NestedEnumSituacaoImportacaoFilter = {
+    equals?: SituacaoImportacao
+    in?: Enumerable<SituacaoImportacao>
+    notIn?: Enumerable<SituacaoImportacao>
+    not?: NestedEnumSituacaoImportacaoFilter | SituacaoImportacao
+  }
+
+  export type NestedEnumSituacaoImportacaoWithAggregatesFilter = {
+    equals?: SituacaoImportacao
+    in?: Enumerable<SituacaoImportacao>
+    notIn?: Enumerable<SituacaoImportacao>
+    not?: NestedEnumSituacaoImportacaoWithAggregatesFilter | SituacaoImportacao
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoImportacaoFilter
+    _max?: NestedEnumSituacaoImportacaoFilter
+  }
   export type NestedJsonFilter = 
     | PatchUndefined<
         Either<Required<NestedJsonFilterBase>, Exclude<keyof Required<NestedJsonFilterBase>, 'path'>>,
@@ -44691,6 +50335,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutCategoriaContratacaoInput = {
@@ -44737,6 +50382,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutCategoriaContratacaoInput = {
@@ -44793,6 +50439,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutModalidadeRefInput = {
@@ -44839,6 +50486,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutModalidadeRefInput = {
@@ -44895,6 +50543,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutFundamentoLegalInput = {
@@ -44941,6 +50590,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutFundamentoLegalInput = {
@@ -46215,6 +51865,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutUnidadeGestoraInput = {
@@ -46261,6 +51912,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutUnidadeGestoraInput = {
@@ -46733,6 +52385,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutFornecedorInput = {
@@ -46779,6 +52432,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutFornecedorInput = {
@@ -47389,6 +53043,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutProcessoInput = {
@@ -47435,6 +53090,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutProcessoInput = {
@@ -48318,6 +53974,44 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type AlertaCreateWithoutContratoInput = {
+    id?: string
+    tipo: TipoAlerta
+    severidade?: SeveridadeAlerta
+    janelaDias?: number | null
+    mensagem: string
+    dataReferencia: Date | string
+    reconhecidoPorId?: string | null
+    reconhecidoEm?: Date | string | null
+    resolvidoEm?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertaUncheckedCreateWithoutContratoInput = {
+    id?: string
+    tipo: TipoAlerta
+    severidade?: SeveridadeAlerta
+    janelaDias?: number | null
+    mensagem: string
+    dataReferencia: Date | string
+    reconhecidoPorId?: string | null
+    reconhecidoEm?: Date | string | null
+    resolvidoEm?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlertaCreateOrConnectWithoutContratoInput = {
+    where: AlertaWhereUniqueInput
+    create: XOR<AlertaCreateWithoutContratoInput, AlertaUncheckedCreateWithoutContratoInput>
+  }
+
+  export type AlertaCreateManyContratoInputEnvelope = {
+    data: Enumerable<AlertaCreateManyContratoInput>
+    skipDuplicates?: boolean
+  }
+
   export type ProcessoContratacaoUpsertWithoutContratosInput = {
     update: XOR<ProcessoContratacaoUpdateWithoutContratosInput, ProcessoContratacaoUncheckedUpdateWithoutContratosInput>
     create: XOR<ProcessoContratacaoCreateWithoutContratosInput, ProcessoContratacaoUncheckedCreateWithoutContratosInput>
@@ -48795,6 +54489,40 @@ export namespace Prisma {
     data: XOR<DocumentoUpdateManyMutationInput, DocumentoUncheckedUpdateManyWithoutDocumentosInput>
   }
 
+  export type AlertaUpsertWithWhereUniqueWithoutContratoInput = {
+    where: AlertaWhereUniqueInput
+    update: XOR<AlertaUpdateWithoutContratoInput, AlertaUncheckedUpdateWithoutContratoInput>
+    create: XOR<AlertaCreateWithoutContratoInput, AlertaUncheckedCreateWithoutContratoInput>
+  }
+
+  export type AlertaUpdateWithWhereUniqueWithoutContratoInput = {
+    where: AlertaWhereUniqueInput
+    data: XOR<AlertaUpdateWithoutContratoInput, AlertaUncheckedUpdateWithoutContratoInput>
+  }
+
+  export type AlertaUpdateManyWithWhereWithoutContratoInput = {
+    where: AlertaScalarWhereInput
+    data: XOR<AlertaUpdateManyMutationInput, AlertaUncheckedUpdateManyWithoutAlertasInput>
+  }
+
+  export type AlertaScalarWhereInput = {
+    AND?: Enumerable<AlertaScalarWhereInput>
+    OR?: Enumerable<AlertaScalarWhereInput>
+    NOT?: Enumerable<AlertaScalarWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringFilter | string
+    tipo?: EnumTipoAlertaFilter | TipoAlerta
+    severidade?: EnumSeveridadeAlertaFilter | SeveridadeAlerta
+    janelaDias?: IntNullableFilter | number | null
+    mensagem?: StringFilter | string
+    dataReferencia?: DateTimeFilter | Date | string
+    reconhecidoPorId?: StringNullableFilter | string | null
+    reconhecidoEm?: DateTimeNullableFilter | Date | string | null
+    resolvidoEm?: DateTimeNullableFilter | Date | string | null
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
   export type ContratoCreateWithoutResponsaveisInput = {
     id?: string
     numeroGms: string
@@ -48839,6 +54567,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutResponsaveisInput = {
@@ -48885,6 +54614,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutResponsaveisInput = {
@@ -48976,6 +54706,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutResponsaveisInput = {
@@ -49022,6 +54753,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ServidorUpsertWithoutResponsaveisInput = {
@@ -49103,6 +54835,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutRateiosInput = {
@@ -49149,6 +54882,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutRateiosInput = {
@@ -49246,6 +54980,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutRateiosInput = {
@@ -49292,6 +55027,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type UnidadeOrganizacionalUpsertWithoutRateiosInput = {
@@ -49379,6 +55115,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutAlteracoesInput = {
@@ -49425,6 +55162,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutAlteracoesInput = {
@@ -49640,6 +55378,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutAlteracoesInput = {
@@ -49686,6 +55425,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type DominioValorUpsertWithoutAlteracoesFundamentoInput = {
@@ -50577,6 +56317,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutItensInput = {
@@ -50623,6 +56364,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutItensInput = {
@@ -50867,6 +56609,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutItensInput = {
@@ -50913,6 +56656,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type CatalogoItemUpsertWithoutItensContratoInput = {
@@ -51467,6 +57211,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutDotacoesInput = {
@@ -51513,6 +57258,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutDotacoesInput = {
@@ -51602,6 +57348,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutDotacoesInput = {
@@ -51648,6 +57395,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type DotacaoOrcamentariaUpsertWithoutContratosInput = {
@@ -51727,6 +57475,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutEmpenhosInput = {
@@ -51773,6 +57522,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutEmpenhosInput = {
@@ -51862,6 +57612,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutEmpenhosInput = {
@@ -51908,6 +57659,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type DotacaoOrcamentariaUpsertWithoutEmpenhosInput = {
@@ -51987,6 +57739,7 @@ export namespace Prisma {
     empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutReservasInput = {
@@ -52033,6 +57786,7 @@ export namespace Prisma {
     empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutReservasInput = {
@@ -52134,6 +57888,7 @@ export namespace Prisma {
     empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutReservasInput = {
@@ -52180,6 +57935,7 @@ export namespace Prisma {
     empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ProcessoContratacaoUpsertWithoutReservasInput = {
@@ -52271,6 +58027,7 @@ export namespace Prisma {
     empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutPublicacoesInput = {
@@ -52317,6 +58074,7 @@ export namespace Prisma {
     empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutPublicacoesInput = {
@@ -52489,6 +58247,7 @@ export namespace Prisma {
     empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutPublicacoesInput = {
@@ -52535,6 +58294,7 @@ export namespace Prisma {
     empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type AlteracaoContratualUpsertWithoutPublicacoesInput = {
@@ -52697,6 +58457,7 @@ export namespace Prisma {
     empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutDocumentosInput = {
@@ -52743,6 +58504,7 @@ export namespace Prisma {
     empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
     reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutDocumentosInput = {
@@ -52960,6 +58722,7 @@ export namespace Prisma {
     empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutDocumentosInput = {
@@ -53006,6 +58769,7 @@ export namespace Prisma {
     empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type AlteracaoContratualUpsertWithoutDocumentosInput = {
@@ -53167,6 +58931,334 @@ export namespace Prisma {
     dotacoesNatureza?: DotacaoOrcamentariaUncheckedUpdateManyWithoutNaturezaDespesaNestedInput
     dotacoesFonte?: DotacaoOrcamentariaUncheckedUpdateManyWithoutFonteRecursoNestedInput
     publicacoesVeiculo?: PublicacaoUncheckedUpdateManyWithoutVeiculoNestedInput
+  }
+
+  export type ContratoCreateWithoutAlertasInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutAlertasInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutAlertasInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutAlertasInput, ContratoUncheckedCreateWithoutAlertasInput>
+  }
+
+  export type ContratoUpsertWithoutAlertasInput = {
+    update: XOR<ContratoUpdateWithoutAlertasInput, ContratoUncheckedUpdateWithoutAlertasInput>
+    create: XOR<ContratoCreateWithoutAlertasInput, ContratoUncheckedCreateWithoutAlertasInput>
+  }
+
+  export type ContratoUpdateWithoutAlertasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutAlertasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ImportacaoLinhaCreateWithoutLoteInput = {
+    id?: string
+    numeroLinha: number
+    payloadOriginal: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ImportacaoLinhaUncheckedCreateWithoutLoteInput = {
+    id?: string
+    numeroLinha: number
+    payloadOriginal: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ImportacaoLinhaCreateOrConnectWithoutLoteInput = {
+    where: ImportacaoLinhaWhereUniqueInput
+    create: XOR<ImportacaoLinhaCreateWithoutLoteInput, ImportacaoLinhaUncheckedCreateWithoutLoteInput>
+  }
+
+  export type ImportacaoLinhaCreateManyLoteInputEnvelope = {
+    data: Enumerable<ImportacaoLinhaCreateManyLoteInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ImportacaoLinhaUpsertWithWhereUniqueWithoutLoteInput = {
+    where: ImportacaoLinhaWhereUniqueInput
+    update: XOR<ImportacaoLinhaUpdateWithoutLoteInput, ImportacaoLinhaUncheckedUpdateWithoutLoteInput>
+    create: XOR<ImportacaoLinhaCreateWithoutLoteInput, ImportacaoLinhaUncheckedCreateWithoutLoteInput>
+  }
+
+  export type ImportacaoLinhaUpdateWithWhereUniqueWithoutLoteInput = {
+    where: ImportacaoLinhaWhereUniqueInput
+    data: XOR<ImportacaoLinhaUpdateWithoutLoteInput, ImportacaoLinhaUncheckedUpdateWithoutLoteInput>
+  }
+
+  export type ImportacaoLinhaUpdateManyWithWhereWithoutLoteInput = {
+    where: ImportacaoLinhaScalarWhereInput
+    data: XOR<ImportacaoLinhaUpdateManyMutationInput, ImportacaoLinhaUncheckedUpdateManyWithoutLinhasInput>
+  }
+
+  export type ImportacaoLinhaScalarWhereInput = {
+    AND?: Enumerable<ImportacaoLinhaScalarWhereInput>
+    OR?: Enumerable<ImportacaoLinhaScalarWhereInput>
+    NOT?: Enumerable<ImportacaoLinhaScalarWhereInput>
+    id?: StringFilter | string
+    loteId?: StringFilter | string
+    numeroLinha?: IntFilter | number
+    payloadOriginal?: JsonFilter
+    payloadNormalizado?: JsonNullableFilter
+    erros?: JsonNullableFilter
+    registroCriadoId?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+  }
+
+  export type ImportacaoLoteCreateWithoutLinhasInput = {
+    id?: string
+    nomeArquivo: string
+    tipoEntidade: string
+    situacao?: SituacaoImportacao
+    totalLinhas?: number
+    linhasValidas?: number
+    linhasComErro?: number
+    executadoPorId?: string | null
+    dryRun?: boolean
+    resumo?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ImportacaoLoteUncheckedCreateWithoutLinhasInput = {
+    id?: string
+    nomeArquivo: string
+    tipoEntidade: string
+    situacao?: SituacaoImportacao
+    totalLinhas?: number
+    linhasValidas?: number
+    linhasComErro?: number
+    executadoPorId?: string | null
+    dryRun?: boolean
+    resumo?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ImportacaoLoteCreateOrConnectWithoutLinhasInput = {
+    where: ImportacaoLoteWhereUniqueInput
+    create: XOR<ImportacaoLoteCreateWithoutLinhasInput, ImportacaoLoteUncheckedCreateWithoutLinhasInput>
+  }
+
+  export type ImportacaoLoteUpsertWithoutLinhasInput = {
+    update: XOR<ImportacaoLoteUpdateWithoutLinhasInput, ImportacaoLoteUncheckedUpdateWithoutLinhasInput>
+    create: XOR<ImportacaoLoteCreateWithoutLinhasInput, ImportacaoLoteUncheckedCreateWithoutLinhasInput>
+  }
+
+  export type ImportacaoLoteUpdateWithoutLinhasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeArquivo?: StringFieldUpdateOperationsInput | string
+    tipoEntidade?: StringFieldUpdateOperationsInput | string
+    situacao?: EnumSituacaoImportacaoFieldUpdateOperationsInput | SituacaoImportacao
+    totalLinhas?: IntFieldUpdateOperationsInput | number
+    linhasValidas?: IntFieldUpdateOperationsInput | number
+    linhasComErro?: IntFieldUpdateOperationsInput | number
+    executadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    dryRun?: BoolFieldUpdateOperationsInput | boolean
+    resumo?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportacaoLoteUncheckedUpdateWithoutLinhasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    nomeArquivo?: StringFieldUpdateOperationsInput | string
+    tipoEntidade?: StringFieldUpdateOperationsInput | string
+    situacao?: EnumSituacaoImportacaoFieldUpdateOperationsInput | SituacaoImportacao
+    totalLinhas?: IntFieldUpdateOperationsInput | number
+    linhasValidas?: IntFieldUpdateOperationsInput | number
+    linhasComErro?: IntFieldUpdateOperationsInput | number
+    executadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    dryRun?: BoolFieldUpdateOperationsInput | boolean
+    resumo?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UnidadeOrganizacionalCreateManyMunicipioInput = {
@@ -53821,6 +59913,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutCategoriaContratacaoInput = {
@@ -53867,6 +59960,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosCategoriaInput = {
@@ -53950,6 +60044,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutModalidadeRefInput = {
@@ -53996,6 +60091,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosModalidadeInput = {
@@ -54079,6 +60175,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutFundamentoLegalInput = {
@@ -54125,6 +60222,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosFundamentoInput = {
@@ -54964,6 +61062,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutUnidadeGestoraInput = {
@@ -55010,6 +61109,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosGestoraInput = {
@@ -55354,6 +61454,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutFornecedorInput = {
@@ -55400,6 +61501,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosInput = {
@@ -55585,6 +61687,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutProcessoInput = {
@@ -55631,6 +61734,7 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ReservaOrcamentariaUpdateWithoutProcessoInput = {
@@ -55825,6 +61929,20 @@ export namespace Prisma {
     tamanhoBytes?: number | null
     uploadedById?: string | null
     createdAt?: Date | string
+  }
+
+  export type AlertaCreateManyContratoInput = {
+    id?: string
+    tipo: TipoAlerta
+    severidade?: SeveridadeAlerta
+    janelaDias?: number | null
+    mensagem: string
+    dataReferencia: Date | string
+    reconhecidoPorId?: string | null
+    reconhecidoEm?: Date | string | null
+    resolvidoEm?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ContratoResponsavelUpdateWithoutContratoInput = {
@@ -56145,6 +62263,48 @@ export namespace Prisma {
     tamanhoBytes?: NullableIntFieldUpdateOperationsInput | number | null
     uploadedById?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertaUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlertaFieldUpdateOperationsInput | TipoAlerta
+    severidade?: EnumSeveridadeAlertaFieldUpdateOperationsInput | SeveridadeAlerta
+    janelaDias?: NullableIntFieldUpdateOperationsInput | number | null
+    mensagem?: StringFieldUpdateOperationsInput | string
+    dataReferencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    reconhecidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconhecidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertaUncheckedUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlertaFieldUpdateOperationsInput | TipoAlerta
+    severidade?: EnumSeveridadeAlertaFieldUpdateOperationsInput | SeveridadeAlerta
+    janelaDias?: NullableIntFieldUpdateOperationsInput | number | null
+    mensagem?: StringFieldUpdateOperationsInput | string
+    dataReferencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    reconhecidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconhecidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlertaUncheckedUpdateManyWithoutAlertasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlertaFieldUpdateOperationsInput | TipoAlerta
+    severidade?: EnumSeveridadeAlertaFieldUpdateOperationsInput | SeveridadeAlerta
+    janelaDias?: NullableIntFieldUpdateOperationsInput | number | null
+    mensagem?: StringFieldUpdateOperationsInput | string
+    dataReferencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    reconhecidoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    reconhecidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    resolvidoEm?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type AlteracaoItemCreateManyAlteracaoInput = {
@@ -56477,6 +62637,46 @@ export namespace Prisma {
     situacao?: EnumSituacaoEmpenhoFieldUpdateOperationsInput | SituacaoEmpenho
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportacaoLinhaCreateManyLoteInput = {
+    id?: string
+    numeroLinha: number
+    payloadOriginal: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: string | null
+    createdAt?: Date | string
+  }
+
+  export type ImportacaoLinhaUpdateWithoutLoteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroLinha?: IntFieldUpdateOperationsInput | number
+    payloadOriginal?: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportacaoLinhaUncheckedUpdateWithoutLoteInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroLinha?: IntFieldUpdateOperationsInput | number
+    payloadOriginal?: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ImportacaoLinhaUncheckedUpdateManyWithoutLinhasInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroLinha?: IntFieldUpdateOperationsInput | number
+    payloadOriginal?: JsonNullValueInput | InputJsonValue
+    payloadNormalizado?: NullableJsonNullValueInput | InputJsonValue
+    erros?: NullableJsonNullValueInput | InputJsonValue
+    registroCriadoId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

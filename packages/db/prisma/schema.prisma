@@ -180,6 +180,29 @@ enum SituacaoReserva {
   CANCELADA
 }
 
+enum TipoAlerta {
+  VENCIMENTO
+  LIMITE_ACRESCIMO
+  PRORROGACAO_ESGOTADA
+  PUBLICACAO_PENDENTE
+  GARANTIA_VENCENDO
+  REAJUSTE_DEVIDO
+  FORNECEDOR_SANCIONADO
+}
+
+enum SeveridadeAlerta {
+  INFO
+  ATENCAO
+  CRITICO
+}
+
+enum SituacaoImportacao {
+  RECEBIDO
+  VALIDADO
+  APLICADO
+  REJEITADO
+}
+
 model UnidadeFsp {
   id    String @id @default(uuid())
   sigla String @unique
@@ -433,6 +456,7 @@ model Contrato {
   reservas                 ReservaOrcamentaria[]
   publicacoes              Publicacao[]
   documentos               Documento[]
+  alertas                  Alerta[]
   createdAt                DateTime               @default(now())
   updatedAt                DateTime               @updatedAt
 
@@ -714,6 +738,69 @@ model Documento {
   @@index([tipoDocumentoId])
 }
 
+model AlertaConfig {
+  id            String      @id @default(uuid())
+  tipo          TipoAlerta  @unique
+  janelasDias   Int[]
+  ativo         Boolean     @default(true)
+  destinatarios Json?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+model Alerta {
+  id               String           @id @default(uuid())
+  contratoId       String
+  contrato         Contrato         @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  tipo             TipoAlerta
+  severidade       SeveridadeAlerta @default(ATENCAO)
+  janelaDias       Int?
+  mensagem         String
+  dataReferencia   DateTime         @db.Date
+  reconhecidoPorId String?
+  reconhecidoEm    DateTime?
+  resolvidoEm      DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@unique([contratoId, tipo, dataReferencia])
+  @@index([tipo, severidade])
+  @@index([contratoId])
+}
+
+model ImportacaoLote {
+  id             String             @id @default(uuid())
+  nomeArquivo    String
+  tipoEntidade   String
+  situacao       SituacaoImportacao @default(RECEBIDO)
+  totalLinhas    Int                @default(0)
+  linhasValidas  Int                @default(0)
+  linhasComErro  Int                @default(0)
+  executadoPorId String?
+  dryRun         Boolean            @default(true)
+  resumo         Json?
+  linhas         ImportacaoLinha[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([tipoEntidade, situacao])
+  @@index([createdAt])
+}
+
+model ImportacaoLinha {
+  id                String         @id @default(uuid())
+  loteId            String
+  lote              ImportacaoLote @relation(fields: [loteId], references: [id], onDelete: Cascade)
+  numeroLinha       Int
+  payloadOriginal   Json
+  payloadNormalizado Json?
+  erros             Json?
+  registroCriadoId  String?
+  createdAt         DateTime       @default(now())
+
+  @@index([loteId, numeroLinha])
+}
+
 model AuditLog {
   id         String   @id @default(uuid())
   tabela     String
@@ -722,7 +809,11 @@ model AuditLog {
   diff       Json
   changedBy  String?
   source     String?
+  requestId  String?
   changedAt  DateTime @default(now())
+
+  @@index([tabela, registroId])
+  @@index([changedAt])
 }
 
 model User {

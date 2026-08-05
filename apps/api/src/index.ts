@@ -11,16 +11,21 @@ import { contratoItensRouter } from './routes/catalogo';
 import { contratoAlteracoesRouter, alteracoesAliasRouter } from './routes/alteracoes';
 import orcamentoRouter, { contratoOrcamentoRouter } from './routes/orcamento';
 import dashboardRouter, { contratoAnaliticoRouter } from './routes/dashboard';
+import operacaoRouter from './routes/operacao';
 import { authenticate } from './middleware/auth';
 import { errorHandler } from './lib/errors';
 import { registerBigIntJson } from './lib/bigint-json';
 import { requestContextMiddleware } from './lib/requestContext';
+import { observabilityMiddleware } from './lib/observability';
 import { publicApiCatalog } from './lib/apiCatalog';
+import { buildOpenApiDocument } from './lib/openapi';
+import { getMetricsSnapshot } from './lib/metrics';
+import { getPrisma } from './lib/prisma';
 
 registerBigIntJson();
 
 const app = express();
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: '5mb' }));
 
 app.get('/.well-known/appspecific/com.chrome.devtools.json', (_req, res) => {
   res.status(204).end();
@@ -32,6 +37,7 @@ app.get('/', (_req, res) => {
 
 app.use(authenticate);
 app.use(requestContextMiddleware);
+app.use(observabilityMiddleware);
 
 function mountApi(base: string) {
   app.get(base, (_req, res) => {
@@ -45,12 +51,28 @@ function mountApi(base: string) {
   app.use(`${base}/alteracoes`, alteracoesAliasRouter);
   app.use(base, orcamentoRouter);
   app.use(base, dashboardRouter);
+  app.use(base, operacaoRouter);
   app.use(`${base}/references`, referencesRouter);
   app.use(base, lookupsRouter);
   app.use(base, organizacaoRouter);
   app.use(base, partesRouter);
   app.use(base, catalogoRouter);
   app.get(`${base}/health`, (_req, res) => res.json({ ok: true, version: 'v1' }));
+  app.get(`${base}/health/db`, async (_req, res) => {
+    try {
+      const db = getPrisma();
+      const started = Date.now();
+      await db.$queryRaw`SELECT 1`;
+      return res.json({ ok: true, latencyMs: Date.now() - started });
+    } catch (err) {
+      return res.status(503).json({
+        ok: false,
+        error: err instanceof Error ? err.message : 'db unavailable',
+      });
+    }
+  });
+  app.get(`${base}/metrics`, (_req, res) => res.json(getMetricsSnapshot()));
+  app.get(`${base}/docs`, (_req, res) => res.type('json').json(buildOpenApiDocument()));
 }
 
 mountApi('/api/v1');

@@ -1,4 +1,4 @@
-/** Catálogo da superfície HTTP pública. OpenAPI completo vem na fase 8. */
+/** Catálogo da superfície HTTP pública. OpenAPI em /api/v1/docs. */
 
 export const API_BASE = '/api/v1';
 
@@ -7,12 +7,15 @@ export const publicApiCatalog = {
   version: 'v1',
   base: API_BASE,
   note:
-    'API JSON pública. O frontend (UI) roda em http://localhost:5173 e consome estas rotas. OpenAPI em /api/v1/docs chega na fase 8.',
+    'API JSON pública. O frontend (UI) roda em http://localhost:5173 e consome estas rotas. OpenAPI: GET /api/v1/docs.',
   aliases: {
     netlify: '/.netlify/functions/api/* → mesmo conteúdo de /api/v1/*',
   },
   endpoints: {
     health: { method: 'GET', path: `${API_BASE}/health` },
+    healthDb: { method: 'GET', path: `${API_BASE}/health/db` },
+    metrics: { method: 'GET', path: `${API_BASE}/metrics` },
+    docs: { method: 'GET', path: `${API_BASE}/docs` },
     lookups: {
       all: { method: 'GET', path: `${API_BASE}/lookups` },
       search: { method: 'GET', path: `${API_BASE}/lookups/:slug?q=&page=` },
@@ -66,6 +69,17 @@ export const publicApiCatalog = {
       financeiro: { method: 'GET', path: `${API_BASE}/contracts/:id/financeiro` },
       refresh: { method: 'POST', path: `${API_BASE}/admin/refresh-analytics` },
     },
+    alertas: {
+      list: { method: 'GET', path: `${API_BASE}/alertas?tipo=&severidade=&contratoId=` },
+      configs: { method: 'GET', path: `${API_BASE}/alertas/configs` },
+      reconhecer: { method: 'POST', path: `${API_BASE}/alertas/:id/reconhecer` },
+      gerar: { method: 'POST', path: `${API_BASE}/admin/gerar-alertas` },
+    },
+    importacoes: {
+      create: { method: 'POST', path: `${API_BASE}/importacoes` },
+      get: { method: 'GET', path: `${API_BASE}/importacoes/:id` },
+      aplicar: { method: 'POST', path: `${API_BASE}/importacoes/:id/aplicar` },
+    },
     contracts: {
       list: { method: 'GET', path: `${API_BASE}/contracts` },
       get: { method: 'GET', path: `${API_BASE}/contracts/:id` },
@@ -96,9 +110,10 @@ export const publicApiCatalog = {
   },
   tryNow: [
     `http://localhost:${process.env.PORT || 8888}${API_BASE}/health`,
+    `http://localhost:${process.env.PORT || 8888}${API_BASE}/health/db`,
+    `http://localhost:${process.env.PORT || 8888}${API_BASE}/docs`,
+    `http://localhost:${process.env.PORT || 8888}${API_BASE}/alertas`,
     `http://localhost:${process.env.PORT || 8888}${API_BASE}/lookups`,
-    `http://localhost:${process.env.PORT || 8888}${API_BASE}/lookups/catalogo?q=suv`,
-    `http://localhost:${process.env.PORT || 8888}${API_BASE}/catalogo-itens?flat=true`,
     `http://localhost:${process.env.PORT || 8888}${API_BASE}/contracts`,
   ],
 } as const;

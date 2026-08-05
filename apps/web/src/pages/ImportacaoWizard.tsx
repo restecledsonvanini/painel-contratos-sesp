@@ -1,0 +1,177 @@
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
+import { Button, Card, Page, Textarea } from '@painel/ui';
+import { http, getErrorMessage } from '../lib/http';
+
+type TipoEntidade = 'fornecedor' | 'servidor';
+
+type Lote = {
+  id: string;
+  nomeArquivo: string;
+  tipoEntidade: string;
+  situacao: string;
+  totalLinhas: number;
+  linhasValidas: number;
+  linhasComErro: number;
+  dryRun: boolean;
+  linhas: Array<{
+    id: string;
+    numeroLinha: number;
+    erros?: unknown;
+    registroCriadoId?: string | null;
+    payloadOriginal: Record<string, unknown>;
+  }>;
+};
+
+const SAMPLES: Record<TipoEntidade, string> = {
+  fornecedor: `documento,razaoSocial,tipoPessoa,nomeFantasia
+11222333000181,Fornecedor Import Demo LTDA,JURIDICA,Import Demo
+00011122233,Pessoa Física Inválida CNPJ,JURIDICA,`,
+  servidor: `cpf,nome,cargo,email
+39053344705,Servidor Import Demo,Analista,servidor.demo@sesp.pr.gov.br
+123,Nome Sem CPF Valido,Auxiliar,`,
+};
+
+const COLUNAS: Record<TipoEntidade, string> = {
+  fornecedor: 'documento (CNPJ 14 / CPF 11), razaoSocial, tipoPessoa?, nomeFantasia?',
+  servidor: 'cpf (11 dígitos), nome, cargo?, email?',
+};
+
+function formatErros(erros: unknown): string {
+  if (!Array.isArray(erros)) return String(erros);
+  return erros
+    .map((e) => {
+      if (!e || typeof e !== 'object') return String(e);
+      const err = e as { path?: unknown[]; message?: string };
+      const path = Array.isArray(err.path) ? err.path.join('.') : '';
+      return path ? `${path}: ${err.message ?? 'inválido'}` : (err.message ?? 'inválido');
+    })
+    .join('; ');
+}
+
+export default function ImportacaoWizard() {
+  const [tipoEntidade, setTipoEntidade] = useState<TipoEntidade>('fornecedor');
+  const [csv, setCsv] = useState(SAMPLES.fornecedor);
+  const [lote, setLote] = useState<Lote | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  function onChangeTipo(next: TipoEntidade) {
+    const prevSample = SAMPLES[tipoEntidade];
+    setTipoEntidade(next);
+    setLote(null);
+    setError(null);
+    // Troca o exemplo se o textarea ainda é o sample da entidade anterior
+    if (csv.trim() === prevSample.trim() || !csv.trim()) {
+      setCsv(SAMPLES[next]);
+    }
+  }
+
+  const dryRun = useMutation({
+    mutationFn: async () =>
+      (
+        await http.post<Lote>('/importacoes', {
+          nomeArquivo: `${tipoEntidade}.csv`,
+          tipoEntidade,
+          csv,
+          dryRun: true,
+        })
+      ).data,
+    onSuccess: (data) => {
+      setError(null);
+      setLote(data);
+    },
+    onError: (err) => setError(getErrorMessage(err)),
+  });
+
+  const aplicar = useMutation({
+    mutationFn: async (id: string) => (await http.post<Lote>(`/importacoes/${id}/aplicar`)).data,
+    onSuccess: (data) => {
+      setError(null);
+      setLote(data);
+    },
+    onError: (err) => setError(getErrorMessage(err)),
+  });
+
+  return (
+    <Page
+      title="Importação CSV"
+      description="Dry-run linha a linha com Zod; aplique apenas lotes sem erro."
+      actions={
+        <Link to="/alertas">
+          <Button variant="ghost">Alertas</Button>
+        </Link>
+      }
+    >
+      <Card variant="bordered" className="space-y-4 p-4">
+        <div className="flex flex-wrap gap-3 items-center">
+          <label className="text-sm font-medium">
+            Entidade{' '}
+            <select
+              className="ml-2 border rounded px-2 py-1"
+              value={tipoEntidade}
+              onChange={(e) => onChangeTipo(e.target.value as TipoEntidade)}
+            >
+              <option value="fornecedor">Fornecedor</option>
+              <option value="servidor">Servidor</option>
+            </select>
+          </label>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setCsv(SAMPLES[tipoEntidade]);
+              setLote(null);
+              setError(null);
+            }}
+          >
+            Restaurar exemplo
+          </Button>
+          <Button onClick={() => dryRun.mutate()} disabled={dryRun.isPending}>
+            {dryRun.isPending ? 'Validando…' : '1. Dry-run'}
+          </Button>
+          <Button
+            variant="ghost"
+            disabled={!lote || lote.linhasComErro > 0 || lote.situacao === 'APLICADO' || aplicar.isPending}
+            onClick={() => lote && aplicar.mutate(lote.id)}
+          >
+            {aplicar.isPending ? 'Aplicando…' : '2. Aplicar'}
+          </Button>
+        </div>
+
+        <p className="text-sm text-[var(--text-muted)]">
+          Colunas esperadas para <strong>{tipoEntidade}</strong>: {COLUNAS[tipoEntidade]}
+        </p>
+
+        <Textarea
+          rows={10}
+          value={csv}
+          onChange={(e) => setCsv(e.target.value)}
+          className="font-mono text-sm"
+        />
+
+        {error && <p className="text-sm text-red-700">{error}</p>}
+
+        {lote && (
+          <div className="space-y-2 text-sm">
+            <p>
+              Lote <strong>{lote.id}</strong> ({lote.tipoEntidade}) — {lote.situacao}:{' '}
+              {lote.linhasValidas} válidas / {lote.linhasComErro} com erro (total {lote.totalLinhas})
+            </p>
+            <ul className="list-disc pl-5 space-y-1">
+              {lote.linhas.map((l) => (
+                <li key={l.id}>
+                  Linha {l.numeroLinha}:{' '}
+                  {l.erros
+                    ? `erro — ${formatErros(l.erros)}`
+                    : l.registroCriadoId
+                      ? `criado ${l.registroCriadoId}`
+                      : 'ok (dry-run)'}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Card>
+    </Page>
+  );
+}

@@ -51,15 +51,15 @@ export default function DotacoesList() {
     >
       <Card variant="bordered" className="overflow-hidden p-0">
         <Table>
-          <TableHeader>
+          <TableHead>
             <TableRow>
-              <TableHead>Exercício</TableHead>
-              <TableHead>Código</TableHead>
-              <TableHead>Natureza</TableHead>
-              <TableHead>Fonte</TableHead>
-              <TableHead>Descrição</TableHead>
+              <TableHeader>Exercício</TableHeader>
+              <TableHeader>Código</TableHeader>
+              <TableHeader>Natureza</TableHeader>
+              <TableHeader>Fonte</TableHeader>
+              <TableHeader>Descrição</TableHeader>
             </TableRow>
-          </TableHeader>
+          </TableHead>
           <TableBody>
             {data?.length ? (
               data.map((d) => (

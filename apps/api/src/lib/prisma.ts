@@ -1,6 +1,8 @@
 import { PrismaClient } from '@painel/db';
+import { getActorFromContext, getRequestId } from './requestContext';
 
 let prisma: PrismaClient | null = null;
+let middlewareAttached = false;
 
 export function getDatabaseUrl(): string {
   const url = process.env.DATABASE_URL;
@@ -10,6 +12,28 @@ export function getDatabaseUrl(): string {
   return url;
 }
 
+function attachAuditGuc(client: PrismaClient) {
+  if (middlewareAttached) return;
+  middlewareAttached = true;
+  client.$use(async (params, next) => {
+    if (params.action === 'executeRaw' || params.action === 'queryRaw') {
+      return next(params);
+    }
+    const actorId = getActorFromContext() ?? '';
+    const requestId = getRequestId() ?? '';
+    try {
+      await client.$executeRawUnsafe(
+        `SELECT set_config('app.current_user', $1, true), set_config('app.request_id', $2, true)`,
+        actorId,
+        requestId,
+      );
+    } catch {
+      // GUC opcional — não bloqueia a operação se a sessão não permitir
+    }
+    return next(params);
+  });
+}
+
 export function getPrisma(): PrismaClient {
   if (prisma) {
     return prisma;
@@ -17,6 +41,7 @@ export function getPrisma(): PrismaClient {
 
   getDatabaseUrl();
   prisma = new PrismaClient();
+  attachAuditGuc(prisma);
   return prisma;
 }
 
@@ -24,5 +49,6 @@ export async function disconnectPrisma(): Promise<void> {
   if (prisma) {
     await prisma.$disconnect();
     prisma = null;
+    middlewareAttached = false;
   }
 }

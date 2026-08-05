@@ -639,6 +639,17 @@ async function main() {
         mimeType: 'application/pdf',
       },
     });
+
+    const garantiaEm = new Date();
+    garantiaEm.setDate(garantiaEm.getDate() + 45);
+    await prisma.contrato.update({
+      where: { id: contrato456.id },
+      data: {
+        garantiaTipo: 'CAUCAO',
+        garantiaValorCents: BigInt(100_000_00),
+        garantiaValidade: garantiaEm,
+      },
+    });
   }
 
   const counts = {
@@ -658,6 +669,7 @@ async function main() {
     empenhos: await prisma.empenho.count(),
     publicacoes: await prisma.publicacao.count(),
     documentos: await prisma.documento.count(),
+    alertas: await prisma.alerta.count().catch(() => 0),
     contratos: await prisma.contrato.count(),
   };
 
