@@ -41,6 +41,15 @@ export const publicApiCatalog = {
     contractItens: {
       list: { method: 'GET', path: `${API_BASE}/contracts/:id/itens` },
     },
+    alteracoes: {
+      list: { method: 'GET', path: `${API_BASE}/contracts/:id/alteracoes` },
+      create: { method: 'POST', path: `${API_BASE}/contracts/:id/alteracoes` },
+      simular: {
+        method: 'POST',
+        path: `${API_BASE}/contracts/:id/alteracoes/simular`,
+        note: 'alias POST /alteracoes/:id/simular (id = contratoId)',
+      },
+    },
     contracts: {
       list: { method: 'GET', path: `${API_BASE}/contracts` },
       get: { method: 'GET', path: `${API_BASE}/contracts/:id` },

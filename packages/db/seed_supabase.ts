@@ -308,10 +308,18 @@ async function main() {
         where: { dominioId_codigo: { dominioId: d.id, codigo } },
       });
     };
+    const fundamentoByCodigo = async (codigo: string) => {
+      const d = await tx.dominio.findUniqueOrThrow({ where: { slug: 'fundamento-legal' } });
+      return tx.dominioValor.findUniqueOrThrow({
+        where: { dominioId_codigo: { dominioId: d.id, codigo } },
+      });
+    };
 
     const modDispensa = await modalidadeByCodigo('DISPENSA');
     const modPregao = await modalidadeByCodigo('PREGAO_ELETRONICO');
     const modInex = await modalidadeByCodigo('INEXIGIBILIDADE');
+    const fundDispensa = await fundamentoByCodigo('ART_75_I');
+    const fundInex = await fundamentoByCodigo('ART_74_I');
     const catServico = await categoriaByCodigo('SERVICO_EVENTUAL');
     const catLocVeic = await categoriaByCodigo('LOCACAO_VEICULOS');
     const catAlim = await categoriaByCodigo('GENEROS_ALIMENTICIOS');
@@ -326,6 +334,7 @@ async function main() {
         fiscalId: fiscal.id,
         fornecedorId: empresaExemplo.id,
         modalidadeId: modDispensa.id,
+        fundamentoLegalId: fundDispensa.id,
         categoriaContratacaoId: catServico.id,
         naturezaObjeto: 'SERVICO_CONTINUADO' as const,
         pilar: 'SERVICOS' as const,
@@ -351,6 +360,7 @@ async function main() {
         fiscalId: carlos.id,
         fornecedorId: empresaLocadora.id,
         modalidadeId: modPregao.id,
+        fundamentoLegalId: null as string | null,
         categoriaContratacaoId: catLocVeic.id,
         naturezaObjeto: 'LOCACAO_BEM_MOVEL' as const,
         pilar: 'CUSTEIO' as const,
@@ -376,6 +386,7 @@ async function main() {
         fiscalId: ana.id,
         fornecedorId: empresaAlimentos.id,
         modalidadeId: modPregao.id,
+        fundamentoLegalId: null as string | null,
         categoriaContratacaoId: catAlim.id,
         naturezaObjeto: 'COMPRA' as const,
         pilar: 'CUSTEIO' as const,
@@ -396,6 +407,7 @@ async function main() {
         fiscalId: fiscal.id,
         fornecedorId: empresaExemplo.id,
         modalidadeId: modInex.id,
+        fundamentoLegalId: fundInex.id,
         categoriaContratacaoId: catServico.id,
         naturezaObjeto: 'SOLUCAO_TIC' as const,
         pilar: 'INVESTIMENTO' as const,
@@ -420,6 +432,7 @@ async function main() {
         unidadeGestoraId: c.unidadeGestoraId,
         fornecedorId: c.fornecedorId,
         modalidadeId: c.modalidadeId,
+        fundamentoLegalId: c.fundamentoLegalId ?? null,
         categoriaContratacaoId: c.categoriaContratacaoId,
         naturezaObjeto: c.naturezaObjeto,
         pilar: c.pilar,
@@ -436,7 +449,10 @@ async function main() {
       };
 
       if (existing) {
-        await tx.aditivo.deleteMany({ where: { contratoId: existing.id } });
+        await tx.alteracaoItem.deleteMany({
+          where: { alteracao: { contratoId: existing.id } },
+        });
+        await tx.alteracaoContratual.deleteMany({ where: { contratoId: existing.id } });
         await tx.itemContrato.deleteMany({ where: { contratoId: existing.id } });
         await tx.contratoResponsavel.deleteMany({ where: { contratoId: existing.id } });
         await tx.contratoRateio.deleteMany({ where: { contratoId: existing.id } });
@@ -501,13 +517,26 @@ async function main() {
       }
 
       if (c.aditivo) {
-        await tx.aditivo.create({
+        const valor = c.aditivo.valorAdicionalCents ?? 0;
+        const temPrazo = Boolean(c.aditivo.novoFimVigencia);
+        const tipo =
+          temPrazo && valor > 0
+            ? 'ADITIVO_PRAZO_VALOR'
+            : temPrazo
+              ? 'ADITIVO_PRAZO'
+              : 'ADITIVO_ACRESCIMO_QUANTITATIVO';
+        await tx.alteracaoContratual.create({
           data: {
             contratoId,
-            numAditivo: c.aditivo.numAditivo,
-            protocoloAdit: c.aditivo.protocoloAdit,
-            novoFimVigencia: c.aditivo.novoFimVigencia,
-            valorAdicionalCents: c.aditivo.valorAdicionalCents,
+            tipo: tipo as never,
+            numero: c.aditivo.numAditivo,
+            eProtocolo: c.aditivo.protocoloAdit,
+            objetoDescricao: 'Aditivo de demonstração',
+            dataAssinatura: c.dataInicioVigencia,
+            novaDataFimVigencia: c.aditivo.novoFimVigencia,
+            valorAcrescidoCents: BigInt(valor),
+            valorSuprimidoCents: BigInt(0),
+            situacao: 'ASSINADO',
           },
         });
       }
@@ -526,6 +555,7 @@ async function main() {
     catalogoItens: await prisma.catalogoItem.count(),
     itemAtributos: await prisma.itemAtributoDef.count(),
     itemContratos: await prisma.itemContrato.count(),
+    alteracoes: await prisma.alteracaoContratual.count(),
     contratos: await prisma.contrato.count(),
   };
 

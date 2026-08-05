@@ -139,6 +139,28 @@ enum TipoAtributo {
   UNIDADE
 }
 
+enum TipoAlteracao {
+  ADITIVO_PRAZO
+  ADITIVO_ACRESCIMO_QUANTITATIVO
+  ADITIVO_SUPRESSAO
+  ADITIVO_PRAZO_VALOR
+  ADITIVO_QUALITATIVO
+  ADITIVO_SUBROGACAO
+  APOSTILAMENTO_REAJUSTE
+  APOSTILAMENTO_REPACTUACAO
+  APOSTILAMENTO_REEQUILIBRIO
+  APOSTILAMENTO_DOTACAO
+  APOSTILAMENTO_FISCALIZACAO
+  APOSTILAMENTO_CORRECAO_MATERIAL
+}
+
+enum SituacaoAlteracao {
+  MINUTA
+  ASSINADO
+  PUBLICADO
+  CANCELADO
+}
+
 model UnidadeFsp {
   id    String @id @default(uuid())
   sigla String @unique
@@ -194,6 +216,7 @@ model DominioValor {
   catalogoUnidadeMedida CatalogoItem[]        @relation("CatalogoUnidadeMedida")
   atributosPorCategoria ItemAtributoDef[]     @relation("AtributoCategoria")
   itensUnidadeMedida   ItemContrato[]         @relation("ItemUnidadeMedida")
+  alteracoesFundamento AlteracaoContratual[]  @relation("AlteracaoFundamento")
 
   @@unique([dominioId, codigo])
   @@index([dominioId, ativo, ordem])
@@ -379,7 +402,7 @@ model Contrato {
   responsaveis             ContratoResponsavel[]
   rateios                  ContratoRateio[]
   itens                    ItemContrato[]
-  aditivos                 Aditivo[]
+  alteracoes               AlteracaoContratual[]
   createdAt                DateTime               @default(now())
   updatedAt                DateTime               @updatedAt
 
@@ -424,15 +447,52 @@ model ContratoRateio {
   @@index([unidadeId])
 }
 
-model Aditivo {
-  id                  String    @id @default(uuid())
-  contratoId          String
-  contrato            Contrato  @relation(fields: [contratoId], references: [id], onDelete: Cascade)
-  numAditivo          Int
-  protocoloAdit       String
-  novoFimVigencia     DateTime? @db.Date
-  valorAdicionalCents Int?
-  createdAt           DateTime  @default(now())
+model AlteracaoContratual {
+  id                       String             @id @default(uuid())
+  contratoId               String
+  contrato                 Contrato           @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  tipo                     TipoAlteracao
+  numero                   Int
+  eProtocolo               String?
+  objetoDescricao          String
+  fundamentoLegalId        String?
+  fundamentoLegal          DominioValor?      @relation("AlteracaoFundamento", fields: [fundamentoLegalId], references: [id])
+  justificativa            String?
+  justificativaExcepcional String?
+  dataAssinatura           DateTime           @db.Date
+  dataInicioEfeito         DateTime?          @db.Date
+  prazoAcrescidoValor      Int?
+  prazoAcrescidoUnidade    UnidadeTempo?
+  novaDataFimVigencia      DateTime?          @db.Date
+  valorAcrescidoCents      BigInt             @default(0)
+  valorSuprimidoCents      BigInt             @default(0)
+  percentualReajuste       Decimal?           @db.Decimal(7, 4)
+  situacao                 SituacaoAlteracao  @default(MINUTA)
+  codigoLegado             String?
+  itens                    AlteracaoItem[]
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+
+  @@unique([contratoId, tipo, numero])
+  @@index([contratoId, situacao])
+  @@index([dataAssinatura])
+}
+
+model AlteracaoItem {
+  id                     String               @id @default(uuid())
+  alteracaoId            String
+  alteracao              AlteracaoContratual  @relation(fields: [alteracaoId], references: [id], onDelete: Cascade)
+  itemContratoId         String?
+  itemContrato           ItemContrato?        @relation(fields: [itemContratoId], references: [id])
+  catalogoItemId         String?
+  catalogoItem           CatalogoItem?        @relation(fields: [catalogoItemId], references: [id])
+  quantidadeDelta        Decimal              @db.Decimal(14, 4)
+  valorUnitarioNovoCents BigInt?
+  observacao             String?
+  createdAt              DateTime             @default(now())
+
+  @@index([alteracaoId])
+  @@index([itemContratoId])
 }
 
 model CatalogoItem {
@@ -447,6 +507,7 @@ model CatalogoItem {
   atributosPadrao        Json?
   ativo                  Boolean       @default(true)
   itensContrato          ItemContrato[]
+  alteracaoItens         AlteracaoItem[]
   createdAt              DateTime      @default(now())
   updatedAt              DateTime      @updatedAt
 
@@ -494,6 +555,7 @@ model ItemContrato {
   municipioExecucao     Municipio?             @relation("ItemMunicipioExecucao", fields: [municipioExecucaoId], references: [id])
   enderecoExecucao      String?
   atributos             Json?
+  alteracaoItens        AlteracaoItem[]
   createdAt             DateTime               @default(now())
   updatedAt             DateTime               @updatedAt
 

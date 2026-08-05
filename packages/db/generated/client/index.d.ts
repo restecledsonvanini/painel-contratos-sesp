@@ -87,6 +87,7 @@ export type DominioValorPayload<ExtArgs extends $Extensions.Args = $Extensions.D
     catalogoUnidadeMedida: CatalogoItemPayload<ExtArgs>[]
     atributosPorCategoria: ItemAtributoDefPayload<ExtArgs>[]
     itensUnidadeMedida: ItemContratoPayload<ExtArgs>[]
+    alteracoesFundamento: AlteracaoContratualPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -315,7 +316,7 @@ export type ContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
     responsaveis: ContratoResponsavelPayload<ExtArgs>[]
     rateios: ContratoRateioPayload<ExtArgs>[]
     itens: ItemContratoPayload<ExtArgs>[]
-    aditivos: AditivoPayload<ExtArgs>[]
+    alteracoes: AlteracaoContratualPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -410,34 +411,76 @@ export type ContratoRateioPayload<ExtArgs extends $Extensions.Args = $Extensions
  * 
  */
 export type ContratoRateio = runtime.Types.DefaultSelection<ContratoRateioPayload>
-export type AditivoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-  name: "Aditivo"
+export type AlteracaoContratualPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "AlteracaoContratual"
   objects: {
     contrato: ContratoPayload<ExtArgs>
+    fundamentoLegal: DominioValorPayload<ExtArgs> | null
+    itens: AlteracaoItemPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
     contratoId: string
-    numAditivo: number
-    protocoloAdit: string
-    novoFimVigencia: Date | null
-    valorAdicionalCents: number | null
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo: string | null
+    objetoDescricao: string
+    fundamentoLegalId: string | null
+    justificativa: string | null
+    justificativaExcepcional: string | null
+    dataAssinatura: Date
+    dataInicioEfeito: Date | null
+    prazoAcrescidoValor: number | null
+    prazoAcrescidoUnidade: UnidadeTempo | null
+    novaDataFimVigencia: Date | null
+    valorAcrescidoCents: bigint
+    valorSuprimidoCents: bigint
+    percentualReajuste: Prisma.Decimal | null
+    situacao: SituacaoAlteracao
+    codigoLegado: string | null
     createdAt: Date
-  }, ExtArgs["result"]["aditivo"]>
+    updatedAt: Date
+  }, ExtArgs["result"]["alteracaoContratual"]>
   composites: {}
 }
 
 /**
- * Model Aditivo
+ * Model AlteracaoContratual
  * 
  */
-export type Aditivo = runtime.Types.DefaultSelection<AditivoPayload>
+export type AlteracaoContratual = runtime.Types.DefaultSelection<AlteracaoContratualPayload>
+export type AlteracaoItemPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  name: "AlteracaoItem"
+  objects: {
+    alteracao: AlteracaoContratualPayload<ExtArgs>
+    itemContrato: ItemContratoPayload<ExtArgs> | null
+    catalogoItem: CatalogoItemPayload<ExtArgs> | null
+  }
+  scalars: $Extensions.GetResult<{
+    id: string
+    alteracaoId: string
+    itemContratoId: string | null
+    catalogoItemId: string | null
+    quantidadeDelta: Prisma.Decimal
+    valorUnitarioNovoCents: bigint | null
+    observacao: string | null
+    createdAt: Date
+  }, ExtArgs["result"]["alteracaoItem"]>
+  composites: {}
+}
+
+/**
+ * Model AlteracaoItem
+ * 
+ */
+export type AlteracaoItem = runtime.Types.DefaultSelection<AlteracaoItemPayload>
 export type CatalogoItemPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
   name: "CatalogoItem"
   objects: {
     categoriaItem: DominioValorPayload<ExtArgs>
     unidadeMedidaPadrao: DominioValorPayload<ExtArgs>
     itensContrato: ItemContratoPayload<ExtArgs>[]
+    alteracaoItens: AlteracaoItemPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -495,6 +538,7 @@ export type ItemContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.D
     unidadeMedida: DominioValorPayload<ExtArgs>
     unidadeDestino: UnidadeOrganizacionalPayload<ExtArgs> | null
     municipioExecucao: MunicipioPayload<ExtArgs> | null
+    alteracaoItens: AlteracaoItemPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -710,6 +754,34 @@ export const PapelResponsavel: {
 };
 
 export type PapelResponsavel = (typeof PapelResponsavel)[keyof typeof PapelResponsavel]
+
+
+export const TipoAlteracao: {
+  ADITIVO_PRAZO: 'ADITIVO_PRAZO',
+  ADITIVO_ACRESCIMO_QUANTITATIVO: 'ADITIVO_ACRESCIMO_QUANTITATIVO',
+  ADITIVO_SUPRESSAO: 'ADITIVO_SUPRESSAO',
+  ADITIVO_PRAZO_VALOR: 'ADITIVO_PRAZO_VALOR',
+  ADITIVO_QUALITATIVO: 'ADITIVO_QUALITATIVO',
+  ADITIVO_SUBROGACAO: 'ADITIVO_SUBROGACAO',
+  APOSTILAMENTO_REAJUSTE: 'APOSTILAMENTO_REAJUSTE',
+  APOSTILAMENTO_REPACTUACAO: 'APOSTILAMENTO_REPACTUACAO',
+  APOSTILAMENTO_REEQUILIBRIO: 'APOSTILAMENTO_REEQUILIBRIO',
+  APOSTILAMENTO_DOTACAO: 'APOSTILAMENTO_DOTACAO',
+  APOSTILAMENTO_FISCALIZACAO: 'APOSTILAMENTO_FISCALIZACAO',
+  APOSTILAMENTO_CORRECAO_MATERIAL: 'APOSTILAMENTO_CORRECAO_MATERIAL'
+};
+
+export type TipoAlteracao = (typeof TipoAlteracao)[keyof typeof TipoAlteracao]
+
+
+export const SituacaoAlteracao: {
+  MINUTA: 'MINUTA',
+  ASSINADO: 'ASSINADO',
+  PUBLICADO: 'PUBLICADO',
+  CANCELADO: 'CANCELADO'
+};
+
+export type SituacaoAlteracao = (typeof SituacaoAlteracao)[keyof typeof SituacaoAlteracao]
 
 
 export const TipoAtributo: {
@@ -1004,14 +1076,24 @@ export class PrismaClient<
   get contratoRateio(): Prisma.ContratoRateioDelegate<GlobalReject, ExtArgs>;
 
   /**
-   * `prisma.aditivo`: Exposes CRUD operations for the **Aditivo** model.
+   * `prisma.alteracaoContratual`: Exposes CRUD operations for the **AlteracaoContratual** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Aditivos
-    * const aditivos = await prisma.aditivo.findMany()
+    * // Fetch zero or more AlteracaoContratuals
+    * const alteracaoContratuals = await prisma.alteracaoContratual.findMany()
     * ```
     */
-  get aditivo(): Prisma.AditivoDelegate<GlobalReject, ExtArgs>;
+  get alteracaoContratual(): Prisma.AlteracaoContratualDelegate<GlobalReject, ExtArgs>;
+
+  /**
+   * `prisma.alteracaoItem`: Exposes CRUD operations for the **AlteracaoItem** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more AlteracaoItems
+    * const alteracaoItems = await prisma.alteracaoItem.findMany()
+    * ```
+    */
+  get alteracaoItem(): Prisma.AlteracaoItemDelegate<GlobalReject, ExtArgs>;
 
   /**
    * `prisma.catalogoItem`: Exposes CRUD operations for the **CatalogoItem** model.
@@ -1559,7 +1641,8 @@ export namespace Prisma {
     Contrato: 'Contrato',
     ContratoResponsavel: 'ContratoResponsavel',
     ContratoRateio: 'ContratoRateio',
-    Aditivo: 'Aditivo',
+    AlteracaoContratual: 'AlteracaoContratual',
+    AlteracaoItem: 'AlteracaoItem',
     CatalogoItem: 'CatalogoItem',
     ItemAtributoDef: 'ItemAtributoDef',
     ItemContrato: 'ItemContrato',
@@ -1581,7 +1664,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     meta: {
-      modelProps: 'unidadeFsp' | 'municipio' | 'dominio' | 'dominioValor' | 'orgao' | 'unidadeOrganizacional' | 'fornecedor' | 'fornecedorContato' | 'fornecedorSancao' | 'servidor' | 'processoContratacao' | 'contrato' | 'contratoResponsavel' | 'contratoRateio' | 'aditivo' | 'catalogoItem' | 'itemAtributoDef' | 'itemContrato' | 'auditLog' | 'user'
+      modelProps: 'unidadeFsp' | 'municipio' | 'dominio' | 'dominioValor' | 'orgao' | 'unidadeOrganizacional' | 'fornecedor' | 'fornecedorContato' | 'fornecedorSancao' | 'servidor' | 'processoContratacao' | 'contrato' | 'contratoResponsavel' | 'contratoRateio' | 'alteracaoContratual' | 'alteracaoItem' | 'catalogoItem' | 'itemAtributoDef' | 'itemContrato' | 'auditLog' | 'user'
       txIsolationLevel: Prisma.TransactionIsolationLevel
     },
     model: {
@@ -2495,68 +2578,133 @@ export namespace Prisma {
           }
         }
       }
-      Aditivo: {
-        payload: AditivoPayload<ExtArgs>
+      AlteracaoContratual: {
+        payload: AlteracaoContratualPayload<ExtArgs>
         operations: {
           findUnique: {
-            args: Prisma.AditivoFindUniqueArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<AditivoPayload> | null
+            args: Prisma.AlteracaoContratualFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoContratualPayload> | null
           }
           findUniqueOrThrow: {
-            args: Prisma.AditivoFindUniqueOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<AditivoPayload>
+            args: Prisma.AlteracaoContratualFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoContratualPayload>
           }
           findFirst: {
-            args: Prisma.AditivoFindFirstArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<AditivoPayload> | null
+            args: Prisma.AlteracaoContratualFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoContratualPayload> | null
           }
           findFirstOrThrow: {
-            args: Prisma.AditivoFindFirstOrThrowArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<AditivoPayload>
+            args: Prisma.AlteracaoContratualFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoContratualPayload>
           }
           findMany: {
-            args: Prisma.AditivoFindManyArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<AditivoPayload>[]
+            args: Prisma.AlteracaoContratualFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoContratualPayload>[]
           }
           create: {
-            args: Prisma.AditivoCreateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<AditivoPayload>
+            args: Prisma.AlteracaoContratualCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoContratualPayload>
           }
           createMany: {
-            args: Prisma.AditivoCreateManyArgs<ExtArgs>,
+            args: Prisma.AlteracaoContratualCreateManyArgs<ExtArgs>,
             result: Prisma.BatchPayload
           }
           delete: {
-            args: Prisma.AditivoDeleteArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<AditivoPayload>
+            args: Prisma.AlteracaoContratualDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoContratualPayload>
           }
           update: {
-            args: Prisma.AditivoUpdateArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<AditivoPayload>
+            args: Prisma.AlteracaoContratualUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoContratualPayload>
           }
           deleteMany: {
-            args: Prisma.AditivoDeleteManyArgs<ExtArgs>,
+            args: Prisma.AlteracaoContratualDeleteManyArgs<ExtArgs>,
             result: Prisma.BatchPayload
           }
           updateMany: {
-            args: Prisma.AditivoUpdateManyArgs<ExtArgs>,
+            args: Prisma.AlteracaoContratualUpdateManyArgs<ExtArgs>,
             result: Prisma.BatchPayload
           }
           upsert: {
-            args: Prisma.AditivoUpsertArgs<ExtArgs>,
-            result: $Utils.PayloadToResult<AditivoPayload>
+            args: Prisma.AlteracaoContratualUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoContratualPayload>
           }
           aggregate: {
-            args: Prisma.AditivoAggregateArgs<ExtArgs>,
-            result: $Utils.Optional<AggregateAditivo>
+            args: Prisma.AlteracaoContratualAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateAlteracaoContratual>
           }
           groupBy: {
-            args: Prisma.AditivoGroupByArgs<ExtArgs>,
-            result: $Utils.Optional<AditivoGroupByOutputType>[]
+            args: Prisma.AlteracaoContratualGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<AlteracaoContratualGroupByOutputType>[]
           }
           count: {
-            args: Prisma.AditivoCountArgs<ExtArgs>,
-            result: $Utils.Optional<AditivoCountAggregateOutputType> | number
+            args: Prisma.AlteracaoContratualCountArgs<ExtArgs>,
+            result: $Utils.Optional<AlteracaoContratualCountAggregateOutputType> | number
+          }
+        }
+      }
+      AlteracaoItem: {
+        payload: AlteracaoItemPayload<ExtArgs>
+        operations: {
+          findUnique: {
+            args: Prisma.AlteracaoItemFindUniqueArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoItemPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.AlteracaoItemFindUniqueOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoItemPayload>
+          }
+          findFirst: {
+            args: Prisma.AlteracaoItemFindFirstArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoItemPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.AlteracaoItemFindFirstOrThrowArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoItemPayload>
+          }
+          findMany: {
+            args: Prisma.AlteracaoItemFindManyArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoItemPayload>[]
+          }
+          create: {
+            args: Prisma.AlteracaoItemCreateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoItemPayload>
+          }
+          createMany: {
+            args: Prisma.AlteracaoItemCreateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          delete: {
+            args: Prisma.AlteracaoItemDeleteArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoItemPayload>
+          }
+          update: {
+            args: Prisma.AlteracaoItemUpdateArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoItemPayload>
+          }
+          deleteMany: {
+            args: Prisma.AlteracaoItemDeleteManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          updateMany: {
+            args: Prisma.AlteracaoItemUpdateManyArgs<ExtArgs>,
+            result: Prisma.BatchPayload
+          }
+          upsert: {
+            args: Prisma.AlteracaoItemUpsertArgs<ExtArgs>,
+            result: $Utils.PayloadToResult<AlteracaoItemPayload>
+          }
+          aggregate: {
+            args: Prisma.AlteracaoItemAggregateArgs<ExtArgs>,
+            result: $Utils.Optional<AggregateAlteracaoItem>
+          }
+          groupBy: {
+            args: Prisma.AlteracaoItemGroupByArgs<ExtArgs>,
+            result: $Utils.Optional<AlteracaoItemGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.AlteracaoItemCountArgs<ExtArgs>,
+            result: $Utils.Optional<AlteracaoItemCountAggregateOutputType> | number
           }
         }
       }
@@ -3166,6 +3314,7 @@ export namespace Prisma {
     catalogoUnidadeMedida: number
     atributosPorCategoria: number
     itensUnidadeMedida: number
+    alteracoesFundamento: number
   }
 
   export type DominioValorCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -3178,6 +3327,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: boolean | DominioValorCountOutputTypeCountCatalogoUnidadeMedidaArgs
     atributosPorCategoria?: boolean | DominioValorCountOutputTypeCountAtributosPorCategoriaArgs
     itensUnidadeMedida?: boolean | DominioValorCountOutputTypeCountItensUnidadeMedidaArgs
+    alteracoesFundamento?: boolean | DominioValorCountOutputTypeCountAlteracoesFundamentoArgs
   }
 
   // Custom InputTypes
@@ -3262,6 +3412,14 @@ export namespace Prisma {
    */
   export type DominioValorCountOutputTypeCountItensUnidadeMedidaArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: ItemContratoWhereInput
+  }
+
+
+  /**
+   * DominioValorCountOutputType without action
+   */
+  export type DominioValorCountOutputTypeCountAlteracoesFundamentoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: AlteracaoContratualWhereInput
   }
 
 
@@ -3530,14 +3688,14 @@ export namespace Prisma {
     responsaveis: number
     rateios: number
     itens: number
-    aditivos: number
+    alteracoes: number
   }
 
   export type ContratoCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     responsaveis?: boolean | ContratoCountOutputTypeCountResponsaveisArgs
     rateios?: boolean | ContratoCountOutputTypeCountRateiosArgs
     itens?: boolean | ContratoCountOutputTypeCountItensArgs
-    aditivos?: boolean | ContratoCountOutputTypeCountAditivosArgs
+    alteracoes?: boolean | ContratoCountOutputTypeCountAlteracoesArgs
   }
 
   // Custom InputTypes
@@ -3580,8 +3738,43 @@ export namespace Prisma {
   /**
    * ContratoCountOutputType without action
    */
-  export type ContratoCountOutputTypeCountAditivosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    where?: AditivoWhereInput
+  export type ContratoCountOutputTypeCountAlteracoesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: AlteracaoContratualWhereInput
+  }
+
+
+
+  /**
+   * Count Type AlteracaoContratualCountOutputType
+   */
+
+
+  export type AlteracaoContratualCountOutputType = {
+    itens: number
+  }
+
+  export type AlteracaoContratualCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    itens?: boolean | AlteracaoContratualCountOutputTypeCountItensArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * AlteracaoContratualCountOutputType without action
+   */
+  export type AlteracaoContratualCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoContratualCountOutputType
+     */
+    select?: AlteracaoContratualCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * AlteracaoContratualCountOutputType without action
+   */
+  export type AlteracaoContratualCountOutputTypeCountItensArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: AlteracaoItemWhereInput
   }
 
 
@@ -3593,10 +3786,12 @@ export namespace Prisma {
 
   export type CatalogoItemCountOutputType = {
     itensContrato: number
+    alteracaoItens: number
   }
 
   export type CatalogoItemCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     itensContrato?: boolean | CatalogoItemCountOutputTypeCountItensContratoArgs
+    alteracaoItens?: boolean | CatalogoItemCountOutputTypeCountAlteracaoItensArgs
   }
 
   // Custom InputTypes
@@ -3617,6 +3812,49 @@ export namespace Prisma {
    */
   export type CatalogoItemCountOutputTypeCountItensContratoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: ItemContratoWhereInput
+  }
+
+
+  /**
+   * CatalogoItemCountOutputType without action
+   */
+  export type CatalogoItemCountOutputTypeCountAlteracaoItensArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: AlteracaoItemWhereInput
+  }
+
+
+
+  /**
+   * Count Type ItemContratoCountOutputType
+   */
+
+
+  export type ItemContratoCountOutputType = {
+    alteracaoItens: number
+  }
+
+  export type ItemContratoCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    alteracaoItens?: boolean | ItemContratoCountOutputTypeCountAlteracaoItensArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * ItemContratoCountOutputType without action
+   */
+  export type ItemContratoCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ItemContratoCountOutputType
+     */
+    select?: ItemContratoCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * ItemContratoCountOutputType without action
+   */
+  export type ItemContratoCountOutputTypeCountAlteracaoItensArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: AlteracaoItemWhereInput
   }
 
 
@@ -6711,6 +6949,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: boolean | DominioValor$catalogoUnidadeMedidaArgs<ExtArgs>
     atributosPorCategoria?: boolean | DominioValor$atributosPorCategoriaArgs<ExtArgs>
     itensUnidadeMedida?: boolean | DominioValor$itensUnidadeMedidaArgs<ExtArgs>
+    alteracoesFundamento?: boolean | DominioValor$alteracoesFundamentoArgs<ExtArgs>
     _count?: boolean | DominioValorCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["dominioValor"]>
 
@@ -6740,6 +6979,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: boolean | DominioValor$catalogoUnidadeMedidaArgs<ExtArgs>
     atributosPorCategoria?: boolean | DominioValor$atributosPorCategoriaArgs<ExtArgs>
     itensUnidadeMedida?: boolean | DominioValor$itensUnidadeMedidaArgs<ExtArgs>
+    alteracoesFundamento?: boolean | DominioValor$alteracoesFundamentoArgs<ExtArgs>
     _count?: boolean | DominioValorCountOutputTypeArgs<ExtArgs>
   }
 
@@ -7134,6 +7374,8 @@ export namespace Prisma {
     atributosPorCategoria<T extends DominioValor$atributosPorCategoriaArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$atributosPorCategoriaArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ItemAtributoDefPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     itensUnidadeMedida<T extends DominioValor$itensUnidadeMedidaArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$itensUnidadeMedidaArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ItemContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    alteracoesFundamento<T extends DominioValor$alteracoesFundamentoArgs<ExtArgs> = {}>(args?: Subset<T, DominioValor$alteracoesFundamentoArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -7676,6 +7918,27 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Enumerable<ItemContratoScalarFieldEnum>
+  }
+
+
+  /**
+   * DominioValor.alteracoesFundamento
+   */
+  export type DominioValor$alteracoesFundamentoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoContratual
+     */
+    select?: AlteracaoContratualSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoContratualInclude<ExtArgs> | null
+    where?: AlteracaoContratualWhereInput
+    orderBy?: Enumerable<AlteracaoContratualOrderByWithRelationInput>
+    cursor?: AlteracaoContratualWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<AlteracaoContratualScalarFieldEnum>
   }
 
 
@@ -15359,7 +15622,7 @@ export namespace Prisma {
     responsaveis?: boolean | Contrato$responsaveisArgs<ExtArgs>
     rateios?: boolean | Contrato$rateiosArgs<ExtArgs>
     itens?: boolean | Contrato$itensArgs<ExtArgs>
-    aditivos?: boolean | Contrato$aditivosArgs<ExtArgs>
+    alteracoes?: boolean | Contrato$alteracoesArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["contrato"]>
 
@@ -15411,7 +15674,7 @@ export namespace Prisma {
     responsaveis?: boolean | Contrato$responsaveisArgs<ExtArgs>
     rateios?: boolean | Contrato$rateiosArgs<ExtArgs>
     itens?: boolean | Contrato$itensArgs<ExtArgs>
-    aditivos?: boolean | Contrato$aditivosArgs<ExtArgs>
+    alteracoes?: boolean | Contrato$alteracoesArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }
 
@@ -15803,7 +16066,7 @@ export namespace Prisma {
 
     itens<T extends Contrato$itensArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$itensArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ItemContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
-    aditivos<T extends Contrato$aditivosArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$aditivosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+    alteracoes<T extends Contrato$alteracoesArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$alteracoesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -16224,23 +16487,23 @@ export namespace Prisma {
 
 
   /**
-   * Contrato.aditivos
+   * Contrato.alteracoes
    */
-  export type Contrato$aditivosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type Contrato$alteracoesArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Aditivo
+     * Select specific fields to fetch from the AlteracaoContratual
      */
-    select?: AditivoSelect<ExtArgs> | null
+    select?: AlteracaoContratualSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: AditivoInclude<ExtArgs> | null
-    where?: AditivoWhereInput
-    orderBy?: Enumerable<AditivoOrderByWithRelationInput>
-    cursor?: AditivoWhereUniqueInput
+    include?: AlteracaoContratualInclude<ExtArgs> | null
+    where?: AlteracaoContratualWhereInput
+    orderBy?: Enumerable<AlteracaoContratualOrderByWithRelationInput>
+    cursor?: AlteracaoContratualWhereUniqueInput
     take?: number
     skip?: number
-    distinct?: Enumerable<AditivoScalarFieldEnum>
+    distinct?: Enumerable<AlteracaoContratualScalarFieldEnum>
   }
 
 
@@ -18213,392 +18476,536 @@ export namespace Prisma {
 
 
   /**
-   * Model Aditivo
+   * Model AlteracaoContratual
    */
 
 
-  export type AggregateAditivo = {
-    _count: AditivoCountAggregateOutputType | null
-    _avg: AditivoAvgAggregateOutputType | null
-    _sum: AditivoSumAggregateOutputType | null
-    _min: AditivoMinAggregateOutputType | null
-    _max: AditivoMaxAggregateOutputType | null
+  export type AggregateAlteracaoContratual = {
+    _count: AlteracaoContratualCountAggregateOutputType | null
+    _avg: AlteracaoContratualAvgAggregateOutputType | null
+    _sum: AlteracaoContratualSumAggregateOutputType | null
+    _min: AlteracaoContratualMinAggregateOutputType | null
+    _max: AlteracaoContratualMaxAggregateOutputType | null
   }
 
-  export type AditivoAvgAggregateOutputType = {
-    numAditivo: number | null
-    valorAdicionalCents: number | null
+  export type AlteracaoContratualAvgAggregateOutputType = {
+    numero: number | null
+    prazoAcrescidoValor: number | null
+    valorAcrescidoCents: number | null
+    valorSuprimidoCents: number | null
+    percentualReajuste: Decimal | null
   }
 
-  export type AditivoSumAggregateOutputType = {
-    numAditivo: number | null
-    valorAdicionalCents: number | null
+  export type AlteracaoContratualSumAggregateOutputType = {
+    numero: number | null
+    prazoAcrescidoValor: number | null
+    valorAcrescidoCents: bigint | null
+    valorSuprimidoCents: bigint | null
+    percentualReajuste: Decimal | null
   }
 
-  export type AditivoMinAggregateOutputType = {
+  export type AlteracaoContratualMinAggregateOutputType = {
     id: string | null
     contratoId: string | null
-    numAditivo: number | null
-    protocoloAdit: string | null
-    novoFimVigencia: Date | null
-    valorAdicionalCents: number | null
+    tipo: TipoAlteracao | null
+    numero: number | null
+    eProtocolo: string | null
+    objetoDescricao: string | null
+    fundamentoLegalId: string | null
+    justificativa: string | null
+    justificativaExcepcional: string | null
+    dataAssinatura: Date | null
+    dataInicioEfeito: Date | null
+    prazoAcrescidoValor: number | null
+    prazoAcrescidoUnidade: UnidadeTempo | null
+    novaDataFimVigencia: Date | null
+    valorAcrescidoCents: bigint | null
+    valorSuprimidoCents: bigint | null
+    percentualReajuste: Decimal | null
+    situacao: SituacaoAlteracao | null
+    codigoLegado: string | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
-  export type AditivoMaxAggregateOutputType = {
+  export type AlteracaoContratualMaxAggregateOutputType = {
     id: string | null
     contratoId: string | null
-    numAditivo: number | null
-    protocoloAdit: string | null
-    novoFimVigencia: Date | null
-    valorAdicionalCents: number | null
+    tipo: TipoAlteracao | null
+    numero: number | null
+    eProtocolo: string | null
+    objetoDescricao: string | null
+    fundamentoLegalId: string | null
+    justificativa: string | null
+    justificativaExcepcional: string | null
+    dataAssinatura: Date | null
+    dataInicioEfeito: Date | null
+    prazoAcrescidoValor: number | null
+    prazoAcrescidoUnidade: UnidadeTempo | null
+    novaDataFimVigencia: Date | null
+    valorAcrescidoCents: bigint | null
+    valorSuprimidoCents: bigint | null
+    percentualReajuste: Decimal | null
+    situacao: SituacaoAlteracao | null
+    codigoLegado: string | null
     createdAt: Date | null
+    updatedAt: Date | null
   }
 
-  export type AditivoCountAggregateOutputType = {
+  export type AlteracaoContratualCountAggregateOutputType = {
     id: number
     contratoId: number
-    numAditivo: number
-    protocoloAdit: number
-    novoFimVigencia: number
-    valorAdicionalCents: number
+    tipo: number
+    numero: number
+    eProtocolo: number
+    objetoDescricao: number
+    fundamentoLegalId: number
+    justificativa: number
+    justificativaExcepcional: number
+    dataAssinatura: number
+    dataInicioEfeito: number
+    prazoAcrescidoValor: number
+    prazoAcrescidoUnidade: number
+    novaDataFimVigencia: number
+    valorAcrescidoCents: number
+    valorSuprimidoCents: number
+    percentualReajuste: number
+    situacao: number
+    codigoLegado: number
     createdAt: number
+    updatedAt: number
     _all: number
   }
 
 
-  export type AditivoAvgAggregateInputType = {
-    numAditivo?: true
-    valorAdicionalCents?: true
+  export type AlteracaoContratualAvgAggregateInputType = {
+    numero?: true
+    prazoAcrescidoValor?: true
+    valorAcrescidoCents?: true
+    valorSuprimidoCents?: true
+    percentualReajuste?: true
   }
 
-  export type AditivoSumAggregateInputType = {
-    numAditivo?: true
-    valorAdicionalCents?: true
+  export type AlteracaoContratualSumAggregateInputType = {
+    numero?: true
+    prazoAcrescidoValor?: true
+    valorAcrescidoCents?: true
+    valorSuprimidoCents?: true
+    percentualReajuste?: true
   }
 
-  export type AditivoMinAggregateInputType = {
+  export type AlteracaoContratualMinAggregateInputType = {
     id?: true
     contratoId?: true
-    numAditivo?: true
-    protocoloAdit?: true
-    novoFimVigencia?: true
-    valorAdicionalCents?: true
+    tipo?: true
+    numero?: true
+    eProtocolo?: true
+    objetoDescricao?: true
+    fundamentoLegalId?: true
+    justificativa?: true
+    justificativaExcepcional?: true
+    dataAssinatura?: true
+    dataInicioEfeito?: true
+    prazoAcrescidoValor?: true
+    prazoAcrescidoUnidade?: true
+    novaDataFimVigencia?: true
+    valorAcrescidoCents?: true
+    valorSuprimidoCents?: true
+    percentualReajuste?: true
+    situacao?: true
+    codigoLegado?: true
     createdAt?: true
+    updatedAt?: true
   }
 
-  export type AditivoMaxAggregateInputType = {
+  export type AlteracaoContratualMaxAggregateInputType = {
     id?: true
     contratoId?: true
-    numAditivo?: true
-    protocoloAdit?: true
-    novoFimVigencia?: true
-    valorAdicionalCents?: true
+    tipo?: true
+    numero?: true
+    eProtocolo?: true
+    objetoDescricao?: true
+    fundamentoLegalId?: true
+    justificativa?: true
+    justificativaExcepcional?: true
+    dataAssinatura?: true
+    dataInicioEfeito?: true
+    prazoAcrescidoValor?: true
+    prazoAcrescidoUnidade?: true
+    novaDataFimVigencia?: true
+    valorAcrescidoCents?: true
+    valorSuprimidoCents?: true
+    percentualReajuste?: true
+    situacao?: true
+    codigoLegado?: true
     createdAt?: true
+    updatedAt?: true
   }
 
-  export type AditivoCountAggregateInputType = {
+  export type AlteracaoContratualCountAggregateInputType = {
     id?: true
     contratoId?: true
-    numAditivo?: true
-    protocoloAdit?: true
-    novoFimVigencia?: true
-    valorAdicionalCents?: true
+    tipo?: true
+    numero?: true
+    eProtocolo?: true
+    objetoDescricao?: true
+    fundamentoLegalId?: true
+    justificativa?: true
+    justificativaExcepcional?: true
+    dataAssinatura?: true
+    dataInicioEfeito?: true
+    prazoAcrescidoValor?: true
+    prazoAcrescidoUnidade?: true
+    novaDataFimVigencia?: true
+    valorAcrescidoCents?: true
+    valorSuprimidoCents?: true
+    percentualReajuste?: true
+    situacao?: true
+    codigoLegado?: true
     createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
-  export type AditivoAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Aditivo to aggregate.
+     * Filter which AlteracaoContratual to aggregate.
      */
-    where?: AditivoWhereInput
+    where?: AlteracaoContratualWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Aditivos to fetch.
+     * Determine the order of AlteracaoContratuals to fetch.
      */
-    orderBy?: Enumerable<AditivoOrderByWithRelationInput>
+    orderBy?: Enumerable<AlteracaoContratualOrderByWithRelationInput>
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
      * Sets the start position
      */
-    cursor?: AditivoWhereUniqueInput
+    cursor?: AlteracaoContratualWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Aditivos from the position of the cursor.
+     * Take `±n` AlteracaoContratuals from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Aditivos.
+     * Skip the first `n` AlteracaoContratuals.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
-     * Count returned Aditivos
+     * Count returned AlteracaoContratuals
     **/
-    _count?: true | AditivoCountAggregateInputType
+    _count?: true | AlteracaoContratualCountAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to average
     **/
-    _avg?: AditivoAvgAggregateInputType
+    _avg?: AlteracaoContratualAvgAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to sum
     **/
-    _sum?: AditivoSumAggregateInputType
+    _sum?: AlteracaoContratualSumAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the minimum value
     **/
-    _min?: AditivoMinAggregateInputType
+    _min?: AlteracaoContratualMinAggregateInputType
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
      * Select which fields to find the maximum value
     **/
-    _max?: AditivoMaxAggregateInputType
+    _max?: AlteracaoContratualMaxAggregateInputType
   }
 
-  export type GetAditivoAggregateType<T extends AditivoAggregateArgs> = {
-        [P in keyof T & keyof AggregateAditivo]: P extends '_count' | 'count'
+  export type GetAlteracaoContratualAggregateType<T extends AlteracaoContratualAggregateArgs> = {
+        [P in keyof T & keyof AggregateAlteracaoContratual]: P extends '_count' | 'count'
       ? T[P] extends true
         ? number
-        : GetScalarType<T[P], AggregateAditivo[P]>
-      : GetScalarType<T[P], AggregateAditivo[P]>
+        : GetScalarType<T[P], AggregateAlteracaoContratual[P]>
+      : GetScalarType<T[P], AggregateAlteracaoContratual[P]>
   }
 
 
 
 
-  export type AditivoGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
-    where?: AditivoWhereInput
-    orderBy?: Enumerable<AditivoOrderByWithAggregationInput>
-    by: AditivoScalarFieldEnum[]
-    having?: AditivoScalarWhereWithAggregatesInput
+  export type AlteracaoContratualGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: AlteracaoContratualWhereInput
+    orderBy?: Enumerable<AlteracaoContratualOrderByWithAggregationInput>
+    by: AlteracaoContratualScalarFieldEnum[]
+    having?: AlteracaoContratualScalarWhereWithAggregatesInput
     take?: number
     skip?: number
-    _count?: AditivoCountAggregateInputType | true
-    _avg?: AditivoAvgAggregateInputType
-    _sum?: AditivoSumAggregateInputType
-    _min?: AditivoMinAggregateInputType
-    _max?: AditivoMaxAggregateInputType
+    _count?: AlteracaoContratualCountAggregateInputType | true
+    _avg?: AlteracaoContratualAvgAggregateInputType
+    _sum?: AlteracaoContratualSumAggregateInputType
+    _min?: AlteracaoContratualMinAggregateInputType
+    _max?: AlteracaoContratualMaxAggregateInputType
   }
 
 
-  export type AditivoGroupByOutputType = {
+  export type AlteracaoContratualGroupByOutputType = {
     id: string
     contratoId: string
-    numAditivo: number
-    protocoloAdit: string
-    novoFimVigencia: Date | null
-    valorAdicionalCents: number | null
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo: string | null
+    objetoDescricao: string
+    fundamentoLegalId: string | null
+    justificativa: string | null
+    justificativaExcepcional: string | null
+    dataAssinatura: Date
+    dataInicioEfeito: Date | null
+    prazoAcrescidoValor: number | null
+    prazoAcrescidoUnidade: UnidadeTempo | null
+    novaDataFimVigencia: Date | null
+    valorAcrescidoCents: bigint
+    valorSuprimidoCents: bigint
+    percentualReajuste: Decimal | null
+    situacao: SituacaoAlteracao
+    codigoLegado: string | null
     createdAt: Date
-    _count: AditivoCountAggregateOutputType | null
-    _avg: AditivoAvgAggregateOutputType | null
-    _sum: AditivoSumAggregateOutputType | null
-    _min: AditivoMinAggregateOutputType | null
-    _max: AditivoMaxAggregateOutputType | null
+    updatedAt: Date
+    _count: AlteracaoContratualCountAggregateOutputType | null
+    _avg: AlteracaoContratualAvgAggregateOutputType | null
+    _sum: AlteracaoContratualSumAggregateOutputType | null
+    _min: AlteracaoContratualMinAggregateOutputType | null
+    _max: AlteracaoContratualMaxAggregateOutputType | null
   }
 
-  type GetAditivoGroupByPayload<T extends AditivoGroupByArgs> = Prisma.PrismaPromise<
+  type GetAlteracaoContratualGroupByPayload<T extends AlteracaoContratualGroupByArgs> = Prisma.PrismaPromise<
     Array<
-      PickArray<AditivoGroupByOutputType, T['by']> &
+      PickArray<AlteracaoContratualGroupByOutputType, T['by']> &
         {
-          [P in ((keyof T) & (keyof AditivoGroupByOutputType))]: P extends '_count'
+          [P in ((keyof T) & (keyof AlteracaoContratualGroupByOutputType))]: P extends '_count'
             ? T[P] extends boolean
               ? number
-              : GetScalarType<T[P], AditivoGroupByOutputType[P]>
-            : GetScalarType<T[P], AditivoGroupByOutputType[P]>
+              : GetScalarType<T[P], AlteracaoContratualGroupByOutputType[P]>
+            : GetScalarType<T[P], AlteracaoContratualGroupByOutputType[P]>
         }
       >
     >
 
 
-  export type AditivoSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+  export type AlteracaoContratualSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     contratoId?: boolean
-    numAditivo?: boolean
-    protocoloAdit?: boolean
-    novoFimVigencia?: boolean
-    valorAdicionalCents?: boolean
+    tipo?: boolean
+    numero?: boolean
+    eProtocolo?: boolean
+    objetoDescricao?: boolean
+    fundamentoLegalId?: boolean
+    justificativa?: boolean
+    justificativaExcepcional?: boolean
+    dataAssinatura?: boolean
+    dataInicioEfeito?: boolean
+    prazoAcrescidoValor?: boolean
+    prazoAcrescidoUnidade?: boolean
+    novaDataFimVigencia?: boolean
+    valorAcrescidoCents?: boolean
+    valorSuprimidoCents?: boolean
+    percentualReajuste?: boolean
+    situacao?: boolean
+    codigoLegado?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
     contrato?: boolean | ContratoArgs<ExtArgs>
-  }, ExtArgs["result"]["aditivo"]>
+    fundamentoLegal?: boolean | DominioValorArgs<ExtArgs>
+    itens?: boolean | AlteracaoContratual$itensArgs<ExtArgs>
+    _count?: boolean | AlteracaoContratualCountOutputTypeArgs<ExtArgs>
+  }, ExtArgs["result"]["alteracaoContratual"]>
 
-  export type AditivoSelectScalar = {
+  export type AlteracaoContratualSelectScalar = {
     id?: boolean
     contratoId?: boolean
-    numAditivo?: boolean
-    protocoloAdit?: boolean
-    novoFimVigencia?: boolean
-    valorAdicionalCents?: boolean
+    tipo?: boolean
+    numero?: boolean
+    eProtocolo?: boolean
+    objetoDescricao?: boolean
+    fundamentoLegalId?: boolean
+    justificativa?: boolean
+    justificativaExcepcional?: boolean
+    dataAssinatura?: boolean
+    dataInicioEfeito?: boolean
+    prazoAcrescidoValor?: boolean
+    prazoAcrescidoUnidade?: boolean
+    novaDataFimVigencia?: boolean
+    valorAcrescidoCents?: boolean
+    valorSuprimidoCents?: boolean
+    percentualReajuste?: boolean
+    situacao?: boolean
+    codigoLegado?: boolean
     createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type AditivoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     contrato?: boolean | ContratoArgs<ExtArgs>
+    fundamentoLegal?: boolean | DominioValorArgs<ExtArgs>
+    itens?: boolean | AlteracaoContratual$itensArgs<ExtArgs>
+    _count?: boolean | AlteracaoContratualCountOutputTypeArgs<ExtArgs>
   }
 
 
-  type AditivoGetPayload<S extends boolean | null | undefined | AditivoArgs> = $Types.GetResult<AditivoPayload, S>
+  type AlteracaoContratualGetPayload<S extends boolean | null | undefined | AlteracaoContratualArgs> = $Types.GetResult<AlteracaoContratualPayload, S>
 
-  type AditivoCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
-    Omit<AditivoFindManyArgs, 'select' | 'include'> & {
-      select?: AditivoCountAggregateInputType | true
+  type AlteracaoContratualCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<AlteracaoContratualFindManyArgs, 'select' | 'include'> & {
+      select?: AlteracaoContratualCountAggregateInputType | true
     }
 
-  export interface AditivoDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
-    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Aditivo'], meta: { name: 'Aditivo' } }
+  export interface AlteracaoContratualDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AlteracaoContratual'], meta: { name: 'AlteracaoContratual' } }
     /**
-     * Find zero or one Aditivo that matches the filter.
-     * @param {AditivoFindUniqueArgs} args - Arguments to find a Aditivo
+     * Find zero or one AlteracaoContratual that matches the filter.
+     * @param {AlteracaoContratualFindUniqueArgs} args - Arguments to find a AlteracaoContratual
      * @example
-     * // Get one Aditivo
-     * const aditivo = await prisma.aditivo.findUnique({
+     * // Get one AlteracaoContratual
+     * const alteracaoContratual = await prisma.alteracaoContratual.findUnique({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
     **/
-    findUnique<T extends AditivoFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
-      args: SelectSubset<T, AditivoFindUniqueArgs<ExtArgs>>
-    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Aditivo'> extends True ? Prisma__AditivoClient<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__AditivoClient<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+    findUnique<T extends AlteracaoContratualFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, AlteracaoContratualFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'AlteracaoContratual'> extends True ? Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
 
     /**
-     * Find one Aditivo that matches the filter or throw an error  with `error.code='P2025'` 
+     * Find one AlteracaoContratual that matches the filter or throw an error  with `error.code='P2025'` 
      *     if no matches were found.
-     * @param {AditivoFindUniqueOrThrowArgs} args - Arguments to find a Aditivo
+     * @param {AlteracaoContratualFindUniqueOrThrowArgs} args - Arguments to find a AlteracaoContratual
      * @example
-     * // Get one Aditivo
-     * const aditivo = await prisma.aditivo.findUniqueOrThrow({
+     * // Get one AlteracaoContratual
+     * const alteracaoContratual = await prisma.alteracaoContratual.findUniqueOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
     **/
-    findUniqueOrThrow<T extends AditivoFindUniqueOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, AditivoFindUniqueOrThrowArgs<ExtArgs>>
-    ): Prisma__AditivoClient<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+    findUniqueOrThrow<T extends AlteracaoContratualFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlteracaoContratualFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
 
     /**
-     * Find the first Aditivo that matches the filter.
+     * Find the first AlteracaoContratual that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AditivoFindFirstArgs} args - Arguments to find a Aditivo
+     * @param {AlteracaoContratualFindFirstArgs} args - Arguments to find a AlteracaoContratual
      * @example
-     * // Get one Aditivo
-     * const aditivo = await prisma.aditivo.findFirst({
+     * // Get one AlteracaoContratual
+     * const alteracaoContratual = await prisma.alteracaoContratual.findFirst({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
     **/
-    findFirst<T extends AditivoFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
-      args?: SelectSubset<T, AditivoFindFirstArgs<ExtArgs>>
-    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Aditivo'> extends True ? Prisma__AditivoClient<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__AditivoClient<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+    findFirst<T extends AlteracaoContratualFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, AlteracaoContratualFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'AlteracaoContratual'> extends True ? Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
 
     /**
-     * Find the first Aditivo that matches the filter or
+     * Find the first AlteracaoContratual that matches the filter or
      * throw `NotFoundError` if no matches were found.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AditivoFindFirstOrThrowArgs} args - Arguments to find a Aditivo
+     * @param {AlteracaoContratualFindFirstOrThrowArgs} args - Arguments to find a AlteracaoContratual
      * @example
-     * // Get one Aditivo
-     * const aditivo = await prisma.aditivo.findFirstOrThrow({
+     * // Get one AlteracaoContratual
+     * const alteracaoContratual = await prisma.alteracaoContratual.findFirstOrThrow({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
     **/
-    findFirstOrThrow<T extends AditivoFindFirstOrThrowArgs<ExtArgs>>(
-      args?: SelectSubset<T, AditivoFindFirstOrThrowArgs<ExtArgs>>
-    ): Prisma__AditivoClient<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+    findFirstOrThrow<T extends AlteracaoContratualFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlteracaoContratualFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
 
     /**
-     * Find zero or more Aditivos that matches the filter.
+     * Find zero or more AlteracaoContratuals that matches the filter.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AditivoFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @param {AlteracaoContratualFindManyArgs=} args - Arguments to filter and select certain fields only.
      * @example
-     * // Get all Aditivos
-     * const aditivos = await prisma.aditivo.findMany()
+     * // Get all AlteracaoContratuals
+     * const alteracaoContratuals = await prisma.alteracaoContratual.findMany()
      * 
-     * // Get first 10 Aditivos
-     * const aditivos = await prisma.aditivo.findMany({ take: 10 })
+     * // Get first 10 AlteracaoContratuals
+     * const alteracaoContratuals = await prisma.alteracaoContratual.findMany({ take: 10 })
      * 
      * // Only select the `id`
-     * const aditivoWithIdOnly = await prisma.aditivo.findMany({ select: { id: true } })
+     * const alteracaoContratualWithIdOnly = await prisma.alteracaoContratual.findMany({ select: { id: true } })
      * 
     **/
-    findMany<T extends AditivoFindManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, AditivoFindManyArgs<ExtArgs>>
-    ): Prisma.PrismaPromise<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'findMany', never>>
+    findMany<T extends AlteracaoContratualFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlteracaoContratualFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findMany', never>>
 
     /**
-     * Create a Aditivo.
-     * @param {AditivoCreateArgs} args - Arguments to create a Aditivo.
+     * Create a AlteracaoContratual.
+     * @param {AlteracaoContratualCreateArgs} args - Arguments to create a AlteracaoContratual.
      * @example
-     * // Create one Aditivo
-     * const Aditivo = await prisma.aditivo.create({
+     * // Create one AlteracaoContratual
+     * const AlteracaoContratual = await prisma.alteracaoContratual.create({
      *   data: {
-     *     // ... data to create a Aditivo
+     *     // ... data to create a AlteracaoContratual
      *   }
      * })
      * 
     **/
-    create<T extends AditivoCreateArgs<ExtArgs>>(
-      args: SelectSubset<T, AditivoCreateArgs<ExtArgs>>
-    ): Prisma__AditivoClient<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+    create<T extends AlteracaoContratualCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, AlteracaoContratualCreateArgs<ExtArgs>>
+    ): Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
 
     /**
-     * Create many Aditivos.
-     *     @param {AditivoCreateManyArgs} args - Arguments to create many Aditivos.
+     * Create many AlteracaoContratuals.
+     *     @param {AlteracaoContratualCreateManyArgs} args - Arguments to create many AlteracaoContratuals.
      *     @example
-     *     // Create many Aditivos
-     *     const aditivo = await prisma.aditivo.createMany({
+     *     // Create many AlteracaoContratuals
+     *     const alteracaoContratual = await prisma.alteracaoContratual.createMany({
      *       data: {
      *         // ... provide data here
      *       }
      *     })
      *     
     **/
-    createMany<T extends AditivoCreateManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, AditivoCreateManyArgs<ExtArgs>>
+    createMany<T extends AlteracaoContratualCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlteracaoContratualCreateManyArgs<ExtArgs>>
     ): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Delete a Aditivo.
-     * @param {AditivoDeleteArgs} args - Arguments to delete one Aditivo.
+     * Delete a AlteracaoContratual.
+     * @param {AlteracaoContratualDeleteArgs} args - Arguments to delete one AlteracaoContratual.
      * @example
-     * // Delete one Aditivo
-     * const Aditivo = await prisma.aditivo.delete({
+     * // Delete one AlteracaoContratual
+     * const AlteracaoContratual = await prisma.alteracaoContratual.delete({
      *   where: {
-     *     // ... filter to delete one Aditivo
+     *     // ... filter to delete one AlteracaoContratual
      *   }
      * })
      * 
     **/
-    delete<T extends AditivoDeleteArgs<ExtArgs>>(
-      args: SelectSubset<T, AditivoDeleteArgs<ExtArgs>>
-    ): Prisma__AditivoClient<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+    delete<T extends AlteracaoContratualDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, AlteracaoContratualDeleteArgs<ExtArgs>>
+    ): Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
 
     /**
-     * Update one Aditivo.
-     * @param {AditivoUpdateArgs} args - Arguments to update one Aditivo.
+     * Update one AlteracaoContratual.
+     * @param {AlteracaoContratualUpdateArgs} args - Arguments to update one AlteracaoContratual.
      * @example
-     * // Update one Aditivo
-     * const aditivo = await prisma.aditivo.update({
+     * // Update one AlteracaoContratual
+     * const alteracaoContratual = await prisma.alteracaoContratual.update({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -18608,34 +19015,34 @@ export namespace Prisma {
      * })
      * 
     **/
-    update<T extends AditivoUpdateArgs<ExtArgs>>(
-      args: SelectSubset<T, AditivoUpdateArgs<ExtArgs>>
-    ): Prisma__AditivoClient<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+    update<T extends AlteracaoContratualUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, AlteracaoContratualUpdateArgs<ExtArgs>>
+    ): Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
 
     /**
-     * Delete zero or more Aditivos.
-     * @param {AditivoDeleteManyArgs} args - Arguments to filter Aditivos to delete.
+     * Delete zero or more AlteracaoContratuals.
+     * @param {AlteracaoContratualDeleteManyArgs} args - Arguments to filter AlteracaoContratuals to delete.
      * @example
-     * // Delete a few Aditivos
-     * const { count } = await prisma.aditivo.deleteMany({
+     * // Delete a few AlteracaoContratuals
+     * const { count } = await prisma.alteracaoContratual.deleteMany({
      *   where: {
      *     // ... provide filter here
      *   }
      * })
      * 
     **/
-    deleteMany<T extends AditivoDeleteManyArgs<ExtArgs>>(
-      args?: SelectSubset<T, AditivoDeleteManyArgs<ExtArgs>>
+    deleteMany<T extends AlteracaoContratualDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlteracaoContratualDeleteManyArgs<ExtArgs>>
     ): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Update zero or more Aditivos.
+     * Update zero or more AlteracaoContratuals.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AditivoUpdateManyArgs} args - Arguments to update one or more rows.
+     * @param {AlteracaoContratualUpdateManyArgs} args - Arguments to update one or more rows.
      * @example
-     * // Update many Aditivos
-     * const aditivo = await prisma.aditivo.updateMany({
+     * // Update many AlteracaoContratuals
+     * const alteracaoContratual = await prisma.alteracaoContratual.updateMany({
      *   where: {
      *     // ... provide filter here
      *   },
@@ -18645,59 +19052,59 @@ export namespace Prisma {
      * })
      * 
     **/
-    updateMany<T extends AditivoUpdateManyArgs<ExtArgs>>(
-      args: SelectSubset<T, AditivoUpdateManyArgs<ExtArgs>>
+    updateMany<T extends AlteracaoContratualUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, AlteracaoContratualUpdateManyArgs<ExtArgs>>
     ): Prisma.PrismaPromise<BatchPayload>
 
     /**
-     * Create or update one Aditivo.
-     * @param {AditivoUpsertArgs} args - Arguments to update or create a Aditivo.
+     * Create or update one AlteracaoContratual.
+     * @param {AlteracaoContratualUpsertArgs} args - Arguments to update or create a AlteracaoContratual.
      * @example
-     * // Update or create a Aditivo
-     * const aditivo = await prisma.aditivo.upsert({
+     * // Update or create a AlteracaoContratual
+     * const alteracaoContratual = await prisma.alteracaoContratual.upsert({
      *   create: {
-     *     // ... data to create a Aditivo
+     *     // ... data to create a AlteracaoContratual
      *   },
      *   update: {
      *     // ... in case it already exists, update
      *   },
      *   where: {
-     *     // ... the filter for the Aditivo we want to update
+     *     // ... the filter for the AlteracaoContratual we want to update
      *   }
      * })
     **/
-    upsert<T extends AditivoUpsertArgs<ExtArgs>>(
-      args: SelectSubset<T, AditivoUpsertArgs<ExtArgs>>
-    ): Prisma__AditivoClient<$Types.GetResult<AditivoPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+    upsert<T extends AlteracaoContratualUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, AlteracaoContratualUpsertArgs<ExtArgs>>
+    ): Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
 
     /**
-     * Count the number of Aditivos.
+     * Count the number of AlteracaoContratuals.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AditivoCountArgs} args - Arguments to filter Aditivos to count.
+     * @param {AlteracaoContratualCountArgs} args - Arguments to filter AlteracaoContratuals to count.
      * @example
-     * // Count the number of Aditivos
-     * const count = await prisma.aditivo.count({
+     * // Count the number of AlteracaoContratuals
+     * const count = await prisma.alteracaoContratual.count({
      *   where: {
-     *     // ... the filter for the Aditivos we want to count
+     *     // ... the filter for the AlteracaoContratuals we want to count
      *   }
      * })
     **/
-    count<T extends AditivoCountArgs>(
-      args?: Subset<T, AditivoCountArgs>,
+    count<T extends AlteracaoContratualCountArgs>(
+      args?: Subset<T, AlteracaoContratualCountArgs>,
     ): Prisma.PrismaPromise<
       T extends $Utils.Record<'select', any>
         ? T['select'] extends true
           ? number
-          : GetScalarType<T['select'], AditivoCountAggregateOutputType>
+          : GetScalarType<T['select'], AlteracaoContratualCountAggregateOutputType>
         : number
     >
 
     /**
-     * Allows you to perform aggregations operations on a Aditivo.
+     * Allows you to perform aggregations operations on a AlteracaoContratual.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AditivoAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @param {AlteracaoContratualAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
      * @example
      * // Ordered by age ascending
      * // Where email contains prisma.io
@@ -18717,13 +19124,13 @@ export namespace Prisma {
      *   take: 10,
      * })
     **/
-    aggregate<T extends AditivoAggregateArgs>(args: Subset<T, AditivoAggregateArgs>): Prisma.PrismaPromise<GetAditivoAggregateType<T>>
+    aggregate<T extends AlteracaoContratualAggregateArgs>(args: Subset<T, AlteracaoContratualAggregateArgs>): Prisma.PrismaPromise<GetAlteracaoContratualAggregateType<T>>
 
     /**
-     * Group by Aditivo.
+     * Group by AlteracaoContratual.
      * Note, that providing `undefined` is treated as the value not being there.
      * Read more here: https://pris.ly/d/null-undefined
-     * @param {AditivoGroupByArgs} args - Group by arguments.
+     * @param {AlteracaoContratualGroupByArgs} args - Group by arguments.
      * @example
      * // Group by city, order by createdAt, get count
      * const result = await prisma.user.groupBy({
@@ -18738,14 +19145,14 @@ export namespace Prisma {
      * 
     **/
     groupBy<
-      T extends AditivoGroupByArgs,
+      T extends AlteracaoContratualGroupByArgs,
       HasSelectOrTake extends Or<
         Extends<'skip', Keys<T>>,
         Extends<'take', Keys<T>>
       >,
       OrderByArg extends True extends HasSelectOrTake
-        ? { orderBy: AditivoGroupByArgs['orderBy'] }
-        : { orderBy?: AditivoGroupByArgs['orderBy'] },
+        ? { orderBy: AlteracaoContratualGroupByArgs['orderBy'] }
+        : { orderBy?: AlteracaoContratualGroupByArgs['orderBy'] },
       OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
       ByFields extends TupleToUnion<T['by']>,
       ByValid extends Has<ByFields, OrderFields>,
@@ -18794,17 +19201,17 @@ export namespace Prisma {
             ? never
             : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
         }[OrderFields]
-    >(args: SubsetIntersection<T, AditivoGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAditivoGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+    >(args: SubsetIntersection<T, AlteracaoContratualGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlteracaoContratualGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
 
   }
 
   /**
-   * The delegate class that acts as a "Promise-like" for Aditivo.
+   * The delegate class that acts as a "Promise-like" for AlteracaoContratual.
    * Why is this prefixed with `Prisma__`?
    * Because we want to prevent naming conflicts as mentioned in
    * https://github.com/prisma/prisma-client-js/issues/707
    */
-  export class Prisma__AditivoClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+  export class Prisma__AlteracaoContratualClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
     private readonly _dmmf;
     private readonly _queryType;
     private readonly _rootField;
@@ -18820,6 +19227,10 @@ export namespace Prisma {
     constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
 
     contrato<T extends ContratoArgs<ExtArgs> = {}>(args?: Subset<T, ContratoArgs<ExtArgs>>): Prisma__ContratoClient<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    fundamentoLegal<T extends DominioValorArgs<ExtArgs> = {}>(args?: Subset<T, DominioValorArgs<ExtArgs>>): Prisma__DominioValorClient<$Types.GetResult<DominioValorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    itens<T extends AlteracaoContratual$itensArgs<ExtArgs> = {}>(args?: Subset<T, AlteracaoContratual$itensArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     private get _document();
     /**
@@ -18849,27 +19260,27 @@ export namespace Prisma {
   // Custom InputTypes
 
   /**
-   * Aditivo base type for findUnique actions
+   * AlteracaoContratual base type for findUnique actions
    */
-  export type AditivoFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Aditivo
+     * Select specific fields to fetch from the AlteracaoContratual
      */
-    select?: AditivoSelect<ExtArgs> | null
+    select?: AlteracaoContratualSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: AditivoInclude<ExtArgs> | null
+    include?: AlteracaoContratualInclude<ExtArgs> | null
     /**
-     * Filter, which Aditivo to fetch.
+     * Filter, which AlteracaoContratual to fetch.
      */
-    where: AditivoWhereUniqueInput
+    where: AlteracaoContratualWhereUniqueInput
   }
 
   /**
-   * Aditivo findUnique
+   * AlteracaoContratual findUnique
    */
-  export interface AditivoFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends AditivoFindUniqueArgsBase<ExtArgs> {
+  export interface AlteracaoContratualFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends AlteracaoContratualFindUniqueArgsBase<ExtArgs> {
    /**
     * Throw an Error if query returns no results
     * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
@@ -18879,76 +19290,76 @@ export namespace Prisma {
       
 
   /**
-   * Aditivo findUniqueOrThrow
+   * AlteracaoContratual findUniqueOrThrow
    */
-  export type AditivoFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Aditivo
+     * Select specific fields to fetch from the AlteracaoContratual
      */
-    select?: AditivoSelect<ExtArgs> | null
+    select?: AlteracaoContratualSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: AditivoInclude<ExtArgs> | null
+    include?: AlteracaoContratualInclude<ExtArgs> | null
     /**
-     * Filter, which Aditivo to fetch.
+     * Filter, which AlteracaoContratual to fetch.
      */
-    where: AditivoWhereUniqueInput
+    where: AlteracaoContratualWhereUniqueInput
   }
 
 
   /**
-   * Aditivo base type for findFirst actions
+   * AlteracaoContratual base type for findFirst actions
    */
-  export type AditivoFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Aditivo
+     * Select specific fields to fetch from the AlteracaoContratual
      */
-    select?: AditivoSelect<ExtArgs> | null
+    select?: AlteracaoContratualSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: AditivoInclude<ExtArgs> | null
+    include?: AlteracaoContratualInclude<ExtArgs> | null
     /**
-     * Filter, which Aditivo to fetch.
+     * Filter, which AlteracaoContratual to fetch.
      */
-    where?: AditivoWhereInput
+    where?: AlteracaoContratualWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Aditivos to fetch.
+     * Determine the order of AlteracaoContratuals to fetch.
      */
-    orderBy?: Enumerable<AditivoOrderByWithRelationInput>
+    orderBy?: Enumerable<AlteracaoContratualOrderByWithRelationInput>
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Aditivos.
+     * Sets the position for searching for AlteracaoContratuals.
      */
-    cursor?: AditivoWhereUniqueInput
+    cursor?: AlteracaoContratualWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Aditivos from the position of the cursor.
+     * Take `±n` AlteracaoContratuals from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Aditivos.
+     * Skip the first `n` AlteracaoContratuals.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Aditivos.
+     * Filter by unique combinations of AlteracaoContratuals.
      */
-    distinct?: Enumerable<AditivoScalarFieldEnum>
+    distinct?: Enumerable<AlteracaoContratualScalarFieldEnum>
   }
 
   /**
-   * Aditivo findFirst
+   * AlteracaoContratual findFirst
    */
-  export interface AditivoFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends AditivoFindFirstArgsBase<ExtArgs> {
+  export interface AlteracaoContratualFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends AlteracaoContratualFindFirstArgsBase<ExtArgs> {
    /**
     * Throw an Error if query returns no results
     * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
@@ -18958,236 +19369,1254 @@ export namespace Prisma {
       
 
   /**
-   * Aditivo findFirstOrThrow
+   * AlteracaoContratual findFirstOrThrow
    */
-  export type AditivoFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Aditivo
+     * Select specific fields to fetch from the AlteracaoContratual
      */
-    select?: AditivoSelect<ExtArgs> | null
+    select?: AlteracaoContratualSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: AditivoInclude<ExtArgs> | null
+    include?: AlteracaoContratualInclude<ExtArgs> | null
     /**
-     * Filter, which Aditivo to fetch.
+     * Filter, which AlteracaoContratual to fetch.
      */
-    where?: AditivoWhereInput
+    where?: AlteracaoContratualWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Aditivos to fetch.
+     * Determine the order of AlteracaoContratuals to fetch.
      */
-    orderBy?: Enumerable<AditivoOrderByWithRelationInput>
+    orderBy?: Enumerable<AlteracaoContratualOrderByWithRelationInput>
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for searching for Aditivos.
+     * Sets the position for searching for AlteracaoContratuals.
      */
-    cursor?: AditivoWhereUniqueInput
+    cursor?: AlteracaoContratualWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Aditivos from the position of the cursor.
+     * Take `±n` AlteracaoContratuals from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Aditivos.
+     * Skip the first `n` AlteracaoContratuals.
      */
     skip?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
      * 
-     * Filter by unique combinations of Aditivos.
+     * Filter by unique combinations of AlteracaoContratuals.
      */
-    distinct?: Enumerable<AditivoScalarFieldEnum>
+    distinct?: Enumerable<AlteracaoContratualScalarFieldEnum>
   }
 
 
   /**
-   * Aditivo findMany
+   * AlteracaoContratual findMany
    */
-  export type AditivoFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Aditivo
+     * Select specific fields to fetch from the AlteracaoContratual
      */
-    select?: AditivoSelect<ExtArgs> | null
+    select?: AlteracaoContratualSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: AditivoInclude<ExtArgs> | null
+    include?: AlteracaoContratualInclude<ExtArgs> | null
     /**
-     * Filter, which Aditivos to fetch.
+     * Filter, which AlteracaoContratuals to fetch.
      */
-    where?: AditivoWhereInput
+    where?: AlteracaoContratualWhereInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
      * 
-     * Determine the order of Aditivos to fetch.
+     * Determine the order of AlteracaoContratuals to fetch.
      */
-    orderBy?: Enumerable<AditivoOrderByWithRelationInput>
+    orderBy?: Enumerable<AlteracaoContratualOrderByWithRelationInput>
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
      * 
-     * Sets the position for listing Aditivos.
+     * Sets the position for listing AlteracaoContratuals.
      */
-    cursor?: AditivoWhereUniqueInput
+    cursor?: AlteracaoContratualWhereUniqueInput
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Take `±n` Aditivos from the position of the cursor.
+     * Take `±n` AlteracaoContratuals from the position of the cursor.
      */
     take?: number
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
      * 
-     * Skip the first `n` Aditivos.
+     * Skip the first `n` AlteracaoContratuals.
      */
     skip?: number
-    distinct?: Enumerable<AditivoScalarFieldEnum>
+    distinct?: Enumerable<AlteracaoContratualScalarFieldEnum>
   }
 
 
   /**
-   * Aditivo create
+   * AlteracaoContratual create
    */
-  export type AditivoCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Aditivo
+     * Select specific fields to fetch from the AlteracaoContratual
      */
-    select?: AditivoSelect<ExtArgs> | null
+    select?: AlteracaoContratualSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: AditivoInclude<ExtArgs> | null
+    include?: AlteracaoContratualInclude<ExtArgs> | null
     /**
-     * The data needed to create a Aditivo.
+     * The data needed to create a AlteracaoContratual.
      */
-    data: XOR<AditivoCreateInput, AditivoUncheckedCreateInput>
+    data: XOR<AlteracaoContratualCreateInput, AlteracaoContratualUncheckedCreateInput>
   }
 
 
   /**
-   * Aditivo createMany
+   * AlteracaoContratual createMany
    */
-  export type AditivoCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * The data used to create many Aditivos.
+     * The data used to create many AlteracaoContratuals.
      */
-    data: Enumerable<AditivoCreateManyInput>
+    data: Enumerable<AlteracaoContratualCreateManyInput>
     skipDuplicates?: boolean
   }
 
 
   /**
-   * Aditivo update
+   * AlteracaoContratual update
    */
-  export type AditivoUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Aditivo
+     * Select specific fields to fetch from the AlteracaoContratual
      */
-    select?: AditivoSelect<ExtArgs> | null
+    select?: AlteracaoContratualSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: AditivoInclude<ExtArgs> | null
+    include?: AlteracaoContratualInclude<ExtArgs> | null
     /**
-     * The data needed to update a Aditivo.
+     * The data needed to update a AlteracaoContratual.
      */
-    data: XOR<AditivoUpdateInput, AditivoUncheckedUpdateInput>
+    data: XOR<AlteracaoContratualUpdateInput, AlteracaoContratualUncheckedUpdateInput>
     /**
-     * Choose, which Aditivo to update.
+     * Choose, which AlteracaoContratual to update.
      */
-    where: AditivoWhereUniqueInput
+    where: AlteracaoContratualWhereUniqueInput
   }
 
 
   /**
-   * Aditivo updateMany
+   * AlteracaoContratual updateMany
    */
-  export type AditivoUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * The data used to update Aditivos.
+     * The data used to update AlteracaoContratuals.
      */
-    data: XOR<AditivoUpdateManyMutationInput, AditivoUncheckedUpdateManyInput>
+    data: XOR<AlteracaoContratualUpdateManyMutationInput, AlteracaoContratualUncheckedUpdateManyInput>
     /**
-     * Filter which Aditivos to update
+     * Filter which AlteracaoContratuals to update
      */
-    where?: AditivoWhereInput
+    where?: AlteracaoContratualWhereInput
   }
 
 
   /**
-   * Aditivo upsert
+   * AlteracaoContratual upsert
    */
-  export type AditivoUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Aditivo
+     * Select specific fields to fetch from the AlteracaoContratual
      */
-    select?: AditivoSelect<ExtArgs> | null
+    select?: AlteracaoContratualSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: AditivoInclude<ExtArgs> | null
+    include?: AlteracaoContratualInclude<ExtArgs> | null
     /**
-     * The filter to search for the Aditivo to update in case it exists.
+     * The filter to search for the AlteracaoContratual to update in case it exists.
      */
-    where: AditivoWhereUniqueInput
+    where: AlteracaoContratualWhereUniqueInput
     /**
-     * In case the Aditivo found by the `where` argument doesn't exist, create a new Aditivo with this data.
+     * In case the AlteracaoContratual found by the `where` argument doesn't exist, create a new AlteracaoContratual with this data.
      */
-    create: XOR<AditivoCreateInput, AditivoUncheckedCreateInput>
+    create: XOR<AlteracaoContratualCreateInput, AlteracaoContratualUncheckedCreateInput>
     /**
-     * In case the Aditivo was found with the provided `where` argument, update it with this data.
+     * In case the AlteracaoContratual was found with the provided `where` argument, update it with this data.
      */
-    update: XOR<AditivoUpdateInput, AditivoUncheckedUpdateInput>
+    update: XOR<AlteracaoContratualUpdateInput, AlteracaoContratualUncheckedUpdateInput>
   }
 
 
   /**
-   * Aditivo delete
+   * AlteracaoContratual delete
    */
-  export type AditivoDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Aditivo
+     * Select specific fields to fetch from the AlteracaoContratual
      */
-    select?: AditivoSelect<ExtArgs> | null
+    select?: AlteracaoContratualSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: AditivoInclude<ExtArgs> | null
+    include?: AlteracaoContratualInclude<ExtArgs> | null
     /**
-     * Filter which Aditivo to delete.
+     * Filter which AlteracaoContratual to delete.
      */
-    where: AditivoWhereUniqueInput
+    where: AlteracaoContratualWhereUniqueInput
   }
 
 
   /**
-   * Aditivo deleteMany
+   * AlteracaoContratual deleteMany
    */
-  export type AditivoDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratualDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Filter which Aditivos to delete
+     * Filter which AlteracaoContratuals to delete
      */
-    where?: AditivoWhereInput
+    where?: AlteracaoContratualWhereInput
   }
 
 
   /**
-   * Aditivo without action
+   * AlteracaoContratual.itens
    */
-  export type AditivoArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type AlteracaoContratual$itensArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
-     * Select specific fields to fetch from the Aditivo
+     * Select specific fields to fetch from the AlteracaoItem
      */
-    select?: AditivoSelect<ExtArgs> | null
+    select?: AlteracaoItemSelect<ExtArgs> | null
     /**
      * Choose, which related nodes to fetch as well.
      */
-    include?: AditivoInclude<ExtArgs> | null
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    where?: AlteracaoItemWhereInput
+    orderBy?: Enumerable<AlteracaoItemOrderByWithRelationInput>
+    cursor?: AlteracaoItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<AlteracaoItemScalarFieldEnum>
+  }
+
+
+  /**
+   * AlteracaoContratual without action
+   */
+  export type AlteracaoContratualArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoContratual
+     */
+    select?: AlteracaoContratualSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoContratualInclude<ExtArgs> | null
+  }
+
+
+
+  /**
+   * Model AlteracaoItem
+   */
+
+
+  export type AggregateAlteracaoItem = {
+    _count: AlteracaoItemCountAggregateOutputType | null
+    _avg: AlteracaoItemAvgAggregateOutputType | null
+    _sum: AlteracaoItemSumAggregateOutputType | null
+    _min: AlteracaoItemMinAggregateOutputType | null
+    _max: AlteracaoItemMaxAggregateOutputType | null
+  }
+
+  export type AlteracaoItemAvgAggregateOutputType = {
+    quantidadeDelta: Decimal | null
+    valorUnitarioNovoCents: number | null
+  }
+
+  export type AlteracaoItemSumAggregateOutputType = {
+    quantidadeDelta: Decimal | null
+    valorUnitarioNovoCents: bigint | null
+  }
+
+  export type AlteracaoItemMinAggregateOutputType = {
+    id: string | null
+    alteracaoId: string | null
+    itemContratoId: string | null
+    catalogoItemId: string | null
+    quantidadeDelta: Decimal | null
+    valorUnitarioNovoCents: bigint | null
+    observacao: string | null
+    createdAt: Date | null
+  }
+
+  export type AlteracaoItemMaxAggregateOutputType = {
+    id: string | null
+    alteracaoId: string | null
+    itemContratoId: string | null
+    catalogoItemId: string | null
+    quantidadeDelta: Decimal | null
+    valorUnitarioNovoCents: bigint | null
+    observacao: string | null
+    createdAt: Date | null
+  }
+
+  export type AlteracaoItemCountAggregateOutputType = {
+    id: number
+    alteracaoId: number
+    itemContratoId: number
+    catalogoItemId: number
+    quantidadeDelta: number
+    valorUnitarioNovoCents: number
+    observacao: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type AlteracaoItemAvgAggregateInputType = {
+    quantidadeDelta?: true
+    valorUnitarioNovoCents?: true
+  }
+
+  export type AlteracaoItemSumAggregateInputType = {
+    quantidadeDelta?: true
+    valorUnitarioNovoCents?: true
+  }
+
+  export type AlteracaoItemMinAggregateInputType = {
+    id?: true
+    alteracaoId?: true
+    itemContratoId?: true
+    catalogoItemId?: true
+    quantidadeDelta?: true
+    valorUnitarioNovoCents?: true
+    observacao?: true
+    createdAt?: true
+  }
+
+  export type AlteracaoItemMaxAggregateInputType = {
+    id?: true
+    alteracaoId?: true
+    itemContratoId?: true
+    catalogoItemId?: true
+    quantidadeDelta?: true
+    valorUnitarioNovoCents?: true
+    observacao?: true
+    createdAt?: true
+  }
+
+  export type AlteracaoItemCountAggregateInputType = {
+    id?: true
+    alteracaoId?: true
+    itemContratoId?: true
+    catalogoItemId?: true
+    quantidadeDelta?: true
+    valorUnitarioNovoCents?: true
+    observacao?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type AlteracaoItemAggregateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AlteracaoItem to aggregate.
+     */
+    where?: AlteracaoItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlteracaoItems to fetch.
+     */
+    orderBy?: Enumerable<AlteracaoItemOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: AlteracaoItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlteracaoItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlteracaoItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned AlteracaoItems
+    **/
+    _count?: true | AlteracaoItemCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: AlteracaoItemAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: AlteracaoItemSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: AlteracaoItemMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: AlteracaoItemMaxAggregateInputType
+  }
+
+  export type GetAlteracaoItemAggregateType<T extends AlteracaoItemAggregateArgs> = {
+        [P in keyof T & keyof AggregateAlteracaoItem]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateAlteracaoItem[P]>
+      : GetScalarType<T[P], AggregateAlteracaoItem[P]>
+  }
+
+
+
+
+  export type AlteracaoItemGroupByArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: AlteracaoItemWhereInput
+    orderBy?: Enumerable<AlteracaoItemOrderByWithAggregationInput>
+    by: AlteracaoItemScalarFieldEnum[]
+    having?: AlteracaoItemScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: AlteracaoItemCountAggregateInputType | true
+    _avg?: AlteracaoItemAvgAggregateInputType
+    _sum?: AlteracaoItemSumAggregateInputType
+    _min?: AlteracaoItemMinAggregateInputType
+    _max?: AlteracaoItemMaxAggregateInputType
+  }
+
+
+  export type AlteracaoItemGroupByOutputType = {
+    id: string
+    alteracaoId: string
+    itemContratoId: string | null
+    catalogoItemId: string | null
+    quantidadeDelta: Decimal
+    valorUnitarioNovoCents: bigint | null
+    observacao: string | null
+    createdAt: Date
+    _count: AlteracaoItemCountAggregateOutputType | null
+    _avg: AlteracaoItemAvgAggregateOutputType | null
+    _sum: AlteracaoItemSumAggregateOutputType | null
+    _min: AlteracaoItemMinAggregateOutputType | null
+    _max: AlteracaoItemMaxAggregateOutputType | null
+  }
+
+  type GetAlteracaoItemGroupByPayload<T extends AlteracaoItemGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickArray<AlteracaoItemGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof AlteracaoItemGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], AlteracaoItemGroupByOutputType[P]>
+            : GetScalarType<T[P], AlteracaoItemGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type AlteracaoItemSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    alteracaoId?: boolean
+    itemContratoId?: boolean
+    catalogoItemId?: boolean
+    quantidadeDelta?: boolean
+    valorUnitarioNovoCents?: boolean
+    observacao?: boolean
+    createdAt?: boolean
+    alteracao?: boolean | AlteracaoContratualArgs<ExtArgs>
+    itemContrato?: boolean | ItemContratoArgs<ExtArgs>
+    catalogoItem?: boolean | CatalogoItemArgs<ExtArgs>
+  }, ExtArgs["result"]["alteracaoItem"]>
+
+  export type AlteracaoItemSelectScalar = {
+    id?: boolean
+    alteracaoId?: boolean
+    itemContratoId?: boolean
+    catalogoItemId?: boolean
+    quantidadeDelta?: boolean
+    valorUnitarioNovoCents?: boolean
+    observacao?: boolean
+    createdAt?: boolean
+  }
+
+  export type AlteracaoItemInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    alteracao?: boolean | AlteracaoContratualArgs<ExtArgs>
+    itemContrato?: boolean | ItemContratoArgs<ExtArgs>
+    catalogoItem?: boolean | CatalogoItemArgs<ExtArgs>
+  }
+
+
+  type AlteracaoItemGetPayload<S extends boolean | null | undefined | AlteracaoItemArgs> = $Types.GetResult<AlteracaoItemPayload, S>
+
+  type AlteracaoItemCountArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = 
+    Omit<AlteracaoItemFindManyArgs, 'select' | 'include'> & {
+      select?: AlteracaoItemCountAggregateInputType | true
+    }
+
+  export interface AlteracaoItemDelegate<GlobalRejectSettings extends Prisma.RejectOnNotFound | Prisma.RejectPerOperation | false | undefined, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['AlteracaoItem'], meta: { name: 'AlteracaoItem' } }
+    /**
+     * Find zero or one AlteracaoItem that matches the filter.
+     * @param {AlteracaoItemFindUniqueArgs} args - Arguments to find a AlteracaoItem
+     * @example
+     * // Get one AlteracaoItem
+     * const alteracaoItem = await prisma.alteracaoItem.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends AlteracaoItemFindUniqueArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, AlteracaoItemFindUniqueArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'AlteracaoItem'> extends True ? Prisma__AlteracaoItemClient<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'findUnique', never>, never, ExtArgs> : Prisma__AlteracaoItemClient<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'findUnique', never> | null, null, ExtArgs>
+
+    /**
+     * Find one AlteracaoItem that matches the filter or throw an error  with `error.code='P2025'` 
+     *     if no matches were found.
+     * @param {AlteracaoItemFindUniqueOrThrowArgs} args - Arguments to find a AlteracaoItem
+     * @example
+     * // Get one AlteracaoItem
+     * const alteracaoItem = await prisma.alteracaoItem.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUniqueOrThrow<T extends AlteracaoItemFindUniqueOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlteracaoItemFindUniqueOrThrowArgs<ExtArgs>>
+    ): Prisma__AlteracaoItemClient<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'findUniqueOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find the first AlteracaoItem that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlteracaoItemFindFirstArgs} args - Arguments to find a AlteracaoItem
+     * @example
+     * // Get one AlteracaoItem
+     * const alteracaoItem = await prisma.alteracaoItem.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends AlteracaoItemFindFirstArgs<ExtArgs>, LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, AlteracaoItemFindFirstArgs<ExtArgs>>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'AlteracaoItem'> extends True ? Prisma__AlteracaoItemClient<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'findFirst', never>, never, ExtArgs> : Prisma__AlteracaoItemClient<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'findFirst', never> | null, null, ExtArgs>
+
+    /**
+     * Find the first AlteracaoItem that matches the filter or
+     * throw `NotFoundError` if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlteracaoItemFindFirstOrThrowArgs} args - Arguments to find a AlteracaoItem
+     * @example
+     * // Get one AlteracaoItem
+     * const alteracaoItem = await prisma.alteracaoItem.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirstOrThrow<T extends AlteracaoItemFindFirstOrThrowArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlteracaoItemFindFirstOrThrowArgs<ExtArgs>>
+    ): Prisma__AlteracaoItemClient<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'findFirstOrThrow', never>, never, ExtArgs>
+
+    /**
+     * Find zero or more AlteracaoItems that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlteracaoItemFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all AlteracaoItems
+     * const alteracaoItems = await prisma.alteracaoItem.findMany()
+     * 
+     * // Get first 10 AlteracaoItems
+     * const alteracaoItems = await prisma.alteracaoItem.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const alteracaoItemWithIdOnly = await prisma.alteracaoItem.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends AlteracaoItemFindManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlteracaoItemFindManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'findMany', never>>
+
+    /**
+     * Create a AlteracaoItem.
+     * @param {AlteracaoItemCreateArgs} args - Arguments to create a AlteracaoItem.
+     * @example
+     * // Create one AlteracaoItem
+     * const AlteracaoItem = await prisma.alteracaoItem.create({
+     *   data: {
+     *     // ... data to create a AlteracaoItem
+     *   }
+     * })
+     * 
+    **/
+    create<T extends AlteracaoItemCreateArgs<ExtArgs>>(
+      args: SelectSubset<T, AlteracaoItemCreateArgs<ExtArgs>>
+    ): Prisma__AlteracaoItemClient<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'create', never>, never, ExtArgs>
+
+    /**
+     * Create many AlteracaoItems.
+     *     @param {AlteracaoItemCreateManyArgs} args - Arguments to create many AlteracaoItems.
+     *     @example
+     *     // Create many AlteracaoItems
+     *     const alteracaoItem = await prisma.alteracaoItem.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends AlteracaoItemCreateManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlteracaoItemCreateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a AlteracaoItem.
+     * @param {AlteracaoItemDeleteArgs} args - Arguments to delete one AlteracaoItem.
+     * @example
+     * // Delete one AlteracaoItem
+     * const AlteracaoItem = await prisma.alteracaoItem.delete({
+     *   where: {
+     *     // ... filter to delete one AlteracaoItem
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends AlteracaoItemDeleteArgs<ExtArgs>>(
+      args: SelectSubset<T, AlteracaoItemDeleteArgs<ExtArgs>>
+    ): Prisma__AlteracaoItemClient<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'delete', never>, never, ExtArgs>
+
+    /**
+     * Update one AlteracaoItem.
+     * @param {AlteracaoItemUpdateArgs} args - Arguments to update one AlteracaoItem.
+     * @example
+     * // Update one AlteracaoItem
+     * const alteracaoItem = await prisma.alteracaoItem.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends AlteracaoItemUpdateArgs<ExtArgs>>(
+      args: SelectSubset<T, AlteracaoItemUpdateArgs<ExtArgs>>
+    ): Prisma__AlteracaoItemClient<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'update', never>, never, ExtArgs>
+
+    /**
+     * Delete zero or more AlteracaoItems.
+     * @param {AlteracaoItemDeleteManyArgs} args - Arguments to filter AlteracaoItems to delete.
+     * @example
+     * // Delete a few AlteracaoItems
+     * const { count } = await prisma.alteracaoItem.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends AlteracaoItemDeleteManyArgs<ExtArgs>>(
+      args?: SelectSubset<T, AlteracaoItemDeleteManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more AlteracaoItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlteracaoItemUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many AlteracaoItems
+     * const alteracaoItem = await prisma.alteracaoItem.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends AlteracaoItemUpdateManyArgs<ExtArgs>>(
+      args: SelectSubset<T, AlteracaoItemUpdateManyArgs<ExtArgs>>
+    ): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one AlteracaoItem.
+     * @param {AlteracaoItemUpsertArgs} args - Arguments to update or create a AlteracaoItem.
+     * @example
+     * // Update or create a AlteracaoItem
+     * const alteracaoItem = await prisma.alteracaoItem.upsert({
+     *   create: {
+     *     // ... data to create a AlteracaoItem
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the AlteracaoItem we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends AlteracaoItemUpsertArgs<ExtArgs>>(
+      args: SelectSubset<T, AlteracaoItemUpsertArgs<ExtArgs>>
+    ): Prisma__AlteracaoItemClient<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'upsert', never>, never, ExtArgs>
+
+    /**
+     * Count the number of AlteracaoItems.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlteracaoItemCountArgs} args - Arguments to filter AlteracaoItems to count.
+     * @example
+     * // Count the number of AlteracaoItems
+     * const count = await prisma.alteracaoItem.count({
+     *   where: {
+     *     // ... the filter for the AlteracaoItems we want to count
+     *   }
+     * })
+    **/
+    count<T extends AlteracaoItemCountArgs>(
+      args?: Subset<T, AlteracaoItemCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], AlteracaoItemCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a AlteracaoItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlteracaoItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends AlteracaoItemAggregateArgs>(args: Subset<T, AlteracaoItemAggregateArgs>): Prisma.PrismaPromise<GetAlteracaoItemAggregateType<T>>
+
+    /**
+     * Group by AlteracaoItem.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {AlteracaoItemGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends AlteracaoItemGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: AlteracaoItemGroupByArgs['orderBy'] }
+        : { orderBy?: AlteracaoItemGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, AlteracaoItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetAlteracaoItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for AlteracaoItem.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__AlteracaoItemClient<T, Null = never, ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> implements Prisma.PrismaPromise<T> {
+    private readonly _dmmf;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    readonly [Symbol.toStringTag]: 'PrismaPromise';
+    constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+
+    alteracao<T extends AlteracaoContratualArgs<ExtArgs> = {}>(args?: Subset<T, AlteracaoContratualArgs<ExtArgs>>): Prisma__AlteracaoContratualClient<$Types.GetResult<AlteracaoContratualPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    itemContrato<T extends ItemContratoArgs<ExtArgs> = {}>(args?: Subset<T, ItemContratoArgs<ExtArgs>>): Prisma__ItemContratoClient<$Types.GetResult<ItemContratoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    catalogoItem<T extends CatalogoItemArgs<ExtArgs> = {}>(args?: Subset<T, CatalogoItemArgs<ExtArgs>>): Prisma__CatalogoItemClient<$Types.GetResult<CatalogoItemPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+
+
+  // Custom InputTypes
+
+  /**
+   * AlteracaoItem base type for findUnique actions
+   */
+  export type AlteracaoItemFindUniqueArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    /**
+     * Filter, which AlteracaoItem to fetch.
+     */
+    where: AlteracaoItemWhereUniqueInput
+  }
+
+  /**
+   * AlteracaoItem findUnique
+   */
+  export interface AlteracaoItemFindUniqueArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends AlteracaoItemFindUniqueArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findUniqueOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * AlteracaoItem findUniqueOrThrow
+   */
+  export type AlteracaoItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    /**
+     * Filter, which AlteracaoItem to fetch.
+     */
+    where: AlteracaoItemWhereUniqueInput
+  }
+
+
+  /**
+   * AlteracaoItem base type for findFirst actions
+   */
+  export type AlteracaoItemFindFirstArgsBase<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    /**
+     * Filter, which AlteracaoItem to fetch.
+     */
+    where?: AlteracaoItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlteracaoItems to fetch.
+     */
+    orderBy?: Enumerable<AlteracaoItemOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AlteracaoItems.
+     */
+    cursor?: AlteracaoItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlteracaoItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlteracaoItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AlteracaoItems.
+     */
+    distinct?: Enumerable<AlteracaoItemScalarFieldEnum>
+  }
+
+  /**
+   * AlteracaoItem findFirst
+   */
+  export interface AlteracaoItemFindFirstArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> extends AlteracaoItemFindFirstArgsBase<ExtArgs> {
+   /**
+    * Throw an Error if query returns no results
+    * @deprecated since 4.0.0: use `findFirstOrThrow` method instead
+    */
+    rejectOnNotFound?: RejectOnNotFound
+  }
+      
+
+  /**
+   * AlteracaoItem findFirstOrThrow
+   */
+  export type AlteracaoItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    /**
+     * Filter, which AlteracaoItem to fetch.
+     */
+    where?: AlteracaoItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlteracaoItems to fetch.
+     */
+    orderBy?: Enumerable<AlteracaoItemOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for AlteracaoItems.
+     */
+    cursor?: AlteracaoItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlteracaoItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlteracaoItems.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of AlteracaoItems.
+     */
+    distinct?: Enumerable<AlteracaoItemScalarFieldEnum>
+  }
+
+
+  /**
+   * AlteracaoItem findMany
+   */
+  export type AlteracaoItemFindManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    /**
+     * Filter, which AlteracaoItems to fetch.
+     */
+    where?: AlteracaoItemWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of AlteracaoItems to fetch.
+     */
+    orderBy?: Enumerable<AlteracaoItemOrderByWithRelationInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing AlteracaoItems.
+     */
+    cursor?: AlteracaoItemWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` AlteracaoItems from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` AlteracaoItems.
+     */
+    skip?: number
+    distinct?: Enumerable<AlteracaoItemScalarFieldEnum>
+  }
+
+
+  /**
+   * AlteracaoItem create
+   */
+  export type AlteracaoItemCreateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    /**
+     * The data needed to create a AlteracaoItem.
+     */
+    data: XOR<AlteracaoItemCreateInput, AlteracaoItemUncheckedCreateInput>
+  }
+
+
+  /**
+   * AlteracaoItem createMany
+   */
+  export type AlteracaoItemCreateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many AlteracaoItems.
+     */
+    data: Enumerable<AlteracaoItemCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * AlteracaoItem update
+   */
+  export type AlteracaoItemUpdateArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    /**
+     * The data needed to update a AlteracaoItem.
+     */
+    data: XOR<AlteracaoItemUpdateInput, AlteracaoItemUncheckedUpdateInput>
+    /**
+     * Choose, which AlteracaoItem to update.
+     */
+    where: AlteracaoItemWhereUniqueInput
+  }
+
+
+  /**
+   * AlteracaoItem updateMany
+   */
+  export type AlteracaoItemUpdateManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update AlteracaoItems.
+     */
+    data: XOR<AlteracaoItemUpdateManyMutationInput, AlteracaoItemUncheckedUpdateManyInput>
+    /**
+     * Filter which AlteracaoItems to update
+     */
+    where?: AlteracaoItemWhereInput
+  }
+
+
+  /**
+   * AlteracaoItem upsert
+   */
+  export type AlteracaoItemUpsertArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    /**
+     * The filter to search for the AlteracaoItem to update in case it exists.
+     */
+    where: AlteracaoItemWhereUniqueInput
+    /**
+     * In case the AlteracaoItem found by the `where` argument doesn't exist, create a new AlteracaoItem with this data.
+     */
+    create: XOR<AlteracaoItemCreateInput, AlteracaoItemUncheckedCreateInput>
+    /**
+     * In case the AlteracaoItem was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<AlteracaoItemUpdateInput, AlteracaoItemUncheckedUpdateInput>
+  }
+
+
+  /**
+   * AlteracaoItem delete
+   */
+  export type AlteracaoItemDeleteArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    /**
+     * Filter which AlteracaoItem to delete.
+     */
+    where: AlteracaoItemWhereUniqueInput
+  }
+
+
+  /**
+   * AlteracaoItem deleteMany
+   */
+  export type AlteracaoItemDeleteManyArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which AlteracaoItems to delete
+     */
+    where?: AlteracaoItemWhereInput
+  }
+
+
+  /**
+   * AlteracaoItem without action
+   */
+  export type AlteracaoItemArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
   }
 
 
@@ -19397,6 +20826,7 @@ export namespace Prisma {
     categoriaItem?: boolean | DominioValorArgs<ExtArgs>
     unidadeMedidaPadrao?: boolean | DominioValorArgs<ExtArgs>
     itensContrato?: boolean | CatalogoItem$itensContratoArgs<ExtArgs>
+    alteracaoItens?: boolean | CatalogoItem$alteracaoItensArgs<ExtArgs>
     _count?: boolean | CatalogoItemCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["catalogoItem"]>
 
@@ -19417,6 +20847,7 @@ export namespace Prisma {
     categoriaItem?: boolean | DominioValorArgs<ExtArgs>
     unidadeMedidaPadrao?: boolean | DominioValorArgs<ExtArgs>
     itensContrato?: boolean | CatalogoItem$itensContratoArgs<ExtArgs>
+    alteracaoItens?: boolean | CatalogoItem$alteracaoItensArgs<ExtArgs>
     _count?: boolean | CatalogoItemCountOutputTypeArgs<ExtArgs>
   }
 
@@ -19796,6 +21227,8 @@ export namespace Prisma {
 
     itensContrato<T extends CatalogoItem$itensContratoArgs<ExtArgs> = {}>(args?: Subset<T, CatalogoItem$itensContratoArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ItemContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
+    alteracaoItens<T extends CatalogoItem$alteracaoItensArgs<ExtArgs> = {}>(args?: Subset<T, CatalogoItem$alteracaoItensArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
     private get _document();
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -20169,6 +21602,27 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: Enumerable<ItemContratoScalarFieldEnum>
+  }
+
+
+  /**
+   * CatalogoItem.alteracaoItens
+   */
+  export type CatalogoItem$alteracaoItensArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    where?: AlteracaoItemWhereInput
+    orderBy?: Enumerable<AlteracaoItemOrderByWithRelationInput>
+    cursor?: AlteracaoItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<AlteracaoItemScalarFieldEnum>
   }
 
 
@@ -21507,6 +22961,8 @@ export namespace Prisma {
     unidadeMedida?: boolean | DominioValorArgs<ExtArgs>
     unidadeDestino?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
     municipioExecucao?: boolean | MunicipioArgs<ExtArgs>
+    alteracaoItens?: boolean | ItemContrato$alteracaoItensArgs<ExtArgs>
+    _count?: boolean | ItemContratoCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["itemContrato"]>
 
   export type ItemContratoSelectScalar = {
@@ -21533,6 +22989,8 @@ export namespace Prisma {
     unidadeMedida?: boolean | DominioValorArgs<ExtArgs>
     unidadeDestino?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
     municipioExecucao?: boolean | MunicipioArgs<ExtArgs>
+    alteracaoItens?: boolean | ItemContrato$alteracaoItensArgs<ExtArgs>
+    _count?: boolean | ItemContratoCountOutputTypeArgs<ExtArgs>
   }
 
 
@@ -21915,6 +23373,8 @@ export namespace Prisma {
 
     municipioExecucao<T extends MunicipioArgs<ExtArgs> = {}>(args?: Subset<T, MunicipioArgs<ExtArgs>>): Prisma__MunicipioClient<$Types.GetResult<MunicipioPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
+    alteracaoItens<T extends ItemContrato$alteracaoItensArgs<ExtArgs> = {}>(args?: Subset<T, ItemContrato$alteracaoItensArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AlteracaoItemPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
     private get _document();
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -22267,6 +23727,27 @@ export namespace Prisma {
      * Filter which ItemContratoes to delete
      */
     where?: ItemContratoWhereInput
+  }
+
+
+  /**
+   * ItemContrato.alteracaoItens
+   */
+  export type ItemContrato$alteracaoItensArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the AlteracaoItem
+     */
+    select?: AlteracaoItemSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: AlteracaoItemInclude<ExtArgs> | null
+    where?: AlteracaoItemWhereInput
+    orderBy?: Enumerable<AlteracaoItemOrderByWithRelationInput>
+    cursor?: AlteracaoItemWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<AlteracaoItemScalarFieldEnum>
   }
 
 
@@ -24314,17 +25795,45 @@ export namespace Prisma {
   export type ContratoRateioScalarFieldEnum = (typeof ContratoRateioScalarFieldEnum)[keyof typeof ContratoRateioScalarFieldEnum]
 
 
-  export const AditivoScalarFieldEnum: {
+  export const AlteracaoContratualScalarFieldEnum: {
     id: 'id',
     contratoId: 'contratoId',
-    numAditivo: 'numAditivo',
-    protocoloAdit: 'protocoloAdit',
-    novoFimVigencia: 'novoFimVigencia',
-    valorAdicionalCents: 'valorAdicionalCents',
+    tipo: 'tipo',
+    numero: 'numero',
+    eProtocolo: 'eProtocolo',
+    objetoDescricao: 'objetoDescricao',
+    fundamentoLegalId: 'fundamentoLegalId',
+    justificativa: 'justificativa',
+    justificativaExcepcional: 'justificativaExcepcional',
+    dataAssinatura: 'dataAssinatura',
+    dataInicioEfeito: 'dataInicioEfeito',
+    prazoAcrescidoValor: 'prazoAcrescidoValor',
+    prazoAcrescidoUnidade: 'prazoAcrescidoUnidade',
+    novaDataFimVigencia: 'novaDataFimVigencia',
+    valorAcrescidoCents: 'valorAcrescidoCents',
+    valorSuprimidoCents: 'valorSuprimidoCents',
+    percentualReajuste: 'percentualReajuste',
+    situacao: 'situacao',
+    codigoLegado: 'codigoLegado',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type AlteracaoContratualScalarFieldEnum = (typeof AlteracaoContratualScalarFieldEnum)[keyof typeof AlteracaoContratualScalarFieldEnum]
+
+
+  export const AlteracaoItemScalarFieldEnum: {
+    id: 'id',
+    alteracaoId: 'alteracaoId',
+    itemContratoId: 'itemContratoId',
+    catalogoItemId: 'catalogoItemId',
+    quantidadeDelta: 'quantidadeDelta',
+    valorUnitarioNovoCents: 'valorUnitarioNovoCents',
+    observacao: 'observacao',
     createdAt: 'createdAt'
   };
 
-  export type AditivoScalarFieldEnum = (typeof AditivoScalarFieldEnum)[keyof typeof AditivoScalarFieldEnum]
+  export type AlteracaoItemScalarFieldEnum = (typeof AlteracaoItemScalarFieldEnum)[keyof typeof AlteracaoItemScalarFieldEnum]
 
 
   export const CatalogoItemScalarFieldEnum: {
@@ -24637,6 +26146,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemListRelationFilter
     atributosPorCategoria?: ItemAtributoDefListRelationFilter
     itensUnidadeMedida?: ItemContratoListRelationFilter
+    alteracoesFundamento?: AlteracaoContratualListRelationFilter
   }
 
   export type DominioValorOrderByWithRelationInput = {
@@ -24662,6 +26172,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemOrderByRelationAggregateInput
     atributosPorCategoria?: ItemAtributoDefOrderByRelationAggregateInput
     itensUnidadeMedida?: ItemContratoOrderByRelationAggregateInput
+    alteracoesFundamento?: AlteracaoContratualOrderByRelationAggregateInput
   }
 
   export type DominioValorWhereUniqueInput = {
@@ -25274,7 +26785,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelListRelationFilter
     rateios?: ContratoRateioListRelationFilter
     itens?: ItemContratoListRelationFilter
-    aditivos?: AditivoListRelationFilter
+    alteracoes?: AlteracaoContratualListRelationFilter
   }
 
   export type ContratoOrderByWithRelationInput = {
@@ -25322,7 +26833,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelOrderByRelationAggregateInput
     rateios?: ContratoRateioOrderByRelationAggregateInput
     itens?: ItemContratoOrderByRelationAggregateInput
-    aditivos?: AditivoOrderByRelationAggregateInput
+    alteracoes?: AlteracaoContratualOrderByRelationAggregateInput
   }
 
   export type ContratoWhereUniqueInput = {
@@ -25540,60 +27051,186 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter | Date | string
   }
 
-  export type AditivoWhereInput = {
-    AND?: Enumerable<AditivoWhereInput>
-    OR?: Enumerable<AditivoWhereInput>
-    NOT?: Enumerable<AditivoWhereInput>
+  export type AlteracaoContratualWhereInput = {
+    AND?: Enumerable<AlteracaoContratualWhereInput>
+    OR?: Enumerable<AlteracaoContratualWhereInput>
+    NOT?: Enumerable<AlteracaoContratualWhereInput>
     id?: StringFilter | string
     contratoId?: StringFilter | string
-    numAditivo?: IntFilter | number
-    protocoloAdit?: StringFilter | string
-    novoFimVigencia?: DateTimeNullableFilter | Date | string | null
-    valorAdicionalCents?: IntNullableFilter | number | null
+    tipo?: EnumTipoAlteracaoFilter | TipoAlteracao
+    numero?: IntFilter | number
+    eProtocolo?: StringNullableFilter | string | null
+    objetoDescricao?: StringFilter | string
+    fundamentoLegalId?: StringNullableFilter | string | null
+    justificativa?: StringNullableFilter | string | null
+    justificativaExcepcional?: StringNullableFilter | string | null
+    dataAssinatura?: DateTimeFilter | Date | string
+    dataInicioEfeito?: DateTimeNullableFilter | Date | string | null
+    prazoAcrescidoValor?: IntNullableFilter | number | null
+    prazoAcrescidoUnidade?: EnumUnidadeTempoNullableFilter | UnidadeTempo | null
+    novaDataFimVigencia?: DateTimeNullableFilter | Date | string | null
+    valorAcrescidoCents?: BigIntFilter | bigint | number
+    valorSuprimidoCents?: BigIntFilter | bigint | number
+    percentualReajuste?: DecimalNullableFilter | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFilter | SituacaoAlteracao
+    codigoLegado?: StringNullableFilter | string | null
     createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
     contrato?: XOR<ContratoRelationFilter, ContratoWhereInput>
+    fundamentoLegal?: XOR<DominioValorRelationFilter, DominioValorWhereInput> | null
+    itens?: AlteracaoItemListRelationFilter
   }
 
-  export type AditivoOrderByWithRelationInput = {
+  export type AlteracaoContratualOrderByWithRelationInput = {
     id?: SortOrder
     contratoId?: SortOrder
-    numAditivo?: SortOrder
-    protocoloAdit?: SortOrder
-    novoFimVigencia?: SortOrderInput | SortOrder
-    valorAdicionalCents?: SortOrderInput | SortOrder
+    tipo?: SortOrder
+    numero?: SortOrder
+    eProtocolo?: SortOrderInput | SortOrder
+    objetoDescricao?: SortOrder
+    fundamentoLegalId?: SortOrderInput | SortOrder
+    justificativa?: SortOrderInput | SortOrder
+    justificativaExcepcional?: SortOrderInput | SortOrder
+    dataAssinatura?: SortOrder
+    dataInicioEfeito?: SortOrderInput | SortOrder
+    prazoAcrescidoValor?: SortOrderInput | SortOrder
+    prazoAcrescidoUnidade?: SortOrderInput | SortOrder
+    novaDataFimVigencia?: SortOrderInput | SortOrder
+    valorAcrescidoCents?: SortOrder
+    valorSuprimidoCents?: SortOrder
+    percentualReajuste?: SortOrderInput | SortOrder
+    situacao?: SortOrder
+    codigoLegado?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    updatedAt?: SortOrder
     contrato?: ContratoOrderByWithRelationInput
+    fundamentoLegal?: DominioValorOrderByWithRelationInput
+    itens?: AlteracaoItemOrderByRelationAggregateInput
   }
 
-  export type AditivoWhereUniqueInput = {
+  export type AlteracaoContratualWhereUniqueInput = {
+    id?: string
+    contratoId_tipo_numero?: AlteracaoContratualContratoIdTipoNumeroCompoundUniqueInput
+  }
+
+  export type AlteracaoContratualOrderByWithAggregationInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    tipo?: SortOrder
+    numero?: SortOrder
+    eProtocolo?: SortOrderInput | SortOrder
+    objetoDescricao?: SortOrder
+    fundamentoLegalId?: SortOrderInput | SortOrder
+    justificativa?: SortOrderInput | SortOrder
+    justificativaExcepcional?: SortOrderInput | SortOrder
+    dataAssinatura?: SortOrder
+    dataInicioEfeito?: SortOrderInput | SortOrder
+    prazoAcrescidoValor?: SortOrderInput | SortOrder
+    prazoAcrescidoUnidade?: SortOrderInput | SortOrder
+    novaDataFimVigencia?: SortOrderInput | SortOrder
+    valorAcrescidoCents?: SortOrder
+    valorSuprimidoCents?: SortOrder
+    percentualReajuste?: SortOrderInput | SortOrder
+    situacao?: SortOrder
+    codigoLegado?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: AlteracaoContratualCountOrderByAggregateInput
+    _avg?: AlteracaoContratualAvgOrderByAggregateInput
+    _max?: AlteracaoContratualMaxOrderByAggregateInput
+    _min?: AlteracaoContratualMinOrderByAggregateInput
+    _sum?: AlteracaoContratualSumOrderByAggregateInput
+  }
+
+  export type AlteracaoContratualScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<AlteracaoContratualScalarWhereWithAggregatesInput>
+    OR?: Enumerable<AlteracaoContratualScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<AlteracaoContratualScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    contratoId?: StringWithAggregatesFilter | string
+    tipo?: EnumTipoAlteracaoWithAggregatesFilter | TipoAlteracao
+    numero?: IntWithAggregatesFilter | number
+    eProtocolo?: StringNullableWithAggregatesFilter | string | null
+    objetoDescricao?: StringWithAggregatesFilter | string
+    fundamentoLegalId?: StringNullableWithAggregatesFilter | string | null
+    justificativa?: StringNullableWithAggregatesFilter | string | null
+    justificativaExcepcional?: StringNullableWithAggregatesFilter | string | null
+    dataAssinatura?: DateTimeWithAggregatesFilter | Date | string
+    dataInicioEfeito?: DateTimeNullableWithAggregatesFilter | Date | string | null
+    prazoAcrescidoValor?: IntNullableWithAggregatesFilter | number | null
+    prazoAcrescidoUnidade?: EnumUnidadeTempoNullableWithAggregatesFilter | UnidadeTempo | null
+    novaDataFimVigencia?: DateTimeNullableWithAggregatesFilter | Date | string | null
+    valorAcrescidoCents?: BigIntWithAggregatesFilter | bigint | number
+    valorSuprimidoCents?: BigIntWithAggregatesFilter | bigint | number
+    percentualReajuste?: DecimalNullableWithAggregatesFilter | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoWithAggregatesFilter | SituacaoAlteracao
+    codigoLegado?: StringNullableWithAggregatesFilter | string | null
+    createdAt?: DateTimeWithAggregatesFilter | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter | Date | string
+  }
+
+  export type AlteracaoItemWhereInput = {
+    AND?: Enumerable<AlteracaoItemWhereInput>
+    OR?: Enumerable<AlteracaoItemWhereInput>
+    NOT?: Enumerable<AlteracaoItemWhereInput>
+    id?: StringFilter | string
+    alteracaoId?: StringFilter | string
+    itemContratoId?: StringNullableFilter | string | null
+    catalogoItemId?: StringNullableFilter | string | null
+    quantidadeDelta?: DecimalFilter | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: BigIntNullableFilter | bigint | number | null
+    observacao?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    alteracao?: XOR<AlteracaoContratualRelationFilter, AlteracaoContratualWhereInput>
+    itemContrato?: XOR<ItemContratoRelationFilter, ItemContratoWhereInput> | null
+    catalogoItem?: XOR<CatalogoItemRelationFilter, CatalogoItemWhereInput> | null
+  }
+
+  export type AlteracaoItemOrderByWithRelationInput = {
+    id?: SortOrder
+    alteracaoId?: SortOrder
+    itemContratoId?: SortOrderInput | SortOrder
+    catalogoItemId?: SortOrderInput | SortOrder
+    quantidadeDelta?: SortOrder
+    valorUnitarioNovoCents?: SortOrderInput | SortOrder
+    observacao?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    alteracao?: AlteracaoContratualOrderByWithRelationInput
+    itemContrato?: ItemContratoOrderByWithRelationInput
+    catalogoItem?: CatalogoItemOrderByWithRelationInput
+  }
+
+  export type AlteracaoItemWhereUniqueInput = {
     id?: string
   }
 
-  export type AditivoOrderByWithAggregationInput = {
+  export type AlteracaoItemOrderByWithAggregationInput = {
     id?: SortOrder
-    contratoId?: SortOrder
-    numAditivo?: SortOrder
-    protocoloAdit?: SortOrder
-    novoFimVigencia?: SortOrderInput | SortOrder
-    valorAdicionalCents?: SortOrderInput | SortOrder
+    alteracaoId?: SortOrder
+    itemContratoId?: SortOrderInput | SortOrder
+    catalogoItemId?: SortOrderInput | SortOrder
+    quantidadeDelta?: SortOrder
+    valorUnitarioNovoCents?: SortOrderInput | SortOrder
+    observacao?: SortOrderInput | SortOrder
     createdAt?: SortOrder
-    _count?: AditivoCountOrderByAggregateInput
-    _avg?: AditivoAvgOrderByAggregateInput
-    _max?: AditivoMaxOrderByAggregateInput
-    _min?: AditivoMinOrderByAggregateInput
-    _sum?: AditivoSumOrderByAggregateInput
+    _count?: AlteracaoItemCountOrderByAggregateInput
+    _avg?: AlteracaoItemAvgOrderByAggregateInput
+    _max?: AlteracaoItemMaxOrderByAggregateInput
+    _min?: AlteracaoItemMinOrderByAggregateInput
+    _sum?: AlteracaoItemSumOrderByAggregateInput
   }
 
-  export type AditivoScalarWhereWithAggregatesInput = {
-    AND?: Enumerable<AditivoScalarWhereWithAggregatesInput>
-    OR?: Enumerable<AditivoScalarWhereWithAggregatesInput>
-    NOT?: Enumerable<AditivoScalarWhereWithAggregatesInput>
+  export type AlteracaoItemScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<AlteracaoItemScalarWhereWithAggregatesInput>
+    OR?: Enumerable<AlteracaoItemScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<AlteracaoItemScalarWhereWithAggregatesInput>
     id?: StringWithAggregatesFilter | string
-    contratoId?: StringWithAggregatesFilter | string
-    numAditivo?: IntWithAggregatesFilter | number
-    protocoloAdit?: StringWithAggregatesFilter | string
-    novoFimVigencia?: DateTimeNullableWithAggregatesFilter | Date | string | null
-    valorAdicionalCents?: IntNullableWithAggregatesFilter | number | null
+    alteracaoId?: StringWithAggregatesFilter | string
+    itemContratoId?: StringNullableWithAggregatesFilter | string | null
+    catalogoItemId?: StringNullableWithAggregatesFilter | string | null
+    quantidadeDelta?: DecimalWithAggregatesFilter | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: BigIntNullableWithAggregatesFilter | bigint | number | null
+    observacao?: StringNullableWithAggregatesFilter | string | null
     createdAt?: DateTimeWithAggregatesFilter | Date | string
   }
 
@@ -25614,6 +27251,7 @@ export namespace Prisma {
     categoriaItem?: XOR<DominioValorRelationFilter, DominioValorWhereInput>
     unidadeMedidaPadrao?: XOR<DominioValorRelationFilter, DominioValorWhereInput>
     itensContrato?: ItemContratoListRelationFilter
+    alteracaoItens?: AlteracaoItemListRelationFilter
   }
 
   export type CatalogoItemOrderByWithRelationInput = {
@@ -25630,6 +27268,7 @@ export namespace Prisma {
     categoriaItem?: DominioValorOrderByWithRelationInput
     unidadeMedidaPadrao?: DominioValorOrderByWithRelationInput
     itensContrato?: ItemContratoOrderByRelationAggregateInput
+    alteracaoItens?: AlteracaoItemOrderByRelationAggregateInput
   }
 
   export type CatalogoItemWhereUniqueInput = {
@@ -25775,6 +27414,7 @@ export namespace Prisma {
     unidadeMedida?: XOR<DominioValorRelationFilter, DominioValorWhereInput>
     unidadeDestino?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput> | null
     municipioExecucao?: XOR<MunicipioRelationFilter, MunicipioWhereInput> | null
+    alteracaoItens?: AlteracaoItemListRelationFilter
   }
 
   export type ItemContratoOrderByWithRelationInput = {
@@ -25798,6 +27438,7 @@ export namespace Prisma {
     unidadeMedida?: DominioValorOrderByWithRelationInput
     unidadeDestino?: UnidadeOrganizacionalOrderByWithRelationInput
     municipioExecucao?: MunicipioOrderByWithRelationInput
+    alteracaoItens?: AlteracaoItemOrderByRelationAggregateInput
   }
 
   export type ItemContratoWhereUniqueInput = {
@@ -26165,6 +27806,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateInput = {
@@ -26188,6 +27830,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUpdateInput = {
@@ -26211,6 +27854,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateInput = {
@@ -26234,6 +27878,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorCreateManyInput = {
@@ -27015,7 +28660,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateInput = {
@@ -27057,7 +28702,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUpdateInput = {
@@ -27099,7 +28744,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateInput = {
@@ -27141,7 +28786,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoCreateManyInput = {
@@ -27402,72 +29047,247 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AditivoCreateInput = {
+  export type AlteracaoContratualCreateInput = {
     id?: string
-    numAditivo: number
-    protocoloAdit: string
-    novoFimVigencia?: Date | string | null
-    valorAdicionalCents?: number | null
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
     createdAt?: Date | string
-    contrato: ContratoCreateNestedOneWithoutAditivosInput
+    updatedAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutAlteracoesInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutAlteracoesFundamentoInput
+    itens?: AlteracaoItemCreateNestedManyWithoutAlteracaoInput
   }
 
-  export type AditivoUncheckedCreateInput = {
-    id?: string
-    contratoId: string
-    numAditivo: number
-    protocoloAdit: string
-    novoFimVigencia?: Date | string | null
-    valorAdicionalCents?: number | null
-    createdAt?: Date | string
-  }
-
-  export type AditivoUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    numAditivo?: IntFieldUpdateOperationsInput | number
-    protocoloAdit?: StringFieldUpdateOperationsInput | string
-    novoFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    valorAdicionalCents?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    contrato?: ContratoUpdateOneRequiredWithoutAditivosNestedInput
-  }
-
-  export type AditivoUncheckedUpdateInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    contratoId?: StringFieldUpdateOperationsInput | string
-    numAditivo?: IntFieldUpdateOperationsInput | number
-    protocoloAdit?: StringFieldUpdateOperationsInput | string
-    novoFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    valorAdicionalCents?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type AditivoCreateManyInput = {
+  export type AlteracaoContratualUncheckedCreateInput = {
     id?: string
     contratoId: string
-    numAditivo: number
-    protocoloAdit: string
-    novoFimVigencia?: Date | string | null
-    valorAdicionalCents?: number | null
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    fundamentoLegalId?: string | null
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    itens?: AlteracaoItemUncheckedCreateNestedManyWithoutAlteracaoInput
+  }
+
+  export type AlteracaoContratualUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutAlteracoesNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutAlteracoesFundamentoNestedInput
+    itens?: AlteracaoItemUpdateManyWithoutAlteracaoNestedInput
+  }
+
+  export type AlteracaoContratualUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    itens?: AlteracaoItemUncheckedUpdateManyWithoutAlteracaoNestedInput
+  }
+
+  export type AlteracaoContratualCreateManyInput = {
+    id?: string
+    contratoId: string
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    fundamentoLegalId?: string | null
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlteracaoContratualUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlteracaoContratualUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlteracaoItemCreateInput = {
+    id?: string
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
+    createdAt?: Date | string
+    alteracao: AlteracaoContratualCreateNestedOneWithoutItensInput
+    itemContrato?: ItemContratoCreateNestedOneWithoutAlteracaoItensInput
+    catalogoItem?: CatalogoItemCreateNestedOneWithoutAlteracaoItensInput
+  }
+
+  export type AlteracaoItemUncheckedCreateInput = {
+    id?: string
+    alteracaoId: string
+    itemContratoId?: string | null
+    catalogoItemId?: string | null
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
     createdAt?: Date | string
   }
 
-  export type AditivoUpdateManyMutationInput = {
+  export type AlteracaoItemUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    numAditivo?: IntFieldUpdateOperationsInput | number
-    protocoloAdit?: StringFieldUpdateOperationsInput | string
-    novoFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    valorAdicionalCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracao?: AlteracaoContratualUpdateOneRequiredWithoutItensNestedInput
+    itemContrato?: ItemContratoUpdateOneWithoutAlteracaoItensNestedInput
+    catalogoItem?: CatalogoItemUpdateOneWithoutAlteracaoItensNestedInput
+  }
+
+  export type AlteracaoItemUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    alteracaoId?: StringFieldUpdateOperationsInput | string
+    itemContratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogoItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AditivoUncheckedUpdateManyInput = {
+  export type AlteracaoItemCreateManyInput = {
+    id?: string
+    alteracaoId: string
+    itemContratoId?: string | null
+    catalogoItemId?: string | null
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AlteracaoItemUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    contratoId?: StringFieldUpdateOperationsInput | string
-    numAditivo?: IntFieldUpdateOperationsInput | number
-    protocoloAdit?: StringFieldUpdateOperationsInput | string
-    novoFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    valorAdicionalCents?: NullableIntFieldUpdateOperationsInput | number | null
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlteracaoItemUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    alteracaoId?: StringFieldUpdateOperationsInput | string
+    itemContratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogoItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -27483,6 +29303,7 @@ export namespace Prisma {
     categoriaItem: DominioValorCreateNestedOneWithoutCatalogoPorCategoriaInput
     unidadeMedidaPadrao: DominioValorCreateNestedOneWithoutCatalogoUnidadeMedidaInput
     itensContrato?: ItemContratoCreateNestedManyWithoutCatalogoItemInput
+    alteracaoItens?: AlteracaoItemCreateNestedManyWithoutCatalogoItemInput
   }
 
   export type CatalogoItemUncheckedCreateInput = {
@@ -27497,6 +29318,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     itensContrato?: ItemContratoUncheckedCreateNestedManyWithoutCatalogoItemInput
+    alteracaoItens?: AlteracaoItemUncheckedCreateNestedManyWithoutCatalogoItemInput
   }
 
   export type CatalogoItemUpdateInput = {
@@ -27511,6 +29333,7 @@ export namespace Prisma {
     categoriaItem?: DominioValorUpdateOneRequiredWithoutCatalogoPorCategoriaNestedInput
     unidadeMedidaPadrao?: DominioValorUpdateOneRequiredWithoutCatalogoUnidadeMedidaNestedInput
     itensContrato?: ItemContratoUpdateManyWithoutCatalogoItemNestedInput
+    alteracaoItens?: AlteracaoItemUpdateManyWithoutCatalogoItemNestedInput
   }
 
   export type CatalogoItemUncheckedUpdateInput = {
@@ -27525,6 +29348,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     itensContrato?: ItemContratoUncheckedUpdateManyWithoutCatalogoItemNestedInput
+    alteracaoItens?: AlteracaoItemUncheckedUpdateManyWithoutCatalogoItemNestedInput
   }
 
   export type CatalogoItemCreateManyInput = {
@@ -27691,6 +29515,7 @@ export namespace Prisma {
     unidadeMedida: DominioValorCreateNestedOneWithoutItensUnidadeMedidaInput
     unidadeDestino?: UnidadeOrganizacionalCreateNestedOneWithoutItensDestinoInput
     municipioExecucao?: MunicipioCreateNestedOneWithoutItensExecucaoInput
+    alteracaoItens?: AlteracaoItemCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoUncheckedCreateInput = {
@@ -27709,6 +29534,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    alteracaoItens?: AlteracaoItemUncheckedCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoUpdateInput = {
@@ -27727,6 +29553,7 @@ export namespace Prisma {
     unidadeMedida?: DominioValorUpdateOneRequiredWithoutItensUnidadeMedidaNestedInput
     unidadeDestino?: UnidadeOrganizacionalUpdateOneWithoutItensDestinoNestedInput
     municipioExecucao?: MunicipioUpdateOneWithoutItensExecucaoNestedInput
+    alteracaoItens?: AlteracaoItemUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoUncheckedUpdateInput = {
@@ -27745,6 +29572,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracaoItens?: AlteracaoItemUncheckedUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoCreateManyInput = {
@@ -28220,6 +30048,12 @@ export namespace Prisma {
     none?: ItemAtributoDefWhereInput
   }
 
+  export type AlteracaoContratualListRelationFilter = {
+    every?: AlteracaoContratualWhereInput
+    some?: AlteracaoContratualWhereInput
+    none?: AlteracaoContratualWhereInput
+  }
+
   export type ContratoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -28233,6 +30067,10 @@ export namespace Prisma {
   }
 
   export type ItemAtributoDefOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AlteracaoContratualOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28930,16 +30768,6 @@ export namespace Prisma {
     isNot?: ProcessoContratacaoWhereInput | null
   }
 
-  export type AditivoListRelationFilter = {
-    every?: AditivoWhereInput
-    some?: AditivoWhereInput
-    none?: AditivoWhereInput
-  }
-
-  export type AditivoOrderByRelationAggregateInput = {
-    _count?: SortOrder
-  }
-
   export type ContratoNumeroGmsAnoGmsCompoundUniqueInput = {
     numeroGms: string
     anoGms: number
@@ -29296,44 +31124,244 @@ export namespace Prisma {
     _max?: NestedDecimalNullableFilter
   }
 
-  export type AditivoCountOrderByAggregateInput = {
+  export type EnumTipoAlteracaoFilter = {
+    equals?: TipoAlteracao
+    in?: Enumerable<TipoAlteracao>
+    notIn?: Enumerable<TipoAlteracao>
+    not?: NestedEnumTipoAlteracaoFilter | TipoAlteracao
+  }
+
+  export type EnumUnidadeTempoNullableFilter = {
+    equals?: UnidadeTempo | null
+    in?: Enumerable<UnidadeTempo> | null
+    notIn?: Enumerable<UnidadeTempo> | null
+    not?: NestedEnumUnidadeTempoNullableFilter | UnidadeTempo | null
+  }
+
+  export type EnumSituacaoAlteracaoFilter = {
+    equals?: SituacaoAlteracao
+    in?: Enumerable<SituacaoAlteracao>
+    notIn?: Enumerable<SituacaoAlteracao>
+    not?: NestedEnumSituacaoAlteracaoFilter | SituacaoAlteracao
+  }
+
+  export type AlteracaoItemListRelationFilter = {
+    every?: AlteracaoItemWhereInput
+    some?: AlteracaoItemWhereInput
+    none?: AlteracaoItemWhereInput
+  }
+
+  export type AlteracaoItemOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type AlteracaoContratualContratoIdTipoNumeroCompoundUniqueInput = {
+    contratoId: string
+    tipo: TipoAlteracao
+    numero: number
+  }
+
+  export type AlteracaoContratualCountOrderByAggregateInput = {
     id?: SortOrder
     contratoId?: SortOrder
-    numAditivo?: SortOrder
-    protocoloAdit?: SortOrder
-    novoFimVigencia?: SortOrder
-    valorAdicionalCents?: SortOrder
+    tipo?: SortOrder
+    numero?: SortOrder
+    eProtocolo?: SortOrder
+    objetoDescricao?: SortOrder
+    fundamentoLegalId?: SortOrder
+    justificativa?: SortOrder
+    justificativaExcepcional?: SortOrder
+    dataAssinatura?: SortOrder
+    dataInicioEfeito?: SortOrder
+    prazoAcrescidoValor?: SortOrder
+    prazoAcrescidoUnidade?: SortOrder
+    novaDataFimVigencia?: SortOrder
+    valorAcrescidoCents?: SortOrder
+    valorSuprimidoCents?: SortOrder
+    percentualReajuste?: SortOrder
+    situacao?: SortOrder
+    codigoLegado?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlteracaoContratualAvgOrderByAggregateInput = {
+    numero?: SortOrder
+    prazoAcrescidoValor?: SortOrder
+    valorAcrescidoCents?: SortOrder
+    valorSuprimidoCents?: SortOrder
+    percentualReajuste?: SortOrder
+  }
+
+  export type AlteracaoContratualMaxOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    tipo?: SortOrder
+    numero?: SortOrder
+    eProtocolo?: SortOrder
+    objetoDescricao?: SortOrder
+    fundamentoLegalId?: SortOrder
+    justificativa?: SortOrder
+    justificativaExcepcional?: SortOrder
+    dataAssinatura?: SortOrder
+    dataInicioEfeito?: SortOrder
+    prazoAcrescidoValor?: SortOrder
+    prazoAcrescidoUnidade?: SortOrder
+    novaDataFimVigencia?: SortOrder
+    valorAcrescidoCents?: SortOrder
+    valorSuprimidoCents?: SortOrder
+    percentualReajuste?: SortOrder
+    situacao?: SortOrder
+    codigoLegado?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlteracaoContratualMinOrderByAggregateInput = {
+    id?: SortOrder
+    contratoId?: SortOrder
+    tipo?: SortOrder
+    numero?: SortOrder
+    eProtocolo?: SortOrder
+    objetoDescricao?: SortOrder
+    fundamentoLegalId?: SortOrder
+    justificativa?: SortOrder
+    justificativaExcepcional?: SortOrder
+    dataAssinatura?: SortOrder
+    dataInicioEfeito?: SortOrder
+    prazoAcrescidoValor?: SortOrder
+    prazoAcrescidoUnidade?: SortOrder
+    novaDataFimVigencia?: SortOrder
+    valorAcrescidoCents?: SortOrder
+    valorSuprimidoCents?: SortOrder
+    percentualReajuste?: SortOrder
+    situacao?: SortOrder
+    codigoLegado?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type AlteracaoContratualSumOrderByAggregateInput = {
+    numero?: SortOrder
+    prazoAcrescidoValor?: SortOrder
+    valorAcrescidoCents?: SortOrder
+    valorSuprimidoCents?: SortOrder
+    percentualReajuste?: SortOrder
+  }
+
+  export type EnumTipoAlteracaoWithAggregatesFilter = {
+    equals?: TipoAlteracao
+    in?: Enumerable<TipoAlteracao>
+    notIn?: Enumerable<TipoAlteracao>
+    not?: NestedEnumTipoAlteracaoWithAggregatesFilter | TipoAlteracao
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoAlteracaoFilter
+    _max?: NestedEnumTipoAlteracaoFilter
+  }
+
+  export type EnumUnidadeTempoNullableWithAggregatesFilter = {
+    equals?: UnidadeTempo | null
+    in?: Enumerable<UnidadeTempo> | null
+    notIn?: Enumerable<UnidadeTempo> | null
+    not?: NestedEnumUnidadeTempoNullableWithAggregatesFilter | UnidadeTempo | null
+    _count?: NestedIntNullableFilter
+    _min?: NestedEnumUnidadeTempoNullableFilter
+    _max?: NestedEnumUnidadeTempoNullableFilter
+  }
+
+  export type EnumSituacaoAlteracaoWithAggregatesFilter = {
+    equals?: SituacaoAlteracao
+    in?: Enumerable<SituacaoAlteracao>
+    notIn?: Enumerable<SituacaoAlteracao>
+    not?: NestedEnumSituacaoAlteracaoWithAggregatesFilter | SituacaoAlteracao
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoAlteracaoFilter
+    _max?: NestedEnumSituacaoAlteracaoFilter
+  }
+
+  export type DecimalFilter = {
+    equals?: Decimal | DecimalJsLike | number | string
+    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
+    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
+    lt?: Decimal | DecimalJsLike | number | string
+    lte?: Decimal | DecimalJsLike | number | string
+    gt?: Decimal | DecimalJsLike | number | string
+    gte?: Decimal | DecimalJsLike | number | string
+    not?: NestedDecimalFilter | Decimal | DecimalJsLike | number | string
+  }
+
+  export type AlteracaoContratualRelationFilter = {
+    is?: AlteracaoContratualWhereInput | null
+    isNot?: AlteracaoContratualWhereInput | null
+  }
+
+  export type ItemContratoRelationFilter = {
+    is?: ItemContratoWhereInput | null
+    isNot?: ItemContratoWhereInput | null
+  }
+
+  export type CatalogoItemRelationFilter = {
+    is?: CatalogoItemWhereInput | null
+    isNot?: CatalogoItemWhereInput | null
+  }
+
+  export type AlteracaoItemCountOrderByAggregateInput = {
+    id?: SortOrder
+    alteracaoId?: SortOrder
+    itemContratoId?: SortOrder
+    catalogoItemId?: SortOrder
+    quantidadeDelta?: SortOrder
+    valorUnitarioNovoCents?: SortOrder
+    observacao?: SortOrder
     createdAt?: SortOrder
   }
 
-  export type AditivoAvgOrderByAggregateInput = {
-    numAditivo?: SortOrder
-    valorAdicionalCents?: SortOrder
+  export type AlteracaoItemAvgOrderByAggregateInput = {
+    quantidadeDelta?: SortOrder
+    valorUnitarioNovoCents?: SortOrder
   }
 
-  export type AditivoMaxOrderByAggregateInput = {
+  export type AlteracaoItemMaxOrderByAggregateInput = {
     id?: SortOrder
-    contratoId?: SortOrder
-    numAditivo?: SortOrder
-    protocoloAdit?: SortOrder
-    novoFimVigencia?: SortOrder
-    valorAdicionalCents?: SortOrder
+    alteracaoId?: SortOrder
+    itemContratoId?: SortOrder
+    catalogoItemId?: SortOrder
+    quantidadeDelta?: SortOrder
+    valorUnitarioNovoCents?: SortOrder
+    observacao?: SortOrder
     createdAt?: SortOrder
   }
 
-  export type AditivoMinOrderByAggregateInput = {
+  export type AlteracaoItemMinOrderByAggregateInput = {
     id?: SortOrder
-    contratoId?: SortOrder
-    numAditivo?: SortOrder
-    protocoloAdit?: SortOrder
-    novoFimVigencia?: SortOrder
-    valorAdicionalCents?: SortOrder
+    alteracaoId?: SortOrder
+    itemContratoId?: SortOrder
+    catalogoItemId?: SortOrder
+    quantidadeDelta?: SortOrder
+    valorUnitarioNovoCents?: SortOrder
+    observacao?: SortOrder
     createdAt?: SortOrder
   }
 
-  export type AditivoSumOrderByAggregateInput = {
-    numAditivo?: SortOrder
-    valorAdicionalCents?: SortOrder
+  export type AlteracaoItemSumOrderByAggregateInput = {
+    quantidadeDelta?: SortOrder
+    valorUnitarioNovoCents?: SortOrder
+  }
+
+  export type DecimalWithAggregatesFilter = {
+    equals?: Decimal | DecimalJsLike | number | string
+    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
+    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
+    lt?: Decimal | DecimalJsLike | number | string
+    lte?: Decimal | DecimalJsLike | number | string
+    gt?: Decimal | DecimalJsLike | number | string
+    gte?: Decimal | DecimalJsLike | number | string
+    not?: NestedDecimalWithAggregatesFilter | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter
+    _avg?: NestedDecimalFilter
+    _sum?: NestedDecimalFilter
+    _min?: NestedDecimalFilter
+    _max?: NestedDecimalFilter
   }
 
   export type CatalogoItemCategoriaItemIdNomeCompoundUniqueInput = {
@@ -29456,27 +31484,11 @@ export namespace Prisma {
     _max?: NestedEnumTipoAtributoFilter
   }
 
-  export type DecimalFilter = {
-    equals?: Decimal | DecimalJsLike | number | string
-    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
-    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
-    lt?: Decimal | DecimalJsLike | number | string
-    lte?: Decimal | DecimalJsLike | number | string
-    gt?: Decimal | DecimalJsLike | number | string
-    gte?: Decimal | DecimalJsLike | number | string
-    not?: NestedDecimalFilter | Decimal | DecimalJsLike | number | string
-  }
-
   export type EnumPeriodicidadeFilter = {
     equals?: Periodicidade
     in?: Enumerable<Periodicidade>
     notIn?: Enumerable<Periodicidade>
     not?: NestedEnumPeriodicidadeFilter | Periodicidade
-  }
-
-  export type CatalogoItemRelationFilter = {
-    is?: CatalogoItemWhereInput | null
-    isNot?: CatalogoItemWhereInput | null
   }
 
   export type ItemContratoContratoIdSequenciaCompoundUniqueInput = {
@@ -29546,22 +31558,6 @@ export namespace Prisma {
     sequencia?: SortOrder
     quantidade?: SortOrder
     valorUnitarioCents?: SortOrder
-  }
-
-  export type DecimalWithAggregatesFilter = {
-    equals?: Decimal | DecimalJsLike | number | string
-    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
-    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
-    lt?: Decimal | DecimalJsLike | number | string
-    lte?: Decimal | DecimalJsLike | number | string
-    gt?: Decimal | DecimalJsLike | number | string
-    gte?: Decimal | DecimalJsLike | number | string
-    not?: NestedDecimalWithAggregatesFilter | Decimal | DecimalJsLike | number | string
-    _count?: NestedIntFilter
-    _avg?: NestedDecimalFilter
-    _sum?: NestedDecimalFilter
-    _min?: NestedDecimalFilter
-    _max?: NestedDecimalFilter
   }
 
   export type EnumPeriodicidadeWithAggregatesFilter = {
@@ -29935,6 +31931,13 @@ export namespace Prisma {
     connect?: Enumerable<ItemContratoWhereUniqueInput>
   }
 
+  export type AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput = {
+    create?: XOR<Enumerable<AlteracaoContratualCreateWithoutFundamentoLegalInput>, Enumerable<AlteracaoContratualUncheckedCreateWithoutFundamentoLegalInput>>
+    connectOrCreate?: Enumerable<AlteracaoContratualCreateOrConnectWithoutFundamentoLegalInput>
+    createMany?: AlteracaoContratualCreateManyFundamentoLegalInputEnvelope
+    connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
+  }
+
   export type DominioValorUncheckedCreateNestedManyWithoutParentInput = {
     create?: XOR<Enumerable<DominioValorCreateWithoutParentInput>, Enumerable<DominioValorUncheckedCreateWithoutParentInput>>
     connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutParentInput>
@@ -29996,6 +31999,13 @@ export namespace Prisma {
     connectOrCreate?: Enumerable<ItemContratoCreateOrConnectWithoutUnidadeMedidaInput>
     createMany?: ItemContratoCreateManyUnidadeMedidaInputEnvelope
     connect?: Enumerable<ItemContratoWhereUniqueInput>
+  }
+
+  export type AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput = {
+    create?: XOR<Enumerable<AlteracaoContratualCreateWithoutFundamentoLegalInput>, Enumerable<AlteracaoContratualUncheckedCreateWithoutFundamentoLegalInput>>
+    connectOrCreate?: Enumerable<AlteracaoContratualCreateOrConnectWithoutFundamentoLegalInput>
+    createMany?: AlteracaoContratualCreateManyFundamentoLegalInputEnvelope
+    connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
   }
 
   export type IntFieldUpdateOperationsInput = {
@@ -30150,6 +32160,20 @@ export namespace Prisma {
     deleteMany?: Enumerable<ItemContratoScalarWhereInput>
   }
 
+  export type AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput = {
+    create?: XOR<Enumerable<AlteracaoContratualCreateWithoutFundamentoLegalInput>, Enumerable<AlteracaoContratualUncheckedCreateWithoutFundamentoLegalInput>>
+    connectOrCreate?: Enumerable<AlteracaoContratualCreateOrConnectWithoutFundamentoLegalInput>
+    upsert?: Enumerable<AlteracaoContratualUpsertWithWhereUniqueWithoutFundamentoLegalInput>
+    createMany?: AlteracaoContratualCreateManyFundamentoLegalInputEnvelope
+    set?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    disconnect?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    delete?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    update?: Enumerable<AlteracaoContratualUpdateWithWhereUniqueWithoutFundamentoLegalInput>
+    updateMany?: Enumerable<AlteracaoContratualUpdateManyWithWhereWithoutFundamentoLegalInput>
+    deleteMany?: Enumerable<AlteracaoContratualScalarWhereInput>
+  }
+
   export type DominioValorUncheckedUpdateManyWithoutParentNestedInput = {
     create?: XOR<Enumerable<DominioValorCreateWithoutParentInput>, Enumerable<DominioValorUncheckedCreateWithoutParentInput>>
     connectOrCreate?: Enumerable<DominioValorCreateOrConnectWithoutParentInput>
@@ -30274,6 +32298,20 @@ export namespace Prisma {
     update?: Enumerable<ItemContratoUpdateWithWhereUniqueWithoutUnidadeMedidaInput>
     updateMany?: Enumerable<ItemContratoUpdateManyWithWhereWithoutUnidadeMedidaInput>
     deleteMany?: Enumerable<ItemContratoScalarWhereInput>
+  }
+
+  export type AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput = {
+    create?: XOR<Enumerable<AlteracaoContratualCreateWithoutFundamentoLegalInput>, Enumerable<AlteracaoContratualUncheckedCreateWithoutFundamentoLegalInput>>
+    connectOrCreate?: Enumerable<AlteracaoContratualCreateOrConnectWithoutFundamentoLegalInput>
+    upsert?: Enumerable<AlteracaoContratualUpsertWithWhereUniqueWithoutFundamentoLegalInput>
+    createMany?: AlteracaoContratualCreateManyFundamentoLegalInputEnvelope
+    set?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    disconnect?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    delete?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    update?: Enumerable<AlteracaoContratualUpdateWithWhereUniqueWithoutFundamentoLegalInput>
+    updateMany?: Enumerable<AlteracaoContratualUpdateManyWithWhereWithoutFundamentoLegalInput>
+    deleteMany?: Enumerable<AlteracaoContratualScalarWhereInput>
   }
 
   export type UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput = {
@@ -31069,11 +33107,11 @@ export namespace Prisma {
     connect?: Enumerable<ItemContratoWhereUniqueInput>
   }
 
-  export type AditivoCreateNestedManyWithoutContratoInput = {
-    create?: XOR<Enumerable<AditivoCreateWithoutContratoInput>, Enumerable<AditivoUncheckedCreateWithoutContratoInput>>
-    connectOrCreate?: Enumerable<AditivoCreateOrConnectWithoutContratoInput>
-    createMany?: AditivoCreateManyContratoInputEnvelope
-    connect?: Enumerable<AditivoWhereUniqueInput>
+  export type AlteracaoContratualCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<AlteracaoContratualCreateWithoutContratoInput>, Enumerable<AlteracaoContratualUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<AlteracaoContratualCreateOrConnectWithoutContratoInput>
+    createMany?: AlteracaoContratualCreateManyContratoInputEnvelope
+    connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
   }
 
   export type ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput = {
@@ -31097,11 +33135,11 @@ export namespace Prisma {
     connect?: Enumerable<ItemContratoWhereUniqueInput>
   }
 
-  export type AditivoUncheckedCreateNestedManyWithoutContratoInput = {
-    create?: XOR<Enumerable<AditivoCreateWithoutContratoInput>, Enumerable<AditivoUncheckedCreateWithoutContratoInput>>
-    connectOrCreate?: Enumerable<AditivoCreateOrConnectWithoutContratoInput>
-    createMany?: AditivoCreateManyContratoInputEnvelope
-    connect?: Enumerable<AditivoWhereUniqueInput>
+  export type AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput = {
+    create?: XOR<Enumerable<AlteracaoContratualCreateWithoutContratoInput>, Enumerable<AlteracaoContratualUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<AlteracaoContratualCreateOrConnectWithoutContratoInput>
+    createMany?: AlteracaoContratualCreateManyContratoInputEnvelope
+    connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
   }
 
   export type EnumPilarOrcamentarioFieldUpdateOperationsInput = {
@@ -31234,18 +33272,18 @@ export namespace Prisma {
     deleteMany?: Enumerable<ItemContratoScalarWhereInput>
   }
 
-  export type AditivoUpdateManyWithoutContratoNestedInput = {
-    create?: XOR<Enumerable<AditivoCreateWithoutContratoInput>, Enumerable<AditivoUncheckedCreateWithoutContratoInput>>
-    connectOrCreate?: Enumerable<AditivoCreateOrConnectWithoutContratoInput>
-    upsert?: Enumerable<AditivoUpsertWithWhereUniqueWithoutContratoInput>
-    createMany?: AditivoCreateManyContratoInputEnvelope
-    set?: Enumerable<AditivoWhereUniqueInput>
-    disconnect?: Enumerable<AditivoWhereUniqueInput>
-    delete?: Enumerable<AditivoWhereUniqueInput>
-    connect?: Enumerable<AditivoWhereUniqueInput>
-    update?: Enumerable<AditivoUpdateWithWhereUniqueWithoutContratoInput>
-    updateMany?: Enumerable<AditivoUpdateManyWithWhereWithoutContratoInput>
-    deleteMany?: Enumerable<AditivoScalarWhereInput>
+  export type AlteracaoContratualUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<AlteracaoContratualCreateWithoutContratoInput>, Enumerable<AlteracaoContratualUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<AlteracaoContratualCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<AlteracaoContratualUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: AlteracaoContratualCreateManyContratoInputEnvelope
+    set?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    disconnect?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    delete?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    update?: Enumerable<AlteracaoContratualUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<AlteracaoContratualUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<AlteracaoContratualScalarWhereInput>
   }
 
   export type ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput = {
@@ -31290,18 +33328,18 @@ export namespace Prisma {
     deleteMany?: Enumerable<ItemContratoScalarWhereInput>
   }
 
-  export type AditivoUncheckedUpdateManyWithoutContratoNestedInput = {
-    create?: XOR<Enumerable<AditivoCreateWithoutContratoInput>, Enumerable<AditivoUncheckedCreateWithoutContratoInput>>
-    connectOrCreate?: Enumerable<AditivoCreateOrConnectWithoutContratoInput>
-    upsert?: Enumerable<AditivoUpsertWithWhereUniqueWithoutContratoInput>
-    createMany?: AditivoCreateManyContratoInputEnvelope
-    set?: Enumerable<AditivoWhereUniqueInput>
-    disconnect?: Enumerable<AditivoWhereUniqueInput>
-    delete?: Enumerable<AditivoWhereUniqueInput>
-    connect?: Enumerable<AditivoWhereUniqueInput>
-    update?: Enumerable<AditivoUpdateWithWhereUniqueWithoutContratoInput>
-    updateMany?: Enumerable<AditivoUpdateManyWithWhereWithoutContratoInput>
-    deleteMany?: Enumerable<AditivoScalarWhereInput>
+  export type AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput = {
+    create?: XOR<Enumerable<AlteracaoContratualCreateWithoutContratoInput>, Enumerable<AlteracaoContratualUncheckedCreateWithoutContratoInput>>
+    connectOrCreate?: Enumerable<AlteracaoContratualCreateOrConnectWithoutContratoInput>
+    upsert?: Enumerable<AlteracaoContratualUpsertWithWhereUniqueWithoutContratoInput>
+    createMany?: AlteracaoContratualCreateManyContratoInputEnvelope
+    set?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    disconnect?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    delete?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    connect?: Enumerable<AlteracaoContratualWhereUniqueInput>
+    update?: Enumerable<AlteracaoContratualUpdateWithWhereUniqueWithoutContratoInput>
+    updateMany?: Enumerable<AlteracaoContratualUpdateManyWithWhereWithoutContratoInput>
+    deleteMany?: Enumerable<AlteracaoContratualScalarWhereInput>
   }
 
   export type ContratoCreateNestedOneWithoutResponsaveisInput = {
@@ -31372,18 +33410,142 @@ export namespace Prisma {
     update?: XOR<UnidadeOrganizacionalUpdateWithoutRateiosInput, UnidadeOrganizacionalUncheckedUpdateWithoutRateiosInput>
   }
 
-  export type ContratoCreateNestedOneWithoutAditivosInput = {
-    create?: XOR<ContratoCreateWithoutAditivosInput, ContratoUncheckedCreateWithoutAditivosInput>
-    connectOrCreate?: ContratoCreateOrConnectWithoutAditivosInput
+  export type ContratoCreateNestedOneWithoutAlteracoesInput = {
+    create?: XOR<ContratoCreateWithoutAlteracoesInput, ContratoUncheckedCreateWithoutAlteracoesInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutAlteracoesInput
     connect?: ContratoWhereUniqueInput
   }
 
-  export type ContratoUpdateOneRequiredWithoutAditivosNestedInput = {
-    create?: XOR<ContratoCreateWithoutAditivosInput, ContratoUncheckedCreateWithoutAditivosInput>
-    connectOrCreate?: ContratoCreateOrConnectWithoutAditivosInput
-    upsert?: ContratoUpsertWithoutAditivosInput
+  export type DominioValorCreateNestedOneWithoutAlteracoesFundamentoInput = {
+    create?: XOR<DominioValorCreateWithoutAlteracoesFundamentoInput, DominioValorUncheckedCreateWithoutAlteracoesFundamentoInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutAlteracoesFundamentoInput
+    connect?: DominioValorWhereUniqueInput
+  }
+
+  export type AlteracaoItemCreateNestedManyWithoutAlteracaoInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutAlteracaoInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutAlteracaoInput>
+    createMany?: AlteracaoItemCreateManyAlteracaoInputEnvelope
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
+  }
+
+  export type AlteracaoItemUncheckedCreateNestedManyWithoutAlteracaoInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutAlteracaoInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutAlteracaoInput>
+    createMany?: AlteracaoItemCreateManyAlteracaoInputEnvelope
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
+  }
+
+  export type EnumTipoAlteracaoFieldUpdateOperationsInput = {
+    set?: TipoAlteracao
+  }
+
+  export type NullableEnumUnidadeTempoFieldUpdateOperationsInput = {
+    set?: UnidadeTempo | null
+  }
+
+  export type EnumSituacaoAlteracaoFieldUpdateOperationsInput = {
+    set?: SituacaoAlteracao
+  }
+
+  export type ContratoUpdateOneRequiredWithoutAlteracoesNestedInput = {
+    create?: XOR<ContratoCreateWithoutAlteracoesInput, ContratoUncheckedCreateWithoutAlteracoesInput>
+    connectOrCreate?: ContratoCreateOrConnectWithoutAlteracoesInput
+    upsert?: ContratoUpsertWithoutAlteracoesInput
     connect?: ContratoWhereUniqueInput
-    update?: XOR<ContratoUpdateWithoutAditivosInput, ContratoUncheckedUpdateWithoutAditivosInput>
+    update?: XOR<ContratoUpdateWithoutAlteracoesInput, ContratoUncheckedUpdateWithoutAlteracoesInput>
+  }
+
+  export type DominioValorUpdateOneWithoutAlteracoesFundamentoNestedInput = {
+    create?: XOR<DominioValorCreateWithoutAlteracoesFundamentoInput, DominioValorUncheckedCreateWithoutAlteracoesFundamentoInput>
+    connectOrCreate?: DominioValorCreateOrConnectWithoutAlteracoesFundamentoInput
+    upsert?: DominioValorUpsertWithoutAlteracoesFundamentoInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: DominioValorWhereUniqueInput
+    update?: XOR<DominioValorUpdateWithoutAlteracoesFundamentoInput, DominioValorUncheckedUpdateWithoutAlteracoesFundamentoInput>
+  }
+
+  export type AlteracaoItemUpdateManyWithoutAlteracaoNestedInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutAlteracaoInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutAlteracaoInput>
+    upsert?: Enumerable<AlteracaoItemUpsertWithWhereUniqueWithoutAlteracaoInput>
+    createMany?: AlteracaoItemCreateManyAlteracaoInputEnvelope
+    set?: Enumerable<AlteracaoItemWhereUniqueInput>
+    disconnect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    delete?: Enumerable<AlteracaoItemWhereUniqueInput>
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    update?: Enumerable<AlteracaoItemUpdateWithWhereUniqueWithoutAlteracaoInput>
+    updateMany?: Enumerable<AlteracaoItemUpdateManyWithWhereWithoutAlteracaoInput>
+    deleteMany?: Enumerable<AlteracaoItemScalarWhereInput>
+  }
+
+  export type AlteracaoItemUncheckedUpdateManyWithoutAlteracaoNestedInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutAlteracaoInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutAlteracaoInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutAlteracaoInput>
+    upsert?: Enumerable<AlteracaoItemUpsertWithWhereUniqueWithoutAlteracaoInput>
+    createMany?: AlteracaoItemCreateManyAlteracaoInputEnvelope
+    set?: Enumerable<AlteracaoItemWhereUniqueInput>
+    disconnect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    delete?: Enumerable<AlteracaoItemWhereUniqueInput>
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    update?: Enumerable<AlteracaoItemUpdateWithWhereUniqueWithoutAlteracaoInput>
+    updateMany?: Enumerable<AlteracaoItemUpdateManyWithWhereWithoutAlteracaoInput>
+    deleteMany?: Enumerable<AlteracaoItemScalarWhereInput>
+  }
+
+  export type AlteracaoContratualCreateNestedOneWithoutItensInput = {
+    create?: XOR<AlteracaoContratualCreateWithoutItensInput, AlteracaoContratualUncheckedCreateWithoutItensInput>
+    connectOrCreate?: AlteracaoContratualCreateOrConnectWithoutItensInput
+    connect?: AlteracaoContratualWhereUniqueInput
+  }
+
+  export type ItemContratoCreateNestedOneWithoutAlteracaoItensInput = {
+    create?: XOR<ItemContratoCreateWithoutAlteracaoItensInput, ItemContratoUncheckedCreateWithoutAlteracaoItensInput>
+    connectOrCreate?: ItemContratoCreateOrConnectWithoutAlteracaoItensInput
+    connect?: ItemContratoWhereUniqueInput
+  }
+
+  export type CatalogoItemCreateNestedOneWithoutAlteracaoItensInput = {
+    create?: XOR<CatalogoItemCreateWithoutAlteracaoItensInput, CatalogoItemUncheckedCreateWithoutAlteracaoItensInput>
+    connectOrCreate?: CatalogoItemCreateOrConnectWithoutAlteracaoItensInput
+    connect?: CatalogoItemWhereUniqueInput
+  }
+
+  export type DecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type AlteracaoContratualUpdateOneRequiredWithoutItensNestedInput = {
+    create?: XOR<AlteracaoContratualCreateWithoutItensInput, AlteracaoContratualUncheckedCreateWithoutItensInput>
+    connectOrCreate?: AlteracaoContratualCreateOrConnectWithoutItensInput
+    upsert?: AlteracaoContratualUpsertWithoutItensInput
+    connect?: AlteracaoContratualWhereUniqueInput
+    update?: XOR<AlteracaoContratualUpdateWithoutItensInput, AlteracaoContratualUncheckedUpdateWithoutItensInput>
+  }
+
+  export type ItemContratoUpdateOneWithoutAlteracaoItensNestedInput = {
+    create?: XOR<ItemContratoCreateWithoutAlteracaoItensInput, ItemContratoUncheckedCreateWithoutAlteracaoItensInput>
+    connectOrCreate?: ItemContratoCreateOrConnectWithoutAlteracaoItensInput
+    upsert?: ItemContratoUpsertWithoutAlteracaoItensInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: ItemContratoWhereUniqueInput
+    update?: XOR<ItemContratoUpdateWithoutAlteracaoItensInput, ItemContratoUncheckedUpdateWithoutAlteracaoItensInput>
+  }
+
+  export type CatalogoItemUpdateOneWithoutAlteracaoItensNestedInput = {
+    create?: XOR<CatalogoItemCreateWithoutAlteracaoItensInput, CatalogoItemUncheckedCreateWithoutAlteracaoItensInput>
+    connectOrCreate?: CatalogoItemCreateOrConnectWithoutAlteracaoItensInput
+    upsert?: CatalogoItemUpsertWithoutAlteracaoItensInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: CatalogoItemWhereUniqueInput
+    update?: XOR<CatalogoItemUpdateWithoutAlteracaoItensInput, CatalogoItemUncheckedUpdateWithoutAlteracaoItensInput>
   }
 
   export type DominioValorCreateNestedOneWithoutCatalogoPorCategoriaInput = {
@@ -31405,11 +33567,25 @@ export namespace Prisma {
     connect?: Enumerable<ItemContratoWhereUniqueInput>
   }
 
+  export type AlteracaoItemCreateNestedManyWithoutCatalogoItemInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutCatalogoItemInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutCatalogoItemInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutCatalogoItemInput>
+    createMany?: AlteracaoItemCreateManyCatalogoItemInputEnvelope
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
+  }
+
   export type ItemContratoUncheckedCreateNestedManyWithoutCatalogoItemInput = {
     create?: XOR<Enumerable<ItemContratoCreateWithoutCatalogoItemInput>, Enumerable<ItemContratoUncheckedCreateWithoutCatalogoItemInput>>
     connectOrCreate?: Enumerable<ItemContratoCreateOrConnectWithoutCatalogoItemInput>
     createMany?: ItemContratoCreateManyCatalogoItemInputEnvelope
     connect?: Enumerable<ItemContratoWhereUniqueInput>
+  }
+
+  export type AlteracaoItemUncheckedCreateNestedManyWithoutCatalogoItemInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutCatalogoItemInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutCatalogoItemInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutCatalogoItemInput>
+    createMany?: AlteracaoItemCreateManyCatalogoItemInputEnvelope
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
   }
 
   export type DominioValorUpdateOneRequiredWithoutCatalogoPorCategoriaNestedInput = {
@@ -31442,6 +33618,20 @@ export namespace Prisma {
     deleteMany?: Enumerable<ItemContratoScalarWhereInput>
   }
 
+  export type AlteracaoItemUpdateManyWithoutCatalogoItemNestedInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutCatalogoItemInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutCatalogoItemInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutCatalogoItemInput>
+    upsert?: Enumerable<AlteracaoItemUpsertWithWhereUniqueWithoutCatalogoItemInput>
+    createMany?: AlteracaoItemCreateManyCatalogoItemInputEnvelope
+    set?: Enumerable<AlteracaoItemWhereUniqueInput>
+    disconnect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    delete?: Enumerable<AlteracaoItemWhereUniqueInput>
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    update?: Enumerable<AlteracaoItemUpdateWithWhereUniqueWithoutCatalogoItemInput>
+    updateMany?: Enumerable<AlteracaoItemUpdateManyWithWhereWithoutCatalogoItemInput>
+    deleteMany?: Enumerable<AlteracaoItemScalarWhereInput>
+  }
+
   export type ItemContratoUncheckedUpdateManyWithoutCatalogoItemNestedInput = {
     create?: XOR<Enumerable<ItemContratoCreateWithoutCatalogoItemInput>, Enumerable<ItemContratoUncheckedCreateWithoutCatalogoItemInput>>
     connectOrCreate?: Enumerable<ItemContratoCreateOrConnectWithoutCatalogoItemInput>
@@ -31454,6 +33644,20 @@ export namespace Prisma {
     update?: Enumerable<ItemContratoUpdateWithWhereUniqueWithoutCatalogoItemInput>
     updateMany?: Enumerable<ItemContratoUpdateManyWithWhereWithoutCatalogoItemInput>
     deleteMany?: Enumerable<ItemContratoScalarWhereInput>
+  }
+
+  export type AlteracaoItemUncheckedUpdateManyWithoutCatalogoItemNestedInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutCatalogoItemInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutCatalogoItemInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutCatalogoItemInput>
+    upsert?: Enumerable<AlteracaoItemUpsertWithWhereUniqueWithoutCatalogoItemInput>
+    createMany?: AlteracaoItemCreateManyCatalogoItemInputEnvelope
+    set?: Enumerable<AlteracaoItemWhereUniqueInput>
+    disconnect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    delete?: Enumerable<AlteracaoItemWhereUniqueInput>
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    update?: Enumerable<AlteracaoItemUpdateWithWhereUniqueWithoutCatalogoItemInput>
+    updateMany?: Enumerable<AlteracaoItemUpdateManyWithWhereWithoutCatalogoItemInput>
+    deleteMany?: Enumerable<AlteracaoItemScalarWhereInput>
   }
 
   export type DominioValorCreateNestedOneWithoutAtributosPorCategoriaInput = {
@@ -31504,12 +33708,18 @@ export namespace Prisma {
     connect?: MunicipioWhereUniqueInput
   }
 
-  export type DecimalFieldUpdateOperationsInput = {
-    set?: Decimal | DecimalJsLike | number | string
-    increment?: Decimal | DecimalJsLike | number | string
-    decrement?: Decimal | DecimalJsLike | number | string
-    multiply?: Decimal | DecimalJsLike | number | string
-    divide?: Decimal | DecimalJsLike | number | string
+  export type AlteracaoItemCreateNestedManyWithoutItemContratoInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutItemContratoInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutItemContratoInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutItemContratoInput>
+    createMany?: AlteracaoItemCreateManyItemContratoInputEnvelope
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
+  }
+
+  export type AlteracaoItemUncheckedCreateNestedManyWithoutItemContratoInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutItemContratoInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutItemContratoInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutItemContratoInput>
+    createMany?: AlteracaoItemCreateManyItemContratoInputEnvelope
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
   }
 
   export type EnumPeriodicidadeFieldUpdateOperationsInput = {
@@ -31558,6 +33768,34 @@ export namespace Prisma {
     delete?: boolean
     connect?: MunicipioWhereUniqueInput
     update?: XOR<MunicipioUpdateWithoutItensExecucaoInput, MunicipioUncheckedUpdateWithoutItensExecucaoInput>
+  }
+
+  export type AlteracaoItemUpdateManyWithoutItemContratoNestedInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutItemContratoInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutItemContratoInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutItemContratoInput>
+    upsert?: Enumerable<AlteracaoItemUpsertWithWhereUniqueWithoutItemContratoInput>
+    createMany?: AlteracaoItemCreateManyItemContratoInputEnvelope
+    set?: Enumerable<AlteracaoItemWhereUniqueInput>
+    disconnect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    delete?: Enumerable<AlteracaoItemWhereUniqueInput>
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    update?: Enumerable<AlteracaoItemUpdateWithWhereUniqueWithoutItemContratoInput>
+    updateMany?: Enumerable<AlteracaoItemUpdateManyWithWhereWithoutItemContratoInput>
+    deleteMany?: Enumerable<AlteracaoItemScalarWhereInput>
+  }
+
+  export type AlteracaoItemUncheckedUpdateManyWithoutItemContratoNestedInput = {
+    create?: XOR<Enumerable<AlteracaoItemCreateWithoutItemContratoInput>, Enumerable<AlteracaoItemUncheckedCreateWithoutItemContratoInput>>
+    connectOrCreate?: Enumerable<AlteracaoItemCreateOrConnectWithoutItemContratoInput>
+    upsert?: Enumerable<AlteracaoItemUpsertWithWhereUniqueWithoutItemContratoInput>
+    createMany?: AlteracaoItemCreateManyItemContratoInputEnvelope
+    set?: Enumerable<AlteracaoItemWhereUniqueInput>
+    disconnect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    delete?: Enumerable<AlteracaoItemWhereUniqueInput>
+    connect?: Enumerable<AlteracaoItemWhereUniqueInput>
+    update?: Enumerable<AlteracaoItemUpdateWithWhereUniqueWithoutItemContratoInput>
+    updateMany?: Enumerable<AlteracaoItemUpdateManyWithWhereWithoutItemContratoInput>
+    deleteMany?: Enumerable<AlteracaoItemScalarWhereInput>
   }
 
   export type NestedStringFilter = {
@@ -32085,6 +34323,84 @@ export namespace Prisma {
     _max?: NestedDecimalNullableFilter
   }
 
+  export type NestedEnumTipoAlteracaoFilter = {
+    equals?: TipoAlteracao
+    in?: Enumerable<TipoAlteracao>
+    notIn?: Enumerable<TipoAlteracao>
+    not?: NestedEnumTipoAlteracaoFilter | TipoAlteracao
+  }
+
+  export type NestedEnumUnidadeTempoNullableFilter = {
+    equals?: UnidadeTempo | null
+    in?: Enumerable<UnidadeTempo> | null
+    notIn?: Enumerable<UnidadeTempo> | null
+    not?: NestedEnumUnidadeTempoNullableFilter | UnidadeTempo | null
+  }
+
+  export type NestedEnumSituacaoAlteracaoFilter = {
+    equals?: SituacaoAlteracao
+    in?: Enumerable<SituacaoAlteracao>
+    notIn?: Enumerable<SituacaoAlteracao>
+    not?: NestedEnumSituacaoAlteracaoFilter | SituacaoAlteracao
+  }
+
+  export type NestedEnumTipoAlteracaoWithAggregatesFilter = {
+    equals?: TipoAlteracao
+    in?: Enumerable<TipoAlteracao>
+    notIn?: Enumerable<TipoAlteracao>
+    not?: NestedEnumTipoAlteracaoWithAggregatesFilter | TipoAlteracao
+    _count?: NestedIntFilter
+    _min?: NestedEnumTipoAlteracaoFilter
+    _max?: NestedEnumTipoAlteracaoFilter
+  }
+
+  export type NestedEnumUnidadeTempoNullableWithAggregatesFilter = {
+    equals?: UnidadeTempo | null
+    in?: Enumerable<UnidadeTempo> | null
+    notIn?: Enumerable<UnidadeTempo> | null
+    not?: NestedEnumUnidadeTempoNullableWithAggregatesFilter | UnidadeTempo | null
+    _count?: NestedIntNullableFilter
+    _min?: NestedEnumUnidadeTempoNullableFilter
+    _max?: NestedEnumUnidadeTempoNullableFilter
+  }
+
+  export type NestedEnumSituacaoAlteracaoWithAggregatesFilter = {
+    equals?: SituacaoAlteracao
+    in?: Enumerable<SituacaoAlteracao>
+    notIn?: Enumerable<SituacaoAlteracao>
+    not?: NestedEnumSituacaoAlteracaoWithAggregatesFilter | SituacaoAlteracao
+    _count?: NestedIntFilter
+    _min?: NestedEnumSituacaoAlteracaoFilter
+    _max?: NestedEnumSituacaoAlteracaoFilter
+  }
+
+  export type NestedDecimalFilter = {
+    equals?: Decimal | DecimalJsLike | number | string
+    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
+    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
+    lt?: Decimal | DecimalJsLike | number | string
+    lte?: Decimal | DecimalJsLike | number | string
+    gt?: Decimal | DecimalJsLike | number | string
+    gte?: Decimal | DecimalJsLike | number | string
+    not?: NestedDecimalFilter | Decimal | DecimalJsLike | number | string
+  }
+
+  export type NestedDecimalWithAggregatesFilter = {
+    equals?: Decimal | DecimalJsLike | number | string
+    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
+    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
+    lt?: Decimal | DecimalJsLike | number | string
+    lte?: Decimal | DecimalJsLike | number | string
+    gt?: Decimal | DecimalJsLike | number | string
+    gte?: Decimal | DecimalJsLike | number | string
+    not?: NestedDecimalWithAggregatesFilter | Decimal | DecimalJsLike | number | string
+    _count?: NestedIntFilter
+    _avg?: NestedDecimalFilter
+    _sum?: NestedDecimalFilter
+    _min?: NestedDecimalFilter
+    _max?: NestedDecimalFilter
+  }
+
   export type NestedEnumTipoAtributoFilter = {
     equals?: TipoAtributo
     in?: Enumerable<TipoAtributo>
@@ -32102,38 +34418,11 @@ export namespace Prisma {
     _max?: NestedEnumTipoAtributoFilter
   }
 
-  export type NestedDecimalFilter = {
-    equals?: Decimal | DecimalJsLike | number | string
-    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
-    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
-    lt?: Decimal | DecimalJsLike | number | string
-    lte?: Decimal | DecimalJsLike | number | string
-    gt?: Decimal | DecimalJsLike | number | string
-    gte?: Decimal | DecimalJsLike | number | string
-    not?: NestedDecimalFilter | Decimal | DecimalJsLike | number | string
-  }
-
   export type NestedEnumPeriodicidadeFilter = {
     equals?: Periodicidade
     in?: Enumerable<Periodicidade>
     notIn?: Enumerable<Periodicidade>
     not?: NestedEnumPeriodicidadeFilter | Periodicidade
-  }
-
-  export type NestedDecimalWithAggregatesFilter = {
-    equals?: Decimal | DecimalJsLike | number | string
-    in?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
-    notIn?: Enumerable<Decimal> | Enumerable<DecimalJsLike> | Enumerable<number> | Enumerable<string> | Decimal | DecimalJsLike | number | string
-    lt?: Decimal | DecimalJsLike | number | string
-    lte?: Decimal | DecimalJsLike | number | string
-    gt?: Decimal | DecimalJsLike | number | string
-    gte?: Decimal | DecimalJsLike | number | string
-    not?: NestedDecimalWithAggregatesFilter | Decimal | DecimalJsLike | number | string
-    _count?: NestedIntFilter
-    _avg?: NestedDecimalFilter
-    _sum?: NestedDecimalFilter
-    _min?: NestedDecimalFilter
-    _max?: NestedDecimalFilter
   }
 
   export type NestedEnumPeriodicidadeWithAggregatesFilter = {
@@ -32273,6 +34562,7 @@ export namespace Prisma {
     catalogoItem: CatalogoItemCreateNestedOneWithoutItensContratoInput
     unidadeMedida: DominioValorCreateNestedOneWithoutItensUnidadeMedidaInput
     unidadeDestino?: UnidadeOrganizacionalCreateNestedOneWithoutItensDestinoInput
+    alteracaoItens?: AlteracaoItemCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoUncheckedCreateWithoutMunicipioExecucaoInput = {
@@ -32290,6 +34580,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    alteracaoItens?: AlteracaoItemUncheckedCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoCreateOrConnectWithoutMunicipioExecucaoInput = {
@@ -32425,6 +34716,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateWithoutDominioInput = {
@@ -32447,6 +34739,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorCreateOrConnectWithoutDominioInput = {
@@ -32539,6 +34832,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateWithoutChildrenInput = {
@@ -32561,6 +34855,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorCreateOrConnectWithoutChildrenInput = {
@@ -32588,6 +34883,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateWithoutParentInput = {
@@ -32610,6 +34906,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorCreateOrConnectWithoutParentInput = {
@@ -32660,7 +34957,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutCategoriaContratacaoInput = {
@@ -32701,7 +34998,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutCategoriaContratacaoInput = {
@@ -32752,7 +35049,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutModalidadeRefInput = {
@@ -32793,7 +35090,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutModalidadeRefInput = {
@@ -32844,7 +35141,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutFundamentoLegalInput = {
@@ -32885,7 +35182,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutFundamentoLegalInput = {
@@ -32955,6 +35252,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     unidadeMedidaPadrao: DominioValorCreateNestedOneWithoutCatalogoUnidadeMedidaInput
     itensContrato?: ItemContratoCreateNestedManyWithoutCatalogoItemInput
+    alteracaoItens?: AlteracaoItemCreateNestedManyWithoutCatalogoItemInput
   }
 
   export type CatalogoItemUncheckedCreateWithoutCategoriaItemInput = {
@@ -32968,6 +35266,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     itensContrato?: ItemContratoUncheckedCreateNestedManyWithoutCatalogoItemInput
+    alteracaoItens?: AlteracaoItemUncheckedCreateNestedManyWithoutCatalogoItemInput
   }
 
   export type CatalogoItemCreateOrConnectWithoutCategoriaItemInput = {
@@ -32991,6 +35290,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     categoriaItem: DominioValorCreateNestedOneWithoutCatalogoPorCategoriaInput
     itensContrato?: ItemContratoCreateNestedManyWithoutCatalogoItemInput
+    alteracaoItens?: AlteracaoItemCreateNestedManyWithoutCatalogoItemInput
   }
 
   export type CatalogoItemUncheckedCreateWithoutUnidadeMedidaPadraoInput = {
@@ -33004,6 +35304,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     itensContrato?: ItemContratoUncheckedCreateNestedManyWithoutCatalogoItemInput
+    alteracaoItens?: AlteracaoItemUncheckedCreateNestedManyWithoutCatalogoItemInput
   }
 
   export type CatalogoItemCreateOrConnectWithoutUnidadeMedidaPadraoInput = {
@@ -33071,6 +35372,7 @@ export namespace Prisma {
     catalogoItem: CatalogoItemCreateNestedOneWithoutItensContratoInput
     unidadeDestino?: UnidadeOrganizacionalCreateNestedOneWithoutItensDestinoInput
     municipioExecucao?: MunicipioCreateNestedOneWithoutItensExecucaoInput
+    alteracaoItens?: AlteracaoItemCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoUncheckedCreateWithoutUnidadeMedidaInput = {
@@ -33088,6 +35390,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    alteracaoItens?: AlteracaoItemUncheckedCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoCreateOrConnectWithoutUnidadeMedidaInput = {
@@ -33097,6 +35400,64 @@ export namespace Prisma {
 
   export type ItemContratoCreateManyUnidadeMedidaInputEnvelope = {
     data: Enumerable<ItemContratoCreateManyUnidadeMedidaInput>
+    skipDuplicates?: boolean
+  }
+
+  export type AlteracaoContratualCreateWithoutFundamentoLegalInput = {
+    id?: string
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutAlteracoesInput
+    itens?: AlteracaoItemCreateNestedManyWithoutAlteracaoInput
+  }
+
+  export type AlteracaoContratualUncheckedCreateWithoutFundamentoLegalInput = {
+    id?: string
+    contratoId: string
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    itens?: AlteracaoItemUncheckedCreateNestedManyWithoutAlteracaoInput
+  }
+
+  export type AlteracaoContratualCreateOrConnectWithoutFundamentoLegalInput = {
+    where: AlteracaoContratualWhereUniqueInput
+    create: XOR<AlteracaoContratualCreateWithoutFundamentoLegalInput, AlteracaoContratualUncheckedCreateWithoutFundamentoLegalInput>
+  }
+
+  export type AlteracaoContratualCreateManyFundamentoLegalInputEnvelope = {
+    data: Enumerable<AlteracaoContratualCreateManyFundamentoLegalInput>
     skipDuplicates?: boolean
   }
 
@@ -33152,6 +35513,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutChildrenInput = {
@@ -33174,6 +35536,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUpsertWithWhereUniqueWithoutParentInput = {
@@ -33415,6 +35778,49 @@ export namespace Prisma {
   export type ItemContratoUpdateManyWithWhereWithoutUnidadeMedidaInput = {
     where: ItemContratoScalarWhereInput
     data: XOR<ItemContratoUpdateManyMutationInput, ItemContratoUncheckedUpdateManyWithoutItensUnidadeMedidaInput>
+  }
+
+  export type AlteracaoContratualUpsertWithWhereUniqueWithoutFundamentoLegalInput = {
+    where: AlteracaoContratualWhereUniqueInput
+    update: XOR<AlteracaoContratualUpdateWithoutFundamentoLegalInput, AlteracaoContratualUncheckedUpdateWithoutFundamentoLegalInput>
+    create: XOR<AlteracaoContratualCreateWithoutFundamentoLegalInput, AlteracaoContratualUncheckedCreateWithoutFundamentoLegalInput>
+  }
+
+  export type AlteracaoContratualUpdateWithWhereUniqueWithoutFundamentoLegalInput = {
+    where: AlteracaoContratualWhereUniqueInput
+    data: XOR<AlteracaoContratualUpdateWithoutFundamentoLegalInput, AlteracaoContratualUncheckedUpdateWithoutFundamentoLegalInput>
+  }
+
+  export type AlteracaoContratualUpdateManyWithWhereWithoutFundamentoLegalInput = {
+    where: AlteracaoContratualScalarWhereInput
+    data: XOR<AlteracaoContratualUpdateManyMutationInput, AlteracaoContratualUncheckedUpdateManyWithoutAlteracoesFundamentoInput>
+  }
+
+  export type AlteracaoContratualScalarWhereInput = {
+    AND?: Enumerable<AlteracaoContratualScalarWhereInput>
+    OR?: Enumerable<AlteracaoContratualScalarWhereInput>
+    NOT?: Enumerable<AlteracaoContratualScalarWhereInput>
+    id?: StringFilter | string
+    contratoId?: StringFilter | string
+    tipo?: EnumTipoAlteracaoFilter | TipoAlteracao
+    numero?: IntFilter | number
+    eProtocolo?: StringNullableFilter | string | null
+    objetoDescricao?: StringFilter | string
+    fundamentoLegalId?: StringNullableFilter | string | null
+    justificativa?: StringNullableFilter | string | null
+    justificativaExcepcional?: StringNullableFilter | string | null
+    dataAssinatura?: DateTimeFilter | Date | string
+    dataInicioEfeito?: DateTimeNullableFilter | Date | string | null
+    prazoAcrescidoValor?: IntNullableFilter | number | null
+    prazoAcrescidoUnidade?: EnumUnidadeTempoNullableFilter | UnidadeTempo | null
+    novaDataFimVigencia?: DateTimeNullableFilter | Date | string | null
+    valorAcrescidoCents?: BigIntFilter | bigint | number
+    valorSuprimidoCents?: BigIntFilter | bigint | number
+    percentualReajuste?: DecimalNullableFilter | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFilter | SituacaoAlteracao
+    codigoLegado?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
   }
 
   export type UnidadeOrganizacionalCreateWithoutOrgaoInput = {
@@ -33770,7 +36176,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutUnidadeGestoraInput = {
@@ -33811,7 +36217,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutUnidadeGestoraInput = {
@@ -33915,6 +36321,7 @@ export namespace Prisma {
     catalogoItem: CatalogoItemCreateNestedOneWithoutItensContratoInput
     unidadeMedida: DominioValorCreateNestedOneWithoutItensUnidadeMedidaInput
     municipioExecucao?: MunicipioCreateNestedOneWithoutItensExecucaoInput
+    alteracaoItens?: AlteracaoItemCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoUncheckedCreateWithoutUnidadeDestinoInput = {
@@ -33932,6 +36339,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    alteracaoItens?: AlteracaoItemUncheckedCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoCreateOrConnectWithoutUnidadeDestinoInput = {
@@ -34272,7 +36680,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutFornecedorInput = {
@@ -34313,7 +36721,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutFornecedorInput = {
@@ -34841,6 +37249,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateWithoutProcessosModalidadeInput = {
@@ -34863,6 +37272,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorCreateOrConnectWithoutProcessosModalidadeInput = {
@@ -34908,7 +37318,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutProcessoInput = {
@@ -34949,7 +37359,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutProcessoInput = {
@@ -35028,6 +37438,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutProcessosModalidadeInput = {
@@ -35050,6 +37461,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type ContratoUpsertWithWhereUniqueWithoutProcessoInput = {
@@ -35129,6 +37541,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateWithoutContratosCategoriaInput = {
@@ -35151,6 +37564,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorCreateOrConnectWithoutContratosCategoriaInput = {
@@ -35178,6 +37592,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateWithoutContratosModalidadeInput = {
@@ -35200,6 +37615,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorCreateOrConnectWithoutContratosModalidadeInput = {
@@ -35227,6 +37643,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateWithoutContratosFundamentoInput = {
@@ -35249,6 +37666,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorCreateOrConnectWithoutContratosFundamentoInput = {
@@ -35411,6 +37829,7 @@ export namespace Prisma {
     unidadeMedida: DominioValorCreateNestedOneWithoutItensUnidadeMedidaInput
     unidadeDestino?: UnidadeOrganizacionalCreateNestedOneWithoutItensDestinoInput
     municipioExecucao?: MunicipioCreateNestedOneWithoutItensExecucaoInput
+    alteracaoItens?: AlteracaoItemCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoUncheckedCreateWithoutContratoInput = {
@@ -35428,6 +37847,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    alteracaoItens?: AlteracaoItemUncheckedCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoCreateOrConnectWithoutContratoInput = {
@@ -35440,31 +37860,61 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type AditivoCreateWithoutContratoInput = {
+  export type AlteracaoContratualCreateWithoutContratoInput = {
     id?: string
-    numAditivo: number
-    protocoloAdit: string
-    novoFimVigencia?: Date | string | null
-    valorAdicionalCents?: number | null
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutAlteracoesFundamentoInput
+    itens?: AlteracaoItemCreateNestedManyWithoutAlteracaoInput
   }
 
-  export type AditivoUncheckedCreateWithoutContratoInput = {
+  export type AlteracaoContratualUncheckedCreateWithoutContratoInput = {
     id?: string
-    numAditivo: number
-    protocoloAdit: string
-    novoFimVigencia?: Date | string | null
-    valorAdicionalCents?: number | null
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    fundamentoLegalId?: string | null
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
+    itens?: AlteracaoItemUncheckedCreateNestedManyWithoutAlteracaoInput
   }
 
-  export type AditivoCreateOrConnectWithoutContratoInput = {
-    where: AditivoWhereUniqueInput
-    create: XOR<AditivoCreateWithoutContratoInput, AditivoUncheckedCreateWithoutContratoInput>
+  export type AlteracaoContratualCreateOrConnectWithoutContratoInput = {
+    where: AlteracaoContratualWhereUniqueInput
+    create: XOR<AlteracaoContratualCreateWithoutContratoInput, AlteracaoContratualUncheckedCreateWithoutContratoInput>
   }
 
-  export type AditivoCreateManyContratoInputEnvelope = {
-    data: Enumerable<AditivoCreateManyContratoInput>
+  export type AlteracaoContratualCreateManyContratoInputEnvelope = {
+    data: Enumerable<AlteracaoContratualCreateManyContratoInput>
     skipDuplicates?: boolean
   }
 
@@ -35534,6 +37984,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutContratosCategoriaInput = {
@@ -35556,6 +38007,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUpsertWithoutContratosModalidadeInput = {
@@ -35583,6 +38035,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutContratosModalidadeInput = {
@@ -35605,6 +38058,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUpsertWithoutContratosFundamentoInput = {
@@ -35632,6 +38086,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutContratosFundamentoInput = {
@@ -35654,6 +38109,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type FornecedorUpsertWithoutContratosInput = {
@@ -35784,33 +38240,20 @@ export namespace Prisma {
     data: XOR<ItemContratoUpdateManyMutationInput, ItemContratoUncheckedUpdateManyWithoutItensInput>
   }
 
-  export type AditivoUpsertWithWhereUniqueWithoutContratoInput = {
-    where: AditivoWhereUniqueInput
-    update: XOR<AditivoUpdateWithoutContratoInput, AditivoUncheckedUpdateWithoutContratoInput>
-    create: XOR<AditivoCreateWithoutContratoInput, AditivoUncheckedCreateWithoutContratoInput>
+  export type AlteracaoContratualUpsertWithWhereUniqueWithoutContratoInput = {
+    where: AlteracaoContratualWhereUniqueInput
+    update: XOR<AlteracaoContratualUpdateWithoutContratoInput, AlteracaoContratualUncheckedUpdateWithoutContratoInput>
+    create: XOR<AlteracaoContratualCreateWithoutContratoInput, AlteracaoContratualUncheckedCreateWithoutContratoInput>
   }
 
-  export type AditivoUpdateWithWhereUniqueWithoutContratoInput = {
-    where: AditivoWhereUniqueInput
-    data: XOR<AditivoUpdateWithoutContratoInput, AditivoUncheckedUpdateWithoutContratoInput>
+  export type AlteracaoContratualUpdateWithWhereUniqueWithoutContratoInput = {
+    where: AlteracaoContratualWhereUniqueInput
+    data: XOR<AlteracaoContratualUpdateWithoutContratoInput, AlteracaoContratualUncheckedUpdateWithoutContratoInput>
   }
 
-  export type AditivoUpdateManyWithWhereWithoutContratoInput = {
-    where: AditivoScalarWhereInput
-    data: XOR<AditivoUpdateManyMutationInput, AditivoUncheckedUpdateManyWithoutAditivosInput>
-  }
-
-  export type AditivoScalarWhereInput = {
-    AND?: Enumerable<AditivoScalarWhereInput>
-    OR?: Enumerable<AditivoScalarWhereInput>
-    NOT?: Enumerable<AditivoScalarWhereInput>
-    id?: StringFilter | string
-    contratoId?: StringFilter | string
-    numAditivo?: IntFilter | number
-    protocoloAdit?: StringFilter | string
-    novoFimVigencia?: DateTimeNullableFilter | Date | string | null
-    valorAdicionalCents?: IntNullableFilter | number | null
-    createdAt?: DateTimeFilter | Date | string
+  export type AlteracaoContratualUpdateManyWithWhereWithoutContratoInput = {
+    where: AlteracaoContratualScalarWhereInput
+    data: XOR<AlteracaoContratualUpdateManyMutationInput, AlteracaoContratualUncheckedUpdateManyWithoutAlteracoesInput>
   }
 
   export type ContratoCreateWithoutResponsaveisInput = {
@@ -35851,7 +38294,7 @@ export namespace Prisma {
     unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutResponsaveisInput = {
@@ -35892,7 +38335,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutResponsaveisInput = {
@@ -35978,7 +38421,7 @@ export namespace Prisma {
     unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutResponsaveisInput = {
@@ -36019,7 +38462,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ServidorUpsertWithoutResponsaveisInput = {
@@ -36095,7 +38538,7 @@ export namespace Prisma {
     unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutRateiosInput = {
@@ -36136,7 +38579,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutRateiosInput = {
@@ -36228,7 +38671,7 @@ export namespace Prisma {
     unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutRateiosInput = {
@@ -36269,7 +38712,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type UnidadeOrganizacionalUpsertWithoutRateiosInput = {
@@ -36313,7 +38756,7 @@ export namespace Prisma {
     itensDestino?: ItemContratoUncheckedUpdateManyWithoutUnidadeDestinoNestedInput
   }
 
-  export type ContratoCreateWithoutAditivosInput = {
+  export type ContratoCreateWithoutAlteracoesInput = {
     id?: string
     numeroGms: string
     anoGms: number
@@ -36354,7 +38797,7 @@ export namespace Prisma {
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
   }
 
-  export type ContratoUncheckedCreateWithoutAditivosInput = {
+  export type ContratoUncheckedCreateWithoutAlteracoesInput = {
     id?: string
     processoId?: string | null
     numeroGms: string
@@ -36395,17 +38838,98 @@ export namespace Prisma {
     itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
   }
 
-  export type ContratoCreateOrConnectWithoutAditivosInput = {
+  export type ContratoCreateOrConnectWithoutAlteracoesInput = {
     where: ContratoWhereUniqueInput
-    create: XOR<ContratoCreateWithoutAditivosInput, ContratoUncheckedCreateWithoutAditivosInput>
+    create: XOR<ContratoCreateWithoutAlteracoesInput, ContratoUncheckedCreateWithoutAlteracoesInput>
   }
 
-  export type ContratoUpsertWithoutAditivosInput = {
-    update: XOR<ContratoUpdateWithoutAditivosInput, ContratoUncheckedUpdateWithoutAditivosInput>
-    create: XOR<ContratoCreateWithoutAditivosInput, ContratoUncheckedCreateWithoutAditivosInput>
+  export type DominioValorCreateWithoutAlteracoesFundamentoInput = {
+    id?: string
+    codigo: string
+    label: string
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    dominio: DominioCreateNestedOneWithoutValoresInput
+    parent?: DominioValorCreateNestedOneWithoutChildrenInput
+    children?: DominioValorCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoCreateNestedManyWithoutModalidadePretendidaInput
+    catalogoPorCategoria?: CatalogoItemCreateNestedManyWithoutCategoriaItemInput
+    catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
+    atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
+    itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
   }
 
-  export type ContratoUpdateWithoutAditivosInput = {
+  export type DominioValorUncheckedCreateWithoutAlteracoesFundamentoInput = {
+    id?: string
+    dominioId: string
+    codigo: string
+    label: string
+    parentId?: string | null
+    ordem?: number
+    ativo?: boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: DominioValorUncheckedCreateNestedManyWithoutParentInput
+    contratosCategoria?: ContratoUncheckedCreateNestedManyWithoutCategoriaContratacaoInput
+    contratosModalidade?: ContratoUncheckedCreateNestedManyWithoutModalidadeRefInput
+    contratosFundamento?: ContratoUncheckedCreateNestedManyWithoutFundamentoLegalInput
+    processosModalidade?: ProcessoContratacaoUncheckedCreateNestedManyWithoutModalidadePretendidaInput
+    catalogoPorCategoria?: CatalogoItemUncheckedCreateNestedManyWithoutCategoriaItemInput
+    catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
+    atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
+    itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+  }
+
+  export type DominioValorCreateOrConnectWithoutAlteracoesFundamentoInput = {
+    where: DominioValorWhereUniqueInput
+    create: XOR<DominioValorCreateWithoutAlteracoesFundamentoInput, DominioValorUncheckedCreateWithoutAlteracoesFundamentoInput>
+  }
+
+  export type AlteracaoItemCreateWithoutAlteracaoInput = {
+    id?: string
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
+    createdAt?: Date | string
+    itemContrato?: ItemContratoCreateNestedOneWithoutAlteracaoItensInput
+    catalogoItem?: CatalogoItemCreateNestedOneWithoutAlteracaoItensInput
+  }
+
+  export type AlteracaoItemUncheckedCreateWithoutAlteracaoInput = {
+    id?: string
+    itemContratoId?: string | null
+    catalogoItemId?: string | null
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AlteracaoItemCreateOrConnectWithoutAlteracaoInput = {
+    where: AlteracaoItemWhereUniqueInput
+    create: XOR<AlteracaoItemCreateWithoutAlteracaoInput, AlteracaoItemUncheckedCreateWithoutAlteracaoInput>
+  }
+
+  export type AlteracaoItemCreateManyAlteracaoInputEnvelope = {
+    data: Enumerable<AlteracaoItemCreateManyAlteracaoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoUpsertWithoutAlteracoesInput = {
+    update: XOR<ContratoUpdateWithoutAlteracoesInput, ContratoUncheckedUpdateWithoutAlteracoesInput>
+    create: XOR<ContratoCreateWithoutAlteracoesInput, ContratoUncheckedCreateWithoutAlteracoesInput>
+  }
+
+  export type ContratoUpdateWithoutAlteracoesInput = {
     id?: StringFieldUpdateOperationsInput | string
     numeroGms?: StringFieldUpdateOperationsInput | string
     anoGms?: IntFieldUpdateOperationsInput | number
@@ -36446,7 +38970,7 @@ export namespace Prisma {
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
   }
 
-  export type ContratoUncheckedUpdateWithoutAditivosInput = {
+  export type ContratoUncheckedUpdateWithoutAlteracoesInput = {
     id?: StringFieldUpdateOperationsInput | string
     processoId?: NullableStringFieldUpdateOperationsInput | string | null
     numeroGms?: StringFieldUpdateOperationsInput | string
@@ -36487,6 +39011,341 @@ export namespace Prisma {
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
   }
 
+  export type DominioValorUpsertWithoutAlteracoesFundamentoInput = {
+    update: XOR<DominioValorUpdateWithoutAlteracoesFundamentoInput, DominioValorUncheckedUpdateWithoutAlteracoesFundamentoInput>
+    create: XOR<DominioValorCreateWithoutAlteracoesFundamentoInput, DominioValorUncheckedCreateWithoutAlteracoesFundamentoInput>
+  }
+
+  export type DominioValorUpdateWithoutAlteracoesFundamentoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    dominio?: DominioUpdateOneRequiredWithoutValoresNestedInput
+    parent?: DominioValorUpdateOneWithoutChildrenNestedInput
+    children?: DominioValorUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUpdateManyWithoutModalidadePretendidaNestedInput
+    catalogoPorCategoria?: CatalogoItemUpdateManyWithoutCategoriaItemNestedInput
+    catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
+    atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
+    itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+  }
+
+  export type DominioValorUncheckedUpdateWithoutAlteracoesFundamentoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    dominioId?: StringFieldUpdateOperationsInput | string
+    codigo?: StringFieldUpdateOperationsInput | string
+    label?: StringFieldUpdateOperationsInput | string
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    ordem?: IntFieldUpdateOperationsInput | number
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: NullableJsonNullValueInput | InputJsonValue
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: DominioValorUncheckedUpdateManyWithoutParentNestedInput
+    contratosCategoria?: ContratoUncheckedUpdateManyWithoutCategoriaContratacaoNestedInput
+    contratosModalidade?: ContratoUncheckedUpdateManyWithoutModalidadeRefNestedInput
+    contratosFundamento?: ContratoUncheckedUpdateManyWithoutFundamentoLegalNestedInput
+    processosModalidade?: ProcessoContratacaoUncheckedUpdateManyWithoutModalidadePretendidaNestedInput
+    catalogoPorCategoria?: CatalogoItemUncheckedUpdateManyWithoutCategoriaItemNestedInput
+    catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
+    atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
+    itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+  }
+
+  export type AlteracaoItemUpsertWithWhereUniqueWithoutAlteracaoInput = {
+    where: AlteracaoItemWhereUniqueInput
+    update: XOR<AlteracaoItemUpdateWithoutAlteracaoInput, AlteracaoItemUncheckedUpdateWithoutAlteracaoInput>
+    create: XOR<AlteracaoItemCreateWithoutAlteracaoInput, AlteracaoItemUncheckedCreateWithoutAlteracaoInput>
+  }
+
+  export type AlteracaoItemUpdateWithWhereUniqueWithoutAlteracaoInput = {
+    where: AlteracaoItemWhereUniqueInput
+    data: XOR<AlteracaoItemUpdateWithoutAlteracaoInput, AlteracaoItemUncheckedUpdateWithoutAlteracaoInput>
+  }
+
+  export type AlteracaoItemUpdateManyWithWhereWithoutAlteracaoInput = {
+    where: AlteracaoItemScalarWhereInput
+    data: XOR<AlteracaoItemUpdateManyMutationInput, AlteracaoItemUncheckedUpdateManyWithoutItensInput>
+  }
+
+  export type AlteracaoItemScalarWhereInput = {
+    AND?: Enumerable<AlteracaoItemScalarWhereInput>
+    OR?: Enumerable<AlteracaoItemScalarWhereInput>
+    NOT?: Enumerable<AlteracaoItemScalarWhereInput>
+    id?: StringFilter | string
+    alteracaoId?: StringFilter | string
+    itemContratoId?: StringNullableFilter | string | null
+    catalogoItemId?: StringNullableFilter | string | null
+    quantidadeDelta?: DecimalFilter | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: BigIntNullableFilter | bigint | number | null
+    observacao?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+  }
+
+  export type AlteracaoContratualCreateWithoutItensInput = {
+    id?: string
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutAlteracoesInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutAlteracoesFundamentoInput
+  }
+
+  export type AlteracaoContratualUncheckedCreateWithoutItensInput = {
+    id?: string
+    contratoId: string
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    fundamentoLegalId?: string | null
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type AlteracaoContratualCreateOrConnectWithoutItensInput = {
+    where: AlteracaoContratualWhereUniqueInput
+    create: XOR<AlteracaoContratualCreateWithoutItensInput, AlteracaoContratualUncheckedCreateWithoutItensInput>
+  }
+
+  export type ItemContratoCreateWithoutAlteracaoItensInput = {
+    id?: string
+    sequencia: number
+    descricaoComplementar?: string | null
+    quantidade: Decimal | DecimalJsLike | number | string
+    valorUnitarioCents: bigint | number
+    periodicidade?: Periodicidade
+    enderecoExecucao?: string | null
+    atributos?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contrato: ContratoCreateNestedOneWithoutItensInput
+    catalogoItem: CatalogoItemCreateNestedOneWithoutItensContratoInput
+    unidadeMedida: DominioValorCreateNestedOneWithoutItensUnidadeMedidaInput
+    unidadeDestino?: UnidadeOrganizacionalCreateNestedOneWithoutItensDestinoInput
+    municipioExecucao?: MunicipioCreateNestedOneWithoutItensExecucaoInput
+  }
+
+  export type ItemContratoUncheckedCreateWithoutAlteracaoItensInput = {
+    id?: string
+    contratoId: string
+    sequencia: number
+    catalogoItemId: string
+    descricaoComplementar?: string | null
+    quantidade: Decimal | DecimalJsLike | number | string
+    unidadeMedidaId: string
+    valorUnitarioCents: bigint | number
+    periodicidade?: Periodicidade
+    unidadeDestinoId?: string | null
+    municipioExecucaoId?: string | null
+    enderecoExecucao?: string | null
+    atributos?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ItemContratoCreateOrConnectWithoutAlteracaoItensInput = {
+    where: ItemContratoWhereUniqueInput
+    create: XOR<ItemContratoCreateWithoutAlteracaoItensInput, ItemContratoUncheckedCreateWithoutAlteracaoItensInput>
+  }
+
+  export type CatalogoItemCreateWithoutAlteracaoItensInput = {
+    id?: string
+    codigo?: string | null
+    nome: string
+    descricao?: string | null
+    atributosPadrao?: NullableJsonNullValueInput | InputJsonValue
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    categoriaItem: DominioValorCreateNestedOneWithoutCatalogoPorCategoriaInput
+    unidadeMedidaPadrao: DominioValorCreateNestedOneWithoutCatalogoUnidadeMedidaInput
+    itensContrato?: ItemContratoCreateNestedManyWithoutCatalogoItemInput
+  }
+
+  export type CatalogoItemUncheckedCreateWithoutAlteracaoItensInput = {
+    id?: string
+    categoriaItemId: string
+    codigo?: string | null
+    nome: string
+    descricao?: string | null
+    unidadeMedidaPadraoId: string
+    atributosPadrao?: NullableJsonNullValueInput | InputJsonValue
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    itensContrato?: ItemContratoUncheckedCreateNestedManyWithoutCatalogoItemInput
+  }
+
+  export type CatalogoItemCreateOrConnectWithoutAlteracaoItensInput = {
+    where: CatalogoItemWhereUniqueInput
+    create: XOR<CatalogoItemCreateWithoutAlteracaoItensInput, CatalogoItemUncheckedCreateWithoutAlteracaoItensInput>
+  }
+
+  export type AlteracaoContratualUpsertWithoutItensInput = {
+    update: XOR<AlteracaoContratualUpdateWithoutItensInput, AlteracaoContratualUncheckedUpdateWithoutItensInput>
+    create: XOR<AlteracaoContratualCreateWithoutItensInput, AlteracaoContratualUncheckedCreateWithoutItensInput>
+  }
+
+  export type AlteracaoContratualUpdateWithoutItensInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutAlteracoesNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutAlteracoesFundamentoNestedInput
+  }
+
+  export type AlteracaoContratualUncheckedUpdateWithoutItensInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ItemContratoUpsertWithoutAlteracaoItensInput = {
+    update: XOR<ItemContratoUpdateWithoutAlteracaoItensInput, ItemContratoUncheckedUpdateWithoutAlteracaoItensInput>
+    create: XOR<ItemContratoCreateWithoutAlteracaoItensInput, ItemContratoUncheckedCreateWithoutAlteracaoItensInput>
+  }
+
+  export type ItemContratoUpdateWithoutAlteracaoItensInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sequencia?: IntFieldUpdateOperationsInput | number
+    descricaoComplementar?: NullableStringFieldUpdateOperationsInput | string | null
+    quantidade?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    periodicidade?: EnumPeriodicidadeFieldUpdateOperationsInput | Periodicidade
+    enderecoExecucao?: NullableStringFieldUpdateOperationsInput | string | null
+    atributos?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutItensNestedInput
+    catalogoItem?: CatalogoItemUpdateOneRequiredWithoutItensContratoNestedInput
+    unidadeMedida?: DominioValorUpdateOneRequiredWithoutItensUnidadeMedidaNestedInput
+    unidadeDestino?: UnidadeOrganizacionalUpdateOneWithoutItensDestinoNestedInput
+    municipioExecucao?: MunicipioUpdateOneWithoutItensExecucaoNestedInput
+  }
+
+  export type ItemContratoUncheckedUpdateWithoutAlteracaoItensInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    sequencia?: IntFieldUpdateOperationsInput | number
+    catalogoItemId?: StringFieldUpdateOperationsInput | string
+    descricaoComplementar?: NullableStringFieldUpdateOperationsInput | string | null
+    quantidade?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    unidadeMedidaId?: StringFieldUpdateOperationsInput | string
+    valorUnitarioCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    periodicidade?: EnumPeriodicidadeFieldUpdateOperationsInput | Periodicidade
+    unidadeDestinoId?: NullableStringFieldUpdateOperationsInput | string | null
+    municipioExecucaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    enderecoExecucao?: NullableStringFieldUpdateOperationsInput | string | null
+    atributos?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CatalogoItemUpsertWithoutAlteracaoItensInput = {
+    update: XOR<CatalogoItemUpdateWithoutAlteracaoItensInput, CatalogoItemUncheckedUpdateWithoutAlteracaoItensInput>
+    create: XOR<CatalogoItemCreateWithoutAlteracaoItensInput, CatalogoItemUncheckedCreateWithoutAlteracaoItensInput>
+  }
+
+  export type CatalogoItemUpdateWithoutAlteracaoItensInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    codigo?: NullableStringFieldUpdateOperationsInput | string | null
+    nome?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    atributosPadrao?: NullableJsonNullValueInput | InputJsonValue
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    categoriaItem?: DominioValorUpdateOneRequiredWithoutCatalogoPorCategoriaNestedInput
+    unidadeMedidaPadrao?: DominioValorUpdateOneRequiredWithoutCatalogoUnidadeMedidaNestedInput
+    itensContrato?: ItemContratoUpdateManyWithoutCatalogoItemNestedInput
+  }
+
+  export type CatalogoItemUncheckedUpdateWithoutAlteracaoItensInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    categoriaItemId?: StringFieldUpdateOperationsInput | string
+    codigo?: NullableStringFieldUpdateOperationsInput | string | null
+    nome?: StringFieldUpdateOperationsInput | string
+    descricao?: NullableStringFieldUpdateOperationsInput | string | null
+    unidadeMedidaPadraoId?: StringFieldUpdateOperationsInput | string
+    atributosPadrao?: NullableJsonNullValueInput | InputJsonValue
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    itensContrato?: ItemContratoUncheckedUpdateManyWithoutCatalogoItemNestedInput
+  }
+
   export type DominioValorCreateWithoutCatalogoPorCategoriaInput = {
     id?: string
     codigo: string
@@ -36507,6 +39366,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateWithoutCatalogoPorCategoriaInput = {
@@ -36529,6 +39389,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorCreateOrConnectWithoutCatalogoPorCategoriaInput = {
@@ -36556,6 +39417,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemCreateNestedManyWithoutCategoriaItemInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateWithoutCatalogoUnidadeMedidaInput = {
@@ -36578,6 +39440,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemUncheckedCreateNestedManyWithoutCategoriaItemInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorCreateOrConnectWithoutCatalogoUnidadeMedidaInput = {
@@ -36600,6 +39463,7 @@ export namespace Prisma {
     unidadeMedida: DominioValorCreateNestedOneWithoutItensUnidadeMedidaInput
     unidadeDestino?: UnidadeOrganizacionalCreateNestedOneWithoutItensDestinoInput
     municipioExecucao?: MunicipioCreateNestedOneWithoutItensExecucaoInput
+    alteracaoItens?: AlteracaoItemCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoUncheckedCreateWithoutCatalogoItemInput = {
@@ -36617,6 +39481,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
+    alteracaoItens?: AlteracaoItemUncheckedCreateNestedManyWithoutItemContratoInput
   }
 
   export type ItemContratoCreateOrConnectWithoutCatalogoItemInput = {
@@ -36626,6 +39491,36 @@ export namespace Prisma {
 
   export type ItemContratoCreateManyCatalogoItemInputEnvelope = {
     data: Enumerable<ItemContratoCreateManyCatalogoItemInput>
+    skipDuplicates?: boolean
+  }
+
+  export type AlteracaoItemCreateWithoutCatalogoItemInput = {
+    id?: string
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
+    createdAt?: Date | string
+    alteracao: AlteracaoContratualCreateNestedOneWithoutItensInput
+    itemContrato?: ItemContratoCreateNestedOneWithoutAlteracaoItensInput
+  }
+
+  export type AlteracaoItemUncheckedCreateWithoutCatalogoItemInput = {
+    id?: string
+    alteracaoId: string
+    itemContratoId?: string | null
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AlteracaoItemCreateOrConnectWithoutCatalogoItemInput = {
+    where: AlteracaoItemWhereUniqueInput
+    create: XOR<AlteracaoItemCreateWithoutCatalogoItemInput, AlteracaoItemUncheckedCreateWithoutCatalogoItemInput>
+  }
+
+  export type AlteracaoItemCreateManyCatalogoItemInputEnvelope = {
+    data: Enumerable<AlteracaoItemCreateManyCatalogoItemInput>
     skipDuplicates?: boolean
   }
 
@@ -36654,6 +39549,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutCatalogoPorCategoriaInput = {
@@ -36676,6 +39572,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUpsertWithoutCatalogoUnidadeMedidaInput = {
@@ -36703,6 +39600,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemUpdateManyWithoutCategoriaItemNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutCatalogoUnidadeMedidaInput = {
@@ -36725,6 +39623,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemUncheckedUpdateManyWithoutCategoriaItemNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type ItemContratoUpsertWithWhereUniqueWithoutCatalogoItemInput = {
@@ -36741,6 +39640,22 @@ export namespace Prisma {
   export type ItemContratoUpdateManyWithWhereWithoutCatalogoItemInput = {
     where: ItemContratoScalarWhereInput
     data: XOR<ItemContratoUpdateManyMutationInput, ItemContratoUncheckedUpdateManyWithoutItensContratoInput>
+  }
+
+  export type AlteracaoItemUpsertWithWhereUniqueWithoutCatalogoItemInput = {
+    where: AlteracaoItemWhereUniqueInput
+    update: XOR<AlteracaoItemUpdateWithoutCatalogoItemInput, AlteracaoItemUncheckedUpdateWithoutCatalogoItemInput>
+    create: XOR<AlteracaoItemCreateWithoutCatalogoItemInput, AlteracaoItemUncheckedCreateWithoutCatalogoItemInput>
+  }
+
+  export type AlteracaoItemUpdateWithWhereUniqueWithoutCatalogoItemInput = {
+    where: AlteracaoItemWhereUniqueInput
+    data: XOR<AlteracaoItemUpdateWithoutCatalogoItemInput, AlteracaoItemUncheckedUpdateWithoutCatalogoItemInput>
+  }
+
+  export type AlteracaoItemUpdateManyWithWhereWithoutCatalogoItemInput = {
+    where: AlteracaoItemScalarWhereInput
+    data: XOR<AlteracaoItemUpdateManyMutationInput, AlteracaoItemUncheckedUpdateManyWithoutAlteracaoItensInput>
   }
 
   export type DominioValorCreateWithoutAtributosPorCategoriaInput = {
@@ -36763,6 +39678,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemCreateNestedManyWithoutCategoriaItemInput
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     itensUnidadeMedida?: ItemContratoCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateWithoutAtributosPorCategoriaInput = {
@@ -36785,6 +39701,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemUncheckedCreateNestedManyWithoutCategoriaItemInput
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     itensUnidadeMedida?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeMedidaInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorCreateOrConnectWithoutAtributosPorCategoriaInput = {
@@ -36817,6 +39734,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemUpdateManyWithoutCategoriaItemNestedInput
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutAtributosPorCategoriaInput = {
@@ -36839,6 +39757,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemUncheckedUpdateManyWithoutCategoriaItemNestedInput
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type ContratoCreateWithoutItensInput = {
@@ -36879,7 +39798,7 @@ export namespace Prisma {
     unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoUncheckedCreateWithoutItensInput = {
@@ -36920,7 +39839,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
-    aditivos?: AditivoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
   }
 
   export type ContratoCreateOrConnectWithoutItensInput = {
@@ -36939,6 +39858,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     categoriaItem: DominioValorCreateNestedOneWithoutCatalogoPorCategoriaInput
     unidadeMedidaPadrao: DominioValorCreateNestedOneWithoutCatalogoUnidadeMedidaInput
+    alteracaoItens?: AlteracaoItemCreateNestedManyWithoutCatalogoItemInput
   }
 
   export type CatalogoItemUncheckedCreateWithoutItensContratoInput = {
@@ -36952,6 +39872,7 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    alteracaoItens?: AlteracaoItemUncheckedCreateNestedManyWithoutCatalogoItemInput
   }
 
   export type CatalogoItemCreateOrConnectWithoutItensContratoInput = {
@@ -36979,6 +39900,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemCreateNestedManyWithoutCategoriaItemInput
     catalogoUnidadeMedida?: CatalogoItemCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefCreateNestedManyWithoutCategoriaItemInput
+    alteracoesFundamento?: AlteracaoContratualCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorUncheckedCreateWithoutItensUnidadeMedidaInput = {
@@ -37001,6 +39923,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemUncheckedCreateNestedManyWithoutCategoriaItemInput
     catalogoUnidadeMedida?: CatalogoItemUncheckedCreateNestedManyWithoutUnidadeMedidaPadraoInput
     atributosPorCategoria?: ItemAtributoDefUncheckedCreateNestedManyWithoutCategoriaItemInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedCreateNestedManyWithoutFundamentoLegalInput
   }
 
   export type DominioValorCreateOrConnectWithoutItensUnidadeMedidaInput = {
@@ -37074,6 +39997,36 @@ export namespace Prisma {
     create: XOR<MunicipioCreateWithoutItensExecucaoInput, MunicipioUncheckedCreateWithoutItensExecucaoInput>
   }
 
+  export type AlteracaoItemCreateWithoutItemContratoInput = {
+    id?: string
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
+    createdAt?: Date | string
+    alteracao: AlteracaoContratualCreateNestedOneWithoutItensInput
+    catalogoItem?: CatalogoItemCreateNestedOneWithoutAlteracaoItensInput
+  }
+
+  export type AlteracaoItemUncheckedCreateWithoutItemContratoInput = {
+    id?: string
+    alteracaoId: string
+    catalogoItemId?: string | null
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AlteracaoItemCreateOrConnectWithoutItemContratoInput = {
+    where: AlteracaoItemWhereUniqueInput
+    create: XOR<AlteracaoItemCreateWithoutItemContratoInput, AlteracaoItemUncheckedCreateWithoutItemContratoInput>
+  }
+
+  export type AlteracaoItemCreateManyItemContratoInputEnvelope = {
+    data: Enumerable<AlteracaoItemCreateManyItemContratoInput>
+    skipDuplicates?: boolean
+  }
+
   export type ContratoUpsertWithoutItensInput = {
     update: XOR<ContratoUpdateWithoutItensInput, ContratoUncheckedUpdateWithoutItensInput>
     create: XOR<ContratoCreateWithoutItensInput, ContratoUncheckedCreateWithoutItensInput>
@@ -37117,7 +40070,7 @@ export namespace Prisma {
     unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutItensInput = {
@@ -37158,7 +40111,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type CatalogoItemUpsertWithoutItensContratoInput = {
@@ -37177,6 +40130,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     categoriaItem?: DominioValorUpdateOneRequiredWithoutCatalogoPorCategoriaNestedInput
     unidadeMedidaPadrao?: DominioValorUpdateOneRequiredWithoutCatalogoUnidadeMedidaNestedInput
+    alteracaoItens?: AlteracaoItemUpdateManyWithoutCatalogoItemNestedInput
   }
 
   export type CatalogoItemUncheckedUpdateWithoutItensContratoInput = {
@@ -37190,6 +40144,7 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracaoItens?: AlteracaoItemUncheckedUpdateManyWithoutCatalogoItemNestedInput
   }
 
   export type DominioValorUpsertWithoutItensUnidadeMedidaInput = {
@@ -37217,6 +40172,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemUpdateManyWithoutCategoriaItemNestedInput
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutItensUnidadeMedidaInput = {
@@ -37239,6 +40195,7 @@ export namespace Prisma {
     catalogoPorCategoria?: CatalogoItemUncheckedUpdateManyWithoutCategoriaItemNestedInput
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type UnidadeOrganizacionalUpsertWithoutItensDestinoInput = {
@@ -37305,6 +40262,22 @@ export namespace Prisma {
     regiaoAdministrativa?: NullableStringFieldUpdateOperationsInput | string | null
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutMunicipioNestedInput
     fornecedores?: FornecedorUncheckedUpdateManyWithoutMunicipioNestedInput
+  }
+
+  export type AlteracaoItemUpsertWithWhereUniqueWithoutItemContratoInput = {
+    where: AlteracaoItemWhereUniqueInput
+    update: XOR<AlteracaoItemUpdateWithoutItemContratoInput, AlteracaoItemUncheckedUpdateWithoutItemContratoInput>
+    create: XOR<AlteracaoItemCreateWithoutItemContratoInput, AlteracaoItemUncheckedCreateWithoutItemContratoInput>
+  }
+
+  export type AlteracaoItemUpdateWithWhereUniqueWithoutItemContratoInput = {
+    where: AlteracaoItemWhereUniqueInput
+    data: XOR<AlteracaoItemUpdateWithoutItemContratoInput, AlteracaoItemUncheckedUpdateWithoutItemContratoInput>
+  }
+
+  export type AlteracaoItemUpdateManyWithWhereWithoutItemContratoInput = {
+    where: AlteracaoItemScalarWhereInput
+    data: XOR<AlteracaoItemUpdateManyMutationInput, AlteracaoItemUncheckedUpdateManyWithoutAlteracaoItensInput>
   }
 
   export type UnidadeOrganizacionalCreateManyMunicipioInput = {
@@ -37461,6 +40434,7 @@ export namespace Prisma {
     catalogoItem?: CatalogoItemUpdateOneRequiredWithoutItensContratoNestedInput
     unidadeMedida?: DominioValorUpdateOneRequiredWithoutItensUnidadeMedidaNestedInput
     unidadeDestino?: UnidadeOrganizacionalUpdateOneWithoutItensDestinoNestedInput
+    alteracaoItens?: AlteracaoItemUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoUncheckedUpdateWithoutMunicipioExecucaoInput = {
@@ -37478,6 +40452,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracaoItens?: AlteracaoItemUncheckedUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoUncheckedUpdateManyWithoutItensExecucaoInput = {
@@ -37530,6 +40505,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutDominioInput = {
@@ -37552,6 +40528,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateManyWithoutValoresInput = {
@@ -37764,6 +40741,29 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type AlteracaoContratualCreateManyFundamentoLegalInput = {
+    id?: string
+    contratoId: string
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type DominioValorUpdateWithoutParentInput = {
     id?: StringFieldUpdateOperationsInput | string
     codigo?: StringFieldUpdateOperationsInput | string
@@ -37784,6 +40784,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateWithoutParentInput = {
@@ -37806,6 +40807,7 @@ export namespace Prisma {
     catalogoUnidadeMedida?: CatalogoItemUncheckedUpdateManyWithoutUnidadeMedidaPadraoNestedInput
     atributosPorCategoria?: ItemAtributoDefUncheckedUpdateManyWithoutCategoriaItemNestedInput
     itensUnidadeMedida?: ItemContratoUncheckedUpdateManyWithoutUnidadeMedidaNestedInput
+    alteracoesFundamento?: AlteracaoContratualUncheckedUpdateManyWithoutFundamentoLegalNestedInput
   }
 
   export type DominioValorUncheckedUpdateManyWithoutChildrenInput = {
@@ -37859,7 +40861,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutCategoriaContratacaoInput = {
@@ -37900,7 +40902,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosCategoriaInput = {
@@ -37978,7 +40980,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutModalidadeRefInput = {
@@ -38019,7 +41021,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosModalidadeInput = {
@@ -38097,7 +41099,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutFundamentoLegalInput = {
@@ -38138,7 +41140,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosFundamentoInput = {
@@ -38242,6 +41244,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     unidadeMedidaPadrao?: DominioValorUpdateOneRequiredWithoutCatalogoUnidadeMedidaNestedInput
     itensContrato?: ItemContratoUpdateManyWithoutCatalogoItemNestedInput
+    alteracaoItens?: AlteracaoItemUpdateManyWithoutCatalogoItemNestedInput
   }
 
   export type CatalogoItemUncheckedUpdateWithoutCategoriaItemInput = {
@@ -38255,6 +41258,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     itensContrato?: ItemContratoUncheckedUpdateManyWithoutCatalogoItemNestedInput
+    alteracaoItens?: AlteracaoItemUncheckedUpdateManyWithoutCatalogoItemNestedInput
   }
 
   export type CatalogoItemUncheckedUpdateManyWithoutCatalogoPorCategoriaInput = {
@@ -38280,6 +41284,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     categoriaItem?: DominioValorUpdateOneRequiredWithoutCatalogoPorCategoriaNestedInput
     itensContrato?: ItemContratoUpdateManyWithoutCatalogoItemNestedInput
+    alteracaoItens?: AlteracaoItemUpdateManyWithoutCatalogoItemNestedInput
   }
 
   export type CatalogoItemUncheckedUpdateWithoutUnidadeMedidaPadraoInput = {
@@ -38293,6 +41298,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     itensContrato?: ItemContratoUncheckedUpdateManyWithoutCatalogoItemNestedInput
+    alteracaoItens?: AlteracaoItemUncheckedUpdateManyWithoutCatalogoItemNestedInput
   }
 
   export type CatalogoItemUncheckedUpdateManyWithoutCatalogoUnidadeMedidaInput = {
@@ -38367,6 +41373,7 @@ export namespace Prisma {
     catalogoItem?: CatalogoItemUpdateOneRequiredWithoutItensContratoNestedInput
     unidadeDestino?: UnidadeOrganizacionalUpdateOneWithoutItensDestinoNestedInput
     municipioExecucao?: MunicipioUpdateOneWithoutItensExecucaoNestedInput
+    alteracaoItens?: AlteracaoItemUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoUncheckedUpdateWithoutUnidadeMedidaInput = {
@@ -38384,6 +41391,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracaoItens?: AlteracaoItemUncheckedUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoUncheckedUpdateManyWithoutItensUnidadeMedidaInput = {
@@ -38399,6 +41407,77 @@ export namespace Prisma {
     municipioExecucaoId?: NullableStringFieldUpdateOperationsInput | string | null
     enderecoExecucao?: NullableStringFieldUpdateOperationsInput | string | null
     atributos?: NullableJsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlteracaoContratualUpdateWithoutFundamentoLegalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contrato?: ContratoUpdateOneRequiredWithoutAlteracoesNestedInput
+    itens?: AlteracaoItemUpdateManyWithoutAlteracaoNestedInput
+  }
+
+  export type AlteracaoContratualUncheckedUpdateWithoutFundamentoLegalInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    itens?: AlteracaoItemUncheckedUpdateManyWithoutAlteracaoNestedInput
+  }
+
+  export type AlteracaoContratualUncheckedUpdateManyWithoutAlteracoesFundamentoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contratoId?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -38732,7 +41811,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutUnidadeGestoraInput = {
@@ -38773,7 +41852,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosGestoraInput = {
@@ -38911,6 +41990,7 @@ export namespace Prisma {
     catalogoItem?: CatalogoItemUpdateOneRequiredWithoutItensContratoNestedInput
     unidadeMedida?: DominioValorUpdateOneRequiredWithoutItensUnidadeMedidaNestedInput
     municipioExecucao?: MunicipioUpdateOneWithoutItensExecucaoNestedInput
+    alteracaoItens?: AlteracaoItemUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoUncheckedUpdateWithoutUnidadeDestinoInput = {
@@ -38928,6 +42008,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracaoItens?: AlteracaoItemUncheckedUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoUncheckedUpdateManyWithoutItensDestinoInput = {
@@ -39106,7 +42187,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutFornecedorInput = {
@@ -39147,7 +42228,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateManyWithoutContratosInput = {
@@ -39302,7 +42383,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutProcessoInput = {
@@ -39343,7 +42424,7 @@ export namespace Prisma {
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
-    aditivos?: AditivoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
   }
 
   export type ContratoResponsavelCreateManyContratoInput = {
@@ -39383,13 +42464,27 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type AditivoCreateManyContratoInput = {
+  export type AlteracaoContratualCreateManyContratoInput = {
     id?: string
-    numAditivo: number
-    protocoloAdit: string
-    novoFimVigencia?: Date | string | null
-    valorAdicionalCents?: number | null
+    tipo: TipoAlteracao
+    numero: number
+    eProtocolo?: string | null
+    objetoDescricao: string
+    fundamentoLegalId?: string | null
+    justificativa?: string | null
+    justificativaExcepcional?: string | null
+    dataAssinatura: Date | string
+    dataInicioEfeito?: Date | string | null
+    prazoAcrescidoValor?: number | null
+    prazoAcrescidoUnidade?: UnidadeTempo | null
+    novaDataFimVigencia?: Date | string | null
+    valorAcrescidoCents?: bigint | number
+    valorSuprimidoCents?: bigint | number
+    percentualReajuste?: Decimal | DecimalJsLike | number | string | null
+    situacao?: SituacaoAlteracao
+    codigoLegado?: string | null
     createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type ContratoResponsavelUpdateWithoutContratoInput = {
@@ -39447,6 +42542,7 @@ export namespace Prisma {
     unidadeMedida?: DominioValorUpdateOneRequiredWithoutItensUnidadeMedidaNestedInput
     unidadeDestino?: UnidadeOrganizacionalUpdateOneWithoutItensDestinoNestedInput
     municipioExecucao?: MunicipioUpdateOneWithoutItensExecucaoNestedInput
+    alteracaoItens?: AlteracaoItemUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoUncheckedUpdateWithoutContratoInput = {
@@ -39464,6 +42560,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracaoItens?: AlteracaoItemUncheckedUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoUncheckedUpdateManyWithoutItensInput = {
@@ -39483,30 +42580,114 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AditivoUpdateWithoutContratoInput = {
+  export type AlteracaoContratualUpdateWithoutContratoInput = {
     id?: StringFieldUpdateOperationsInput | string
-    numAditivo?: IntFieldUpdateOperationsInput | number
-    protocoloAdit?: StringFieldUpdateOperationsInput | string
-    novoFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    valorAdicionalCents?: NullableIntFieldUpdateOperationsInput | number | null
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    fundamentoLegal?: DominioValorUpdateOneWithoutAlteracoesFundamentoNestedInput
+    itens?: AlteracaoItemUpdateManyWithoutAlteracaoNestedInput
+  }
+
+  export type AlteracaoContratualUncheckedUpdateWithoutContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    itens?: AlteracaoItemUncheckedUpdateManyWithoutAlteracaoNestedInput
+  }
+
+  export type AlteracaoContratualUncheckedUpdateManyWithoutAlteracoesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoAlteracaoFieldUpdateOperationsInput | TipoAlteracao
+    numero?: IntFieldUpdateOperationsInput | number
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    objetoDescricao?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativa?: NullableStringFieldUpdateOperationsInput | string | null
+    justificativaExcepcional?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: DateTimeFieldUpdateOperationsInput | Date | string
+    dataInicioEfeito?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    prazoAcrescidoValor?: NullableIntFieldUpdateOperationsInput | number | null
+    prazoAcrescidoUnidade?: NullableEnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo | null
+    novaDataFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    valorAcrescidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    valorSuprimidoCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    percentualReajuste?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    situacao?: EnumSituacaoAlteracaoFieldUpdateOperationsInput | SituacaoAlteracao
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlteracaoItemCreateManyAlteracaoInput = {
+    id?: string
+    itemContratoId?: string | null
+    catalogoItemId?: string | null
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AlteracaoItemUpdateWithoutAlteracaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    itemContrato?: ItemContratoUpdateOneWithoutAlteracaoItensNestedInput
+    catalogoItem?: CatalogoItemUpdateOneWithoutAlteracaoItensNestedInput
+  }
+
+  export type AlteracaoItemUncheckedUpdateWithoutAlteracaoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    itemContratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogoItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
-  export type AditivoUncheckedUpdateWithoutContratoInput = {
+  export type AlteracaoItemUncheckedUpdateManyWithoutItensInput = {
     id?: StringFieldUpdateOperationsInput | string
-    numAditivo?: IntFieldUpdateOperationsInput | number
-    protocoloAdit?: StringFieldUpdateOperationsInput | string
-    novoFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    valorAdicionalCents?: NullableIntFieldUpdateOperationsInput | number | null
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
-  export type AditivoUncheckedUpdateManyWithoutAditivosInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    numAditivo?: IntFieldUpdateOperationsInput | number
-    protocoloAdit?: StringFieldUpdateOperationsInput | string
-    novoFimVigencia?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-    valorAdicionalCents?: NullableIntFieldUpdateOperationsInput | number | null
+    itemContratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    catalogoItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -39527,6 +42708,16 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type AlteracaoItemCreateManyCatalogoItemInput = {
+    id?: string
+    alteracaoId: string
+    itemContratoId?: string | null
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
   export type ItemContratoUpdateWithoutCatalogoItemInput = {
     id?: StringFieldUpdateOperationsInput | string
     sequencia?: IntFieldUpdateOperationsInput | number
@@ -39542,6 +42733,7 @@ export namespace Prisma {
     unidadeMedida?: DominioValorUpdateOneRequiredWithoutItensUnidadeMedidaNestedInput
     unidadeDestino?: UnidadeOrganizacionalUpdateOneWithoutItensDestinoNestedInput
     municipioExecucao?: MunicipioUpdateOneWithoutItensExecucaoNestedInput
+    alteracaoItens?: AlteracaoItemUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoUncheckedUpdateWithoutCatalogoItemInput = {
@@ -39559,6 +42751,7 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracaoItens?: AlteracaoItemUncheckedUpdateManyWithoutItemContratoNestedInput
   }
 
   export type ItemContratoUncheckedUpdateManyWithoutItensContratoInput = {
@@ -39576,6 +42769,66 @@ export namespace Prisma {
     atributos?: NullableJsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlteracaoItemUpdateWithoutCatalogoItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracao?: AlteracaoContratualUpdateOneRequiredWithoutItensNestedInput
+    itemContrato?: ItemContratoUpdateOneWithoutAlteracaoItensNestedInput
+  }
+
+  export type AlteracaoItemUncheckedUpdateWithoutCatalogoItemInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    alteracaoId?: StringFieldUpdateOperationsInput | string
+    itemContratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlteracaoItemUncheckedUpdateManyWithoutAlteracaoItensInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    alteracaoId?: StringFieldUpdateOperationsInput | string
+    itemContratoId?: NullableStringFieldUpdateOperationsInput | string | null
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type AlteracaoItemCreateManyItemContratoInput = {
+    id?: string
+    alteracaoId: string
+    catalogoItemId?: string | null
+    quantidadeDelta: Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: bigint | number | null
+    observacao?: string | null
+    createdAt?: Date | string
+  }
+
+  export type AlteracaoItemUpdateWithoutItemContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    alteracao?: AlteracaoContratualUpdateOneRequiredWithoutItensNestedInput
+    catalogoItem?: CatalogoItemUpdateOneWithoutAlteracaoItensNestedInput
+  }
+
+  export type AlteracaoItemUncheckedUpdateWithoutItemContratoInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    alteracaoId?: StringFieldUpdateOperationsInput | string
+    catalogoItemId?: NullableStringFieldUpdateOperationsInput | string | null
+    quantidadeDelta?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    valorUnitarioNovoCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    observacao?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

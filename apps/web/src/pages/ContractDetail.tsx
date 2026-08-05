@@ -68,6 +68,11 @@ export default function ContractDetail() {
               <Button variant="secondary">Editar</Button>
             </Link>
           )}
+          {id && (
+            <Link to={`/contracts/${id}/alteracoes/nova`}>
+              <Button variant="secondary">Nova alteração</Button>
+            </Link>
+          )}
           <Button
             variant="danger"
             type="button"
@@ -172,28 +177,41 @@ export default function ContractDetail() {
         </Card>
 
         <Card variant="panel" className="p-[var(--space-lg)]">
-          <h2 className="text-[var(--font-size-lg)] font-bold text-[var(--primary)]">Aditivos</h2>
+          <h2 className="text-[var(--font-size-lg)] font-bold text-[var(--primary)]">Alterações</h2>
           <div className="mt-3 space-y-2">
-            {contract.aditivos?.length ? (
-              contract.aditivos.map((a, idx) => (
-                <div key={idx} className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
+            {(contract.alteracoes ?? contract.aditivos)?.length ? (
+              (contract.alteracoes ??
+                contract.aditivos?.map((a: any) => ({
+                  id: a.id,
+                  tipo: 'ADITIVO',
+                  numero: a.numAditivo,
+                  eProtocolo: a.protocoloAdit,
+                  novaDataFimVigencia: a.novoFimVigencia,
+                  valorAcrescido: a.valorAdicional,
+                  situacao: 'ASSINADO',
+                })) ??
+                []
+              ).map((a: any) => (
+                <div key={a.id ?? a.numero} className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface)] p-3">
                   <p className="font-semibold">
-                    #{a.numAditivo} · {a.protocoloAdit}
+                    {a.tipo || 'ADITIVO'} #{a.numero ?? a.numAditivo}
+                    {a.eProtocolo || a.protocoloAdit ? ` · ${a.eProtocolo || a.protocoloAdit}` : ''}
                   </p>
                   <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">
-                    Novo fim: {a.novoFimVigencia || '—'}
-                    {a.valorAdicional != null
-                      ? ` · + ${a.valorAdicional.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+                    {a.situacao ? `${a.situacao} · ` : ''}
+                    Novo fim: {a.novaDataFimVigencia || a.novoFimVigencia || '—'}
+                    {(a.valorAcrescido ?? a.valorAdicional) != null
+                      ? ` · + ${(a.valorAcrescido ?? a.valorAdicional).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
                       : ''}
                   </p>
                 </div>
               ))
             ) : (
-              <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Nenhum aditivo.</p>
+              <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Nenhuma alteração.</p>
             )}
           </div>
           <p className="mt-[var(--space-md)] text-[var(--font-size-sm)] text-[var(--text-muted)]">
-            Compliance Lei 14.133/2021 — acompanhe vigência e segregação gestor/fiscal.
+            Compliance Lei 14.133/2021 — simule limites antes de gravar aditivos.
           </p>
         </Card>
       </div>

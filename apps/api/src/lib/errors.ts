@@ -35,8 +35,8 @@ export function forbidden(message = 'Forbidden') {
   return new AppError(403, 'FORBIDDEN', message);
 }
 
-export function serviceUnavailable(message = 'Database unavailable') {
-  return new AppError(503, 'SERVICE_UNAVAILABLE', message);
+export function legalRuleViolation(message: string, details?: unknown) {
+  return new AppError(422, 'LEGAL_RULE_VIOLATION', message, details);
 }
 
 export function asyncHandler(

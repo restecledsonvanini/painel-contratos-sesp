@@ -32,7 +32,6 @@ const navItems: NavItem[] = [
   { label: 'Unidades FSP', to: '/unidades-fsp', icon: Shield },
   { label: 'Listas suspensas', to: '/dominios', icon: ListTree },
 ];
-
 export function Sidebar() {
   const { collapsed, toggleCollapsed, mobileOpen, closeMobile } = useSidebar();
 

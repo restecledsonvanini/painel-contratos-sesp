@@ -3,7 +3,9 @@ import { limiteProrrogacaoMesesDefault } from '@painel/domain';
 import type { NaturezaObjeto } from '@painel/domain';
 
 const contractInclude = {
-  aditivos: true,
+  alteracoes: {
+    orderBy: [{ dataAssinatura: 'asc' as const }, { numero: 'asc' as const }],
+  },
   fornecedor: true,
   unidadeGestora: {
     include: { orgao: { select: { id: true, sigla: true, nome: true } } },
@@ -199,6 +201,18 @@ export const contratoRepository = {
         novoFimVigencia: Date | null;
         valorAdicionalCents: number | null;
       }>;
+      alteracoes?: Array<{
+        tipo: string;
+        numero?: number;
+        eProtocolo?: string | null;
+        objetoDescricao: string;
+        dataAssinatura: string;
+        novaDataFimVigencia?: Date | string | null;
+        valorAcrescidoCents?: number;
+        valorSuprimidoCents?: number;
+        situacao?: string;
+        justificativaExcepcional?: string | null;
+      }>;
     },
     audit: { changedBy: string | null },
   ) {
@@ -351,14 +365,48 @@ export const contratoRepository = {
         seq += 1;
       }
 
-      for (const a of input.aditivos ?? []) {
-        await tx.aditivo.create({
+      for (const a of input.alteracoes ?? []) {
+        await tx.alteracaoContratual.create({
           data: {
             contratoId: contrato.id,
-            numAditivo: a.numAditivo,
-            protocoloAdit: a.protocoloAdit,
-            novoFimVigencia: a.novoFimVigencia,
-            valorAdicionalCents: a.valorAdicionalCents,
+            tipo: a.tipo as never,
+            numero: a.numero ?? 1,
+            eProtocolo: a.eProtocolo ?? null,
+            objetoDescricao: a.objetoDescricao,
+            dataAssinatura: new Date(a.dataAssinatura),
+            novaDataFimVigencia: a.novaDataFimVigencia
+              ? new Date(a.novaDataFimVigencia)
+              : null,
+            valorAcrescidoCents: BigInt(a.valorAcrescidoCents ?? 0),
+            valorSuprimidoCents: BigInt(a.valorSuprimidoCents ?? 0),
+            situacao: (a.situacao as never) ?? 'ASSINADO',
+            justificativaExcepcional: a.justificativaExcepcional ?? null,
+          },
+        });
+      }
+
+      // Alias legado: aditivos aninhados → AlteracaoContratual
+      for (const a of input.aditivos ?? []) {
+        const valor = a.valorAdicionalCents ?? 0;
+        const temPrazo = Boolean(a.novoFimVigencia);
+        const tipo =
+          temPrazo && valor > 0
+            ? 'ADITIVO_PRAZO_VALOR'
+            : temPrazo
+              ? 'ADITIVO_PRAZO'
+              : 'ADITIVO_ACRESCIMO_QUANTITATIVO';
+        await tx.alteracaoContratual.create({
+          data: {
+            contratoId: contrato.id,
+            tipo: tipo as never,
+            numero: a.numAditivo,
+            eProtocolo: a.protocoloAdit,
+            objetoDescricao: 'Aditivo legado (compat)',
+            dataAssinatura: inicio,
+            novaDataFimVigencia: a.novoFimVigencia,
+            valorAcrescidoCents: BigInt(valor),
+            valorSuprimidoCents: BigInt(0),
+            situacao: 'ASSINADO',
           },
         });
       }
@@ -472,10 +520,17 @@ export const contratoRepository = {
     });
   },
 
-  async delete(id: string, existing: { id: string; aditivos: unknown[] }, audit: { changedBy: string | null }) {
+  async delete(
+    id: string,
+    existing: { id: string; alteracoes?: unknown[]; aditivos?: unknown[] },
+    audit: { changedBy: string | null },
+  ) {
     const db = getPrisma();
     await db.$transaction(async (tx) => {
-      await tx.aditivo.deleteMany({ where: { contratoId: id } });
+      await tx.alteracaoItem.deleteMany({
+        where: { alteracao: { contratoId: id } },
+      });
+      await tx.alteracaoContratual.deleteMany({ where: { contratoId: id } });
       await tx.itemContrato.deleteMany({ where: { contratoId: id } });
       await tx.contratoResponsavel.deleteMany({ where: { contratoId: id } });
       await tx.contratoRateio.deleteMany({ where: { contratoId: id } });
@@ -485,7 +540,10 @@ export const contratoRepository = {
           tabela: 'contrato',
           registroId: id,
           action: 'delete',
-          diff: { id: existing.id, aditivos: existing.aditivos.length },
+          diff: {
+            id: existing.id,
+            alteracoes: (existing.alteracoes ?? existing.aditivos ?? []).length,
+          },
           changedBy: audit.changedBy,
           source: 'api',
         },

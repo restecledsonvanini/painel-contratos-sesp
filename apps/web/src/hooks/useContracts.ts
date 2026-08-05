@@ -50,7 +50,17 @@ export interface Contract {
     periodicidade?: string;
     atributos?: Record<string, unknown> | null;
   }>;
+  alteracoes?: Array<{
+    id: string;
+    tipo: string;
+    numero: number;
+    eProtocolo?: string | null;
+    novaDataFimVigencia?: string | null;
+    valorAcrescido?: number;
+    situacao?: string;
+  }>;
   aditivos?: Array<{
+    id?: string;
     numAditivo: number;
     protocoloAdit: string;
     novoFimVigencia?: string | null;

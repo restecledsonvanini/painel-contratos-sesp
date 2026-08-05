@@ -22,7 +22,7 @@ describe('contracts API integration', () => {
   let fornecedorId = '';
   let gestorId = '';
   let fiscalId = '';
-  let modalidadeCodigo = 'DISPENSA';
+  let modalidadeCodigo = 'PREGAO_ELETRONICO';
 
   beforeAll(async () => {
     ready = await dbReady();

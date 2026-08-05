@@ -298,13 +298,38 @@ exports.Prisma.ContratoRateioScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.AditivoScalarFieldEnum = {
+exports.Prisma.AlteracaoContratualScalarFieldEnum = {
   id: 'id',
   contratoId: 'contratoId',
-  numAditivo: 'numAditivo',
-  protocoloAdit: 'protocoloAdit',
-  novoFimVigencia: 'novoFimVigencia',
-  valorAdicionalCents: 'valorAdicionalCents',
+  tipo: 'tipo',
+  numero: 'numero',
+  eProtocolo: 'eProtocolo',
+  objetoDescricao: 'objetoDescricao',
+  fundamentoLegalId: 'fundamentoLegalId',
+  justificativa: 'justificativa',
+  justificativaExcepcional: 'justificativaExcepcional',
+  dataAssinatura: 'dataAssinatura',
+  dataInicioEfeito: 'dataInicioEfeito',
+  prazoAcrescidoValor: 'prazoAcrescidoValor',
+  prazoAcrescidoUnidade: 'prazoAcrescidoUnidade',
+  novaDataFimVigencia: 'novaDataFimVigencia',
+  valorAcrescidoCents: 'valorAcrescidoCents',
+  valorSuprimidoCents: 'valorSuprimidoCents',
+  percentualReajuste: 'percentualReajuste',
+  situacao: 'situacao',
+  codigoLegado: 'codigoLegado',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AlteracaoItemScalarFieldEnum = {
+  id: 'id',
+  alteracaoId: 'alteracaoId',
+  itemContratoId: 'itemContratoId',
+  catalogoItemId: 'catalogoItemId',
+  quantidadeDelta: 'quantidadeDelta',
+  valorUnitarioNovoCents: 'valorUnitarioNovoCents',
+  observacao: 'observacao',
   createdAt: 'createdAt'
 };
 
@@ -511,6 +536,28 @@ exports.PapelResponsavel = {
   PREPOSTO_CONTRATADA: 'PREPOSTO_CONTRATADA'
 };
 
+exports.TipoAlteracao = {
+  ADITIVO_PRAZO: 'ADITIVO_PRAZO',
+  ADITIVO_ACRESCIMO_QUANTITATIVO: 'ADITIVO_ACRESCIMO_QUANTITATIVO',
+  ADITIVO_SUPRESSAO: 'ADITIVO_SUPRESSAO',
+  ADITIVO_PRAZO_VALOR: 'ADITIVO_PRAZO_VALOR',
+  ADITIVO_QUALITATIVO: 'ADITIVO_QUALITATIVO',
+  ADITIVO_SUBROGACAO: 'ADITIVO_SUBROGACAO',
+  APOSTILAMENTO_REAJUSTE: 'APOSTILAMENTO_REAJUSTE',
+  APOSTILAMENTO_REPACTUACAO: 'APOSTILAMENTO_REPACTUACAO',
+  APOSTILAMENTO_REEQUILIBRIO: 'APOSTILAMENTO_REEQUILIBRIO',
+  APOSTILAMENTO_DOTACAO: 'APOSTILAMENTO_DOTACAO',
+  APOSTILAMENTO_FISCALIZACAO: 'APOSTILAMENTO_FISCALIZACAO',
+  APOSTILAMENTO_CORRECAO_MATERIAL: 'APOSTILAMENTO_CORRECAO_MATERIAL'
+};
+
+exports.SituacaoAlteracao = {
+  MINUTA: 'MINUTA',
+  ASSINADO: 'ASSINADO',
+  PUBLICADO: 'PUBLICADO',
+  CANCELADO: 'CANCELADO'
+};
+
 exports.TipoAtributo = {
   TEXTO: 'TEXTO',
   TEXTO_LONGO: 'TEXTO_LONGO',
@@ -546,7 +593,8 @@ exports.Prisma.ModelName = {
   Contrato: 'Contrato',
   ContratoResponsavel: 'ContratoResponsavel',
   ContratoRateio: 'ContratoRateio',
-  Aditivo: 'Aditivo',
+  AlteracaoContratual: 'AlteracaoContratual',
+  AlteracaoItem: 'AlteracaoItem',
   CatalogoItem: 'CatalogoItem',
   ItemAtributoDef: 'ItemAtributoDef',
   ItemContrato: 'ItemContrato',

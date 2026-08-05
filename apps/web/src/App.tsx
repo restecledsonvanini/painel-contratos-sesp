@@ -12,6 +12,7 @@ const ServidoresList = lazy(() => import('./pages/ServidoresList'));
 const ServidoresForm = lazy(() => import('./pages/ServidoresForm'));
 const CatalogoList = lazy(() => import('./pages/CatalogoList'));
 const CatalogoForm = lazy(() => import('./pages/CatalogoForm'));
+const AlteracaoForm = lazy(() => import('./pages/AlteracaoForm'));
 const UnidadesFspList = lazy(() => import('./pages/UnidadesFspList'));
 const UnidadesFspForm = lazy(() => import('./pages/UnidadesFspForm'));
 const DevUi = lazy(() => import('./pages/DevUi'));
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/contracts/new" element={<ContractForm />} />
           <Route path="/contracts/:id/edit" element={<ContractForm />} />
           <Route path="/contracts/:id" element={<ContractDetail />} />
+          <Route path="/contracts/:id/alteracoes/nova" element={<AlteracaoForm />} />
 
           <Route path="/fornecedores" element={<FornecedoresList />} />
           <Route path="/fornecedores/new" element={<FornecedoresForm />} />

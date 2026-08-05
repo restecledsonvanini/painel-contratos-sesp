@@ -64,6 +64,14 @@ export const TipoAlteracao = {
 } as const;
 export type TipoAlteracao = (typeof TipoAlteracao)[keyof typeof TipoAlteracao];
 
+export const SituacaoAlteracao = {
+  MINUTA: 'MINUTA',
+  ASSINADO: 'ASSINADO',
+  PUBLICADO: 'PUBLICADO',
+  CANCELADO: 'CANCELADO',
+} as const;
+export type SituacaoAlteracao = (typeof SituacaoAlteracao)[keyof typeof SituacaoAlteracao];
+
 export const Periodicidade = {
   UNICA: 'UNICA',
   DIARIA: 'DIARIA',

@@ -142,13 +142,30 @@ function mapContractRecord(record: any) {
         atributos: item.atributos,
       };
     }),
-    aditivos: record.aditivos?.map((aditivo: any) => ({
-      id: aditivo.id,
-      numAditivo: aditivo.numAditivo,
-      protocoloAdit: aditivo.protocoloAdit,
-      novoFimVigencia: aditivo.novoFimVigencia,
+    alteracoes: record.alteracoes?.map((alt: any) => {
+      const valorAcrescidoCents = Number(alt.valorAcrescidoCents ?? 0);
+      return {
+        id: alt.id,
+        tipo: alt.tipo,
+        numero: alt.numero,
+        eProtocolo: alt.eProtocolo,
+        objetoDescricao: alt.objetoDescricao,
+        dataAssinatura: alt.dataAssinatura,
+        novaDataFimVigencia: alt.novaDataFimVigencia,
+        valorAcrescidoCents,
+        valorAcrescido: valorAcrescidoCents / 100,
+        valorSuprimidoCents: Number(alt.valorSuprimidoCents ?? 0),
+        situacao: alt.situacao,
+      };
+    }),
+    // Alias legado
+    aditivos: record.alteracoes?.map((alt: any) => ({
+      id: alt.id,
+      numAditivo: alt.numero,
+      protocoloAdit: alt.eProtocolo,
+      novoFimVigencia: alt.novaDataFimVigencia,
       valorAdicional:
-        aditivo.valorAdicionalCents != null ? aditivo.valorAdicionalCents / 100 : undefined,
+        alt.valorAcrescidoCents != null ? Number(alt.valorAcrescidoCents) / 100 : undefined,
     })),
   };
 }
