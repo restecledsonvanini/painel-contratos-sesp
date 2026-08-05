@@ -370,6 +370,64 @@ export const ServicoCreateSchema = z.object({
 
 export const ServicoUpdateSchema = ServicoCreateSchema.partial();
 
+/** Etapas do wizard de lançamento (front). */
+export const CONTRACT_WIZARD_STEPS = [
+  { id: 'identificacao', label: 'Identificação' },
+  { id: 'partes', label: 'Partes' },
+  { id: 'itens', label: 'Objeto e itens' },
+  { id: 'vigencia', label: 'Vigência' },
+  { id: 'orcamento', label: 'Orçamento' },
+  { id: 'rateio', label: 'Rateio' },
+  { id: 'publicidade', label: 'Publicidade' },
+  { id: 'revisao', label: 'Revisão' },
+] as const;
+
+export type ContractWizardStepId = (typeof CONTRACT_WIZARD_STEPS)[number]['id'];
+
+export const ContractStepIdentificacaoSchema = z.object({
+  numGms: z.number({ invalid_type_error: 'Informe o número GMS' }).int().nonnegative(),
+  anoGms: z.number({ invalid_type_error: 'Informe o ano GMS' }).int().gte(2000),
+  protocoloCabeca: z.string().nullable().optional(),
+  numeroContrato: z.string().nullable().optional(),
+  pilar: PilarOrcamentarioSchema,
+  naturezaObjeto: NaturezaObjetoSchema,
+  modalidade: z.string().min(1, 'Selecione a modalidade'),
+  fundamentoLegalId: z.string().uuid().nullable().optional().or(z.literal('')),
+  objeto: z.string().min(1, 'Descreva o objeto'),
+});
+
+export const ContractStepPartesSchema = z
+  .object({
+    fornecedorId: z.string().uuid('Selecione o fornecedor'),
+    unidadeGestoraId: z.string().uuid('Selecione a unidade gestora'),
+    gestorId: z.string().uuid().optional().or(z.literal('')),
+    fiscalId: z.string().uuid().optional().or(z.literal('')),
+  })
+  .superRefine((data, ctx) => {
+    if (data.gestorId && data.fiscalId && data.gestorId === data.fiscalId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Gestor e fiscal devem ser pessoas diferentes',
+        path: ['fiscalId'],
+      });
+    }
+  });
+
+export const ContractStepVigenciaSchema = z.object({
+  dataInicio: z.string().min(1, 'Informe o início da vigência'),
+  dataFimOrig: z.string().min(1, 'Informe o fim original da vigência'),
+  prazoInicialValor: z.number().int().positive().optional(),
+  prazoInicialUnidade: UnidadeTempoSchema.optional(),
+  prorrogavel: z.boolean().optional(),
+  limiteProrrogacaoMeses: z.number().int().nullable().optional(),
+  indiceReajuste: z.string().nullable().optional(),
+  mesAniversarioReajuste: z.number().int().min(1).max(12).nullable().optional(),
+});
+
+export const ContractStepOrcamentoSchema = z.object({
+  valorAnual: z.number({ invalid_type_error: 'Informe o valor global' }).nonnegative(),
+});
+
 export type ContractCreateInput = z.infer<typeof ContractCreateSchema>;
 export type ContractUpdateInput = z.infer<typeof ContractUpdateSchema>;
 export type AditivoCreateInput = z.infer<typeof AditivoCreateSchema>;

@@ -371,7 +371,7 @@ Tela de login, `AuthProvider` real, UI sensível a papel e escopo por órgão; a
 - [x] `fase0-fundacao` — http client, queryKeys, format/masks, toasts, confirm, zod alinhado, estados de erro reais
 - [x] `fase1-design-system` — Select, Combobox, TreeSelect, Modal, Tabs, DataTable, DatePicker, CurrencyInput, FormField, galeria `/dev/ui`
 - [x] `fase2-lookups-cadastros` — LookupsProvider, quick-create, migração dos cadastros principais
-- [x] `fase3-contrato` — formulário de contrato com itens; lista e detalhe (wizard 8 etapas fica como evolução)
+- [x] `fase3-contrato` — formulário de contrato com itens; lista e detalhe + wizard 8 etapas com rascunho
 - [x] `fase4-timeline` — Timeline, Meter de limites, formulário de alteração com simulação
 - [x] `fase5-dashboards` — painel consumindo MVs (drill-down completo fica como evolução)
 - [x] `fase6-alertas-importacao` — central de alertas, wizard de importação, CommandPalette, export CSV
@@ -382,7 +382,7 @@ Tela de login, `AuthProvider` real, UI sensível a papel e escopo por órgão; a
 - [x] Cliente HTTP centralizado; toasts/confirm no fluxo principal.
 - [x] Nenhum KPI calculado no cliente (dashboard via MVs).
 - [x] Lookups via cache; combobox/select nos cadastros principais.
-- [ ] Contrato completo em uma sessão com rascunho salvo (wizard 8 etapas — evolução).
+- [x] Contrato completo em uma sessão com rascunho salvo (wizard 8 etapas — evolução).
 - [x] Linha do tempo e medidor de limite na alteração.
 - [ ] 16 widgets/filtros 1:1 com as perguntas do plano da API (evolução).
 - [ ] a11y/mobile completos + Playwright/axe (evolução).

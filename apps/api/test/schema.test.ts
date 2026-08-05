@@ -46,6 +46,37 @@ describe('ContractCreateSchema', () => {
       })
     ).toThrow();
   });
+
+  it('accepts elaborado as EM_ELABORACAO draft', () => {
+    const parsed = ContractCreateSchema.parse({ ...baseContract, status: 'elaborado' });
+    expect(parsed.situacao).toBe('EM_ELABORACAO');
+  });
+});
+
+describe('Contract wizard step schemas', () => {
+  it('validates identificação e partes', async () => {
+    const { ContractStepIdentificacaoSchema, ContractStepPartesSchema } = await import(
+      '@painel/schema'
+    );
+    expect(
+      ContractStepIdentificacaoSchema.parse({
+        numGms: 1,
+        anoGms: 2026,
+        pilar: 'SERVICOS',
+        naturezaObjeto: 'SERVICO_CONTINUADO',
+        modalidade: 'DISPENSA',
+        objeto: 'Teste',
+      }).objeto,
+    ).toBe('Teste');
+    expect(
+      ContractStepPartesSchema.parse({
+        fornecedorId: 'a4444444-4444-4444-8444-444444444444',
+        unidadeGestoraId: 'a1111111-1111-4111-8111-111111111111',
+        gestorId: '',
+        fiscalId: '',
+      }).fornecedorId,
+    ).toBe('a4444444-4444-4444-8444-444444444444');
+  });
 });
 
 describe('ContractUpdateSchema', () => {

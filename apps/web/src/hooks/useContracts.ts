@@ -115,7 +115,7 @@ export function useUpdateContract() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, payload }: { id: string; payload: Partial<Contract> }) => {
-      const res = await http.put(`/contracts/${id}`, payload);
+      const res = await http.patch(`/contracts/${id}`, payload);
       return res.data;
     },
     onSuccess: (_data, vars) => {
