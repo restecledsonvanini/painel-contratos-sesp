@@ -66,6 +66,9 @@ export async function deleteDominioValor(req: Request, res: Response) {
 export async function listOrgaos(_req: Request, res: Response) {
   return res.status(200).json(await orgaoService.list());
 }
+export async function arvoreOrgaos(_req: Request, res: Response) {
+  return res.status(200).json(await orgaoService.arvore());
+}
 export async function getOrgao(req: Request, res: Response) {
   return res.status(200).json(await orgaoService.get(routeParam(req, 'id')));
 }

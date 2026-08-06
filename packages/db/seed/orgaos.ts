@@ -1,14 +1,19 @@
 import type { NivelUnidade, TipoOrgao } from '../generated/client';
 
-/** Forças / órgãos da SESP — mantidos como cadastrados. */
-export const ORGAOS_SEED: Array<{ sigla: string; nome: string; tipo: TipoOrgao }> = [
-  { sigla: 'PMPR', nome: 'Polícia Militar do Paraná', tipo: 'POLICIA_MILITAR' },
-  { sigla: 'PCPR', nome: 'Polícia Civil do Paraná', tipo: 'POLICIA_CIVIL' },
-  { sigla: 'CBMPR', nome: 'Corpo de Bombeiros Militar do Paraná', tipo: 'BOMBEIROS' },
-  { sigla: 'DEPPEN', nome: 'Departamento Penitenciário do Paraná', tipo: 'POLICIA_PENAL' },
-  { sigla: 'PCP', nome: 'Polícia Científica do Paraná', tipo: 'POLICIA_CIENTIFICA' },
-  { sigla: 'DETRAN', nome: 'Departamento de Trânsito do Paraná', tipo: 'TRANSITO' },
-  { sigla: 'SESP', nome: 'Secretaria de Estado da Segurança Pública', tipo: 'ADMINISTRACAO_DIRETA' },
+/** Forças / órgãos da SESP — SESP é mantenedora (raiz); demais têm parentSigla SESP. */
+export const ORGAOS_SEED: Array<{
+  sigla: string;
+  nome: string;
+  tipo: TipoOrgao;
+  parentSigla?: string | null;
+}> = [
+  { sigla: 'SESP', nome: 'Secretaria de Estado da Segurança Pública', tipo: 'ADMINISTRACAO_DIRETA', parentSigla: null },
+  { sigla: 'PMPR', nome: 'Polícia Militar do Paraná', tipo: 'POLICIA_MILITAR', parentSigla: 'SESP' },
+  { sigla: 'PCPR', nome: 'Polícia Civil do Paraná', tipo: 'POLICIA_CIVIL', parentSigla: 'SESP' },
+  { sigla: 'CBMPR', nome: 'Corpo de Bombeiros Militar do Paraná', tipo: 'BOMBEIROS', parentSigla: 'SESP' },
+  { sigla: 'DEPPEN', nome: 'Departamento Penitenciário do Paraná', tipo: 'POLICIA_PENAL', parentSigla: 'SESP' },
+  { sigla: 'PCP', nome: 'Polícia Científica do Paraná', tipo: 'POLICIA_CIENTIFICA', parentSigla: 'SESP' },
+  { sigla: 'DETRAN', nome: 'Departamento de Trânsito do Paraná', tipo: 'TRANSITO', parentSigla: 'SESP' },
 ];
 
 /**

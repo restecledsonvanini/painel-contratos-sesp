@@ -35,6 +35,7 @@ export const OrgaoCreateSchema = z.object({
     'TRANSITO',
     'ADMINISTRACAO_DIRETA',
   ]),
+  parentId: uuid.nullable().optional(),
   ativo: z.boolean().optional(),
 });
 

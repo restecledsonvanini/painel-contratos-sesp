@@ -128,11 +128,24 @@ async function seedOrgaosESedes() {
   const curitiba = await prisma.municipio.findUniqueOrThrow({ where: { codigoIbge: '4106902' } });
   const sedeSiglas = new Set(UNIDADES_SEDE.map((u) => `${u.orgaoSigla}:${u.sigla}`));
 
+  // 1ª passagem: upsert sem parent (garante SESP existe antes do vínculo)
   for (const o of ORGAOS_SEED) {
+    const { parentSigla: _p, ...data } = o;
     await prisma.orgao.upsert({
       where: { sigla: o.sigla },
       update: { nome: o.nome, tipo: o.tipo, ativo: true },
-      create: o,
+      create: data,
+    });
+  }
+
+  // 2ª passagem: parentId (SESP → forças)
+  for (const o of ORGAOS_SEED) {
+    const parentId = o.parentSigla
+      ? (await prisma.orgao.findUniqueOrThrow({ where: { sigla: o.parentSigla } })).id
+      : null;
+    await prisma.orgao.update({
+      where: { sigla: o.sigla },
+      data: { parentId },
     });
   }
 

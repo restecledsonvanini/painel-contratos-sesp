@@ -10,18 +10,30 @@ import { parsePagination, paginationMeta, skipTake } from '../lib/pagination';
 
 export const orgaoRepository = {
   list() {
-    return getPrisma().orgao.findMany({ orderBy: { sigla: 'asc' } });
+    return getPrisma().orgao.findMany({
+      orderBy: { sigla: 'asc' },
+      include: { parent: { select: { id: true, sigla: true, nome: true } } },
+    });
   },
 
   async get(id: string) {
-    const record = await getPrisma().orgao.findUnique({ where: { id } });
+    const record = await getPrisma().orgao.findUnique({
+      where: { id },
+      include: { parent: { select: { id: true, sigla: true, nome: true } } },
+    });
     if (!record) throw notFound('Órgão não encontrado');
     return record;
   },
 
   create(data: OrgaoCreateInput) {
     return getPrisma().orgao.create({
-      data: { ...data, ativo: data.ativo ?? true },
+      data: {
+        sigla: data.sigla,
+        nome: data.nome,
+        tipo: data.tipo,
+        parentId: data.parentId ?? null,
+        ativo: data.ativo ?? true,
+      },
     });
   },
 
@@ -33,6 +45,99 @@ export const orgaoRepository = {
   async remove(id: string) {
     await this.get(id);
     return getPrisma().orgao.update({ where: { id }, data: { ativo: false } });
+  },
+
+  /**
+   * Árvore SESP → forças → subunidades (UnidadeOrganizacional).
+   * Nós de órgão têm kind='orgao'; nós de unidade têm kind='unidade' + nivel.
+   */
+  async arvore() {
+    const [orgaos, unidades] = await Promise.all([
+      getPrisma().orgao.findMany({ where: { ativo: true }, orderBy: { sigla: 'asc' } }),
+      getPrisma().unidadeOrganizacional.findMany({
+        where: { ativo: true },
+        orderBy: { sigla: 'asc' },
+        include: { municipio: { select: { id: true, nome: true, uf: true } } },
+      }),
+    ]);
+
+    type UnitNode = {
+      id: string;
+      kind: 'unidade';
+      label: string;
+      sigla: string;
+      nome: string;
+      nivel: string;
+      orgaoId: string;
+      municipio?: { id: string; nome: string; uf: string };
+      children: UnitNode[];
+    };
+
+    type OrgaoNode = {
+      id: string;
+      kind: 'orgao';
+      label: string;
+      sigla: string;
+      nome: string;
+      tipo: string;
+      parentId: string | null;
+      children: Array<OrgaoNode | UnitNode>;
+    };
+
+    const unitTrees = new Map<string, UnitNode[]>();
+    for (const o of orgaos) {
+      unitTrees.set(
+        o.id,
+        annotateUnitTree(
+          buildTree(
+            unidades
+              .filter((u) => u.orgaoId === o.id)
+              .map((u) => ({
+                id: u.id,
+                sigla: u.sigla,
+                nome: u.nome,
+                parentId: u.parentId,
+                nivel: u.nivel,
+                municipio: u.municipio,
+              })),
+          ),
+          o.id,
+        ) as UnitNode[],
+      );
+    }
+
+    const orgaoMap = new Map<string, OrgaoNode>();
+    for (const o of orgaos) {
+      orgaoMap.set(o.id, {
+        id: o.id,
+        kind: 'orgao',
+        label: `${o.sigla} — ${o.nome}`,
+        sigla: o.sigla,
+        nome: o.nome,
+        tipo: o.tipo,
+        parentId: o.parentId,
+        children: [...(unitTrees.get(o.id) ?? [])],
+      });
+    }
+
+    const roots: OrgaoNode[] = [];
+    for (const o of orgaos) {
+      const node = orgaoMap.get(o.id)!;
+      if (o.parentId && orgaoMap.has(o.parentId)) {
+        orgaoMap.get(o.parentId)!.children.push(node);
+      } else {
+        roots.push(node);
+      }
+    }
+
+    // Preferência: SESP primeiro; demais raízes órfãs ao final
+    roots.sort((a, b) => {
+      if (a.sigla === 'SESP') return -1;
+      if (b.sigla === 'SESP') return 1;
+      return a.sigla.localeCompare(b.sigla);
+    });
+
+    return roots;
   },
 };
 
@@ -48,21 +153,8 @@ export const unidadeRepository = {
   },
 
   async arvore() {
-    const [orgaos, unidades] = await Promise.all([
-      getPrisma().orgao.findMany({ where: { ativo: true }, orderBy: { sigla: 'asc' } }),
-      getPrisma().unidadeOrganizacional.findMany({
-        where: { ativo: true },
-        orderBy: { sigla: 'asc' },
-        include: { municipio: { select: { id: true, nome: true, uf: true } } },
-      }),
-    ]);
-
-    return orgaos.map((o) => ({
-      id: o.id,
-      label: `${o.sigla} — ${o.nome}`,
-      sigla: o.sigla,
-      children: buildTree(unidades.filter((u) => u.orgaoId === o.id)),
-    }));
+    // Mesma hierarquia SESP → forças → subunidades (compatível com UI existente)
+    return orgaoRepository.arvore();
   },
 
   async get(id: string) {
@@ -164,4 +256,19 @@ function buildTree(
     }
   }
   return roots;
+}
+
+/** Anexa kind/orgaoId recursivamente após buildTree (compat tipagem). */
+function annotateUnitTree(
+  nodes: ReturnType<typeof buildTree>,
+  orgaoId: string,
+): Array<
+  ReturnType<typeof buildTree>[number] & { kind: 'unidade'; orgaoId: string; children: unknown[] }
+> {
+  return nodes.map((n) => ({
+    ...n,
+    kind: 'unidade' as const,
+    orgaoId,
+    children: annotateUnitTree(n.children, orgaoId),
+  }));
 }

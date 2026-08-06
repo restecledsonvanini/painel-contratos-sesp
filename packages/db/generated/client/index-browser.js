@@ -150,6 +150,7 @@ exports.Prisma.OrgaoScalarFieldEnum = {
   nome: 'nome',
   tipo: 'tipo',
   ativo: 'ativo',
+  parentId: 'parentId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

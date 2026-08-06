@@ -8,6 +8,8 @@ export type Orgao = {
   nome: string;
   tipo: string;
   ativo: boolean;
+  parentId?: string | null;
+  parent?: { id: string; sigla: string; nome: string } | null;
 };
 
 export type UnidadeOrganizacional = {
@@ -26,17 +28,15 @@ export type UnidadeOrganizacional = {
 
 export type ArvoreOrgao = {
   id: string;
+  kind?: 'orgao' | 'unidade';
   label: string;
   sigla: string;
-  children: Array<{
-    id: string;
-    label: string;
-    sigla: string;
-    nome: string;
-    nivel: string;
-    municipio?: { id: string; nome: string; uf: string };
-    children: ArvoreOrgao['children'];
-  }>;
+  nome?: string;
+  tipo?: string;
+  nivel?: string;
+  parentId?: string | null;
+  municipio?: { id: string; nome: string; uf: string };
+  children: ArvoreOrgao[];
 };
 
 export type Municipio = {

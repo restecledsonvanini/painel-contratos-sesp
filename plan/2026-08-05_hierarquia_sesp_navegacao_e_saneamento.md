@@ -357,7 +357,7 @@ Cada fase é entregável e reversível sozinha. Nenhuma fase começa com a anter
 | Fase | Escopo | Migration | Risco | Critério de pronto |
 |---|---|---|---|---|
 | **0. Rede de proteção** | Dump do banco; `npm test` (35) + `test:e2e` verdes; inventário de rotas congelado | — | — | Baseline registrado neste arquivo |
-| **1. Hierarquia SESP** | `Orgao.parentId`; backfill 6 forças → SESP; `/orgaos/arvore`; seed | sim (aditiva) | baixo | Árvore SESP › Força › Subunidade na API e na tela |
+| **1. Hierarquia SESP** | `Orgao.parentId`; backfill 6 forças → SESP; `/orgaos/arvore`; seed | sim (aditiva) | baixo | ✅ **Feita (2026-08-05)** — API 40/40 |
 | **2. Unidade gestora = força** | `unidadeGestoraId` → `Orgao`; `subunidadeId` opcional; `municipioId` e `nivel` nullable; escopo direto | sim (2 migrations) | **alto** | Contrato salva só com a força; 35 testes verdes; escopo por órgão idem |
 | **3. Navegação** | Sidebar com grupos + gate; 4 páginas de seção; `useTabParam`; todos os redirects | não | médio | Toda rota antiga responde; e2e atualizado |
 | **4. Exportação** ⭐ | XLSX real (`exceljs`); PDF (`pdfkit`); ficha por contrato + acervo; UI com escopo | não | baixo | 3 formatos por contrato e do acervo, respeitando escopo por órgão |
@@ -403,10 +403,13 @@ Uma dependência a respeitar: a **Fase 4 depende da 2**, porque a ficha exportad
 
 ## 10. Baseline (Fase 0)
 
-Preencher ao iniciar a execução.
+Registrado em 2026-08-05 (~22:12 UTC-3).
 
-- Commit base: `_______`
-- `npm test` (API): `__/35`
-- `npm run test:e2e`: `__ chromium / __ mobile`
-- Dump: `_______`
+- Commit base: `8a7d1ef`
+- `npm run api:test`: **38/38** (suíte cresceu além dos 35 citados no draft)
+- `npm run web:e2e`: **9 passed / 1 skipped** (chromium+mobile; o caso “viewport mobile” só roda no project mobile)
+- Dump: `tmp/baseline_20260805_221206.sql` (~255 KB; local, não versionar)
 - Rotas registradas hoje: 37 (incluindo 9 redirects) — inventário em `apps/web/src/App.tsx`
+- Seed pós-testes: reaplicado (5 contratos / 7 órgãos / 7 sedes)
+
+**Nota operacional:** `api:dev` trava `prisma generate` no Windows (DLL do query engine). Para rodar testes, pare o `tsx watch` antes.

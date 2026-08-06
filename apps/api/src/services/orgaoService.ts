@@ -13,6 +13,7 @@ import {
 export const orgaoService = {
   list: () => orgaoRepository.list(),
   get: (id: string) => orgaoRepository.get(id),
+  arvore: () => orgaoRepository.arvore(),
   create: (body: unknown) => orgaoRepository.create(OrgaoCreateSchema.parse(body)),
   update: (id: string, body: unknown) =>
     orgaoRepository.update(id, OrgaoUpdateSchema.parse(body)),

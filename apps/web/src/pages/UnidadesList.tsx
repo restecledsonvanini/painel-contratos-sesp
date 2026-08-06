@@ -18,13 +18,19 @@ import { useAuth } from '../providers/AuthProvider';
 
 type TreeNode = {
   id: string;
+  kind?: 'orgao' | 'unidade';
   label: string;
   sigla: string;
   nome?: string;
   nivel?: string;
+  tipo?: string;
   municipio?: { nome: string; uf: string };
   children: TreeNode[];
 };
+
+function isUnidade(node: TreeNode) {
+  return node.kind === 'unidade' || Boolean(node.nivel);
+}
 
 function UnitNode({
   node,
@@ -37,8 +43,9 @@ function UnitNode({
   canWrite: boolean;
   onDelete: (id: string, label: string) => void;
 }) {
-  const [open, setOpen] = useState(depth < 1);
+  const [open, setOpen] = useState(depth < 2);
   const hasChildren = node.children.length > 0;
+  const unidade = isUnidade(node);
 
   return (
     <div className="border-b border-[var(--border)] last:border-b-0">
@@ -64,11 +71,15 @@ function UnitNode({
             {node.nome ? ` — ${node.nome}` : ''}
           </p>
           <p className="text-[var(--font-size-xs)] text-[var(--text-muted)]">
-            {node.nivel || 'Órgão'}
+            {unidade
+              ? node.nivel || 'Subunidade'
+              : node.sigla === 'SESP'
+                ? 'Mantenedora'
+                : 'Força / órgão'}
             {node.municipio ? ` · ${node.municipio.nome}/${node.municipio.uf}` : ''}
           </p>
         </div>
-        {node.nivel && canWrite && (
+        {unidade && canWrite && (
           <div className="flex flex-wrap gap-2">
             <Link to={`/unidades/new?parentId=${node.id}`}>
               <Button size="sm" variant="ghost">
@@ -85,7 +96,7 @@ function UnitNode({
             </Button>
           </div>
         )}
-        {!node.nivel && canWrite && (
+        {!unidade && canWrite && (
           <Link to={`/unidades/new?orgaoId=${node.id}`}>
             <Button size="sm" variant="secondary">
               <Plus size={14} /> Unidade
@@ -107,6 +118,15 @@ function UnitNode({
   );
 }
 
+function findOrgaoBranch(nodes: TreeNode[], orgaoId: string): TreeNode | null {
+  for (const n of nodes) {
+    if (n.id === orgaoId && !isUnidade(n)) return n;
+    const nested = findOrgaoBranch(n.children, orgaoId);
+    if (nested) return nested;
+  }
+  return null;
+}
+
 export default function UnidadesList() {
   const navigate = useNavigate();
   const { data: arvore, isLoading, error, refetch } = useUnidadesArvore();
@@ -120,8 +140,10 @@ export default function UnidadesList() {
   const [orgaoFiltro, setOrgaoFiltro] = useState('');
 
   const tree = useMemo(() => {
-    const rows = Array.isArray(arvore) ? arvore : [];
-    return orgaoFiltro ? rows.filter((o) => o.id === orgaoFiltro) : rows;
+    const rows = (Array.isArray(arvore) ? arvore : []) as TreeNode[];
+    if (!orgaoFiltro) return rows;
+    const branch = findOrgaoBranch(rows, orgaoFiltro);
+    return branch ? [branch] : [];
   }, [arvore, orgaoFiltro]);
 
   const handleDelete = async () => {
@@ -136,7 +158,7 @@ export default function UnidadesList() {
 
   if (isLoading) {
     return (
-      <Page title="Órgãos e unidades" description="Carregando hierarquia...">
+      <Page title="Estrutura organizacional" description="Carregando hierarquia...">
         <Skeleton variant="table" lines={8} />
       </Page>
     );
@@ -144,9 +166,9 @@ export default function UnidadesList() {
 
   if (error) {
     return (
-      <Page title="Órgãos e unidades">
+      <Page title="Estrutura organizacional">
         <ErrorState
-          title="Falha ao carregar unidades"
+          title="Falha ao carregar estrutura"
           message={getErrorMessage(error)}
           code={(error as { code?: string }).code}
           onRetry={() => refetch()}
@@ -157,8 +179,8 @@ export default function UnidadesList() {
 
   return (
     <Page
-      title="Órgãos e unidades"
-      description={`${flat?.length ?? 0} unidades · cadastre subunidades sob a sede de cada força (não pré-cadastramos todas).`}
+      title="Estrutura organizacional"
+      description={`${flat?.length ?? 0} subunidades · SESP mantenedora → forças → unidades cadastráveis (opcionais).`}
       actions={
         <div className="flex flex-wrap items-center gap-2">
           <select
@@ -167,7 +189,7 @@ export default function UnidadesList() {
             value={orgaoFiltro}
             onChange={(e) => setOrgaoFiltro(e.target.value)}
           >
-            <option value="">Todos os órgãos</option>
+            <option value="">Toda a hierarquia</option>
             {(orgaos ?? []).map((o) => (
               <option key={o.id} value={o.id}>
                 {o.sigla} — {o.nome}
@@ -189,7 +211,7 @@ export default function UnidadesList() {
           tree.map((org) => (
             <UnitNode
               key={org.id}
-              node={org as TreeNode}
+              node={org}
               depth={0}
               canWrite={canWrite}
               onDelete={(id, label) =>
@@ -200,7 +222,7 @@ export default function UnidadesList() {
         ) : (
           <EmptyState
             title="Nenhuma unidade"
-            description="Cadastre a sede ou subunidades a partir dos órgãos de segurança."
+            description="Cadastre sedes ou subunidades sob cada força de segurança."
             actionLabel={canWrite ? 'Nova unidade' : undefined}
             onAction={canWrite ? () => navigate('/unidades/new') : undefined}
           />

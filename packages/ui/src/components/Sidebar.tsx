@@ -37,7 +37,7 @@ const navItems: NavItem[] = [
   { label: 'Dotações', to: '/dotacoes', icon: Wallet },
   { label: 'Alertas', to: '/alertas', icon: Bell },
   { label: 'Importação', to: '/importacao', icon: Upload },
-  { label: 'Órgãos e unidades', to: '/unidades', icon: Shield },
+  { label: 'Estrutura organizacional', to: '/unidades', icon: Shield },
   { label: 'Listas suspensas', to: '/dominios', icon: ListTree },
 ];
 export function Sidebar() {

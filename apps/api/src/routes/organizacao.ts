@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  arvoreOrgaos,
   arvoreUnidades,
   createOrgao,
   createUnidade,
@@ -20,6 +21,7 @@ const router = Router();
 const writeRoles = requireMinRole('COLABORADOR');
 
 router.get('/orgaos', asyncHandler(listOrgaos));
+router.get('/orgaos/arvore', asyncHandler(arvoreOrgaos));
 router.post('/orgaos', writeRoles, asyncHandler(createOrgao));
 router.get('/orgaos/:id', asyncHandler(getOrgao));
 router.put('/orgaos/:id', writeRoles, asyncHandler(updateOrgao));

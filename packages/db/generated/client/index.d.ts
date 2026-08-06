@@ -117,6 +117,8 @@ export type DominioValor = runtime.Types.DefaultSelection<DominioValorPayload>
 export type OrgaoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
   name: "Orgao"
   objects: {
+    parent: OrgaoPayload<ExtArgs> | null
+    children: OrgaoPayload<ExtArgs>[]
     unidades: UnidadeOrganizacionalPayload<ExtArgs>[]
     servidores: ServidorPayload<ExtArgs>[]
     usuarios: UsuarioPayload<ExtArgs>[]
@@ -127,6 +129,7 @@ export type OrgaoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultA
     nome: string
     tipo: TipoOrgao
     ativo: boolean
+    parentId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["orgao"]>
@@ -4584,12 +4587,14 @@ export namespace Prisma {
 
 
   export type OrgaoCountOutputType = {
+    children: number
     unidades: number
     servidores: number
     usuarios: number
   }
 
   export type OrgaoCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    children?: boolean | OrgaoCountOutputTypeCountChildrenArgs
     unidades?: boolean | OrgaoCountOutputTypeCountUnidadesArgs
     servidores?: boolean | OrgaoCountOutputTypeCountServidoresArgs
     usuarios?: boolean | OrgaoCountOutputTypeCountUsuariosArgs
@@ -4605,6 +4610,14 @@ export namespace Prisma {
      * Select specific fields to fetch from the OrgaoCountOutputType
      */
     select?: OrgaoCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * OrgaoCountOutputType without action
+   */
+  export type OrgaoCountOutputTypeCountChildrenArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: OrgaoWhereInput
   }
 
 
@@ -9429,6 +9442,7 @@ export namespace Prisma {
     nome: string | null
     tipo: TipoOrgao | null
     ativo: boolean | null
+    parentId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9439,6 +9453,7 @@ export namespace Prisma {
     nome: string | null
     tipo: TipoOrgao | null
     ativo: boolean | null
+    parentId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -9449,6 +9464,7 @@ export namespace Prisma {
     nome: number
     tipo: number
     ativo: number
+    parentId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -9461,6 +9477,7 @@ export namespace Prisma {
     nome?: true
     tipo?: true
     ativo?: true
+    parentId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9471,6 +9488,7 @@ export namespace Prisma {
     nome?: true
     tipo?: true
     ativo?: true
+    parentId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -9481,6 +9499,7 @@ export namespace Prisma {
     nome?: true
     tipo?: true
     ativo?: true
+    parentId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -9565,6 +9584,7 @@ export namespace Prisma {
     nome: string
     tipo: TipoOrgao
     ativo: boolean
+    parentId: string | null
     createdAt: Date
     updatedAt: Date
     _count: OrgaoCountAggregateOutputType | null
@@ -9592,8 +9612,11 @@ export namespace Prisma {
     nome?: boolean
     tipo?: boolean
     ativo?: boolean
+    parentId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    parent?: boolean | OrgaoArgs<ExtArgs>
+    children?: boolean | Orgao$childrenArgs<ExtArgs>
     unidades?: boolean | Orgao$unidadesArgs<ExtArgs>
     servidores?: boolean | Orgao$servidoresArgs<ExtArgs>
     usuarios?: boolean | Orgao$usuariosArgs<ExtArgs>
@@ -9606,11 +9629,14 @@ export namespace Prisma {
     nome?: boolean
     tipo?: boolean
     ativo?: boolean
+    parentId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
   export type OrgaoInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    parent?: boolean | OrgaoArgs<ExtArgs>
+    children?: boolean | Orgao$childrenArgs<ExtArgs>
     unidades?: boolean | Orgao$unidadesArgs<ExtArgs>
     servidores?: boolean | Orgao$servidoresArgs<ExtArgs>
     usuarios?: boolean | Orgao$usuariosArgs<ExtArgs>
@@ -9987,6 +10013,10 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: 'PrismaPromise';
     constructor(_dmmf: runtime.DMMFClass, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
 
+    parent<T extends OrgaoArgs<ExtArgs> = {}>(args?: Subset<T, OrgaoArgs<ExtArgs>>): Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    children<T extends Orgao$childrenArgs<ExtArgs> = {}>(args?: Subset<T, Orgao$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
     unidades<T extends Orgao$unidadesArgs<ExtArgs> = {}>(args?: Subset<T, Orgao$unidadesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     servidores<T extends Orgao$servidoresArgs<ExtArgs> = {}>(args?: Subset<T, Orgao$servidoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findMany', never>| Null>;
@@ -10345,6 +10375,27 @@ export namespace Prisma {
      * Filter which Orgaos to delete
      */
     where?: OrgaoWhereInput
+  }
+
+
+  /**
+   * Orgao.children
+   */
+  export type Orgao$childrenArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Orgao
+     */
+    select?: OrgaoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: OrgaoInclude<ExtArgs> | null
+    where?: OrgaoWhereInput
+    orderBy?: Enumerable<OrgaoOrderByWithRelationInput>
+    cursor?: OrgaoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<OrgaoScalarFieldEnum>
   }
 
 
@@ -37527,6 +37578,7 @@ export namespace Prisma {
     nome: 'nome',
     tipo: 'tipo',
     ativo: 'ativo',
+    parentId: 'parentId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -38308,8 +38360,11 @@ export namespace Prisma {
     nome?: StringFilter | string
     tipo?: EnumTipoOrgaoFilter | TipoOrgao
     ativo?: BoolFilter | boolean
+    parentId?: StringNullableFilter | string | null
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
+    parent?: XOR<OrgaoRelationFilter, OrgaoWhereInput> | null
+    children?: OrgaoListRelationFilter
     unidades?: UnidadeOrganizacionalListRelationFilter
     servidores?: ServidorListRelationFilter
     usuarios?: UsuarioListRelationFilter
@@ -38321,8 +38376,11 @@ export namespace Prisma {
     nome?: SortOrder
     tipo?: SortOrder
     ativo?: SortOrder
+    parentId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    parent?: OrgaoOrderByWithRelationInput
+    children?: OrgaoOrderByRelationAggregateInput
     unidades?: UnidadeOrganizacionalOrderByRelationAggregateInput
     servidores?: ServidorOrderByRelationAggregateInput
     usuarios?: UsuarioOrderByRelationAggregateInput
@@ -38339,6 +38397,7 @@ export namespace Prisma {
     nome?: SortOrder
     tipo?: SortOrder
     ativo?: SortOrder
+    parentId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: OrgaoCountOrderByAggregateInput
@@ -38355,6 +38414,7 @@ export namespace Prisma {
     nome?: StringWithAggregatesFilter | string
     tipo?: EnumTipoOrgaoWithAggregatesFilter | TipoOrgao
     ativo?: BoolWithAggregatesFilter | boolean
+    parentId?: StringNullableWithAggregatesFilter | string | null
     createdAt?: DateTimeWithAggregatesFilter | Date | string
     updatedAt?: DateTimeWithAggregatesFilter | Date | string
   }
@@ -40789,6 +40849,8 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    parent?: OrgaoCreateNestedOneWithoutChildrenInput
+    children?: OrgaoCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
     servidores?: ServidorCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioCreateNestedManyWithoutOrgaoInput
@@ -40800,8 +40862,10 @@ export namespace Prisma {
     nome: string
     tipo: TipoOrgao
     ativo?: boolean
+    parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    children?: OrgaoUncheckedCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioUncheckedCreateNestedManyWithoutOrgaoInput
@@ -40815,6 +40879,8 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parent?: OrgaoUpdateOneWithoutChildrenNestedInput
+    children?: OrgaoUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
     servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUpdateManyWithoutOrgaoNestedInput
@@ -40826,8 +40892,10 @@ export namespace Prisma {
     nome?: StringFieldUpdateOperationsInput | string
     tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
     ativo?: BoolFieldUpdateOperationsInput | boolean
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: OrgaoUncheckedUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUncheckedUpdateManyWithoutOrgaoNestedInput
@@ -40839,6 +40907,7 @@ export namespace Prisma {
     nome: string
     tipo: TipoOrgao
     ativo?: boolean
+    parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -40859,6 +40928,7 @@ export namespace Prisma {
     nome?: StringFieldUpdateOperationsInput | string
     tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
     ativo?: BoolFieldUpdateOperationsInput | boolean
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -44051,6 +44121,17 @@ export namespace Prisma {
     not?: NestedEnumTipoOrgaoFilter | TipoOrgao
   }
 
+  export type OrgaoRelationFilter = {
+    is?: OrgaoWhereInput | null
+    isNot?: OrgaoWhereInput | null
+  }
+
+  export type OrgaoListRelationFilter = {
+    every?: OrgaoWhereInput
+    some?: OrgaoWhereInput
+    none?: OrgaoWhereInput
+  }
+
   export type ServidorListRelationFilter = {
     every?: ServidorWhereInput
     some?: ServidorWhereInput
@@ -44061,6 +44142,10 @@ export namespace Prisma {
     every?: UsuarioWhereInput
     some?: UsuarioWhereInput
     none?: UsuarioWhereInput
+  }
+
+  export type OrgaoOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type ServidorOrderByRelationAggregateInput = {
@@ -44077,6 +44162,7 @@ export namespace Prisma {
     nome?: SortOrder
     tipo?: SortOrder
     ativo?: SortOrder
+    parentId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -44087,6 +44173,7 @@ export namespace Prisma {
     nome?: SortOrder
     tipo?: SortOrder
     ativo?: SortOrder
+    parentId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -44097,6 +44184,7 @@ export namespace Prisma {
     nome?: SortOrder
     tipo?: SortOrder
     ativo?: SortOrder
+    parentId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -44116,11 +44204,6 @@ export namespace Prisma {
     in?: Enumerable<NivelUnidade>
     notIn?: Enumerable<NivelUnidade>
     not?: NestedEnumNivelUnidadeFilter | NivelUnidade
-  }
-
-  export type OrgaoRelationFilter = {
-    is?: OrgaoWhereInput | null
-    isNot?: OrgaoWhereInput | null
   }
 
   export type UnidadeOrganizacionalRelationFilter = {
@@ -47054,6 +47137,19 @@ export namespace Prisma {
     deleteMany?: Enumerable<DocumentoScalarWhereInput>
   }
 
+  export type OrgaoCreateNestedOneWithoutChildrenInput = {
+    create?: XOR<OrgaoCreateWithoutChildrenInput, OrgaoUncheckedCreateWithoutChildrenInput>
+    connectOrCreate?: OrgaoCreateOrConnectWithoutChildrenInput
+    connect?: OrgaoWhereUniqueInput
+  }
+
+  export type OrgaoCreateNestedManyWithoutParentInput = {
+    create?: XOR<Enumerable<OrgaoCreateWithoutParentInput>, Enumerable<OrgaoUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<OrgaoCreateOrConnectWithoutParentInput>
+    createMany?: OrgaoCreateManyParentInputEnvelope
+    connect?: Enumerable<OrgaoWhereUniqueInput>
+  }
+
   export type UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput = {
     create?: XOR<Enumerable<UnidadeOrganizacionalCreateWithoutOrgaoInput>, Enumerable<UnidadeOrganizacionalUncheckedCreateWithoutOrgaoInput>>
     connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutOrgaoInput>
@@ -47073,6 +47169,13 @@ export namespace Prisma {
     connectOrCreate?: Enumerable<UsuarioCreateOrConnectWithoutOrgaoInput>
     createMany?: UsuarioCreateManyOrgaoInputEnvelope
     connect?: Enumerable<UsuarioWhereUniqueInput>
+  }
+
+  export type OrgaoUncheckedCreateNestedManyWithoutParentInput = {
+    create?: XOR<Enumerable<OrgaoCreateWithoutParentInput>, Enumerable<OrgaoUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<OrgaoCreateOrConnectWithoutParentInput>
+    createMany?: OrgaoCreateManyParentInputEnvelope
+    connect?: Enumerable<OrgaoWhereUniqueInput>
   }
 
   export type UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput = {
@@ -47098,6 +47201,30 @@ export namespace Prisma {
 
   export type EnumTipoOrgaoFieldUpdateOperationsInput = {
     set?: TipoOrgao
+  }
+
+  export type OrgaoUpdateOneWithoutChildrenNestedInput = {
+    create?: XOR<OrgaoCreateWithoutChildrenInput, OrgaoUncheckedCreateWithoutChildrenInput>
+    connectOrCreate?: OrgaoCreateOrConnectWithoutChildrenInput
+    upsert?: OrgaoUpsertWithoutChildrenInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: OrgaoWhereUniqueInput
+    update?: XOR<OrgaoUpdateWithoutChildrenInput, OrgaoUncheckedUpdateWithoutChildrenInput>
+  }
+
+  export type OrgaoUpdateManyWithoutParentNestedInput = {
+    create?: XOR<Enumerable<OrgaoCreateWithoutParentInput>, Enumerable<OrgaoUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<OrgaoCreateOrConnectWithoutParentInput>
+    upsert?: Enumerable<OrgaoUpsertWithWhereUniqueWithoutParentInput>
+    createMany?: OrgaoCreateManyParentInputEnvelope
+    set?: Enumerable<OrgaoWhereUniqueInput>
+    disconnect?: Enumerable<OrgaoWhereUniqueInput>
+    delete?: Enumerable<OrgaoWhereUniqueInput>
+    connect?: Enumerable<OrgaoWhereUniqueInput>
+    update?: Enumerable<OrgaoUpdateWithWhereUniqueWithoutParentInput>
+    updateMany?: Enumerable<OrgaoUpdateManyWithWhereWithoutParentInput>
+    deleteMany?: Enumerable<OrgaoScalarWhereInput>
   }
 
   export type UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput = {
@@ -47140,6 +47267,20 @@ export namespace Prisma {
     update?: Enumerable<UsuarioUpdateWithWhereUniqueWithoutOrgaoInput>
     updateMany?: Enumerable<UsuarioUpdateManyWithWhereWithoutOrgaoInput>
     deleteMany?: Enumerable<UsuarioScalarWhereInput>
+  }
+
+  export type OrgaoUncheckedUpdateManyWithoutParentNestedInput = {
+    create?: XOR<Enumerable<OrgaoCreateWithoutParentInput>, Enumerable<OrgaoUncheckedCreateWithoutParentInput>>
+    connectOrCreate?: Enumerable<OrgaoCreateOrConnectWithoutParentInput>
+    upsert?: Enumerable<OrgaoUpsertWithWhereUniqueWithoutParentInput>
+    createMany?: OrgaoCreateManyParentInputEnvelope
+    set?: Enumerable<OrgaoWhereUniqueInput>
+    disconnect?: Enumerable<OrgaoWhereUniqueInput>
+    delete?: Enumerable<OrgaoWhereUniqueInput>
+    connect?: Enumerable<OrgaoWhereUniqueInput>
+    update?: Enumerable<OrgaoUpdateWithWhereUniqueWithoutParentInput>
+    updateMany?: Enumerable<OrgaoUpdateManyWithWhereWithoutParentInput>
+    deleteMany?: Enumerable<OrgaoScalarWhereInput>
   }
 
   export type UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput = {
@@ -51970,6 +52111,77 @@ export namespace Prisma {
     createdAt?: DateTimeFilter | Date | string
   }
 
+  export type OrgaoCreateWithoutChildrenInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    parent?: OrgaoCreateNestedOneWithoutChildrenInput
+    unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
+    servidores?: ServidorCreateNestedManyWithoutOrgaoInput
+    usuarios?: UsuarioCreateNestedManyWithoutOrgaoInput
+  }
+
+  export type OrgaoUncheckedCreateWithoutChildrenInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    parentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
+    servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
+    usuarios?: UsuarioUncheckedCreateNestedManyWithoutOrgaoInput
+  }
+
+  export type OrgaoCreateOrConnectWithoutChildrenInput = {
+    where: OrgaoWhereUniqueInput
+    create: XOR<OrgaoCreateWithoutChildrenInput, OrgaoUncheckedCreateWithoutChildrenInput>
+  }
+
+  export type OrgaoCreateWithoutParentInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: OrgaoCreateNestedManyWithoutParentInput
+    unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
+    servidores?: ServidorCreateNestedManyWithoutOrgaoInput
+    usuarios?: UsuarioCreateNestedManyWithoutOrgaoInput
+  }
+
+  export type OrgaoUncheckedCreateWithoutParentInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: OrgaoUncheckedCreateNestedManyWithoutParentInput
+    unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
+    servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
+    usuarios?: UsuarioUncheckedCreateNestedManyWithoutOrgaoInput
+  }
+
+  export type OrgaoCreateOrConnectWithoutParentInput = {
+    where: OrgaoWhereUniqueInput
+    create: XOR<OrgaoCreateWithoutParentInput, OrgaoUncheckedCreateWithoutParentInput>
+  }
+
+  export type OrgaoCreateManyParentInputEnvelope = {
+    data: Enumerable<OrgaoCreateManyParentInput>
+    skipDuplicates?: boolean
+  }
+
   export type UnidadeOrganizacionalCreateWithoutOrgaoInput = {
     id?: string
     sigla: string
@@ -52094,6 +52306,69 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type OrgaoUpsertWithoutChildrenInput = {
+    update: XOR<OrgaoUpdateWithoutChildrenInput, OrgaoUncheckedUpdateWithoutChildrenInput>
+    create: XOR<OrgaoCreateWithoutChildrenInput, OrgaoUncheckedCreateWithoutChildrenInput>
+  }
+
+  export type OrgaoUpdateWithoutChildrenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parent?: OrgaoUpdateOneWithoutChildrenNestedInput
+    unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
+    servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
+    usuarios?: UsuarioUpdateManyWithoutOrgaoNestedInput
+  }
+
+  export type OrgaoUncheckedUpdateWithoutChildrenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
+    servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
+    usuarios?: UsuarioUncheckedUpdateManyWithoutOrgaoNestedInput
+  }
+
+  export type OrgaoUpsertWithWhereUniqueWithoutParentInput = {
+    where: OrgaoWhereUniqueInput
+    update: XOR<OrgaoUpdateWithoutParentInput, OrgaoUncheckedUpdateWithoutParentInput>
+    create: XOR<OrgaoCreateWithoutParentInput, OrgaoUncheckedCreateWithoutParentInput>
+  }
+
+  export type OrgaoUpdateWithWhereUniqueWithoutParentInput = {
+    where: OrgaoWhereUniqueInput
+    data: XOR<OrgaoUpdateWithoutParentInput, OrgaoUncheckedUpdateWithoutParentInput>
+  }
+
+  export type OrgaoUpdateManyWithWhereWithoutParentInput = {
+    where: OrgaoScalarWhereInput
+    data: XOR<OrgaoUpdateManyMutationInput, OrgaoUncheckedUpdateManyWithoutChildrenInput>
+  }
+
+  export type OrgaoScalarWhereInput = {
+    AND?: Enumerable<OrgaoScalarWhereInput>
+    OR?: Enumerable<OrgaoScalarWhereInput>
+    NOT?: Enumerable<OrgaoScalarWhereInput>
+    id?: StringFilter | string
+    sigla?: StringFilter | string
+    nome?: StringFilter | string
+    tipo?: EnumTipoOrgaoFilter | TipoOrgao
+    ativo?: BoolFilter | boolean
+    parentId?: StringNullableFilter | string | null
+    createdAt?: DateTimeFilter | Date | string
+    updatedAt?: DateTimeFilter | Date | string
+  }
+
   export type UnidadeOrganizacionalUpsertWithWhereUniqueWithoutOrgaoInput = {
     where: UnidadeOrganizacionalWhereUniqueInput
     update: XOR<UnidadeOrganizacionalUpdateWithoutOrgaoInput, UnidadeOrganizacionalUncheckedUpdateWithoutOrgaoInput>
@@ -52185,6 +52460,8 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    parent?: OrgaoCreateNestedOneWithoutChildrenInput
+    children?: OrgaoCreateNestedManyWithoutParentInput
     servidores?: ServidorCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioCreateNestedManyWithoutOrgaoInput
   }
@@ -52195,8 +52472,10 @@ export namespace Prisma {
     nome: string
     tipo: TipoOrgao
     ativo?: boolean
+    parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    children?: OrgaoUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioUncheckedCreateNestedManyWithoutOrgaoInput
   }
@@ -52603,6 +52882,8 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parent?: OrgaoUpdateOneWithoutChildrenNestedInput
+    children?: OrgaoUpdateManyWithoutParentNestedInput
     servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUpdateManyWithoutOrgaoNestedInput
   }
@@ -52613,8 +52894,10 @@ export namespace Prisma {
     nome?: StringFieldUpdateOperationsInput | string
     tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
     ativo?: BoolFieldUpdateOperationsInput | boolean
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: OrgaoUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUncheckedUpdateManyWithoutOrgaoNestedInput
   }
@@ -53252,6 +53535,8 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    parent?: OrgaoCreateNestedOneWithoutChildrenInput
+    children?: OrgaoCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioCreateNestedManyWithoutOrgaoInput
   }
@@ -53262,8 +53547,10 @@ export namespace Prisma {
     nome: string
     tipo: TipoOrgao
     ativo?: boolean
+    parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    children?: OrgaoUncheckedCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioUncheckedCreateNestedManyWithoutOrgaoInput
   }
@@ -53393,6 +53680,8 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parent?: OrgaoUpdateOneWithoutChildrenNestedInput
+    children?: OrgaoUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUpdateManyWithoutOrgaoNestedInput
   }
@@ -53403,8 +53692,10 @@ export namespace Prisma {
     nome?: StringFieldUpdateOperationsInput | string
     tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
     ativo?: BoolFieldUpdateOperationsInput | boolean
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: OrgaoUncheckedUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUncheckedUpdateManyWithoutOrgaoNestedInput
   }
@@ -59907,6 +60198,8 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    parent?: OrgaoCreateNestedOneWithoutChildrenInput
+    children?: OrgaoCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
     servidores?: ServidorCreateNestedManyWithoutOrgaoInput
   }
@@ -59917,8 +60210,10 @@ export namespace Prisma {
     nome: string
     tipo: TipoOrgao
     ativo?: boolean
+    parentId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    children?: OrgaoUncheckedCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
   }
@@ -59978,6 +60273,8 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parent?: OrgaoUpdateOneWithoutChildrenNestedInput
+    children?: OrgaoUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
     servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
   }
@@ -59988,8 +60285,10 @@ export namespace Prisma {
     nome?: StringFieldUpdateOperationsInput | string
     tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
     ativo?: BoolFieldUpdateOperationsInput | boolean
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: OrgaoUncheckedUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
   }
@@ -61460,6 +61759,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type OrgaoCreateManyParentInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type UnidadeOrganizacionalCreateManyOrgaoInput = {
     id?: string
     parentId?: string | null
@@ -61497,6 +61806,44 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type OrgaoUpdateWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: OrgaoUpdateManyWithoutParentNestedInput
+    unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
+    servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
+    usuarios?: UsuarioUpdateManyWithoutOrgaoNestedInput
+  }
+
+  export type OrgaoUncheckedUpdateWithoutParentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: OrgaoUncheckedUpdateManyWithoutParentNestedInput
+    unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
+    servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
+    usuarios?: UsuarioUncheckedUpdateManyWithoutOrgaoNestedInput
+  }
+
+  export type OrgaoUncheckedUpdateManyWithoutChildrenInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UnidadeOrganizacionalUpdateWithoutOrgaoInput = {
