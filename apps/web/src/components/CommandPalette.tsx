@@ -103,6 +103,13 @@ export function CommandPalette() {
                 Ir para alertas
               </Command.Item>
               <Command.Item
+                value="ir-unidades"
+                onSelect={() => go('/unidades')}
+                className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"
+              >
+                Ir para órgãos e unidades
+              </Command.Item>
+              <Command.Item
                 value="ir-importacao"
                 onSelect={() => go('/importacao')}
                 className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"

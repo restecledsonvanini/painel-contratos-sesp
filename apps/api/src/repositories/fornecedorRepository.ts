@@ -65,6 +65,9 @@ export const fornecedorRepository = {
     const rows = await getPrisma().fornecedor.findMany({
       where: { situacao: 'ATIVO' },
       orderBy: { razaoSocial: 'asc' },
+      include: {
+        _count: { select: { contatos: true, sancoes: true } },
+      },
     });
     return rows.map(mapFornecedor);
   },

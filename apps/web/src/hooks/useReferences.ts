@@ -23,6 +23,7 @@ export interface Fornecedor {
   nome?: string;
   contatos?: FornecedorContato[];
   sancoes?: FornecedorSancao[];
+  _count?: { contatos?: number; sancoes?: number; contratos?: number };
 }
 
 export interface FornecedorContato {
@@ -145,6 +146,83 @@ export function useDeleteFornecedor() {
       qc.invalidateQueries({ queryKey: qk.fornecedores });
       qc.invalidateQueries({ queryKey: qk.lookups });
     },
+  });
+}
+
+function invalidateFornecedorDetail(qc: ReturnType<typeof useQueryClient>, fornecedorId: string) {
+  qc.invalidateQueries({ queryKey: qk.fornecedor(fornecedorId) });
+  qc.invalidateQueries({ queryKey: qk.fornecedores });
+  qc.invalidateQueries({ queryKey: qk.lookups });
+}
+
+export type ContatoInput = {
+  nome: string;
+  cargo?: string | null;
+  email?: string | null;
+  telefone?: string | null;
+  principal?: boolean;
+};
+
+export type SancaoInput = {
+  tipo: string;
+  processo?: string | null;
+  dataInicio: string;
+  dataFim?: string | null;
+  abrangencia?: string | null;
+  fonte?: string | null;
+};
+
+export function useCreateFornecedorContato(fornecedorId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: ContatoInput) =>
+      (await http.post(`/fornecedores/${fornecedorId}/contatos`, payload)).data,
+    onSuccess: () => invalidateFornecedorDetail(qc, fornecedorId),
+  });
+}
+
+export function useUpdateFornecedorContato(fornecedorId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ contatoId, payload }: { contatoId: string; payload: Partial<ContatoInput> }) =>
+      (await http.put(`/fornecedores/${fornecedorId}/contatos/${contatoId}`, payload)).data,
+    onSuccess: () => invalidateFornecedorDetail(qc, fornecedorId),
+  });
+}
+
+export function useDeleteFornecedorContato(fornecedorId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (contatoId: string) =>
+      (await http.delete(`/fornecedores/${fornecedorId}/contatos/${contatoId}`)).data,
+    onSuccess: () => invalidateFornecedorDetail(qc, fornecedorId),
+  });
+}
+
+export function useCreateFornecedorSancao(fornecedorId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: SancaoInput) =>
+      (await http.post(`/fornecedores/${fornecedorId}/sancoes`, payload)).data,
+    onSuccess: () => invalidateFornecedorDetail(qc, fornecedorId),
+  });
+}
+
+export function useUpdateFornecedorSancao(fornecedorId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ sancaoId, payload }: { sancaoId: string; payload: Partial<SancaoInput> }) =>
+      (await http.put(`/fornecedores/${fornecedorId}/sancoes/${sancaoId}`, payload)).data,
+    onSuccess: () => invalidateFornecedorDetail(qc, fornecedorId),
+  });
+}
+
+export function useDeleteFornecedorSancao(fornecedorId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (sancaoId: string) =>
+      (await http.delete(`/fornecedores/${fornecedorId}/sancoes/${sancaoId}`)).data,
+    onSuccess: () => invalidateFornecedorDetail(qc, fornecedorId),
   });
 }
 

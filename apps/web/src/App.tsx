@@ -18,8 +18,8 @@ const DotacoesList = lazy(() => import('./pages/DotacoesList'));
 const AlertasList = lazy(() => import('./pages/AlertasList'));
 const ImportacaoWizard = lazy(() => import('./pages/ImportacaoWizard'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
-const UnidadesFspList = lazy(() => import('./pages/UnidadesFspList'));
-const UnidadesFspForm = lazy(() => import('./pages/UnidadesFspForm'));
+const UnidadesList = lazy(() => import('./pages/UnidadesList'));
+const UnidadeForm = lazy(() => import('./pages/UnidadeForm'));
 const DevUi = lazy(() => import('./pages/DevUi'));
 const DominiosPage = lazy(() => import('./features/dominios/pages/DominiosPage'));
 
@@ -65,9 +65,12 @@ export default function App() {
           <Route path="/servicos" element={<Navigate to="/catalogo-itens" replace />} />
           <Route path="/servicos/new" element={<Navigate to="/catalogo-itens/new" replace />} />
           <Route path="/servicos/:id/edit" element={<RedirectEdit toBase="/catalogo-itens" />} />
-          <Route path="/unidades-fsp" element={<UnidadesFspList />} />
-          <Route path="/unidades-fsp/new" element={<UnidadesFspForm />} />
-          <Route path="/unidades-fsp/:id/edit" element={<UnidadesFspForm />} />
+          <Route path="/unidades" element={<UnidadesList />} />
+          <Route path="/unidades/new" element={<UnidadeForm />} />
+          <Route path="/unidades/:id/edit" element={<UnidadeForm />} />
+          <Route path="/unidades-fsp" element={<Navigate to="/unidades" replace />} />
+          <Route path="/unidades-fsp/new" element={<Navigate to="/unidades/new" replace />} />
+          <Route path="/unidades-fsp/:id/edit" element={<RedirectEdit toBase="/unidades" />} />
           <Route path="/dominios" element={<DominiosPage />} />
           <Route path="/dev/ui" element={<DevUi />} />
         </Routes>

@@ -83,6 +83,8 @@ export default function FornecedoresList() {
                 <TableHeader>Razão social</TableHeader>
                 <TableHeader>Documento</TableHeader>
                 <TableHeader>Situação</TableHeader>
+                <TableHeader>Contatos</TableHeader>
+                <TableHeader>Sanções</TableHeader>
                 <TableHeader>Ações</TableHeader>
               </TableRow>
             </TableHead>
@@ -93,6 +95,16 @@ export default function FornecedoresList() {
                     <TableCell className="font-semibold">{f.razaoSocial || f.nome}</TableCell>
                     <TableCell>{formatDoc(f.documento || f.cnpj || '', f.tipoPessoa)}</TableCell>
                     <TableCell>{f.situacao || 'ATIVO'}</TableCell>
+                    <TableCell>{f._count?.contatos ?? f.contatos?.length ?? 0}</TableCell>
+                    <TableCell>
+                      {(f._count?.sancoes ?? f.sancoes?.length ?? 0) > 0 ? (
+                        <span className="text-[var(--danger, #b91c1c)] font-medium">
+                          {f._count?.sancoes ?? f.sancoes?.length}
+                        </span>
+                      ) : (
+                        0
+                      )}
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Link to={`/fornecedores/${f.id}/edit`}>
