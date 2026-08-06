@@ -67,9 +67,9 @@ export const orgaoRepository = {
       label: string;
       sigla: string;
       nome: string;
-      nivel: string;
+      nivel: string | null;
       orgaoId: string;
-      municipio?: { id: string; nome: string; uf: string };
+      municipio?: { id: string; nome: string; uf: string } | null;
       children: UnitNode[];
     };
 
@@ -177,8 +177,8 @@ export const unidadeRepository = {
         parentId: data.parentId ?? null,
         sigla: data.sigla,
         nome: data.nome,
-        nivel: data.nivel,
-        municipioId: data.municipioId,
+        nivel: data.nivel ?? null,
+        municipioId: data.municipioId ?? null,
         ativo: data.ativo ?? true,
       },
     });
@@ -221,8 +221,8 @@ function buildTree(
     sigla: string;
     nome: string;
     parentId: string | null;
-    nivel: string;
-    municipio: { id: string; nome: string; uf: string };
+    nivel: string | null;
+    municipio: { id: string; nome: string; uf: string } | null;
   }>,
 ) {
   type Node = {
@@ -230,8 +230,8 @@ function buildTree(
     label: string;
     sigla: string;
     nome: string;
-    nivel: string;
-    municipio: { id: string; nome: string; uf: string };
+    nivel: string | null;
+    municipio: { id: string; nome: string; uf: string } | null;
     children: Node[];
   };
   const map = new Map<string, Node>();

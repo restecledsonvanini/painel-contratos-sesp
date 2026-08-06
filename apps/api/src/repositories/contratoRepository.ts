@@ -7,8 +7,15 @@ const contractInclude = {
     orderBy: [{ dataAssinatura: 'asc' as const }, { numero: 'asc' as const }],
   },
   fornecedor: true,
-  unidadeGestora: {
-    include: { orgao: { select: { id: true, sigla: true, nome: true } } },
+  unidadeGestora: { select: { id: true, sigla: true, nome: true, tipo: true } },
+  subunidade: {
+    select: {
+      id: true,
+      sigla: true,
+      nome: true,
+      nivel: true,
+      orgaoId: true,
+    },
   },
   modalidadeRef: true,
   categoriaContratacao: true,
@@ -77,33 +84,41 @@ async function resolveCategoriaId(categoriaId: string | null, natureza: Natureza
   return any.id;
 }
 
+/** Resolve unidade gestora como Orgao (força/SESP). Legado FSP → Orgao por sigla. */
 async function resolveUnidadeGestoraId(
   unidadeGestoraId: string | null,
   unidadeFspIdLegacy: string | null,
 ) {
-  if (unidadeGestoraId) return unidadeGestoraId;
-  if (!unidadeFspIdLegacy) return null;
   const db = getPrisma();
+  if (unidadeGestoraId) {
+    const orgao = await db.orgao.findUnique({ where: { id: unidadeGestoraId } });
+    if (orgao) return orgao.id;
+    // Compat: se ainda vier ID de UnidadeOrganizacional, promove para o órgão
+    const unidade = await db.unidadeOrganizacional.findUnique({ where: { id: unidadeGestoraId } });
+    if (unidade) return unidade.orgaoId;
+    return null;
+  }
+  if (!unidadeFspIdLegacy) return null;
   const fsp = await db.unidadeFsp.findUnique({ where: { id: unidadeFspIdLegacy } });
   if (!fsp) return null;
   const orgao = await db.orgao.findUnique({ where: { sigla: fsp.sigla } });
-  if (orgao) {
-    const root = await db.unidadeOrganizacional.findFirst({
-      where: { orgaoId: orgao.id, parentId: null, ativo: true },
-      orderBy: { sigla: 'asc' },
-    });
-    if (root) return root.id;
-    const any = await db.unidadeOrganizacional.findFirst({
-      where: { orgaoId: orgao.id, ativo: true },
-      orderBy: { sigla: 'asc' },
-    });
-    if (any) return any.id;
-  }
-  const fallback = await db.unidadeOrganizacional.findFirst({
-    where: { ativo: true },
+  return orgao?.id ?? null;
+}
+
+/** Unidade padrão para rateio: subunidade informada ou sede do órgão. */
+async function resolveRateioUnidadeId(orgaoId: string, subunidadeId: string | null) {
+  if (subunidadeId) return subunidadeId;
+  const db = getPrisma();
+  const sede = await db.unidadeOrganizacional.findFirst({
+    where: { orgaoId, parentId: null, ativo: true },
     orderBy: { sigla: 'asc' },
   });
-  return fallback?.id ?? null;
+  if (sede) return sede.id;
+  const any = await db.unidadeOrganizacional.findFirst({
+    where: { orgaoId, ativo: true },
+    orderBy: { sigla: 'asc' },
+  });
+  return any?.id ?? null;
 }
 
 function monthsBetween(start: Date, end: Date) {
@@ -117,9 +132,7 @@ export const contratoRepository = {
 
   async findMany(scope?: { orgaoId?: string | null }) {
     return getPrisma().contrato.findMany({
-      where: scope?.orgaoId
-        ? { unidadeGestora: { orgaoId: scope.orgaoId } }
-        : undefined,
+      where: scope?.orgaoId ? { unidadeGestoraId: scope.orgaoId } : undefined,
       orderBy: { createdAt: 'desc' },
       include: contractInclude,
     });
@@ -152,6 +165,7 @@ export const contratoRepository = {
       objeto: string;
       fornecedorId: string;
       unidadeGestoraId: string | null;
+      subunidadeId?: string | null;
       unidadeFspIdLegacy: string | null;
       dataAssinatura: string | null;
       dataInicioVigencia: string;
@@ -230,6 +244,14 @@ export const contratoRepository = {
       throw Object.assign(new Error('Unidade gestora inválida'), { status: 400 });
     }
 
+    let subunidadeId = input.subunidadeId ?? null;
+    if (subunidadeId) {
+      const sub = await getPrisma().unidadeOrganizacional.findUnique({ where: { id: subunidadeId } });
+      if (!sub || sub.orgaoId !== unidadeGestoraId) {
+        throw Object.assign(new Error('Subunidade não pertence à unidade gestora'), { status: 400 });
+      }
+    }
+
     const categoriaContratacaoId = await resolveCategoriaId(
       input.categoriaContratacaoId,
       input.naturezaObjeto,
@@ -273,10 +295,29 @@ export const contratoRepository = {
       throw Object.assign(new Error('É obrigatório informar um gestor'), { status: 400 });
     }
 
+    const rateioUnidadeId =
+      input.rateios?.length
+        ? null
+        : await resolveRateioUnidadeId(unidadeGestoraId, subunidadeId);
+    if (!input.rateios?.length && !rateioUnidadeId) {
+      throw Object.assign(
+        new Error('Não há unidade organizacional para rateio inicial nesta força'),
+        { status: 400 },
+      );
+    }
+
     const rateios =
       input.rateios?.length
         ? input.rateios
-        : [{ unidadeId: unidadeGestoraId, percentual: 100, valorCents: null, quantidade: null, observacao: null }];
+        : [
+            {
+              unidadeId: rateioUnidadeId!,
+              percentual: 100,
+              valorCents: null,
+              quantidade: null,
+              observacao: null,
+            },
+          ];
 
     const db = getPrisma();
     return db.$transaction(async (tx) => {
@@ -295,6 +336,7 @@ export const contratoRepository = {
           objeto: input.objeto,
           fornecedorId: input.fornecedorId,
           unidadeGestoraId,
+          subunidadeId,
           dataAssinatura: input.dataAssinatura ? new Date(input.dataAssinatura) : null,
           dataInicioVigencia: inicio,
           prazoInicialValor,
@@ -447,6 +489,20 @@ export const contratoRepository = {
       patch.unidadeGestoraId = await resolveUnidadeGestoraId(null, String(patch.unidadeFspIdLegacy));
     }
     delete patch.unidadeFspIdLegacy;
+
+    if (patch.unidadeGestoraId) {
+      patch.unidadeGestoraId = await resolveUnidadeGestoraId(String(patch.unidadeGestoraId), null);
+    }
+
+    if (patch.subunidadeId === '') patch.subunidadeId = null;
+    if (patch.subunidadeId && patch.unidadeGestoraId) {
+      const sub = await db.unidadeOrganizacional.findUnique({
+        where: { id: String(patch.subunidadeId) },
+      });
+      if (!sub || sub.orgaoId !== patch.unidadeGestoraId) {
+        throw Object.assign(new Error('Subunidade não pertence à unidade gestora'), { status: 400 });
+      }
+    }
 
     const gestorId = patch.gestorId as string | undefined;
     const fiscalId = patch.fiscalId as string | undefined;

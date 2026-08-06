@@ -287,6 +287,7 @@ model Orgao {
   parent     Orgao?                  @relation("OrgaoHierarquia", fields: [parentId], references: [id])
   children   Orgao[]                 @relation("OrgaoHierarquia")
   unidades   UnidadeOrganizacional[]
+  contratosGestora Contrato[]        @relation("ContratoUnidadeGestora")
   servidores Servidor[]
   usuarios   Usuario[]
   createdAt  DateTime                @default(now())
@@ -305,12 +306,12 @@ model UnidadeOrganizacional {
   children    UnidadeOrganizacional[] @relation("UnidadeHierarquia")
   sigla       String
   nome        String
-  nivel       NivelUnidade
-  municipioId String
-  municipio   Municipio               @relation(fields: [municipioId], references: [id])
+  nivel       NivelUnidade?
+  municipioId String?
+  municipio   Municipio?              @relation(fields: [municipioId], references: [id])
   ativo       Boolean                 @default(true)
   servidores  Servidor[]
-  contratosGestora Contrato[]         @relation("ContratoUnidadeGestora")
+  contratosSubunidade Contrato[]      @relation("ContratoSubunidade")
   rateios     ContratoRateio[]
   processosDemandante ProcessoContratacao[] @relation("ProcessoUnidadeDemandante")
   itensDestino ItemContrato[]         @relation("ItemUnidadeDestino")
@@ -442,8 +443,12 @@ model Contrato {
   objeto                   String
   fornecedorId             String
   fornecedor               Fornecedor             @relation(fields: [fornecedorId], references: [id])
+  /// Força ou SESP (unidade gestora administrativa)
   unidadeGestoraId         String
-  unidadeGestora           UnidadeOrganizacional  @relation("ContratoUnidadeGestora", fields: [unidadeGestoraId], references: [id])
+  unidadeGestora           Orgao                  @relation("ContratoUnidadeGestora", fields: [unidadeGestoraId], references: [id])
+  /// Subunidade opcional (sede, CRPM, BBM, etc.)
+  subunidadeId             String?
+  subunidade               UnidadeOrganizacional? @relation("ContratoSubunidade", fields: [subunidadeId], references: [id])
   dataAssinatura           DateTime?              @db.Date
   dataInicioVigencia       DateTime               @db.Date
   prazoInicialValor        Int
@@ -479,6 +484,7 @@ model Contrato {
   @@unique([numeroGms, anoGms])
   @@index([situacao, dataFimVigenciaOriginal])
   @@index([unidadeGestoraId])
+  @@index([subunidadeId])
   @@index([fornecedorId])
   @@index([pilar, categoriaContratacaoId])
   @@index([anoGms])

@@ -108,8 +108,8 @@ export default function UnidadeForm() {
       parentId: data.parentId || null,
       sigla: data.sigla.trim(),
       nome: data.nome.trim(),
-      nivel: data.nivel,
-      municipioId: data.municipioId,
+      nivel: data.nivel || null,
+      municipioId: data.municipioId || null,
       ativo: data.ativo,
     };
     try {
@@ -190,13 +190,10 @@ export default function UnidadeForm() {
 
             <div>
               <span className="field-label" id="label-nivel">
-                Nível
+                Nível (opcional)
               </span>
-              <select
-                className="select-field"
-                aria-labelledby="label-nivel"
-                {...register('nivel', { required: true })}
-              >
+              <select className="select-field" aria-labelledby="label-nivel" {...register('nivel')}>
+                <option value="">Não informado</option>
                 {NIVEIS.map((n) => (
                   <option key={n} value={n}>
                     {n.replaceAll('_', ' ')}
@@ -207,15 +204,25 @@ export default function UnidadeForm() {
 
             <div className="app-form__span-2">
               <Input
-                label="Município (busca)"
+                label="Município (busca, opcional)"
                 value={municipioQ}
                 onChange={(e) => setMunicipioQ(e.target.value)}
                 placeholder="Digite ao menos 2 letras…"
               />
-              <input type="hidden" {...register('municipioId', { required: true })} />
+              <input type="hidden" {...register('municipioId')} />
               {municipioLabel && municipioId && (
                 <p className="mt-1 text-[var(--font-size-sm)] text-[var(--text-muted)]">
-                  Selecionado: {municipioLabel}
+                  Selecionado: {municipioLabel}{' '}
+                  <button
+                    type="button"
+                    className="underline"
+                    onClick={() => {
+                      setValue('municipioId', '');
+                      setMunicipioLabel('');
+                    }}
+                  >
+                    limpar
+                  </button>
                 </p>
               )}
               {municipioQ.trim().length >= 2 && (municipios?.length ?? 0) > 0 && (
@@ -237,7 +244,6 @@ export default function UnidadeForm() {
                   ))}
                 </ul>
               )}
-              {errors.municipioId && <p className="field-error">Selecione um município</p>}
             </div>
 
             <label className="flex items-center gap-2 text-[var(--font-size-sm)]">

@@ -499,13 +499,14 @@ async function main() {
     const catAlim = await categoriaByCodigo('GENEROS_ALIMENTICIOS');
     const catLimpeza = await categoriaByCodigo('SERVICO_EVENTUAL');
 
-    // ——— 5 Contratos (gestor ≠ fiscal; papéis coerentes com o cargo) ———
+    // ——— 5 Contratos (gestora = Orgao/força; subunidade = sede) ———
     const contratosDemo = [
       {
         numeroGms: '123',
         anoGms: 2026,
         eProtocolo: '15.848.565-6',
-        unidadeGestoraId: unidadePmpr.id,
+        unidadeGestoraId: orgaoPmpr.id,
+        subunidadeId: unidadePmpr.id,
         gestorId: gestorPmpr.id,
         fiscalId: fiscalPmpr.id,
         fornecedorId: fExemplo.id,
@@ -532,7 +533,8 @@ async function main() {
         numeroGms: '456',
         anoGms: 2025,
         eProtocolo: '20.112.334-1',
-        unidadeGestoraId: unidadeSesp.id,
+        unidadeGestoraId: orgaoSesp.id,
+        subunidadeId: unidadeSesp.id,
         gestorId: gestoraSesp.id,
         fiscalId: fiscalSesp.id,
         fornecedorId: fLocadora.id,
@@ -562,7 +564,8 @@ async function main() {
         numeroGms: '789',
         anoGms: 2026,
         eProtocolo: '21.445.778-9',
-        unidadeGestoraId: unidadeDeppen.id,
+        unidadeGestoraId: orgaoDeppen.id,
+        subunidadeId: unidadeDeppen.id,
         gestorId: gestoraSesp.id,
         fiscalId: fiscalDeppen.id,
         fornecedorId: fAlimentos.id,
@@ -584,7 +587,8 @@ async function main() {
         numeroGms: '321',
         anoGms: 2024,
         eProtocolo: '18.900.100-2',
-        unidadeGestoraId: unidadePcpr.id,
+        unidadeGestoraId: orgaoPcpr.id,
+        subunidadeId: unidadePcpr.id,
         gestorId: gestorPmpr.id,
         fiscalId: fiscalPmpr.id,
         fornecedorId: fTech.id,
@@ -606,7 +610,8 @@ async function main() {
         numeroGms: '555',
         anoGms: 2026,
         eProtocolo: '22.100.200-5',
-        unidadeGestoraId: unidadeCbm.id,
+        unidadeGestoraId: orgaoCbm.id,
+        subunidadeId: unidadeCbm.id,
         gestorId: gestoraSesp.id,
         fiscalId: fiscalSesp.id,
         fornecedorId: fLimpeza.id,
@@ -633,6 +638,7 @@ async function main() {
           anoGms: c.anoGms,
           eProtocolo: c.eProtocolo,
           unidadeGestoraId: c.unidadeGestoraId,
+          subunidadeId: c.subunidadeId,
           fornecedorId: c.fornecedorId,
           modalidadeId: c.modalidadeId,
           fundamentoLegalId: c.fundamentoLegalId,
@@ -674,7 +680,7 @@ async function main() {
       await tx.contratoRateio.create({
         data: {
           contratoId: created.id,
-          unidadeId: c.unidadeGestoraId,
+          unidadeId: c.subunidadeId,
           percentual: 100,
         },
       });
@@ -690,7 +696,7 @@ async function main() {
             unidadeMedidaId: catalogo.unidadeMedidaPadraoId,
             valorUnitarioCents: c.itemValorUnitarioCents ?? c.valorGlobalOriginalCents,
             periodicidade: c.itemQtd ? 'MENSAL' : 'UNICA',
-            unidadeDestinoId: c.unidadeGestoraId,
+            unidadeDestinoId: c.subunidadeId,
             atributos:
               c.numeroGms === '456'
                 ? {

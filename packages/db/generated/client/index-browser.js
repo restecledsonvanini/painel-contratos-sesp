@@ -254,6 +254,7 @@ exports.Prisma.ContratoScalarFieldEnum = {
   objeto: 'objeto',
   fornecedorId: 'fornecedorId',
   unidadeGestoraId: 'unidadeGestoraId',
+  subunidadeId: 'subunidadeId',
   dataAssinatura: 'dataAssinatura',
   dataInicioVigencia: 'dataInicioVigencia',
   prazoInicialValor: 'prazoInicialValor',

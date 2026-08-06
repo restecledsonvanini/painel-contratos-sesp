@@ -120,6 +120,7 @@ export type OrgaoPayload<ExtArgs extends $Extensions.Args = $Extensions.DefaultA
     parent: OrgaoPayload<ExtArgs> | null
     children: OrgaoPayload<ExtArgs>[]
     unidades: UnidadeOrganizacionalPayload<ExtArgs>[]
+    contratosGestora: ContratoPayload<ExtArgs>[]
     servidores: ServidorPayload<ExtArgs>[]
     usuarios: UsuarioPayload<ExtArgs>[]
   }
@@ -147,9 +148,9 @@ export type UnidadeOrganizacionalPayload<ExtArgs extends $Extensions.Args = $Ext
     orgao: OrgaoPayload<ExtArgs>
     parent: UnidadeOrganizacionalPayload<ExtArgs> | null
     children: UnidadeOrganizacionalPayload<ExtArgs>[]
-    municipio: MunicipioPayload<ExtArgs>
+    municipio: MunicipioPayload<ExtArgs> | null
     servidores: ServidorPayload<ExtArgs>[]
-    contratosGestora: ContratoPayload<ExtArgs>[]
+    contratosSubunidade: ContratoPayload<ExtArgs>[]
     rateios: ContratoRateioPayload<ExtArgs>[]
     processosDemandante: ProcessoContratacaoPayload<ExtArgs>[]
     itensDestino: ItemContratoPayload<ExtArgs>[]
@@ -160,8 +161,8 @@ export type UnidadeOrganizacionalPayload<ExtArgs extends $Extensions.Args = $Ext
     parentId: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel: NivelUnidade | null
+    municipioId: string | null
     ativo: boolean
     createdAt: Date
     updatedAt: Date
@@ -323,7 +324,8 @@ export type ContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
     modalidadeRef: DominioValorPayload<ExtArgs>
     fundamentoLegal: DominioValorPayload<ExtArgs> | null
     fornecedor: FornecedorPayload<ExtArgs>
-    unidadeGestora: UnidadeOrganizacionalPayload<ExtArgs>
+    unidadeGestora: OrgaoPayload<ExtArgs>
+    subunidade: UnidadeOrganizacionalPayload<ExtArgs> | null
     responsaveis: ContratoResponsavelPayload<ExtArgs>[]
     rateios: ContratoRateioPayload<ExtArgs>[]
     itens: ItemContratoPayload<ExtArgs>[]
@@ -349,7 +351,14 @@ export type ContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
     fundamentoLegalId: string | null
     objeto: string
     fornecedorId: string
+    /**
+     * Força ou SESP (unidade gestora administrativa)
+     */
     unidadeGestoraId: string
+    /**
+     * Subunidade opcional (sede, CRPM, BBM, etc.)
+     */
+    subunidadeId: string | null
     dataAssinatura: Date | null
     dataInicioVigencia: Date
     prazoInicialValor: number
@@ -4589,6 +4598,7 @@ export namespace Prisma {
   export type OrgaoCountOutputType = {
     children: number
     unidades: number
+    contratosGestora: number
     servidores: number
     usuarios: number
   }
@@ -4596,6 +4606,7 @@ export namespace Prisma {
   export type OrgaoCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     children?: boolean | OrgaoCountOutputTypeCountChildrenArgs
     unidades?: boolean | OrgaoCountOutputTypeCountUnidadesArgs
+    contratosGestora?: boolean | OrgaoCountOutputTypeCountContratosGestoraArgs
     servidores?: boolean | OrgaoCountOutputTypeCountServidoresArgs
     usuarios?: boolean | OrgaoCountOutputTypeCountUsuariosArgs
   }
@@ -4632,6 +4643,14 @@ export namespace Prisma {
   /**
    * OrgaoCountOutputType without action
    */
+  export type OrgaoCountOutputTypeCountContratosGestoraArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoWhereInput
+  }
+
+
+  /**
+   * OrgaoCountOutputType without action
+   */
   export type OrgaoCountOutputTypeCountServidoresArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: ServidorWhereInput
   }
@@ -4654,7 +4673,7 @@ export namespace Prisma {
   export type UnidadeOrganizacionalCountOutputType = {
     children: number
     servidores: number
-    contratosGestora: number
+    contratosSubunidade: number
     rateios: number
     processosDemandante: number
     itensDestino: number
@@ -4663,7 +4682,7 @@ export namespace Prisma {
   export type UnidadeOrganizacionalCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     children?: boolean | UnidadeOrganizacionalCountOutputTypeCountChildrenArgs
     servidores?: boolean | UnidadeOrganizacionalCountOutputTypeCountServidoresArgs
-    contratosGestora?: boolean | UnidadeOrganizacionalCountOutputTypeCountContratosGestoraArgs
+    contratosSubunidade?: boolean | UnidadeOrganizacionalCountOutputTypeCountContratosSubunidadeArgs
     rateios?: boolean | UnidadeOrganizacionalCountOutputTypeCountRateiosArgs
     processosDemandante?: boolean | UnidadeOrganizacionalCountOutputTypeCountProcessosDemandanteArgs
     itensDestino?: boolean | UnidadeOrganizacionalCountOutputTypeCountItensDestinoArgs
@@ -4701,7 +4720,7 @@ export namespace Prisma {
   /**
    * UnidadeOrganizacionalCountOutputType without action
    */
-  export type UnidadeOrganizacionalCountOutputTypeCountContratosGestoraArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type UnidadeOrganizacionalCountOutputTypeCountContratosSubunidadeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: ContratoWhereInput
   }
 
@@ -9618,6 +9637,7 @@ export namespace Prisma {
     parent?: boolean | OrgaoArgs<ExtArgs>
     children?: boolean | Orgao$childrenArgs<ExtArgs>
     unidades?: boolean | Orgao$unidadesArgs<ExtArgs>
+    contratosGestora?: boolean | Orgao$contratosGestoraArgs<ExtArgs>
     servidores?: boolean | Orgao$servidoresArgs<ExtArgs>
     usuarios?: boolean | Orgao$usuariosArgs<ExtArgs>
     _count?: boolean | OrgaoCountOutputTypeArgs<ExtArgs>
@@ -9638,6 +9658,7 @@ export namespace Prisma {
     parent?: boolean | OrgaoArgs<ExtArgs>
     children?: boolean | Orgao$childrenArgs<ExtArgs>
     unidades?: boolean | Orgao$unidadesArgs<ExtArgs>
+    contratosGestora?: boolean | Orgao$contratosGestoraArgs<ExtArgs>
     servidores?: boolean | Orgao$servidoresArgs<ExtArgs>
     usuarios?: boolean | Orgao$usuariosArgs<ExtArgs>
     _count?: boolean | OrgaoCountOutputTypeArgs<ExtArgs>
@@ -10018,6 +10039,8 @@ export namespace Prisma {
     children<T extends Orgao$childrenArgs<ExtArgs> = {}>(args?: Subset<T, Orgao$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     unidades<T extends Orgao$unidadesArgs<ExtArgs> = {}>(args?: Subset<T, Orgao$unidadesArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    contratosGestora<T extends Orgao$contratosGestoraArgs<ExtArgs> = {}>(args?: Subset<T, Orgao$contratosGestoraArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     servidores<T extends Orgao$servidoresArgs<ExtArgs> = {}>(args?: Subset<T, Orgao$servidoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
@@ -10421,6 +10444,27 @@ export namespace Prisma {
 
 
   /**
+   * Orgao.contratosGestora
+   */
+  export type Orgao$contratosGestoraArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contrato
+     */
+    select?: ContratoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoInclude<ExtArgs> | null
+    where?: ContratoWhereInput
+    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
+    cursor?: ContratoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
    * Orgao.servidores
    */
   export type Orgao$servidoresArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -10649,8 +10693,8 @@ export namespace Prisma {
     parentId: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel: NivelUnidade | null
+    municipioId: string | null
     ativo: boolean
     createdAt: Date
     updatedAt: Date
@@ -10689,7 +10733,7 @@ export namespace Prisma {
     children?: boolean | UnidadeOrganizacional$childrenArgs<ExtArgs>
     municipio?: boolean | MunicipioArgs<ExtArgs>
     servidores?: boolean | UnidadeOrganizacional$servidoresArgs<ExtArgs>
-    contratosGestora?: boolean | UnidadeOrganizacional$contratosGestoraArgs<ExtArgs>
+    contratosSubunidade?: boolean | UnidadeOrganizacional$contratosSubunidadeArgs<ExtArgs>
     rateios?: boolean | UnidadeOrganizacional$rateiosArgs<ExtArgs>
     processosDemandante?: boolean | UnidadeOrganizacional$processosDemandanteArgs<ExtArgs>
     itensDestino?: boolean | UnidadeOrganizacional$itensDestinoArgs<ExtArgs>
@@ -10715,7 +10759,7 @@ export namespace Prisma {
     children?: boolean | UnidadeOrganizacional$childrenArgs<ExtArgs>
     municipio?: boolean | MunicipioArgs<ExtArgs>
     servidores?: boolean | UnidadeOrganizacional$servidoresArgs<ExtArgs>
-    contratosGestora?: boolean | UnidadeOrganizacional$contratosGestoraArgs<ExtArgs>
+    contratosSubunidade?: boolean | UnidadeOrganizacional$contratosSubunidadeArgs<ExtArgs>
     rateios?: boolean | UnidadeOrganizacional$rateiosArgs<ExtArgs>
     processosDemandante?: boolean | UnidadeOrganizacional$processosDemandanteArgs<ExtArgs>
     itensDestino?: boolean | UnidadeOrganizacional$itensDestinoArgs<ExtArgs>
@@ -11102,7 +11146,7 @@ export namespace Prisma {
 
     servidores<T extends UnidadeOrganizacional$servidoresArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacional$servidoresArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ServidorPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
-    contratosGestora<T extends UnidadeOrganizacional$contratosGestoraArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacional$contratosGestoraArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+    contratosSubunidade<T extends UnidadeOrganizacional$contratosSubunidadeArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacional$contratosSubunidadeArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     rateios<T extends UnidadeOrganizacional$rateiosArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacional$rateiosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoRateioPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
@@ -11508,9 +11552,9 @@ export namespace Prisma {
 
 
   /**
-   * UnidadeOrganizacional.contratosGestora
+   * UnidadeOrganizacional.contratosSubunidade
    */
-  export type UnidadeOrganizacional$contratosGestoraArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+  export type UnidadeOrganizacional$contratosSubunidadeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     /**
      * Select specific fields to fetch from the Contrato
      */
@@ -16804,6 +16848,7 @@ export namespace Prisma {
     objeto: string | null
     fornecedorId: string | null
     unidadeGestoraId: string | null
+    subunidadeId: string | null
     dataAssinatura: Date | null
     dataInicioVigencia: Date | null
     prazoInicialValor: number | null
@@ -16842,6 +16887,7 @@ export namespace Prisma {
     objeto: string | null
     fornecedorId: string | null
     unidadeGestoraId: string | null
+    subunidadeId: string | null
     dataAssinatura: Date | null
     dataInicioVigencia: Date | null
     prazoInicialValor: number | null
@@ -16880,6 +16926,7 @@ export namespace Prisma {
     objeto: number
     fornecedorId: number
     unidadeGestoraId: number
+    subunidadeId: number
     dataAssinatura: number
     dataInicioVigencia: number
     prazoInicialValor: number
@@ -16938,6 +16985,7 @@ export namespace Prisma {
     objeto?: true
     fornecedorId?: true
     unidadeGestoraId?: true
+    subunidadeId?: true
     dataAssinatura?: true
     dataInicioVigencia?: true
     prazoInicialValor?: true
@@ -16976,6 +17024,7 @@ export namespace Prisma {
     objeto?: true
     fornecedorId?: true
     unidadeGestoraId?: true
+    subunidadeId?: true
     dataAssinatura?: true
     dataInicioVigencia?: true
     prazoInicialValor?: true
@@ -17014,6 +17063,7 @@ export namespace Prisma {
     objeto?: true
     fornecedorId?: true
     unidadeGestoraId?: true
+    subunidadeId?: true
     dataAssinatura?: true
     dataInicioVigencia?: true
     prazoInicialValor?: true
@@ -17140,6 +17190,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId: string | null
     dataAssinatura: Date | null
     dataInicioVigencia: Date
     prazoInicialValor: number
@@ -17197,6 +17248,7 @@ export namespace Prisma {
     objeto?: boolean
     fornecedorId?: boolean
     unidadeGestoraId?: boolean
+    subunidadeId?: boolean
     dataAssinatura?: boolean
     dataInicioVigencia?: boolean
     prazoInicialValor?: boolean
@@ -17223,7 +17275,8 @@ export namespace Prisma {
     modalidadeRef?: boolean | DominioValorArgs<ExtArgs>
     fundamentoLegal?: boolean | DominioValorArgs<ExtArgs>
     fornecedor?: boolean | FornecedorArgs<ExtArgs>
-    unidadeGestora?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+    unidadeGestora?: boolean | OrgaoArgs<ExtArgs>
+    subunidade?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
     responsaveis?: boolean | Contrato$responsaveisArgs<ExtArgs>
     rateios?: boolean | Contrato$rateiosArgs<ExtArgs>
     itens?: boolean | Contrato$itensArgs<ExtArgs>
@@ -17252,6 +17305,7 @@ export namespace Prisma {
     objeto?: boolean
     fornecedorId?: boolean
     unidadeGestoraId?: boolean
+    subunidadeId?: boolean
     dataAssinatura?: boolean
     dataInicioVigencia?: boolean
     prazoInicialValor?: boolean
@@ -17281,7 +17335,8 @@ export namespace Prisma {
     modalidadeRef?: boolean | DominioValorArgs<ExtArgs>
     fundamentoLegal?: boolean | DominioValorArgs<ExtArgs>
     fornecedor?: boolean | FornecedorArgs<ExtArgs>
-    unidadeGestora?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
+    unidadeGestora?: boolean | OrgaoArgs<ExtArgs>
+    subunidade?: boolean | UnidadeOrganizacionalArgs<ExtArgs>
     responsaveis?: boolean | Contrato$responsaveisArgs<ExtArgs>
     rateios?: boolean | Contrato$rateiosArgs<ExtArgs>
     itens?: boolean | Contrato$itensArgs<ExtArgs>
@@ -17675,7 +17730,9 @@ export namespace Prisma {
 
     fornecedor<T extends FornecedorArgs<ExtArgs> = {}>(args?: Subset<T, FornecedorArgs<ExtArgs>>): Prisma__FornecedorClient<$Types.GetResult<FornecedorPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
-    unidadeGestora<T extends UnidadeOrganizacionalArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacionalArgs<ExtArgs>>): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+    unidadeGestora<T extends OrgaoArgs<ExtArgs> = {}>(args?: Subset<T, OrgaoArgs<ExtArgs>>): Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    subunidade<T extends UnidadeOrganizacionalArgs<ExtArgs> = {}>(args?: Subset<T, UnidadeOrganizacionalArgs<ExtArgs>>): Prisma__UnidadeOrganizacionalClient<$Types.GetResult<UnidadeOrganizacionalPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
     responsaveis<T extends Contrato$responsaveisArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$responsaveisArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoResponsavelPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
@@ -37703,6 +37760,7 @@ export namespace Prisma {
     objeto: 'objeto',
     fornecedorId: 'fornecedorId',
     unidadeGestoraId: 'unidadeGestoraId',
+    subunidadeId: 'subunidadeId',
     dataAssinatura: 'dataAssinatura',
     dataInicioVigencia: 'dataInicioVigencia',
     prazoInicialValor: 'prazoInicialValor',
@@ -38366,6 +38424,7 @@ export namespace Prisma {
     parent?: XOR<OrgaoRelationFilter, OrgaoWhereInput> | null
     children?: OrgaoListRelationFilter
     unidades?: UnidadeOrganizacionalListRelationFilter
+    contratosGestora?: ContratoListRelationFilter
     servidores?: ServidorListRelationFilter
     usuarios?: UsuarioListRelationFilter
   }
@@ -38382,6 +38441,7 @@ export namespace Prisma {
     parent?: OrgaoOrderByWithRelationInput
     children?: OrgaoOrderByRelationAggregateInput
     unidades?: UnidadeOrganizacionalOrderByRelationAggregateInput
+    contratosGestora?: ContratoOrderByRelationAggregateInput
     servidores?: ServidorOrderByRelationAggregateInput
     usuarios?: UsuarioOrderByRelationAggregateInput
   }
@@ -38428,17 +38488,17 @@ export namespace Prisma {
     parentId?: StringNullableFilter | string | null
     sigla?: StringFilter | string
     nome?: StringFilter | string
-    nivel?: EnumNivelUnidadeFilter | NivelUnidade
-    municipioId?: StringFilter | string
+    nivel?: EnumNivelUnidadeNullableFilter | NivelUnidade | null
+    municipioId?: StringNullableFilter | string | null
     ativo?: BoolFilter | boolean
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
     orgao?: XOR<OrgaoRelationFilter, OrgaoWhereInput>
     parent?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput> | null
     children?: UnidadeOrganizacionalListRelationFilter
-    municipio?: XOR<MunicipioRelationFilter, MunicipioWhereInput>
+    municipio?: XOR<MunicipioRelationFilter, MunicipioWhereInput> | null
     servidores?: ServidorListRelationFilter
-    contratosGestora?: ContratoListRelationFilter
+    contratosSubunidade?: ContratoListRelationFilter
     rateios?: ContratoRateioListRelationFilter
     processosDemandante?: ProcessoContratacaoListRelationFilter
     itensDestino?: ItemContratoListRelationFilter
@@ -38450,8 +38510,8 @@ export namespace Prisma {
     parentId?: SortOrderInput | SortOrder
     sigla?: SortOrder
     nome?: SortOrder
-    nivel?: SortOrder
-    municipioId?: SortOrder
+    nivel?: SortOrderInput | SortOrder
+    municipioId?: SortOrderInput | SortOrder
     ativo?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -38460,7 +38520,7 @@ export namespace Prisma {
     children?: UnidadeOrganizacionalOrderByRelationAggregateInput
     municipio?: MunicipioOrderByWithRelationInput
     servidores?: ServidorOrderByRelationAggregateInput
-    contratosGestora?: ContratoOrderByRelationAggregateInput
+    contratosSubunidade?: ContratoOrderByRelationAggregateInput
     rateios?: ContratoRateioOrderByRelationAggregateInput
     processosDemandante?: ProcessoContratacaoOrderByRelationAggregateInput
     itensDestino?: ItemContratoOrderByRelationAggregateInput
@@ -38477,8 +38537,8 @@ export namespace Prisma {
     parentId?: SortOrderInput | SortOrder
     sigla?: SortOrder
     nome?: SortOrder
-    nivel?: SortOrder
-    municipioId?: SortOrder
+    nivel?: SortOrderInput | SortOrder
+    municipioId?: SortOrderInput | SortOrder
     ativo?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -38496,8 +38556,8 @@ export namespace Prisma {
     parentId?: StringNullableWithAggregatesFilter | string | null
     sigla?: StringWithAggregatesFilter | string
     nome?: StringWithAggregatesFilter | string
-    nivel?: EnumNivelUnidadeWithAggregatesFilter | NivelUnidade
-    municipioId?: StringWithAggregatesFilter | string
+    nivel?: EnumNivelUnidadeNullableWithAggregatesFilter | NivelUnidade | null
+    municipioId?: StringNullableWithAggregatesFilter | string | null
     ativo?: BoolWithAggregatesFilter | boolean
     createdAt?: DateTimeWithAggregatesFilter | Date | string
     updatedAt?: DateTimeWithAggregatesFilter | Date | string
@@ -38906,6 +38966,7 @@ export namespace Prisma {
     objeto?: StringFilter | string
     fornecedorId?: StringFilter | string
     unidadeGestoraId?: StringFilter | string
+    subunidadeId?: StringNullableFilter | string | null
     dataAssinatura?: DateTimeNullableFilter | Date | string | null
     dataInicioVigencia?: DateTimeFilter | Date | string
     prazoInicialValor?: IntFilter | number
@@ -38932,7 +38993,8 @@ export namespace Prisma {
     modalidadeRef?: XOR<DominioValorRelationFilter, DominioValorWhereInput>
     fundamentoLegal?: XOR<DominioValorRelationFilter, DominioValorWhereInput> | null
     fornecedor?: XOR<FornecedorRelationFilter, FornecedorWhereInput>
-    unidadeGestora?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput>
+    unidadeGestora?: XOR<OrgaoRelationFilter, OrgaoWhereInput>
+    subunidade?: XOR<UnidadeOrganizacionalRelationFilter, UnidadeOrganizacionalWhereInput> | null
     responsaveis?: ContratoResponsavelListRelationFilter
     rateios?: ContratoRateioListRelationFilter
     itens?: ItemContratoListRelationFilter
@@ -38960,6 +39022,7 @@ export namespace Prisma {
     objeto?: SortOrder
     fornecedorId?: SortOrder
     unidadeGestoraId?: SortOrder
+    subunidadeId?: SortOrderInput | SortOrder
     dataAssinatura?: SortOrderInput | SortOrder
     dataInicioVigencia?: SortOrder
     prazoInicialValor?: SortOrder
@@ -38986,7 +39049,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorOrderByWithRelationInput
     fundamentoLegal?: DominioValorOrderByWithRelationInput
     fornecedor?: FornecedorOrderByWithRelationInput
-    unidadeGestora?: UnidadeOrganizacionalOrderByWithRelationInput
+    unidadeGestora?: OrgaoOrderByWithRelationInput
+    subunidade?: UnidadeOrganizacionalOrderByWithRelationInput
     responsaveis?: ContratoResponsavelOrderByRelationAggregateInput
     rateios?: ContratoRateioOrderByRelationAggregateInput
     itens?: ItemContratoOrderByRelationAggregateInput
@@ -39020,6 +39084,7 @@ export namespace Prisma {
     objeto?: SortOrder
     fornecedorId?: SortOrder
     unidadeGestoraId?: SortOrder
+    subunidadeId?: SortOrderInput | SortOrder
     dataAssinatura?: SortOrderInput | SortOrder
     dataInicioVigencia?: SortOrder
     prazoInicialValor?: SortOrder
@@ -39066,6 +39131,7 @@ export namespace Prisma {
     objeto?: StringWithAggregatesFilter | string
     fornecedorId?: StringWithAggregatesFilter | string
     unidadeGestoraId?: StringWithAggregatesFilter | string
+    subunidadeId?: StringNullableWithAggregatesFilter | string | null
     dataAssinatura?: DateTimeNullableWithAggregatesFilter | Date | string | null
     dataInicioVigencia?: DateTimeWithAggregatesFilter | Date | string
     prazoInicialValor?: IntWithAggregatesFilter | number
@@ -40852,6 +40918,7 @@ export namespace Prisma {
     parent?: OrgaoCreateNestedOneWithoutChildrenInput
     children?: OrgaoCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
     servidores?: ServidorCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioCreateNestedManyWithoutOrgaoInput
   }
@@ -40867,6 +40934,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     children?: OrgaoUncheckedCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioUncheckedCreateNestedManyWithoutOrgaoInput
   }
@@ -40882,6 +40950,7 @@ export namespace Prisma {
     parent?: OrgaoUpdateOneWithoutChildrenNestedInput
     children?: OrgaoUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
     servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUpdateManyWithoutOrgaoNestedInput
   }
@@ -40897,6 +40966,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: OrgaoUncheckedUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUncheckedUpdateManyWithoutOrgaoNestedInput
   }
@@ -40937,16 +41007,16 @@ export namespace Prisma {
     id?: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     orgao: OrgaoCreateNestedOneWithoutUnidadesInput
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
-    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    municipio?: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoCreateNestedManyWithoutUnidadeDestinoInput
@@ -40958,14 +41028,14 @@ export namespace Prisma {
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoUncheckedCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeDestinoInput
@@ -40975,16 +41045,16 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
-    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    municipio?: MunicipioUpdateOneWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUpdateManyWithoutUnidadeDestinoNestedInput
@@ -40996,14 +41066,14 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
-    municipioId?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUncheckedUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUncheckedUpdateManyWithoutUnidadeDestinoNestedInput
@@ -41015,8 +41085,8 @@ export namespace Prisma {
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -41026,7 +41096,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41038,8 +41108,8 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
-    municipioId?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -41602,7 +41672,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -41630,6 +41701,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -41698,7 +41770,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -41726,6 +41799,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -41774,6 +41848,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -41844,6 +41919,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -44199,11 +44275,11 @@ export namespace Prisma {
     _max?: NestedEnumTipoOrgaoFilter
   }
 
-  export type EnumNivelUnidadeFilter = {
-    equals?: NivelUnidade
-    in?: Enumerable<NivelUnidade>
-    notIn?: Enumerable<NivelUnidade>
-    not?: NestedEnumNivelUnidadeFilter | NivelUnidade
+  export type EnumNivelUnidadeNullableFilter = {
+    equals?: NivelUnidade | null
+    in?: Enumerable<NivelUnidade> | null
+    notIn?: Enumerable<NivelUnidade> | null
+    not?: NestedEnumNivelUnidadeNullableFilter | NivelUnidade | null
   }
 
   export type UnidadeOrganizacionalRelationFilter = {
@@ -44270,14 +44346,14 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
-  export type EnumNivelUnidadeWithAggregatesFilter = {
-    equals?: NivelUnidade
-    in?: Enumerable<NivelUnidade>
-    notIn?: Enumerable<NivelUnidade>
-    not?: NestedEnumNivelUnidadeWithAggregatesFilter | NivelUnidade
-    _count?: NestedIntFilter
-    _min?: NestedEnumNivelUnidadeFilter
-    _max?: NestedEnumNivelUnidadeFilter
+  export type EnumNivelUnidadeNullableWithAggregatesFilter = {
+    equals?: NivelUnidade | null
+    in?: Enumerable<NivelUnidade> | null
+    notIn?: Enumerable<NivelUnidade> | null
+    not?: NestedEnumNivelUnidadeNullableWithAggregatesFilter | NivelUnidade | null
+    _count?: NestedIntNullableFilter
+    _min?: NestedEnumNivelUnidadeNullableFilter
+    _max?: NestedEnumNivelUnidadeNullableFilter
   }
 
   export type EnumTipoPessoaFilter = {
@@ -44797,6 +44873,7 @@ export namespace Prisma {
     objeto?: SortOrder
     fornecedorId?: SortOrder
     unidadeGestoraId?: SortOrder
+    subunidadeId?: SortOrder
     dataAssinatura?: SortOrder
     dataInicioVigencia?: SortOrder
     prazoInicialValor?: SortOrder
@@ -44844,6 +44921,7 @@ export namespace Prisma {
     objeto?: SortOrder
     fornecedorId?: SortOrder
     unidadeGestoraId?: SortOrder
+    subunidadeId?: SortOrder
     dataAssinatura?: SortOrder
     dataInicioVigencia?: SortOrder
     prazoInicialValor?: SortOrder
@@ -44882,6 +44960,7 @@ export namespace Prisma {
     objeto?: SortOrder
     fornecedorId?: SortOrder
     unidadeGestoraId?: SortOrder
+    subunidadeId?: SortOrder
     dataAssinatura?: SortOrder
     dataInicioVigencia?: SortOrder
     prazoInicialValor?: SortOrder
@@ -47157,6 +47236,13 @@ export namespace Prisma {
     connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
   }
 
+  export type ContratoCreateNestedManyWithoutUnidadeGestoraInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
+    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
   export type ServidorCreateNestedManyWithoutOrgaoInput = {
     create?: XOR<Enumerable<ServidorCreateWithoutOrgaoInput>, Enumerable<ServidorUncheckedCreateWithoutOrgaoInput>>
     connectOrCreate?: Enumerable<ServidorCreateOrConnectWithoutOrgaoInput>
@@ -47183,6 +47269,13 @@ export namespace Prisma {
     connectOrCreate?: Enumerable<UnidadeOrganizacionalCreateOrConnectWithoutOrgaoInput>
     createMany?: UnidadeOrganizacionalCreateManyOrgaoInputEnvelope
     connect?: Enumerable<UnidadeOrganizacionalWhereUniqueInput>
+  }
+
+  export type ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
+    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
   }
 
   export type ServidorUncheckedCreateNestedManyWithoutOrgaoInput = {
@@ -47241,6 +47334,20 @@ export namespace Prisma {
     deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
   }
 
+  export type ContratoUpdateManyWithoutUnidadeGestoraNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutUnidadeGestoraInput>
+    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutUnidadeGestoraInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutUnidadeGestoraInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
   export type ServidorUpdateManyWithoutOrgaoNestedInput = {
     create?: XOR<Enumerable<ServidorCreateWithoutOrgaoInput>, Enumerable<ServidorUncheckedCreateWithoutOrgaoInput>>
     connectOrCreate?: Enumerable<ServidorCreateOrConnectWithoutOrgaoInput>
@@ -47295,6 +47402,20 @@ export namespace Prisma {
     update?: Enumerable<UnidadeOrganizacionalUpdateWithWhereUniqueWithoutOrgaoInput>
     updateMany?: Enumerable<UnidadeOrganizacionalUpdateManyWithWhereWithoutOrgaoInput>
     deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutUnidadeGestoraInput>
+    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutUnidadeGestoraInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutUnidadeGestoraInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
   export type ServidorUncheckedUpdateManyWithoutOrgaoNestedInput = {
@@ -47357,10 +47478,10 @@ export namespace Prisma {
     connect?: Enumerable<ServidorWhereUniqueInput>
   }
 
-  export type ContratoCreateNestedManyWithoutUnidadeGestoraInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
-    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+  export type ContratoCreateNestedManyWithoutSubunidadeInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutSubunidadeInput>, Enumerable<ContratoUncheckedCreateWithoutSubunidadeInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutSubunidadeInput>
+    createMany?: ContratoCreateManySubunidadeInputEnvelope
     connect?: Enumerable<ContratoWhereUniqueInput>
   }
 
@@ -47399,10 +47520,10 @@ export namespace Prisma {
     connect?: Enumerable<ServidorWhereUniqueInput>
   }
 
-  export type ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
-    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+  export type ContratoUncheckedCreateNestedManyWithoutSubunidadeInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutSubunidadeInput>, Enumerable<ContratoUncheckedCreateWithoutSubunidadeInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutSubunidadeInput>
+    createMany?: ContratoCreateManySubunidadeInputEnvelope
     connect?: Enumerable<ContratoWhereUniqueInput>
   }
 
@@ -47427,8 +47548,8 @@ export namespace Prisma {
     connect?: Enumerable<ItemContratoWhereUniqueInput>
   }
 
-  export type EnumNivelUnidadeFieldUpdateOperationsInput = {
-    set?: NivelUnidade
+  export type NullableEnumNivelUnidadeFieldUpdateOperationsInput = {
+    set?: NivelUnidade | null
   }
 
   export type OrgaoUpdateOneRequiredWithoutUnidadesNestedInput = {
@@ -47463,10 +47584,12 @@ export namespace Prisma {
     deleteMany?: Enumerable<UnidadeOrganizacionalScalarWhereInput>
   }
 
-  export type MunicipioUpdateOneRequiredWithoutUnidadesNestedInput = {
+  export type MunicipioUpdateOneWithoutUnidadesNestedInput = {
     create?: XOR<MunicipioCreateWithoutUnidadesInput, MunicipioUncheckedCreateWithoutUnidadesInput>
     connectOrCreate?: MunicipioCreateOrConnectWithoutUnidadesInput
     upsert?: MunicipioUpsertWithoutUnidadesInput
+    disconnect?: boolean
+    delete?: boolean
     connect?: MunicipioWhereUniqueInput
     update?: XOR<MunicipioUpdateWithoutUnidadesInput, MunicipioUncheckedUpdateWithoutUnidadesInput>
   }
@@ -47485,17 +47608,17 @@ export namespace Prisma {
     deleteMany?: Enumerable<ServidorScalarWhereInput>
   }
 
-  export type ContratoUpdateManyWithoutUnidadeGestoraNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutUnidadeGestoraInput>
-    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+  export type ContratoUpdateManyWithoutSubunidadeNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutSubunidadeInput>, Enumerable<ContratoUncheckedCreateWithoutSubunidadeInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutSubunidadeInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutSubunidadeInput>
+    createMany?: ContratoCreateManySubunidadeInputEnvelope
     set?: Enumerable<ContratoWhereUniqueInput>
     disconnect?: Enumerable<ContratoWhereUniqueInput>
     delete?: Enumerable<ContratoWhereUniqueInput>
     connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutUnidadeGestoraInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutUnidadeGestoraInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutSubunidadeInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutSubunidadeInput>
     deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
@@ -47569,17 +47692,17 @@ export namespace Prisma {
     deleteMany?: Enumerable<ServidorScalarWhereInput>
   }
 
-  export type ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput = {
-    create?: XOR<Enumerable<ContratoCreateWithoutUnidadeGestoraInput>, Enumerable<ContratoUncheckedCreateWithoutUnidadeGestoraInput>>
-    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutUnidadeGestoraInput>
-    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutUnidadeGestoraInput>
-    createMany?: ContratoCreateManyUnidadeGestoraInputEnvelope
+  export type ContratoUncheckedUpdateManyWithoutSubunidadeNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutSubunidadeInput>, Enumerable<ContratoUncheckedCreateWithoutSubunidadeInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutSubunidadeInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutSubunidadeInput>
+    createMany?: ContratoCreateManySubunidadeInputEnvelope
     set?: Enumerable<ContratoWhereUniqueInput>
     disconnect?: Enumerable<ContratoWhereUniqueInput>
     delete?: Enumerable<ContratoWhereUniqueInput>
     connect?: Enumerable<ContratoWhereUniqueInput>
-    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutUnidadeGestoraInput>
-    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutUnidadeGestoraInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutSubunidadeInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutSubunidadeInput>
     deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
@@ -48129,9 +48252,15 @@ export namespace Prisma {
     connect?: FornecedorWhereUniqueInput
   }
 
-  export type UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput = {
-    create?: XOR<UnidadeOrganizacionalCreateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosGestoraInput>
-    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutContratosGestoraInput
+  export type OrgaoCreateNestedOneWithoutContratosGestoraInput = {
+    create?: XOR<OrgaoCreateWithoutContratosGestoraInput, OrgaoUncheckedCreateWithoutContratosGestoraInput>
+    connectOrCreate?: OrgaoCreateOrConnectWithoutContratosGestoraInput
+    connect?: OrgaoWhereUniqueInput
+  }
+
+  export type UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutContratosSubunidadeInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosSubunidadeInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutContratosSubunidadeInput
     connect?: UnidadeOrganizacionalWhereUniqueInput
   }
 
@@ -48355,12 +48484,22 @@ export namespace Prisma {
     update?: XOR<FornecedorUpdateWithoutContratosInput, FornecedorUncheckedUpdateWithoutContratosInput>
   }
 
-  export type UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput = {
-    create?: XOR<UnidadeOrganizacionalCreateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosGestoraInput>
-    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutContratosGestoraInput
-    upsert?: UnidadeOrganizacionalUpsertWithoutContratosGestoraInput
+  export type OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput = {
+    create?: XOR<OrgaoCreateWithoutContratosGestoraInput, OrgaoUncheckedCreateWithoutContratosGestoraInput>
+    connectOrCreate?: OrgaoCreateOrConnectWithoutContratosGestoraInput
+    upsert?: OrgaoUpsertWithoutContratosGestoraInput
+    connect?: OrgaoWhereUniqueInput
+    update?: XOR<OrgaoUpdateWithoutContratosGestoraInput, OrgaoUncheckedUpdateWithoutContratosGestoraInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput = {
+    create?: XOR<UnidadeOrganizacionalCreateWithoutContratosSubunidadeInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosSubunidadeInput>
+    connectOrCreate?: UnidadeOrganizacionalCreateOrConnectWithoutContratosSubunidadeInput
+    upsert?: UnidadeOrganizacionalUpsertWithoutContratosSubunidadeInput
+    disconnect?: boolean
+    delete?: boolean
     connect?: UnidadeOrganizacionalWhereUniqueInput
-    update?: XOR<UnidadeOrganizacionalUpdateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedUpdateWithoutContratosGestoraInput>
+    update?: XOR<UnidadeOrganizacionalUpdateWithoutContratosSubunidadeInput, UnidadeOrganizacionalUncheckedUpdateWithoutContratosSubunidadeInput>
   }
 
   export type ContratoResponsavelUpdateManyWithoutContratoNestedInput = {
@@ -49820,21 +49959,21 @@ export namespace Prisma {
     _max?: NestedEnumTipoOrgaoFilter
   }
 
-  export type NestedEnumNivelUnidadeFilter = {
-    equals?: NivelUnidade
-    in?: Enumerable<NivelUnidade>
-    notIn?: Enumerable<NivelUnidade>
-    not?: NestedEnumNivelUnidadeFilter | NivelUnidade
+  export type NestedEnumNivelUnidadeNullableFilter = {
+    equals?: NivelUnidade | null
+    in?: Enumerable<NivelUnidade> | null
+    notIn?: Enumerable<NivelUnidade> | null
+    not?: NestedEnumNivelUnidadeNullableFilter | NivelUnidade | null
   }
 
-  export type NestedEnumNivelUnidadeWithAggregatesFilter = {
-    equals?: NivelUnidade
-    in?: Enumerable<NivelUnidade>
-    notIn?: Enumerable<NivelUnidade>
-    not?: NestedEnumNivelUnidadeWithAggregatesFilter | NivelUnidade
-    _count?: NestedIntFilter
-    _min?: NestedEnumNivelUnidadeFilter
-    _max?: NestedEnumNivelUnidadeFilter
+  export type NestedEnumNivelUnidadeNullableWithAggregatesFilter = {
+    equals?: NivelUnidade | null
+    in?: Enumerable<NivelUnidade> | null
+    notIn?: Enumerable<NivelUnidade> | null
+    not?: NestedEnumNivelUnidadeNullableWithAggregatesFilter | NivelUnidade | null
+    _count?: NestedIntNullableFilter
+    _min?: NestedEnumNivelUnidadeNullableFilter
+    _max?: NestedEnumNivelUnidadeNullableFilter
   }
 
   export type NestedEnumTipoPessoaFilter = {
@@ -50414,7 +50553,7 @@ export namespace Prisma {
     id?: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -50422,7 +50561,7 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoCreateNestedManyWithoutUnidadeDestinoInput
@@ -50434,13 +50573,13 @@ export namespace Prisma {
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoUncheckedCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeDestinoInput
@@ -50571,8 +50710,8 @@ export namespace Prisma {
     parentId?: StringNullableFilter | string | null
     sigla?: StringFilter | string
     nome?: StringFilter | string
-    nivel?: EnumNivelUnidadeFilter | NivelUnidade
-    municipioId?: StringFilter | string
+    nivel?: EnumNivelUnidadeNullableFilter | NivelUnidade | null
+    municipioId?: StringNullableFilter | string | null
     ativo?: BoolFilter | boolean
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
@@ -50930,7 +51069,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -50957,6 +51097,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -51034,7 +51175,8 @@ export namespace Prisma {
     categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -51061,6 +51203,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -51138,7 +51281,8 @@ export namespace Prisma {
     categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -51165,6 +51309,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -51764,6 +51909,7 @@ export namespace Prisma {
     objeto?: StringFilter | string
     fornecedorId?: StringFilter | string
     unidadeGestoraId?: StringFilter | string
+    subunidadeId?: StringNullableFilter | string | null
     dataAssinatura?: DateTimeNullableFilter | Date | string | null
     dataInicioVigencia?: DateTimeFilter | Date | string
     prazoInicialValor?: IntFilter | number
@@ -52121,6 +52267,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     parent?: OrgaoCreateNestedOneWithoutChildrenInput
     unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
     servidores?: ServidorCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioCreateNestedManyWithoutOrgaoInput
   }
@@ -52135,6 +52282,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioUncheckedCreateNestedManyWithoutOrgaoInput
   }
@@ -52154,6 +52302,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     children?: OrgaoCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
     servidores?: ServidorCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioCreateNestedManyWithoutOrgaoInput
   }
@@ -52168,6 +52317,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     children?: OrgaoUncheckedCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioUncheckedCreateNestedManyWithoutOrgaoInput
   }
@@ -52186,15 +52336,15 @@ export namespace Prisma {
     id?: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
-    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    municipio?: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoCreateNestedManyWithoutUnidadeDestinoInput
@@ -52205,14 +52355,14 @@ export namespace Prisma {
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoUncheckedCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeDestinoInput
@@ -52225,6 +52375,112 @@ export namespace Prisma {
 
   export type UnidadeOrganizacionalCreateManyOrgaoInputEnvelope = {
     data: Enumerable<UnidadeOrganizacionalCreateManyOrgaoInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoCreateWithoutUnidadeGestoraInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoUncheckedCreateWithoutUnidadeGestoraInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    subunidadeId?: string | null
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutUnidadeGestoraInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutUnidadeGestoraInput, ContratoUncheckedCreateWithoutUnidadeGestoraInput>
+  }
+
+  export type ContratoCreateManyUnidadeGestoraInputEnvelope = {
+    data: Enumerable<ContratoCreateManyUnidadeGestoraInput>
     skipDuplicates?: boolean
   }
 
@@ -52321,6 +52577,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     parent?: OrgaoUpdateOneWithoutChildrenNestedInput
     unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
     servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUpdateManyWithoutOrgaoNestedInput
   }
@@ -52335,6 +52592,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUncheckedUpdateManyWithoutOrgaoNestedInput
   }
@@ -52383,6 +52641,22 @@ export namespace Prisma {
   export type UnidadeOrganizacionalUpdateManyWithWhereWithoutOrgaoInput = {
     where: UnidadeOrganizacionalScalarWhereInput
     data: XOR<UnidadeOrganizacionalUpdateManyMutationInput, UnidadeOrganizacionalUncheckedUpdateManyWithoutUnidadesInput>
+  }
+
+  export type ContratoUpsertWithWhereUniqueWithoutUnidadeGestoraInput = {
+    where: ContratoWhereUniqueInput
+    update: XOR<ContratoUpdateWithoutUnidadeGestoraInput, ContratoUncheckedUpdateWithoutUnidadeGestoraInput>
+    create: XOR<ContratoCreateWithoutUnidadeGestoraInput, ContratoUncheckedCreateWithoutUnidadeGestoraInput>
+  }
+
+  export type ContratoUpdateWithWhereUniqueWithoutUnidadeGestoraInput = {
+    where: ContratoWhereUniqueInput
+    data: XOR<ContratoUpdateWithoutUnidadeGestoraInput, ContratoUncheckedUpdateWithoutUnidadeGestoraInput>
+  }
+
+  export type ContratoUpdateManyWithWhereWithoutUnidadeGestoraInput = {
+    where: ContratoScalarWhereInput
+    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosGestoraInput>
   }
 
   export type ServidorUpsertWithWhereUniqueWithoutOrgaoInput = {
@@ -52462,6 +52736,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     parent?: OrgaoCreateNestedOneWithoutChildrenInput
     children?: OrgaoCreateNestedManyWithoutParentInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
     servidores?: ServidorCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioCreateNestedManyWithoutOrgaoInput
   }
@@ -52476,6 +52751,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: OrgaoUncheckedCreateNestedManyWithoutParentInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
     usuarios?: UsuarioUncheckedCreateNestedManyWithoutOrgaoInput
   }
@@ -52489,15 +52765,15 @@ export namespace Prisma {
     id?: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     orgao: OrgaoCreateNestedOneWithoutUnidadesInput
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
-    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    municipio?: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoCreateNestedManyWithoutUnidadeDestinoInput
@@ -52509,13 +52785,13 @@ export namespace Prisma {
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoUncheckedCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeDestinoInput
@@ -52530,15 +52806,15 @@ export namespace Prisma {
     id?: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     orgao: OrgaoCreateNestedOneWithoutUnidadesInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
-    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    municipio?: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoCreateNestedManyWithoutUnidadeDestinoInput
@@ -52549,14 +52825,14 @@ export namespace Prisma {
     orgaoId: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoUncheckedCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeDestinoInput
@@ -52639,7 +52915,7 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
-  export type ContratoCreateWithoutUnidadeGestoraInput = {
+  export type ContratoCreateWithoutSubunidadeInput = {
     id?: string
     numeroGms: string
     anoGms: number
@@ -52674,6 +52950,7 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -52686,7 +52963,7 @@ export namespace Prisma {
     alertas?: AlertaCreateNestedManyWithoutContratoInput
   }
 
-  export type ContratoUncheckedCreateWithoutUnidadeGestoraInput = {
+  export type ContratoUncheckedCreateWithoutSubunidadeInput = {
     id?: string
     processoId?: string | null
     numeroGms: string
@@ -52700,6 +52977,7 @@ export namespace Prisma {
     fundamentoLegalId?: string | null
     objeto: string
     fornecedorId: string
+    unidadeGestoraId: string
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -52733,13 +53011,13 @@ export namespace Prisma {
     alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
   }
 
-  export type ContratoCreateOrConnectWithoutUnidadeGestoraInput = {
+  export type ContratoCreateOrConnectWithoutSubunidadeInput = {
     where: ContratoWhereUniqueInput
-    create: XOR<ContratoCreateWithoutUnidadeGestoraInput, ContratoUncheckedCreateWithoutUnidadeGestoraInput>
+    create: XOR<ContratoCreateWithoutSubunidadeInput, ContratoUncheckedCreateWithoutSubunidadeInput>
   }
 
-  export type ContratoCreateManyUnidadeGestoraInputEnvelope = {
-    data: Enumerable<ContratoCreateManyUnidadeGestoraInput>
+  export type ContratoCreateManySubunidadeInputEnvelope = {
+    data: Enumerable<ContratoCreateManySubunidadeInput>
     skipDuplicates?: boolean
   }
 
@@ -52884,6 +53162,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     parent?: OrgaoUpdateOneWithoutChildrenNestedInput
     children?: OrgaoUpdateManyWithoutParentNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
     servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUpdateManyWithoutOrgaoNestedInput
   }
@@ -52898,6 +53177,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: OrgaoUncheckedUpdateManyWithoutParentNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUncheckedUpdateManyWithoutOrgaoNestedInput
   }
@@ -52911,15 +53191,15 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
-    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    municipio?: MunicipioUpdateOneWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUpdateManyWithoutUnidadeDestinoNestedInput
@@ -52931,13 +53211,13 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
-    municipioId?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUncheckedUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUncheckedUpdateManyWithoutUnidadeDestinoNestedInput
@@ -53000,20 +53280,20 @@ export namespace Prisma {
     data: XOR<ServidorUpdateManyMutationInput, ServidorUncheckedUpdateManyWithoutServidoresInput>
   }
 
-  export type ContratoUpsertWithWhereUniqueWithoutUnidadeGestoraInput = {
+  export type ContratoUpsertWithWhereUniqueWithoutSubunidadeInput = {
     where: ContratoWhereUniqueInput
-    update: XOR<ContratoUpdateWithoutUnidadeGestoraInput, ContratoUncheckedUpdateWithoutUnidadeGestoraInput>
-    create: XOR<ContratoCreateWithoutUnidadeGestoraInput, ContratoUncheckedCreateWithoutUnidadeGestoraInput>
+    update: XOR<ContratoUpdateWithoutSubunidadeInput, ContratoUncheckedUpdateWithoutSubunidadeInput>
+    create: XOR<ContratoCreateWithoutSubunidadeInput, ContratoUncheckedCreateWithoutSubunidadeInput>
   }
 
-  export type ContratoUpdateWithWhereUniqueWithoutUnidadeGestoraInput = {
+  export type ContratoUpdateWithWhereUniqueWithoutSubunidadeInput = {
     where: ContratoWhereUniqueInput
-    data: XOR<ContratoUpdateWithoutUnidadeGestoraInput, ContratoUncheckedUpdateWithoutUnidadeGestoraInput>
+    data: XOR<ContratoUpdateWithoutSubunidadeInput, ContratoUncheckedUpdateWithoutSubunidadeInput>
   }
 
-  export type ContratoUpdateManyWithWhereWithoutUnidadeGestoraInput = {
+  export type ContratoUpdateManyWithWhereWithoutSubunidadeInput = {
     where: ContratoScalarWhereInput
-    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosGestoraInput>
+    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosSubunidadeInput>
   }
 
   export type ContratoRateioUpsertWithWhereUniqueWithoutUnidadeInput = {
@@ -53199,7 +53479,8 @@ export namespace Prisma {
     categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -53226,6 +53507,7 @@ export namespace Prisma {
     fundamentoLegalId?: string | null
     objeto: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -53538,6 +53820,7 @@ export namespace Prisma {
     parent?: OrgaoCreateNestedOneWithoutChildrenInput
     children?: OrgaoCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
     usuarios?: UsuarioCreateNestedManyWithoutOrgaoInput
   }
 
@@ -53552,6 +53835,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     children?: OrgaoUncheckedCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
     usuarios?: UsuarioUncheckedCreateNestedManyWithoutOrgaoInput
   }
 
@@ -53564,15 +53848,15 @@ export namespace Prisma {
     id?: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     orgao: OrgaoCreateNestedOneWithoutUnidadesInput
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
-    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
-    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    municipio?: MunicipioCreateNestedOneWithoutUnidadesInput
+    contratosSubunidade?: ContratoCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoCreateNestedManyWithoutUnidadeDestinoInput
@@ -53584,13 +53868,13 @@ export namespace Prisma {
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
-    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoUncheckedCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeDestinoInput
@@ -53683,6 +53967,7 @@ export namespace Prisma {
     parent?: OrgaoUpdateOneWithoutChildrenNestedInput
     children?: OrgaoUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
     usuarios?: UsuarioUpdateManyWithoutOrgaoNestedInput
   }
 
@@ -53697,6 +53982,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: OrgaoUncheckedUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
     usuarios?: UsuarioUncheckedUpdateManyWithoutOrgaoNestedInput
   }
 
@@ -53709,15 +53995,15 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
-    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
-    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    municipio?: MunicipioUpdateOneWithoutUnidadesNestedInput
+    contratosSubunidade?: ContratoUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUpdateManyWithoutUnidadeDestinoNestedInput
@@ -53729,13 +54015,13 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
-    municipioId?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
-    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUncheckedUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUncheckedUpdateManyWithoutUnidadeDestinoNestedInput
@@ -53791,16 +54077,16 @@ export namespace Prisma {
     id?: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     orgao: OrgaoCreateNestedOneWithoutUnidadesInput
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
-    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    municipio?: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
     itensDestino?: ItemContratoCreateNestedManyWithoutUnidadeDestinoInput
   }
@@ -53811,14 +54097,14 @@ export namespace Prisma {
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoUncheckedCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
     itensDestino?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeDestinoInput
   }
@@ -53921,7 +54207,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -53948,6 +54235,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -54070,16 +54358,16 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
-    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    municipio?: MunicipioUpdateOneWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
     itensDestino?: ItemContratoUpdateManyWithoutUnidadeDestinoNestedInput
   }
@@ -54090,14 +54378,14 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
-    municipioId?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUncheckedUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
     itensDestino?: ItemContratoUncheckedUpdateManyWithoutUnidadeDestinoNestedInput
   }
@@ -54485,32 +54773,67 @@ export namespace Prisma {
     create: XOR<FornecedorCreateWithoutContratosInput, FornecedorUncheckedCreateWithoutContratosInput>
   }
 
-  export type UnidadeOrganizacionalCreateWithoutContratosGestoraInput = {
+  export type OrgaoCreateWithoutContratosGestoraInput = {
     id?: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    tipo: TipoOrgao
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    parent?: OrgaoCreateNestedOneWithoutChildrenInput
+    children?: OrgaoCreateNestedManyWithoutParentInput
+    unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
+    servidores?: ServidorCreateNestedManyWithoutOrgaoInput
+    usuarios?: UsuarioCreateNestedManyWithoutOrgaoInput
+  }
+
+  export type OrgaoUncheckedCreateWithoutContratosGestoraInput = {
+    id?: string
+    sigla: string
+    nome: string
+    tipo: TipoOrgao
+    ativo?: boolean
+    parentId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: OrgaoUncheckedCreateNestedManyWithoutParentInput
+    unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
+    servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
+    usuarios?: UsuarioUncheckedCreateNestedManyWithoutOrgaoInput
+  }
+
+  export type OrgaoCreateOrConnectWithoutContratosGestoraInput = {
+    where: OrgaoWhereUniqueInput
+    create: XOR<OrgaoCreateWithoutContratosGestoraInput, OrgaoUncheckedCreateWithoutContratosGestoraInput>
+  }
+
+  export type UnidadeOrganizacionalCreateWithoutContratosSubunidadeInput = {
+    id?: string
+    sigla: string
+    nome: string
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     orgao: OrgaoCreateNestedOneWithoutUnidadesInput
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
-    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    municipio?: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
     rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoCreateNestedManyWithoutUnidadeDestinoInput
   }
 
-  export type UnidadeOrganizacionalUncheckedCreateWithoutContratosGestoraInput = {
+  export type UnidadeOrganizacionalUncheckedCreateWithoutContratosSubunidadeInput = {
     id?: string
     orgaoId: string
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -54521,9 +54844,9 @@ export namespace Prisma {
     itensDestino?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeDestinoInput
   }
 
-  export type UnidadeOrganizacionalCreateOrConnectWithoutContratosGestoraInput = {
+  export type UnidadeOrganizacionalCreateOrConnectWithoutContratosSubunidadeInput = {
     where: UnidadeOrganizacionalWhereUniqueInput
-    create: XOR<UnidadeOrganizacionalCreateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosGestoraInput>
+    create: XOR<UnidadeOrganizacionalCreateWithoutContratosSubunidadeInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosSubunidadeInput>
   }
 
   export type ContratoResponsavelCreateWithoutContratoInput = {
@@ -55161,37 +55484,72 @@ export namespace Prisma {
     sancoes?: FornecedorSancaoUncheckedUpdateManyWithoutFornecedorNestedInput
   }
 
-  export type UnidadeOrganizacionalUpsertWithoutContratosGestoraInput = {
-    update: XOR<UnidadeOrganizacionalUpdateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedUpdateWithoutContratosGestoraInput>
-    create: XOR<UnidadeOrganizacionalCreateWithoutContratosGestoraInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosGestoraInput>
+  export type OrgaoUpsertWithoutContratosGestoraInput = {
+    update: XOR<OrgaoUpdateWithoutContratosGestoraInput, OrgaoUncheckedUpdateWithoutContratosGestoraInput>
+    create: XOR<OrgaoCreateWithoutContratosGestoraInput, OrgaoUncheckedCreateWithoutContratosGestoraInput>
   }
 
-  export type UnidadeOrganizacionalUpdateWithoutContratosGestoraInput = {
+  export type OrgaoUpdateWithoutContratosGestoraInput = {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parent?: OrgaoUpdateOneWithoutChildrenNestedInput
+    children?: OrgaoUpdateManyWithoutParentNestedInput
+    unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
+    servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
+    usuarios?: UsuarioUpdateManyWithoutOrgaoNestedInput
+  }
+
+  export type OrgaoUncheckedUpdateWithoutContratosGestoraInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    tipo?: EnumTipoOrgaoFieldUpdateOperationsInput | TipoOrgao
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: OrgaoUncheckedUpdateManyWithoutParentNestedInput
+    unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
+    servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
+    usuarios?: UsuarioUncheckedUpdateManyWithoutOrgaoNestedInput
+  }
+
+  export type UnidadeOrganizacionalUpsertWithoutContratosSubunidadeInput = {
+    update: XOR<UnidadeOrganizacionalUpdateWithoutContratosSubunidadeInput, UnidadeOrganizacionalUncheckedUpdateWithoutContratosSubunidadeInput>
+    create: XOR<UnidadeOrganizacionalCreateWithoutContratosSubunidadeInput, UnidadeOrganizacionalUncheckedCreateWithoutContratosSubunidadeInput>
+  }
+
+  export type UnidadeOrganizacionalUpdateWithoutContratosSubunidadeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sigla?: StringFieldUpdateOperationsInput | string
+    nome?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
-    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    municipio?: MunicipioUpdateOneWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
     rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUpdateManyWithoutUnidadeDestinoNestedInput
   }
 
-  export type UnidadeOrganizacionalUncheckedUpdateWithoutContratosGestoraInput = {
+  export type UnidadeOrganizacionalUncheckedUpdateWithoutContratosSubunidadeInput = {
     id?: StringFieldUpdateOperationsInput | string
     orgaoId?: StringFieldUpdateOperationsInput | string
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
-    municipioId?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -55446,7 +55804,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
@@ -55473,6 +55832,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -55587,7 +55947,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
@@ -55614,6 +55975,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -55718,7 +56080,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
@@ -55745,6 +56108,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -55786,16 +56150,16 @@ export namespace Prisma {
     id?: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     orgao: OrgaoCreateNestedOneWithoutUnidadesInput
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
-    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    municipio?: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoCreateNestedManyWithoutSubunidadeInput
     processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoCreateNestedManyWithoutUnidadeDestinoInput
   }
@@ -55806,14 +56170,14 @@ export namespace Prisma {
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoUncheckedCreateNestedManyWithoutSubunidadeInput
     processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
     itensDestino?: ItemContratoUncheckedCreateNestedManyWithoutUnidadeDestinoInput
   }
@@ -55863,7 +56227,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
@@ -55890,6 +56255,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -55931,16 +56297,16 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
-    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    municipio?: MunicipioUpdateOneWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUpdateManyWithoutSubunidadeNestedInput
     processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUpdateManyWithoutUnidadeDestinoNestedInput
   }
@@ -55951,14 +56317,14 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
-    municipioId?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUncheckedUpdateManyWithoutSubunidadeNestedInput
     processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUncheckedUpdateManyWithoutUnidadeDestinoNestedInput
   }
@@ -55998,7 +56364,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -56025,6 +56392,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -56261,7 +56629,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -56288,6 +56657,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -57200,7 +57570,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
@@ -57227,6 +57598,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -57360,16 +57732,16 @@ export namespace Prisma {
     id?: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     orgao: OrgaoCreateNestedOneWithoutUnidadesInput
     parent?: UnidadeOrganizacionalCreateNestedOneWithoutChildrenInput
     children?: UnidadeOrganizacionalCreateNestedManyWithoutParentInput
-    municipio: MunicipioCreateNestedOneWithoutUnidadesInput
+    municipio?: MunicipioCreateNestedOneWithoutUnidadesInput
     servidores?: ServidorCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoCreateNestedManyWithoutUnidadeDemandanteInput
   }
@@ -57380,14 +57752,14 @@ export namespace Prisma {
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     children?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutParentInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutUnidadeInput
-    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
+    contratosSubunidade?: ContratoUncheckedCreateNestedManyWithoutSubunidadeInput
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutUnidadeInput
     processosDemandante?: ProcessoContratacaoUncheckedCreateNestedManyWithoutUnidadeDemandanteInput
   }
@@ -57492,7 +57864,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
@@ -57519,6 +57892,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -57652,16 +58026,16 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
-    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    municipio?: MunicipioUpdateOneWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
   }
@@ -57672,14 +58046,14 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
-    municipioId?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUncheckedUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
   }
@@ -58094,7 +58468,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -58121,6 +58496,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -58231,7 +58607,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -58258,6 +58635,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -58358,7 +58736,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -58385,6 +58764,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -58495,7 +58875,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -58522,6 +58903,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -58622,7 +59004,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -58649,6 +59032,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -58771,7 +59155,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -58798,6 +59183,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -58910,7 +59296,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -58937,6 +59324,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -59130,7 +59518,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -59157,6 +59546,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -59340,7 +59730,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -59367,6 +59758,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -59605,7 +59997,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -59632,6 +60025,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -59860,7 +60254,8 @@ export namespace Prisma {
     modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
     fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
     fornecedor: FornecedorCreateNestedOneWithoutContratosInput
-    unidadeGestora: UnidadeOrganizacionalCreateNestedOneWithoutContratosGestoraInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
     responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
     rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
     itens?: ItemContratoCreateNestedManyWithoutContratoInput
@@ -59887,6 +60282,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -59964,7 +60360,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -59991,6 +60388,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -60201,6 +60599,7 @@ export namespace Prisma {
     parent?: OrgaoCreateNestedOneWithoutChildrenInput
     children?: OrgaoCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalCreateNestedManyWithoutOrgaoInput
+    contratosGestora?: ContratoCreateNestedManyWithoutUnidadeGestoraInput
     servidores?: ServidorCreateNestedManyWithoutOrgaoInput
   }
 
@@ -60215,6 +60614,7 @@ export namespace Prisma {
     updatedAt?: Date | string
     children?: OrgaoUncheckedCreateNestedManyWithoutParentInput
     unidades?: UnidadeOrganizacionalUncheckedCreateNestedManyWithoutOrgaoInput
+    contratosGestora?: ContratoUncheckedCreateNestedManyWithoutUnidadeGestoraInput
     servidores?: ServidorUncheckedCreateNestedManyWithoutOrgaoInput
   }
 
@@ -60276,6 +60676,7 @@ export namespace Prisma {
     parent?: OrgaoUpdateOneWithoutChildrenNestedInput
     children?: OrgaoUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
     servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
   }
 
@@ -60290,6 +60691,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: OrgaoUncheckedUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
   }
 
@@ -60299,7 +60701,7 @@ export namespace Prisma {
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
+    nivel?: NivelUnidade | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -60340,7 +60742,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -60348,7 +60750,7 @@ export namespace Prisma {
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUpdateManyWithoutUnidadeDestinoNestedInput
@@ -60360,13 +60762,13 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUncheckedUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUncheckedUpdateManyWithoutUnidadeDestinoNestedInput
@@ -60378,7 +60780,7 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -60592,6 +60994,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -60629,6 +61032,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -60666,6 +61070,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -60935,7 +61340,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -60962,6 +61368,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -61009,6 +61416,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -61066,7 +61474,8 @@ export namespace Prisma {
     categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -61093,6 +61502,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -61140,6 +61550,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -61197,7 +61608,8 @@ export namespace Prisma {
     categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -61224,6 +61636,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -61271,6 +61684,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -61774,9 +62188,47 @@ export namespace Prisma {
     parentId?: string | null
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContratoCreateManyUnidadeGestoraInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    subunidadeId?: string | null
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -61818,6 +62270,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: OrgaoUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUpdateManyWithoutOrgaoNestedInput
+    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
     servidores?: ServidorUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUpdateManyWithoutOrgaoNestedInput
   }
@@ -61832,6 +62285,7 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: OrgaoUncheckedUpdateManyWithoutParentNestedInput
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
+    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
     usuarios?: UsuarioUncheckedUpdateManyWithoutOrgaoNestedInput
   }
@@ -61850,15 +62304,15 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     parent?: UnidadeOrganizacionalUpdateOneWithoutChildrenNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
-    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    municipio?: MunicipioUpdateOneWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUpdateManyWithoutUnidadeDestinoNestedInput
@@ -61869,17 +62323,151 @@ export namespace Prisma {
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
-    municipioId?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUncheckedUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUncheckedUpdateManyWithoutUnidadeDestinoNestedInput
+  }
+
+  export type ContratoUpdateWithoutUnidadeGestoraInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutUnidadeGestoraInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutContratosGestoraInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ServidorUpdateWithoutOrgaoInput = {
@@ -61972,8 +62560,8 @@ export namespace Prisma {
     orgaoId: string
     sigla: string
     nome: string
-    nivel: NivelUnidade
-    municipioId: string
+    nivel?: NivelUnidade | null
+    municipioId?: string | null
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -61993,7 +62581,7 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
-  export type ContratoCreateManyUnidadeGestoraInput = {
+  export type ContratoCreateManySubunidadeInput = {
     id?: string
     processoId?: string | null
     numeroGms: string
@@ -62007,6 +62595,7 @@ export namespace Prisma {
     fundamentoLegalId?: string | null
     objeto: string
     fornecedorId: string
+    unidadeGestoraId: string
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -62078,15 +62667,15 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orgao?: OrgaoUpdateOneRequiredWithoutUnidadesNestedInput
     children?: UnidadeOrganizacionalUpdateManyWithoutParentNestedInput
-    municipio?: MunicipioUpdateOneRequiredWithoutUnidadesNestedInput
+    municipio?: MunicipioUpdateOneWithoutUnidadesNestedInput
     servidores?: ServidorUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUpdateManyWithoutUnidadeDestinoNestedInput
@@ -62097,14 +62686,14 @@ export namespace Prisma {
     orgaoId?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
-    municipioId?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     children?: UnidadeOrganizacionalUncheckedUpdateManyWithoutParentNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutUnidadeNestedInput
-    contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
+    contratosSubunidade?: ContratoUncheckedUpdateManyWithoutSubunidadeNestedInput
     rateios?: ContratoRateioUncheckedUpdateManyWithoutUnidadeNestedInput
     processosDemandante?: ProcessoContratacaoUncheckedUpdateManyWithoutUnidadeDemandanteNestedInput
     itensDestino?: ItemContratoUncheckedUpdateManyWithoutUnidadeDestinoNestedInput
@@ -62115,8 +62704,8 @@ export namespace Prisma {
     orgaoId?: StringFieldUpdateOperationsInput | string
     sigla?: StringFieldUpdateOperationsInput | string
     nome?: StringFieldUpdateOperationsInput | string
-    nivel?: EnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade
-    municipioId?: StringFieldUpdateOperationsInput | string
+    nivel?: NullableEnumNivelUnidadeFieldUpdateOperationsInput | NivelUnidade | null
+    municipioId?: NullableStringFieldUpdateOperationsInput | string | null
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -62154,7 +62743,7 @@ export namespace Prisma {
     usuarios?: UsuarioUncheckedUpdateManyWithoutServidorNestedInput
   }
 
-  export type ContratoUpdateWithoutUnidadeGestoraInput = {
+  export type ContratoUpdateWithoutSubunidadeInput = {
     id?: StringFieldUpdateOperationsInput | string
     numeroGms?: StringFieldUpdateOperationsInput | string
     anoGms?: IntFieldUpdateOperationsInput | number
@@ -62189,6 +62778,7 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -62201,7 +62791,7 @@ export namespace Prisma {
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
   }
 
-  export type ContratoUncheckedUpdateWithoutUnidadeGestoraInput = {
+  export type ContratoUncheckedUpdateWithoutSubunidadeInput = {
     id?: StringFieldUpdateOperationsInput | string
     processoId?: NullableStringFieldUpdateOperationsInput | string | null
     numeroGms?: StringFieldUpdateOperationsInput | string
@@ -62215,6 +62805,7 @@ export namespace Prisma {
     fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -62248,7 +62839,7 @@ export namespace Prisma {
     alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
   }
 
-  export type ContratoUncheckedUpdateManyWithoutContratosGestoraInput = {
+  export type ContratoUncheckedUpdateManyWithoutContratosSubunidadeInput = {
     id?: StringFieldUpdateOperationsInput | string
     processoId?: NullableStringFieldUpdateOperationsInput | string | null
     numeroGms?: StringFieldUpdateOperationsInput | string
@@ -62262,6 +62853,7 @@ export namespace Prisma {
     fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -62460,6 +63052,7 @@ export namespace Prisma {
     fundamentoLegalId?: string | null
     objeto: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -62580,7 +63173,8 @@ export namespace Prisma {
     categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -62607,6 +63201,7 @@ export namespace Prisma {
     fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
     objeto?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -62654,6 +63249,7 @@ export namespace Prisma {
     fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
     objeto?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number
@@ -62770,6 +63366,7 @@ export namespace Prisma {
     objeto: string
     fornecedorId: string
     unidadeGestoraId: string
+    subunidadeId?: string | null
     dataAssinatura?: Date | string | null
     dataInicioVigencia: Date | string
     prazoInicialValor: number
@@ -62852,7 +63449,8 @@ export namespace Prisma {
     modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
     fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
     fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
-    unidadeGestora?: UnidadeOrganizacionalUpdateOneRequiredWithoutContratosGestoraNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
     responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
     rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
     itens?: ItemContratoUpdateManyWithoutContratoNestedInput
@@ -62879,6 +63477,7 @@ export namespace Prisma {
     objeto?: StringFieldUpdateOperationsInput | string
     fornecedorId?: StringFieldUpdateOperationsInput | string
     unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
     dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
     prazoInicialValor?: IntFieldUpdateOperationsInput | number

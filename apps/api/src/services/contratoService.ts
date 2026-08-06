@@ -66,9 +66,20 @@ function mapContractRecord(record: any) {
           id: record.unidadeGestora.id,
           sigla: record.unidadeGestora.sigla,
           nome: record.unidadeGestora.nome,
-          orgao: record.unidadeGestora.orgao,
+          tipo: record.unidadeGestora.tipo,
         }
       : undefined,
+    subunidadeId: record.subunidadeId ?? null,
+    subunidade: record.subunidade
+      ? {
+          id: record.subunidade.id,
+          sigla: record.subunidade.sigla,
+          nome: record.subunidade.nome,
+          nivel: record.subunidade.nivel,
+          orgaoId: record.subunidade.orgaoId,
+        }
+      : null,
+    /** @deprecated aliases — gestora agora é Orgao */
     unidadeFspId: record.unidadeGestoraId,
     unidadeFsp: record.unidadeGestora
       ? {

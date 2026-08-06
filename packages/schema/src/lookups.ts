@@ -46,17 +46,20 @@ export const UnidadeOrganizacionalCreateSchema = z.object({
   parentId: uuid.nullable().optional(),
   sigla: z.string().min(1).max(40),
   nome: z.string().min(1),
-  nivel: z.enum([
-    'COMANDO_GERAL',
-    'DIRETORIA',
-    'COMANDO_REGIONAL',
-    'BATALHAO',
-    'COMPANHIA',
-    'DELEGACIA',
-    'UNIDADE_PRISIONAL',
-    'SETOR',
-  ]),
-  municipioId: uuid,
+  nivel: z
+    .enum([
+      'COMANDO_GERAL',
+      'DIRETORIA',
+      'COMANDO_REGIONAL',
+      'BATALHAO',
+      'COMPANHIA',
+      'DELEGACIA',
+      'UNIDADE_PRISIONAL',
+      'SETOR',
+    ])
+    .nullable()
+    .optional(),
+  municipioId: uuid.nullable().optional(),
   ativo: z.boolean().optional(),
 });
 

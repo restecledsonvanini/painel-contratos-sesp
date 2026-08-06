@@ -79,6 +79,7 @@ export function useUnidadesOrganizacionais() {
             id: string;
             sigla: string;
             nome: string;
+            orgaoId?: string;
             orgao?: { id: string; sigla: string; nome: string };
           }>
         >('/unidades')

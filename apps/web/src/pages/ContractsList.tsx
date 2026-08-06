@@ -94,8 +94,7 @@ export default function ContractsList() {
         return false;
       }
       if (filters.orgaoId) {
-        const orgao = c.unidadeGestora?.orgao as { id?: string } | undefined;
-        if (orgao?.id !== filters.orgaoId) return false;
+        if (c.unidadeGestoraId !== filters.orgaoId) return false;
       }
       if (filters.responsavelId) {
         if (c.gestorId !== filters.responsavelId && c.fiscalId !== filters.responsavelId) return false;
@@ -230,7 +229,12 @@ export default function ContractsList() {
                       {contract.numGms}/{contract.anoGms}
                     </TableCell>
                     <TableCell data-label="Unidade">
-                      {contract.unidadeGestora?.sigla ||
+                      {[
+                        contract.unidadeGestora?.sigla,
+                        contract.subunidade?.sigla,
+                      ]
+                        .filter(Boolean)
+                        .join(' / ') ||
                         contract.unidadeFsp?.sigla ||
                         contract.unidadeGestoraId ||
                         contract.unidadeFspId ||

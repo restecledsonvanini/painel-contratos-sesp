@@ -19,6 +19,7 @@ async function dbReady() {
 describe('contracts API integration', () => {
   let ready = false;
   let unidadeGestoraId = '';
+  let subunidadeId = '';
   let fornecedorId = '';
   let gestorId = '';
   let fiscalId = '';
@@ -32,8 +33,11 @@ describe('contracts API integration', () => {
     const suffix = Date.now().toString();
     const rand = Math.floor(Math.random() * 9000) + 1000;
 
-    const unidade = await db.unidadeOrganizacional.findFirst({ where: { ativo: true } });
-    if (!unidade) throw new Error('Nenhuma unidade organizacional no seed');
+    const orgao = await db.orgao.findFirst({ where: { ativo: true, sigla: { not: 'SESP' } } });
+    if (!orgao) throw new Error('Nenhum órgão/força no seed');
+    const unidade = await db.unidadeOrganizacional.findFirst({
+      where: { ativo: true, orgaoId: orgao.id },
+    });
 
     const fornecedor = await db.fornecedor.create({
       data: {
@@ -58,7 +62,8 @@ describe('contracts API integration', () => {
       },
     });
 
-    unidadeGestoraId = unidade.id;
+    unidadeGestoraId = orgao.id;
+    subunidadeId = unidade?.id ?? '';
     fornecedorId = fornecedor.id;
     gestorId = gestor.id;
     fiscalId = fiscal.id;
@@ -94,6 +99,7 @@ describe('contracts API integration', () => {
         numGms,
         anoGms: 2026,
         unidadeGestoraId,
+        subunidadeId: subunidadeId || undefined,
         gestorId,
         fiscalId,
         fornecedorId,

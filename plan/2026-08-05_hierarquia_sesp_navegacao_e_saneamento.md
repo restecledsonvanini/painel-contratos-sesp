@@ -358,7 +358,7 @@ Cada fase é entregável e reversível sozinha. Nenhuma fase começa com a anter
 |---|---|---|---|---|
 | **0. Rede de proteção** | Dump do banco; `npm test` (35) + `test:e2e` verdes; inventário de rotas congelado | — | — | Baseline registrado neste arquivo |
 | **1. Hierarquia SESP** | `Orgao.parentId`; backfill 6 forças → SESP; `/orgaos/arvore`; seed | sim (aditiva) | baixo | ✅ **Feita (2026-08-05)** — API 40/40 |
-| **2. Unidade gestora = força** | `unidadeGestoraId` → `Orgao`; `subunidadeId` opcional; `municipioId` e `nivel` nullable; escopo direto | sim (2 migrations) | **alto** | Contrato salva só com a força; 35 testes verdes; escopo por órgão idem |
+| **2. Unidade gestora = força** | `unidadeGestoraId` → `Orgao`; `subunidadeId` opcional; `municipioId` e `nivel` nullable; escopo direto | sim (2 migrations) | **alto** | ✅ **Feita (2026-08-05)** — API 40/40 |
 | **3. Navegação** | Sidebar com grupos + gate; 4 páginas de seção; `useTabParam`; todos os redirects | não | médio | Toda rota antiga responde; e2e atualizado |
 | **4. Exportação** ⭐ | XLSX real (`exceljs`); PDF (`pdfkit`); ficha por contrato + acervo; UI com escopo | não | baixo | 3 formatos por contrato e do acervo, respeitando escopo por órgão |
 | **5. Descoberta** | Breadcrumbs; linha clicável; deep-link por aba; recentes; palette | não | baixo | Chegar ao detalhe em ≤ 2 cliques de qualquer painel |

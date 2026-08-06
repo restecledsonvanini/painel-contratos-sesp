@@ -178,8 +178,12 @@ export default function ContractDetail() {
     );
   }
 
-  const unidadeLabel =
-    contract.unidadeGestora?.sigla ||
+  const unidadeLabel = [
+    contract.unidadeGestora?.sigla,
+    contract.subunidade?.sigla,
+  ]
+    .filter(Boolean)
+    .join(' / ') ||
     contract.unidadeFsp?.sigla ||
     contract.unidadeGestoraId ||
     contract.unidadeFspId ||

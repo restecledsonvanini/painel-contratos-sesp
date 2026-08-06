@@ -47,7 +47,7 @@ export const alertaRepository = {
             ? { reconhecidoEm: null }
             : {}),
         ...(scope?.orgaoId
-          ? { contrato: { unidadeGestora: { orgaoId: scope.orgaoId } } }
+          ? { contrato: { unidadeGestoraId: scope.orgaoId } }
           : {}),
       },
       include: {

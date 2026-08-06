@@ -115,7 +115,9 @@ export const ContractCreateSchema = z
     fornecedorId: uuid.optional(),
     empresaId: uuid.optional(),
     unidadeGestoraId: uuid.optional(),
-    /** @deprecated use unidadeGestoraId */
+    /** Subunidade organizacional opcional (sede, CRPM, etc.). */
+    subunidadeId: uuid.nullable().optional(),
+    /** @deprecated use unidadeGestoraId (agora Orgao/força) */
     unidadeFspId: uuid.optional(),
     dataAssinatura: z.string().nullish(),
     dataInicioVigencia: z.string().nullish(),
@@ -229,6 +231,7 @@ export const ContractCreateSchema = z
       objeto: raw.objeto,
       fornecedorId: (raw.fornecedorId ?? raw.empresaId)!,
       unidadeGestoraId: raw.unidadeGestoraId ?? null,
+      subunidadeId: raw.subunidadeId ?? null,
       unidadeFspIdLegacy: raw.unidadeGestoraId ? null : raw.unidadeFspId ?? null,
       dataAssinatura: raw.dataAssinatura || null,
       dataInicioVigencia: inicio,
@@ -274,6 +277,7 @@ export const ContractUpdateSchema = z
     fornecedorId: uuid.optional(),
     empresaId: uuid.optional(),
     unidadeGestoraId: uuid.optional(),
+    subunidadeId: uuid.nullable().optional(),
     unidadeFspId: uuid.optional(),
     dataAssinatura: z.string().nullish(),
     dataInicioVigencia: z.string().nullish(),
@@ -321,6 +325,7 @@ export const ContractUpdateSchema = z
       next.fornecedorId = raw.fornecedorId ?? raw.empresaId;
     }
     if (raw.unidadeGestoraId !== undefined) next.unidadeGestoraId = raw.unidadeGestoraId;
+    if (raw.subunidadeId !== undefined) next.subunidadeId = raw.subunidadeId || null;
     if (raw.unidadeFspId !== undefined) next.unidadeFspIdLegacy = raw.unidadeFspId;
     if (raw.dataAssinatura !== undefined) next.dataAssinatura = raw.dataAssinatura || null;
     if (raw.dataInicioVigencia !== undefined || raw.dataInicio !== undefined) {
@@ -399,7 +404,8 @@ export const ContractStepIdentificacaoSchema = z.object({
 export const ContractStepPartesSchema = z
   .object({
     fornecedorId: z.string().uuid('Selecione o fornecedor'),
-    unidadeGestoraId: z.string().uuid('Selecione a unidade gestora'),
+    unidadeGestoraId: z.string().uuid('Selecione a unidade gestora (força ou SESP)'),
+    subunidadeId: z.string().uuid().nullable().optional().or(z.literal('')),
     gestorId: z.string().uuid().optional().or(z.literal('')),
     fiscalId: z.string().uuid().optional().or(z.literal('')),
   })

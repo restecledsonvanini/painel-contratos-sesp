@@ -31,6 +31,7 @@ import {
   useServidores,
   useUnidadesOrganizacionais,
 } from '../hooks/useReferences';
+import { useOrgaos } from '../hooks/useOrganizacao';
 import { LookupSelect } from '../components/LookupSelect';
 import { getErrorMessage, http } from '../lib/http';
 import { sugerirDataFim } from '../lib/prazo';
@@ -47,6 +48,7 @@ type FormValues = {
   anoGms?: number;
   valorAnual?: number;
   unidadeGestoraId: string;
+  subunidadeId: string;
   protocoloCabeca: string;
   numeroContrato: string;
   modalidade: string;
@@ -96,6 +98,7 @@ function buildPayload(data: FormValues, mode: 'draft' | 'publish') {
     protocoloCabeca: emptyToUndef(data.protocoloCabeca) ?? null,
     numeroContrato: emptyToUndef(data.numeroContrato) ?? null,
     fundamentoLegalId: emptyToUndef(data.fundamentoLegalId) ?? null,
+    subunidadeId: emptyToUndef(data.subunidadeId) ?? null,
     gestorId: emptyToUndef(data.gestorId),
     fiscalId: emptyToUndef(data.fiscalId),
     indiceReajuste: emptyToUndef(data.indiceReajuste) ?? null,
@@ -121,6 +124,7 @@ export default function ContractForm() {
   const createContract = useCreateContract();
   const updateContract = useUpdateContract();
   const { data: existingContract, isLoading: isContractLoading, error: contractError } = useContract(id);
+  const { data: orgaos, isLoading: orgaosLoading } = useOrgaos();
   const { data: unidades, isLoading: unidadesLoading } = useUnidadesOrganizacionais();
   const { data: fornecedores, isLoading: fornecedoresLoading } = useFornecedores();
   const { data: servidores, isLoading: servidoresLoading } = useServidores();
@@ -141,6 +145,7 @@ export default function ContractForm() {
       anoGms: new Date().getFullYear(),
       valorAnual: undefined,
       unidadeGestoraId: '',
+      subunidadeId: '',
       protocoloCabeca: '',
       numeroContrato: '',
       modalidade: '',
@@ -177,6 +182,7 @@ export default function ContractForm() {
   const itensArray = useFieldArray({ control, name: 'itens' });
   const rateiosArray = useFieldArray({ control, name: 'rateios' });
 
+  const unidadeGestoraId = useWatch({ control, name: 'unidadeGestoraId' });
   const naturezaObjeto = useWatch({ control, name: 'naturezaObjeto' });
   const dataInicio = useWatch({ control, name: 'dataInicio' });
   const prazoValor = useWatch({ control, name: 'prazoInicialValor' });
@@ -194,6 +200,7 @@ export default function ContractForm() {
         'unidadeGestoraId',
         existingContract.unidadeGestoraId || existingContract.unidadeFspId || '',
       );
+      setValue('subunidadeId', existingContract.subunidadeId || '');
       setValue('modalidade', existingContract.modalidade || '');
       setValue('pilar', (existingContract.pilar as FormValues['pilar']) || 'SERVICOS');
       setValue('naturezaObjeto', existingContract.naturezaObjeto || 'SERVICO_CONTINUADO');
@@ -507,21 +514,44 @@ export default function ContractForm() {
             <div className="app-form__grid is-dense">
               <div className="app-form__span-3">
                 <span className="field-label" id="label-unidade-gestora">
-                  Unidade gestora
+                  Unidade gestora (força / SESP)
                 </span>
                 <select
                   className="select-field"
                   aria-labelledby="label-unidade-gestora"
                   {...register('unidadeGestoraId')}
-                  disabled={unidadesLoading}
+                  disabled={orgaosLoading}
+                  onChange={(e) => {
+                    setValue('unidadeGestoraId', e.target.value, { shouldDirty: true });
+                    setValue('subunidadeId', '');
+                  }}
                 >
-                  <option value="">Selecione a unidade</option>
-                  {unidades?.map((item) => (
+                  <option value="">Selecione a força</option>
+                  {orgaos?.map((item) => (
                     <option key={item.id} value={item.id}>
-                      {item.orgao?.sigla ? `${item.orgao.sigla} / ` : ''}
                       {item.sigla} — {item.nome}
                     </option>
                   ))}
+                </select>
+              </div>
+              <div className="app-form__span-3">
+                <span className="field-label" id="label-subunidade">
+                  Subunidade (opcional)
+                </span>
+                <select
+                  className="select-field"
+                  aria-labelledby="label-subunidade"
+                  {...register('subunidadeId')}
+                  disabled={unidadesLoading || !unidadeGestoraId}
+                >
+                  <option value="">Sem subunidade</option>
+                  {unidades
+                    ?.filter((u) => (u.orgaoId || u.orgao?.id) === unidadeGestoraId)
+                    .map((item) => (
+                      <option key={item.id} value={item.id}>
+                        {item.sigla} — {item.nome}
+                      </option>
+                    ))}
                 </select>
               </div>
               <div className="app-form__span-3">

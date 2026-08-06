@@ -12,7 +12,9 @@ export interface Contract {
   unidadeFspId?: string;
   unidadeFsp?: { id: string; sigla: string; nome: string };
   unidadeGestoraId?: string;
-  unidadeGestora?: { id: string; sigla: string; nome: string; orgao?: { sigla: string } };
+  unidadeGestora?: { id: string; sigla: string; nome: string; tipo?: string };
+  subunidadeId?: string | null;
+  subunidade?: { id: string; sigla: string; nome: string; nivel?: string | null } | null;
   gestorId?: string;
   gestorName?: string;
   fiscalId?: string;

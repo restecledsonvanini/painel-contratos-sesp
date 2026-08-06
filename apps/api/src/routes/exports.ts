@@ -27,7 +27,8 @@ function contractsToCsv(rows: Array<Record<string, unknown>>): string {
   ];
   const lines = [headers.join(',')];
   for (const r of rows) {
-    const unidade = r.unidadeGestora as { sigla?: string; orgao?: { sigla?: string } } | undefined;
+    const gestora = r.unidadeGestora as { sigla?: string } | undefined;
+    const sub = r.subunidade as { sigla?: string } | undefined;
     const fsp = r.unidadeFsp as { sigla?: string } | undefined;
     lines.push(
       [
@@ -38,8 +39,8 @@ function contractsToCsv(rows: Array<Record<string, unknown>>): string {
         r.objeto,
         r.situacao ?? r.status,
         r.fornecedorName ?? '',
-        unidade?.sigla ?? fsp?.sigla ?? '',
-        unidade?.orgao?.sigla ?? '',
+        sub?.sigla ?? gestora?.sigla ?? fsp?.sigla ?? '',
+        gestora?.sigla ?? fsp?.sigla ?? '',
         r.valorAnual ?? r.valorGlobalOriginal ?? '',
         r.dataInicioVigencia ?? '',
         r.dataFimVigenciaOriginal ?? r.fimVigencia ?? '',
@@ -76,7 +77,7 @@ async function globalSearch(req: Request, res: Response) {
   const [contratos, fornecedores, servidores] = await Promise.all([
     db.contrato.findMany({
       where: {
-        ...(scope.orgaoId ? { unidadeGestora: { orgaoId: scope.orgaoId } } : {}),
+        ...(scope.orgaoId ? { unidadeGestoraId: scope.orgaoId } : {}),
         OR: [
           { numeroGms: { contains: q, mode: 'insensitive' } },
           { objeto: { contains: q, mode: 'insensitive' } },
