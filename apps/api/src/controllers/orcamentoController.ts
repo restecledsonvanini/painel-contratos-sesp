@@ -3,6 +3,7 @@ import {
   ContratoDotacaoCreateSchema,
   DocumentoCreateSchema,
   DotacaoCreateSchema,
+  DotacaoUpdateSchema,
   EmpenhoCreateSchema,
   EmpenhoUpdateSchema,
   PublicacaoCreateSchema,
@@ -25,9 +26,10 @@ export async function createDotacao(req: Request, res: Response) {
 }
 
 export async function updateDotacao(req: Request, res: Response) {
+  const parsed = DotacaoUpdateSchema.parse(req.body);
   return res
     .status(200)
-    .json(await orcamentoService.updateDotacao(routeParam(req, 'id'), req.body));
+    .json(await orcamentoService.updateDotacao(routeParam(req, 'id'), parsed));
 }
 
 export async function deleteDotacao(req: Request, res: Response) {

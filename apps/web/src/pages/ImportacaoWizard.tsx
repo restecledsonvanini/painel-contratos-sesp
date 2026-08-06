@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Card, Page, Textarea } from '@painel/ui';
 import { http, getErrorMessage } from '../lib/http';
 import { useAuth } from '../providers/AuthProvider';
 
-type TipoEntidade = 'fornecedor' | 'servidor';
+type TipoEntidade = 'fornecedor' | 'servidor' | 'dotacao' | 'unidade';
 
 type Lote = {
   id: string;
@@ -32,11 +32,21 @@ const SAMPLES: Record<TipoEntidade, string> = {
   servidor: `cpf,nome,cargo,email
 39053344705,Servidor Import Demo,Analista,servidor.demo@sesp.pr.gov.br
 123,Nome Sem CPF Valido,Auxiliar,`,
+  dotacao: `exercicio,codigo,naturezaDespesaCodigo,fonteRecursoCodigo,descricao
+2026,10.10.0.1.33903900.1,33903900,TESOURO_ESTADO,Serviços PJ — exemplo
+2026,,33903900,FUNESP,Sem código`,
+  unidade: `orgaoSigla,sigla,nome,nivel,parentSigla
+PMPR,CRPM-IMP-1,1º Comando Regional Import Demo,COMANDO_REGIONAL,CG-PMPR
+PMPR,BBM-IMP-X,Batalhão Import Demo,BATALHAO,CG-PMPR
+PMPR,,Sem sigla,BATALHAO,`,
 };
 
 const COLUNAS: Record<TipoEntidade, string> = {
   fornecedor: 'documento (CNPJ 14 / CPF 11), razaoSocial, tipoPessoa?, nomeFantasia?',
   servidor: 'cpf (11 dígitos), nome, cargo?, email?',
+  dotacao:
+    'exercicio, codigo, naturezaDespesaCodigo, fonteRecursoCodigo, unidadeOrcamentaria?, funcionalProgramatica?, descricao?',
+  unidade: 'orgaoSigla, sigla, nome, nivel?, parentSigla?, ativo?',
 };
 
 function formatErros(erros: unknown): string {
@@ -52,10 +62,12 @@ function formatErros(erros: unknown): string {
 }
 
 export default function ImportacaoWizard() {
-  const { hasMinRole, token } = useAuth();
+  const { hasMinRole, token, user } = useAuth();
   const canImport = !token || hasMinRole('ANALISTA');
+  const fileRef = useRef<HTMLInputElement>(null);
   const [tipoEntidade, setTipoEntidade] = useState<TipoEntidade>('fornecedor');
   const [csv, setCsv] = useState(SAMPLES.fornecedor);
+  const [nomeArquivo, setNomeArquivo] = useState('fornecedor.csv');
   const [lote, setLote] = useState<Lote | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,17 +76,31 @@ export default function ImportacaoWizard() {
     setTipoEntidade(next);
     setLote(null);
     setError(null);
-    // Troca o exemplo se o textarea ainda é o sample da entidade anterior
+    setNomeArquivo(`${next}.csv`);
     if (csv.trim() === prevSample.trim() || !csv.trim()) {
       setCsv(SAMPLES[next]);
     }
+  }
+
+  function onFileSelected(file: File | undefined) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const text = typeof reader.result === 'string' ? reader.result : '';
+      setCsv(text);
+      setNomeArquivo(file.name || `${tipoEntidade}.csv`);
+      setLote(null);
+      setError(null);
+    };
+    reader.onerror = () => setError('Falha ao ler o arquivo CSV.');
+    reader.readAsText(file, 'UTF-8');
   }
 
   const dryRun = useMutation({
     mutationFn: async () =>
       (
         await http.post<Lote>('/importacoes', {
-          nomeArquivo: `${tipoEntidade}.csv`,
+          nomeArquivo,
           tipoEntidade,
           csv,
           dryRun: true,
@@ -108,7 +134,17 @@ export default function ImportacaoWizard() {
     >
       <Card variant="bordered" className="space-y-4 p-4">
         {!canImport ? (
-          <p className="text-sm text-red-700">Importação exige papel ADMIN. Faça login como administrador.</p>
+          <p className="text-sm text-red-700">
+            Importação exige papel <strong>ANALISTA</strong> ou superior
+            {user?.role ? ` (seu papel: ${user.role})` : ''}.{' '}
+            {!token ? (
+              <Link to="/login" className="underline">
+                Fazer login
+              </Link>
+            ) : (
+              'Peça elevação de perfil a um administrador.'
+            )}
+          </p>
         ) : null}
         <div className="flex flex-wrap gap-3 items-center">
           <label className="text-sm font-medium">
@@ -121,13 +157,30 @@ export default function ImportacaoWizard() {
             >
               <option value="fornecedor">Fornecedor</option>
               <option value="servidor">Servidor</option>
+              <option value="dotacao">Dotação</option>
+              <option value="unidade">Unidade</option>
             </select>
           </label>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={(e) => onFileSelected(e.target.files?.[0])}
+          />
+          <Button
+            variant="ghost"
+            disabled={!canImport}
+            onClick={() => fileRef.current?.click()}
+          >
+            Carregar arquivo
+          </Button>
           <Button
             variant="ghost"
             disabled={!canImport}
             onClick={() => {
               setCsv(SAMPLES[tipoEntidade]);
+              setNomeArquivo(`${tipoEntidade}.csv`);
               setLote(null);
               setError(null);
             }}
@@ -154,11 +207,13 @@ export default function ImportacaoWizard() {
 
         <p className="text-sm text-[var(--text-muted)]">
           Colunas esperadas para <strong>{tipoEntidade}</strong>: {COLUNAS[tipoEntidade]}
+          {nomeArquivo ? ` · arquivo: ${nomeArquivo}` : null}
         </p>
 
         <Textarea
           rows={10}
           value={csv}
+          disabled={!canImport}
           onChange={(e) => setCsv(e.target.value)}
           className="font-mono text-sm"
         />

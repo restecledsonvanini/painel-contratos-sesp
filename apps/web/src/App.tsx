@@ -13,6 +13,7 @@ const ContractDetail = lazy(() => import('./pages/ContractDetail'));
 const FornecedoresForm = lazy(() => import('./pages/FornecedoresForm'));
 const ServidoresForm = lazy(() => import('./pages/ServidoresForm'));
 const CatalogoForm = lazy(() => import('./pages/CatalogoForm'));
+const DotacaoForm = lazy(() => import('./pages/DotacaoForm'));
 const AlteracaoForm = lazy(() => import('./pages/AlteracaoForm'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const UnidadeForm = lazy(() => import('./pages/UnidadeForm'));
@@ -144,6 +145,22 @@ export default function App() {
           <Route path="/servicos/:id/edit" element={<RedirectEdit toBase="/catalogo-itens" />} />
 
           <Route path="/dotacoes" element={<Navigate to="/cadastros?tab=dotacoes" replace />} />
+          <Route
+            path="/dotacoes/new"
+            element={
+              <RequireRole min="ANALISTA">
+                <DotacaoForm />
+              </RequireRole>
+            }
+          />
+          <Route
+            path="/dotacoes/:id/edit"
+            element={
+              <RequireRole min="ANALISTA">
+                <DotacaoForm />
+              </RequireRole>
+            }
+          />
           <Route path="/importacao" element={<Navigate to="/utilitarios?tab=importacao" replace />} />
 
           <Route path="/unidades" element={<Navigate to="/configuracoes?tab=organizacao" replace />} />

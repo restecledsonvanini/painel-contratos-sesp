@@ -123,6 +123,73 @@ describe('alertas, importação e observabilidade', () => {
     const get = await request(app).get(`/api/v1/importacoes/${dryOk.body.id}`);
     expect(get.status).toBe(200);
     expect(get.body.situacao).toBe('APLICADO');
+  });
+
+  it('importação de dotação (upsert) e unidade', async () => {
+    if (!ready) return;
+    const codigo = `IMP-${Date.now().toString().slice(-8)}`;
+    const csvDot = [
+      'exercicio,codigo,naturezaDespesaCodigo,fonteRecursoCodigo,descricao',
+      `2026,${codigo},33903900,TESOURO_ESTADO,Dotação import teste`,
+    ].join('\n');
+
+    const dryDot = await request(app)
+      .post('/api/v1/importacoes')
+      .set('Authorization', 'Bearer admin')
+      .send({
+        nomeArquivo: 'dotacao.csv',
+        tipoEntidade: 'dotacao',
+        csv: csvDot,
+        dryRun: true,
+      });
+    expect(dryDot.status).toBe(201);
+    expect(dryDot.body.dryRun).toBe(true);
+    expect(dryDot.body.situacao).toBe('VALIDADO');
+    expect(dryDot.body.linhasComErro).toBe(0);
+
+    const appliedDot = await request(app)
+      .post(`/api/v1/importacoes/${dryDot.body.id}/aplicar`)
+      .set('Authorization', 'Bearer admin');
+    expect(appliedDot.status).toBe(200);
+    expect(appliedDot.body.situacao).toBe('APLICADO');
+    expect(appliedDot.body.linhas[0].registroCriadoId).toBeTruthy();
+
+    const reapply = await request(app)
+      .post('/api/v1/importacoes')
+      .set('Authorization', 'Bearer admin')
+      .send({
+        nomeArquivo: 'dotacao-upsert.csv',
+        tipoEntidade: 'dotacao',
+        csv: [
+          'exercicio,codigo,naturezaDespesaCodigo,fonteRecursoCodigo,descricao',
+          `2026,${codigo},33903000,FUNESP,Dotação atualizada`,
+        ].join('\n'),
+        dryRun: false,
+      });
+    expect(reapply.status).toBe(201);
+    expect(reapply.body.situacao).toBe('APLICADO');
+
+    const sigla = `IMP-${Date.now().toString().slice(-6)}`;
+    const csvUnidade = [
+      'orgaoSigla,sigla,nome,nivel,parentSigla',
+      `PMPR,${sigla},Unidade Import Teste,BATALHAO,CG-PMPR`,
+    ].join('\n');
+    const dryUn = await request(app)
+      .post('/api/v1/importacoes')
+      .set('Authorization', 'Bearer admin')
+      .send({
+        nomeArquivo: 'unidade.csv',
+        tipoEntidade: 'unidade',
+        csv: csvUnidade,
+      });
+    expect(dryUn.status).toBe(201);
+    expect(dryUn.body.linhasComErro).toBe(0);
+
+    const appliedUn = await request(app)
+      .post(`/api/v1/importacoes/${dryUn.body.id}/aplicar`)
+      .set('Authorization', 'Bearer admin');
+    expect(appliedUn.status).toBe(200);
+    expect(appliedUn.body.situacao).toBe('APLICADO');
 
     await disconnectPrisma();
   });
