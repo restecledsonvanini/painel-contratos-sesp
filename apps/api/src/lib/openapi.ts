@@ -66,10 +66,19 @@ export function buildOpenApiDocument() {
     [`${API_BASE}/metrics`]: pathItem('get', 'Latência por rota', { tags: ['ops'] }),
     [`${API_BASE}/docs`]: pathItem('get', 'Este documento OpenAPI', { tags: ['ops'] }),
     [`${API_BASE}/search`]: pathItem('get', 'Busca global (CommandPalette)', { tags: ['ops'] }),
-    [`${API_BASE}/exports/contratos.csv`]: pathItem('get', 'Export CSV de contratos', {
+    [`${API_BASE}/exports/contratos.csv`]: pathItem('get', 'Export CSV de contratos (acervo)', {
       tags: ['exports'],
     }),
-    [`${API_BASE}/exports/contratos.xlsx`]: pathItem('get', 'Export Excel (CSV compat)', {
+    [`${API_BASE}/exports/contratos.xlsx`]: pathItem('get', 'Export XLSX de contratos (exceljs)', {
+      tags: ['exports'],
+    }),
+    [`${API_BASE}/contracts/{id}/export.csv`]: pathItem('get', 'Ficha CSV de um contrato', {
+      tags: ['exports'],
+    }),
+    [`${API_BASE}/contracts/{id}/export.xlsx`]: pathItem('get', 'Ficha XLSX de um contrato', {
+      tags: ['exports'],
+    }),
+    [`${API_BASE}/contracts/{id}/export.pdf`]: pathItem('get', 'Ficha PDF de um contrato (pdfkit)', {
       tags: ['exports'],
     }),
     [`${API_BASE}/auth/login`]: pathItem('post', 'Login JWT', {

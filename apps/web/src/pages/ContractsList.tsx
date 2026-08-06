@@ -18,7 +18,8 @@ import {
 } from '@painel/ui';
 import { Download, Plus, X } from 'lucide-react';
 import { useContracts, useDeleteContract, type Contract } from '../hooks/useContracts';
-import { getErrorMessage, http } from '../lib/http';
+import { downloadApiFile } from '../lib/download';
+import { getErrorMessage } from '../lib/http';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 import { useAuth } from '../providers/AuthProvider';
 
@@ -71,6 +72,18 @@ export default function ContractsList() {
     [filterKey],
   );
 
+  React.useEffect(() => {
+    const payload: Record<string, string> = {};
+    for (const [k, v] of Object.entries(filters)) {
+      if (v) payload[k] = v;
+    }
+    try {
+      sessionStorage.setItem('contracts:lastFilters', JSON.stringify(payload));
+    } catch {
+      /* ignore */
+    }
+  }, [filters]);
+
   const activeFilters = Object.entries(filters).filter(([, v]) => Boolean(v));
 
   const contracts = useMemo(() => {
@@ -122,16 +135,18 @@ export default function ContractsList() {
     }
   };
 
-  async function exportCsv() {
+  async function exportAcervo(formato: 'csv' | 'xlsx') {
     try {
-      const res = await http.get('/exports/contratos.csv', { responseType: 'blob' });
-      const url = URL.createObjectURL(res.data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'contratos.csv';
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success('Exportação iniciada.');
+      const q = new URLSearchParams();
+      for (const [k, v] of Object.entries(filters)) {
+        if (v) q.set(k, v);
+      }
+      const qs = q.toString();
+      await downloadApiFile(
+        `/exports/contratos.${formato}${qs ? `?${qs}` : ''}`,
+        `contratos.${formato}`,
+      );
+      toast.success(`Exportação ${formato.toUpperCase()} iniciada.`);
     } catch (err) {
       toast.error('Falha ao exportar.', getErrorMessage(err));
     }
@@ -168,9 +183,13 @@ export default function ContractsList() {
       }
       actions={
         <div className="flex flex-wrap gap-2">
-          <Button variant="ghost" onClick={() => void exportCsv()}>
+          <Button variant="ghost" onClick={() => void exportAcervo('csv')}>
             <Download size={16} />
-            Exportar CSV
+            CSV
+          </Button>
+          <Button variant="ghost" onClick={() => void exportAcervo('xlsx')}>
+            <Download size={16} />
+            XLSX
           </Button>
           {canWrite ? (
             <Link to="/contracts/new">

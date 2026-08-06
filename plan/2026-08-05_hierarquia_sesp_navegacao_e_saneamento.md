@@ -360,7 +360,7 @@ Cada fase é entregável e reversível sozinha. Nenhuma fase começa com a anter
 | **1. Hierarquia SESP** | `Orgao.parentId`; backfill 6 forças → SESP; `/orgaos/arvore`; seed | sim (aditiva) | baixo | ✅ **Feita (2026-08-05)** — API 40/40 |
 | **2. Unidade gestora = força** | `unidadeGestoraId` → `Orgao`; `subunidadeId` opcional; `municipioId` e `nivel` nullable; escopo direto | sim (2 migrations) | **alto** | ✅ **Feita (2026-08-05)** — API 40/40 |
 | **3. Navegação** | Sidebar com grupos + gate; 4 páginas de seção; `useTabParam`; todos os redirects | não | médio | ✅ **Feita (2026-08-05)** — e2e atualizado |
-| **4. Exportação** ⭐ | XLSX real (`exceljs`); PDF (`pdfkit`); ficha por contrato + acervo; UI com escopo | não | baixo | 3 formatos por contrato e do acervo, respeitando escopo por órgão |
+| **4. Exportação** ⭐ | XLSX real (`exceljs`); PDF (`pdfkit`); ficha por contrato + acervo; UI com escopo | não | baixo | ✅ **Feita (2026-08-05)** — CSV/XLSX/PDF + testes |
 | **5. Descoberta** | Breadcrumbs; linha clicável; deep-link por aba; recentes; palette | não | baixo | Chegar ao detalhe em ≤ 2 cliques de qualquer painel |
 | **6. Auth** | `ANALISTA`/`VISITANTE`; allowlist de domínio; UI de usuários; `RequireRole` | sim (enum) | médio | Login barra domínio externo; admin gerencia domínios e usuários |
 | **7. Rastreabilidade** | `criadoPorId`/`atualizadoPorId` + backfill; header do detalhe; fim da auditoria duplicada | sim (aditiva) | baixo | Detalhe mostra autoria; sem evento duplicado |
@@ -395,7 +395,7 @@ Uma dependência a respeitar: a **Fase 4 depende da 2**, porque a ficha exportad
 
 ### Em aberto
 
-1. **PDF** — ficha de 1 página por contrato, ou relatório completo com itens, alterações e empenhos? *(decidir antes da Fase 4)*
+1. **PDF** — ficha de 1 página por contrato (identificação, fornecedor, vigência, valores, responsáveis, últimas alterações). Relatório completo fica fora do escopo desta fase.
 2. **Contratos legados** — depois da Fase 2, zerar `subunidadeId` nos contratos em que ele aponta para a sede do órgão, ou manter a sede como subunidade responsável? *(default: manter)*
 3. **Nomenclatura de subunidade** — quando voltar ao tema, a lista é única para todas as forças ou uma por força? *(decidir na Fase 9)*
 

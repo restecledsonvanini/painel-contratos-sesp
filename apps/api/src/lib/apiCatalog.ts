@@ -18,8 +18,19 @@ export const publicApiCatalog = {
     docs: { method: 'GET', path: `${API_BASE}/docs` },
     search: { method: 'GET', path: `${API_BASE}/search?q=` },
     exports: {
-      contratosCsv: { method: 'GET', path: `${API_BASE}/exports/contratos.csv` },
-      contratosXlsx: { method: 'GET', path: `${API_BASE}/exports/contratos.xlsx` },
+      contratosCsv: {
+        method: 'GET',
+        path: `${API_BASE}/exports/contratos.csv`,
+        note: 'Query: situacao, orgaoId, fornecedorId, modalidade, pilar, responsavelId, vencimento',
+      },
+      contratosXlsx: {
+        method: 'GET',
+        path: `${API_BASE}/exports/contratos.xlsx`,
+        note: 'XLSX real (exceljs); mesmos filtros do CSV',
+      },
+      contratoCsv: { method: 'GET', path: `${API_BASE}/contracts/:id/export.csv` },
+      contratoXlsx: { method: 'GET', path: `${API_BASE}/contracts/:id/export.xlsx` },
+      contratoPdf: { method: 'GET', path: `${API_BASE}/contracts/:id/export.pdf` },
     },
     auth: {
       login: { method: 'POST', path: `${API_BASE}/auth/login` },

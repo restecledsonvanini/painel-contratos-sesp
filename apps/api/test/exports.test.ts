@@ -18,19 +18,79 @@ async function dbReady() {
 
 describe('exports, search e openapi schemas', () => {
   let ready = false;
+  let sampleId: string | null = null;
 
   beforeAll(async () => {
     ready = await dbReady();
+    if (ready) {
+      const db = getPrisma();
+      const row = await db.contrato.findFirst({ select: { id: true }, orderBy: { updatedAt: 'desc' } });
+      sampleId = row?.id ?? null;
+    }
   });
 
   it('exporta contratos.csv com BOM e cabeçalho', async () => {
     if (!ready) return;
     const res = await request(app).get('/api/v1/exports/contratos.csv');
     expect(res.status).toBe(200);
-    expect(String(res.headers['content-type'])).toMatch(/csv|excel/i);
+    expect(String(res.headers['content-type'])).toMatch(/csv/i);
     const body = res.text || res.body?.toString?.() || '';
     expect(body).toContain('numeroGms');
     expect(body).toContain('fornecedor');
+    expect(body).toContain('unidadeGestora');
+  });
+
+  it('exporta contratos.xlsx como planilha real (ZIP/OOXML)', async () => {
+    if (!ready) return;
+    const res = await request(app)
+      .get('/api/v1/exports/contratos.xlsx')
+      .buffer(true)
+      .parse((r, cb) => {
+        const data: Buffer[] = [];
+        r.on('data', (c) => data.push(c));
+        r.on('end', () => cb(null, Buffer.concat(data)));
+      });
+    expect(res.status).toBe(200);
+    expect(String(res.headers['content-type'])).toMatch(/spreadsheetml|octet-stream/i);
+    expect(String(res.headers['content-disposition'])).toMatch(/contratos\.xlsx/);
+    const buf = Buffer.isBuffer(res.body) ? res.body : Buffer.from(res.body);
+    // XLSX = ZIP: assinatura PK
+    expect(buf.subarray(0, 2).toString()).toBe('PK');
+  });
+
+  it('exporta ficha PDF de um contrato', async () => {
+    if (!ready || !sampleId) return;
+    const res = await request(app)
+      .get(`/api/v1/contracts/${sampleId}/export.pdf`)
+      .buffer(true)
+      .parse((r, cb) => {
+        const data: Buffer[] = [];
+        r.on('data', (c) => data.push(c));
+        r.on('end', () => cb(null, Buffer.concat(data)));
+      });
+    expect(res.status).toBe(200);
+    expect(String(res.headers['content-type'])).toMatch(/pdf/i);
+    const buf = Buffer.isBuffer(res.body) ? res.body : Buffer.from(res.body);
+    expect(buf.subarray(0, 4).toString()).toBe('%PDF');
+  });
+
+  it('exporta ficha csv/xlsx do contrato', async () => {
+    if (!ready || !sampleId) return;
+    const csv = await request(app).get(`/api/v1/contracts/${sampleId}/export.csv`);
+    expect(csv.status).toBe(200);
+    expect(csv.text).toContain('numeroGms');
+
+    const xlsx = await request(app)
+      .get(`/api/v1/contracts/${sampleId}/export.xlsx`)
+      .buffer(true)
+      .parse((r, cb) => {
+        const data: Buffer[] = [];
+        r.on('data', (c) => data.push(c));
+        r.on('end', () => cb(null, Buffer.concat(data)));
+      });
+    expect(xlsx.status).toBe(200);
+    const buf = Buffer.isBuffer(xlsx.body) ? xlsx.body : Buffer.from(xlsx.body);
+    expect(buf.subarray(0, 2).toString()).toBe('PK');
   });
 
   it('busca global retorna grupos', async () => {
@@ -49,6 +109,8 @@ describe('exports, search e openapi schemas', () => {
     expect(docs.body.components.schemas.Login).toBeTruthy();
     expect(docs.body.components.schemas.ContractCreate).toBeTruthy();
     expect(docs.body.paths['/api/v1/exports/contratos.csv']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/exports/contratos.xlsx']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/contracts/{id}/export.pdf']).toBeTruthy();
     expect(docs.body.paths['/api/v1/search']).toBeTruthy();
     await disconnectPrisma();
   });

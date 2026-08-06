@@ -13,6 +13,7 @@ import {
   ErrorState,
   Meter,
   Page,
+  Popover,
   Skeleton,
   StatusBadge,
   Tabs,
@@ -20,9 +21,11 @@ import {
   useToast,
 } from '@painel/ui';
 import { getErrorMessage, http } from '../lib/http';
+import { downloadApiFile } from '../lib/download';
 import { formatCents } from '../lib/format';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 import { useAuth } from '../providers/AuthProvider';
+import { Download } from 'lucide-react';
 
 const TAB_IDS = [
   'resumo',
@@ -108,6 +111,19 @@ export default function ContractDetail() {
       toast.error('Falha ao excluir contrato.', getErrorMessage(err));
     }
   };
+
+  async function exportFicha(formato: 'csv' | 'xlsx' | 'pdf') {
+    if (!id) return;
+    try {
+      await downloadApiFile(
+        `/contracts/${id}/export.${formato}`,
+        `contrato-${contract?.numeroGms || id}.${formato}`,
+      );
+      toast.success(`Ficha ${formato.toUpperCase()} baixada.`);
+    } catch (err) {
+      toast.error('Falha ao exportar ficha.', getErrorMessage(err));
+    }
+  }
 
   const timelineEvents = useMemo(() => {
     const rows = Array.isArray(timeline) ? timeline : [];
@@ -646,6 +662,42 @@ export default function ContractDetail() {
           <Link to="/contracts">
             <Button variant="ghost">Voltar</Button>
           </Link>
+          {id && (
+            <Popover
+              align="end"
+              trigger={
+                <Button variant="secondary" type="button">
+                  <Download size={16} />
+                  Exportar
+                </Button>
+              }
+              contentClassName="min-w-[10rem] p-1"
+            >
+              <div className="flex flex-col">
+                <button
+                  type="button"
+                  className="rounded px-3 py-2 text-left text-sm hover:bg-[var(--surface-muted)]"
+                  onClick={() => void exportFicha('pdf')}
+                >
+                  PDF — ficha
+                </button>
+                <button
+                  type="button"
+                  className="rounded px-3 py-2 text-left text-sm hover:bg-[var(--surface-muted)]"
+                  onClick={() => void exportFicha('xlsx')}
+                >
+                  Excel (XLSX)
+                </button>
+                <button
+                  type="button"
+                  className="rounded px-3 py-2 text-left text-sm hover:bg-[var(--surface-muted)]"
+                  onClick={() => void exportFicha('csv')}
+                >
+                  CSV
+                </button>
+              </div>
+            </Popover>
+          )}
           {id && canWrite && (
             <Link to={`/contracts/${id}/edit`}>
               <Button variant="secondary">Editar</Button>
