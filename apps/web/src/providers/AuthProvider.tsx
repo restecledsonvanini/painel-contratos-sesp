@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { hasMinRole as rankHasMinRole } from '@painel/domain';
 import { http } from '../lib/http';
 
 export type AuthUser = {
@@ -19,14 +20,6 @@ type AuthContextValue = {
   logout: () => void;
   refreshMe: () => Promise<void>;
   hasMinRole: (min: string) => boolean;
-};
-
-const RANK: Record<string, number> = {
-  LEITOR: 1,
-  COLABORADOR: 2,
-  FISCAL: 3,
-  GESTOR: 4,
-  ADMIN: 5,
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -85,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       login,
       logout,
       refreshMe,
-      hasMinRole: (min: string) => (RANK[user?.role ?? ''] ?? 0) >= (RANK[min] ?? 99),
+      hasMinRole: (min: string) => rankHasMinRole(user?.role, min),
     }),
     [user, token, isLoading, login, logout, refreshMe],
   );

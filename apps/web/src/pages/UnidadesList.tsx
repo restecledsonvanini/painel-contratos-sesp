@@ -136,7 +136,7 @@ export default function UnidadesList() {
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
   const { hasMinRole, token } = useAuth();
-  const canWrite = !token || hasMinRole('COLABORADOR');
+  const canWrite = !token || hasMinRole('GESTOR');
   const [orgaoFiltro, setOrgaoFiltro] = useState('');
 
   const tree = useMemo(() => {

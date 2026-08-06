@@ -80,15 +80,6 @@ export const Periodicidade = {
 } as const;
 export type Periodicidade = (typeof Periodicidade)[keyof typeof Periodicidade];
 
-export const Role = {
-  LEITOR: 'LEITOR',
-  COLABORADOR: 'COLABORADOR',
-  FISCAL: 'FISCAL',
-  GESTOR: 'GESTOR',
-  ADMIN: 'ADMIN',
-} as const;
-export type Role = (typeof Role)[keyof typeof Role];
-
 export const PILAR_LABELS: Record<PilarOrcamentario, string> = {
   CUSTEIO: 'Custeio',
   INVESTIMENTO: 'Investimento',

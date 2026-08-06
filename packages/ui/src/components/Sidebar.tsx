@@ -55,7 +55,7 @@ const navItems: NavItem[] = [
     label: 'Utilitários',
     to: '/utilitarios?tab=importacao',
     icon: Wrench,
-    minRole: 'COLABORADOR',
+    minRole: 'ANALISTA',
     children: [
       { label: 'Importação', to: '/utilitarios?tab=importacao' },
       { label: 'Exportação', to: '/utilitarios?tab=exportacao' },

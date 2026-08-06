@@ -5,6 +5,7 @@ import { getPrisma, disconnectPrisma } from '../src/lib/prisma';
 
 process.env.DATABASE_URL ||= 'postgresql://painel:pass@localhost:5434/painel_db';
 process.env.VITEST = 'true';
+process.env.AUTH_EMAIL_DOMAINS ||= '*';
 
 async function dbReady() {
   try {
@@ -40,13 +41,27 @@ describe('auth e RBAC', () => {
     expect(me.body.email).toBe('admin@sesp.pr.gov.br');
   });
 
-  it('LEITOR não pode criar contrato', async () => {
+  it('VISITANTE (legado leitor) não pode criar contrato', async () => {
     if (!ready) return;
     const res = await request(app)
       .post('/api/v1/contracts')
       .set('Authorization', 'Bearer leitor')
       .send({ numeroGms: '1', anoGms: 2026, objeto: 'x' });
     expect(res.status).toBe(403);
+  });
+
+  it('lista usuários exige ADMIN', async () => {
+    if (!ready) return;
+    const denied = await request(app)
+      .get('/api/v1/usuarios')
+      .set('Authorization', 'Bearer gestor');
+    expect(denied.status).toBe(403);
+
+    const ok = await request(app)
+      .get('/api/v1/usuarios')
+      .set('Authorization', 'Bearer admin');
+    expect(ok.status).toBe(200);
+    expect(Array.isArray(ok.body)).toBe(true);
   });
 
   it('credencial inválida retorna 401', async () => {
@@ -57,5 +72,21 @@ describe('auth e RBAC', () => {
     });
     expect(res.status).toBe(401);
     await disconnectPrisma();
+  });
+});
+
+describe('allowlist de e-mail', () => {
+  it('rejeita domínio fora da allowlist quando AUTH_EMAIL_DOMAINS é restrito', async () => {
+    const prev = process.env.AUTH_EMAIL_DOMAINS;
+    process.env.AUTH_EMAIL_DOMAINS = 'sesp.pr.gov.br';
+    try {
+      const res = await request(app).post('/api/v1/auth/login').send({
+        email: 'alguem@gmail.com',
+        password: 'x',
+      });
+      expect(res.status).toBe(400);
+    } finally {
+      process.env.AUTH_EMAIL_DOMAINS = prev;
+    }
   });
 });

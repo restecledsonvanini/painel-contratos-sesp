@@ -1,4 +1,5 @@
-import type { Role } from '@painel/schema';
+import type { Role } from '@painel/domain';
+import { hasMinRole, normalizeRole, ROLE_RANK } from '@painel/domain';
 
 export type AuthUser = {
   id: string;
@@ -18,33 +19,8 @@ declare global {
   }
 }
 
-export const ROLE_RANK: Record<Role, number> = {
-  LEITOR: 1,
-  COLABORADOR: 2,
-  FISCAL: 3,
-  GESTOR: 4,
-  ADMIN: 5,
-};
-
-const LEGACY: Record<string, Role> = {
-  leitor: 'LEITOR',
-  colaborador: 'COLABORADOR',
-  fiscal: 'FISCAL',
-  gestor: 'GESTOR',
-  admin: 'ADMIN',
-  administrador: 'ADMIN',
-};
-
-export function normalizeRole(role: string | null | undefined): Role {
-  if (!role) return 'LEITOR';
-  const upper = role.toUpperCase();
-  if (upper in ROLE_RANK) return upper as Role;
-  return LEGACY[role.toLowerCase()] ?? 'LEITOR';
-}
-
-export function hasMinRole(userRole: string | null | undefined, min: Role): boolean {
-  return ROLE_RANK[normalizeRole(userRole)] >= ROLE_RANK[min];
-}
+export { hasMinRole, normalizeRole, ROLE_RANK };
+export type { Role };
 
 export function publicUser(user: AuthUser) {
   return {

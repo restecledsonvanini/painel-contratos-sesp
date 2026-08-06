@@ -35,7 +35,7 @@ function num(v: unknown) {
 export default function Dashboard() {
   const navigate = useNavigate();
   const { hasMinRole, token } = useAuth();
-  const canWrite = !token || hasMinRole('COLABORADOR');
+  const canWrite = !token || hasMinRole('ANALISTA');
 
   const { data: kpis, isLoading: loadingKpis } = useDashboardKpis();
   const { data: vencimentos = [], isLoading: loadingVenc } = useDashboardVencimentos();

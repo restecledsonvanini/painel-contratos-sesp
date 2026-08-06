@@ -54,7 +54,7 @@ export default function ContractsList() {
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
   const { hasMinRole, token } = useAuth();
-  const canWrite = !token || hasMinRole('COLABORADOR');
+  const canWrite = !token || hasMinRole('ANALISTA');
   const allContracts = Array.isArray(data) ? data.filter(Boolean) : [];
 
   const filterKey = searchParams.toString();

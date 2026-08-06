@@ -175,4 +175,11 @@ export const DOMINIOS_SEED: DominioSeed[] = [
       { codigo: 'AMBULANCIA', label: 'Ambulância', ordem: 7 },
     ],
   },
+  {
+    slug: 'dominios-email-permitidos',
+    nome: 'Domínios de e-mail permitidos',
+    descricao: 'Allowlist de domínio no login e no cadastro de usuários (ADMIN).',
+    editavelPeloUsuario: true,
+    valores: [{ codigo: 'sesp.pr.gov.br', label: 'sesp.pr.gov.br', ordem: 1 }],
+  },
 ];

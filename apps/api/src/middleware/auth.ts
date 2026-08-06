@@ -11,7 +11,7 @@ const SYSTEM_USER: AuthUser = {
   id: 'system',
   email: null,
   nome: 'Sistema (dev)',
-  role: 'COLABORADOR',
+  role: 'ANALISTA',
   orgaoId: null,
   servidorId: null,
   ativo: true,
@@ -32,12 +32,24 @@ async function loadUsuario(id: string): Promise<AuthUser | null> {
   };
 }
 
+function synthetic(id: string, email: string, nome: string, roleRaw: string): AuthUser {
+  return {
+    id,
+    email,
+    nome,
+    role: normalizeRole(roleRaw),
+    orgaoId: null,
+    servidorId: null,
+    ativo: true,
+  };
+}
+
 /**
  * Auth real (JWT) + compat de tokens legados + bypass de desenvolvimento.
  *
  * - Authorization: Bearer <jwt> → Usuario do banco
- * - Bearer admin|colaborador|gestor|fiscal|leitor → papel sintético (compat testes)
- * - Sem header → COLABORADOR system se AUTH_REQUIRED não estiver ativo; senão 401
+ * - Bearer admin|colaborador|analista|gestor|fiscal|leitor|visitante → papel sintético
+ * - Sem header → ANALISTA system se AUTH_REQUIRED não estiver ativo; senão 401
  * - /auth/login, /health*, /docs, /metrics são públicos
  */
 export async function authenticate(req: Request, _res: Response, next: NextFunction) {
@@ -63,51 +75,13 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
     if (!token) return next(unauthorized('Token ausente'));
 
     const legacy: Record<string, AuthUser> = {
-      admin: {
-        id: 'user-admin',
-        email: 'admin@local',
-        nome: 'Admin legado',
-        role: 'ADMIN',
-        orgaoId: null,
-        servidorId: null,
-        ativo: true,
-      },
-      colaborador: {
-        id: 'user-colab',
-        email: 'colaborador@local',
-        nome: 'Colaborador legado',
-        role: 'COLABORADOR',
-        orgaoId: null,
-        servidorId: null,
-        ativo: true,
-      },
-      gestor: {
-        id: 'user-gestor',
-        email: 'gestor@local',
-        nome: 'Gestor legado',
-        role: 'GESTOR',
-        orgaoId: null,
-        servidorId: null,
-        ativo: true,
-      },
-      fiscal: {
-        id: 'user-fiscal',
-        email: 'fiscal@local',
-        nome: 'Fiscal legado',
-        role: 'FISCAL',
-        orgaoId: null,
-        servidorId: null,
-        ativo: true,
-      },
-      leitor: {
-        id: 'user-leitor',
-        email: 'leitor@local',
-        nome: 'Leitor legado',
-        role: 'LEITOR',
-        orgaoId: null,
-        servidorId: null,
-        ativo: true,
-      },
+      admin: synthetic('user-admin', 'admin@local', 'Admin legado', 'ADMIN'),
+      colaborador: synthetic('user-colab', 'colaborador@local', 'Colaborador legado', 'COLABORADOR'),
+      analista: synthetic('user-analista', 'analista@local', 'Analista legado', 'ANALISTA'),
+      gestor: synthetic('user-gestor', 'gestor@local', 'Gestor legado', 'GESTOR'),
+      fiscal: synthetic('user-fiscal', 'fiscal@local', 'Fiscal legado', 'FISCAL'),
+      leitor: synthetic('user-leitor', 'leitor@local', 'Leitor legado', 'LEITOR'),
+      visitante: synthetic('user-visitante', 'visitante@local', 'Visitante legado', 'VISITANTE'),
     };
 
     if (legacy[token]) {

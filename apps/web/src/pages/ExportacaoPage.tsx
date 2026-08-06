@@ -23,7 +23,7 @@ const FILTER_KEYS = [
 export default function ExportacaoPage() {
   const toast = useToast();
   const { hasMinRole, token } = useAuth();
-  const canExport = !token || hasMinRole('COLABORADOR');
+  const canExport = !token || hasMinRole('ANALISTA');
   const [searchParams] = useSearchParams();
   const [formato, setFormato] = useState<Formato>('xlsx');
   const [escopo, setEscopo] = useState<Escopo>('todos');

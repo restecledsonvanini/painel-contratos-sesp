@@ -40,7 +40,7 @@ export default function AlertasList() {
   const qc = useQueryClient();
   const [somenteAbertos, setSomenteAbertos] = useState(true);
   const { hasMinRole, token } = useAuth();
-  const canAct = !token || hasMinRole('COLABORADOR');
+  const canAct = !token || hasMinRole('ANALISTA');
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['alertas', somenteAbertos],

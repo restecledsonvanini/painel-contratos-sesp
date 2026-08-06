@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from 'express';
-import type { Role } from '@painel/schema';
 import { forbidden } from '../lib/errors';
 import { hasMinRole, normalizeRole } from '../lib/authTypes';
 
@@ -15,8 +14,8 @@ export function requireRole(roles: string[]) {
   };
 }
 
-/** Exige papel >= mínimo na hierarquia LEITOR < COLABORADOR < FISCAL < GESTOR < ADMIN. */
-export function requireMinRole(min: Role) {
+/** Exige papel >= mínimo (VISITANTE < ANALISTA < GESTOR < ADMIN). Aceita aliases legados. */
+export function requireMinRole(min: string) {
   return (req: Request, _res: Response, next: NextFunction) => {
     if (!req.user || !hasMinRole(req.user.role, min)) {
       return next(forbidden());

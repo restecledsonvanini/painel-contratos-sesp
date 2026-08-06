@@ -60,7 +60,7 @@ export default function ContractDetail() {
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
   const { hasMinRole, token } = useAuth();
-  const canWrite = !token || hasMinRole('COLABORADOR');
+  const canWrite = !token || hasMinRole('ANALISTA');
 
   useEffect(() => {
     if (!contract?.id) return;

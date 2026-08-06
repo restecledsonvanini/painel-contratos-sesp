@@ -207,6 +207,8 @@ enum Role {
   LEITOR
   COLABORADOR
   FISCAL
+  VISITANTE
+  ANALISTA
   GESTOR
   ADMIN
 }
@@ -844,7 +846,7 @@ model Usuario {
   email        String?   @unique
   nome         String?
   passwordHash String?
-  role         Role      @default(COLABORADOR)
+  role         Role      @default(ANALISTA)
   servidorId   String?
   servidor     Servidor? @relation(fields: [servidorId], references: [id])
   orgaoId      String?

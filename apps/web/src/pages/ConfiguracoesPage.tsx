@@ -1,22 +1,14 @@
 import React, { lazy, Suspense } from 'react';
-import { Card, Page, Skeleton, Tabs } from '@painel/ui';
+import { Skeleton, Tabs } from '@painel/ui';
 import { useTabParam } from '../lib/useTabParam';
 import { useAuth } from '../providers/AuthProvider';
 
 const UnidadesList = lazy(() => import('./UnidadesList'));
 const DominiosPage = lazy(() => import('../features/dominios/pages/DominiosPage'));
+const UsuariosPage = lazy(() => import('./UsuariosPage'));
+const SegurancaPage = lazy(() => import('./SegurancaPage'));
 
 const ALL_TABS = ['organizacao', 'listas', 'usuarios', 'seguranca'] as const;
-
-function EmBreve({ title, description }: { title: string; description: string }) {
-  return (
-    <Page title={title} description={description}>
-      <Card variant="bordered" className="p-4 text-sm text-[var(--text-muted)]">
-        Disponível na Fase 6 (auth: papéis, domínio de e-mail e gestão de usuários).
-      </Card>
-    </Page>
-  );
-}
 
 export default function ConfiguracoesPage() {
   const { hasMinRole, token } = useAuth();
@@ -50,17 +42,18 @@ export default function ConfiguracoesPage() {
             id: 'usuarios',
             label: 'Usuários',
             content: (
-              <EmBreve title="Usuários" description="Cadastro e papéis de acesso (ADMIN)." />
+              <Suspense fallback={<Skeleton variant="table" lines={6} />}>
+                <UsuariosPage />
+              </Suspense>
             ),
           },
           {
             id: 'seguranca',
             label: 'Segurança',
             content: (
-              <EmBreve
-                title="Segurança"
-                description="Domínios de e-mail permitidos no login."
-              />
+              <Suspense fallback={<Skeleton variant="table" lines={4} />}>
+                <SegurancaPage />
+              </Suspense>
             ),
           },
         ]

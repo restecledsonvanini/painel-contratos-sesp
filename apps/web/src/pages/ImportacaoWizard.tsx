@@ -52,8 +52,8 @@ function formatErros(erros: unknown): string {
 }
 
 export default function ImportacaoWizard() {
-  const { hasMinRole } = useAuth();
-  const canImport = hasMinRole('ADMIN');
+  const { hasMinRole, token } = useAuth();
+  const canImport = !token || hasMinRole('ANALISTA');
   const [tipoEntidade, setTipoEntidade] = useState<TipoEntidade>('fornecedor');
   const [csv, setCsv] = useState(SAMPLES.fornecedor);
   const [lote, setLote] = useState<Lote | null>(null);

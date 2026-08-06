@@ -1,12 +1,14 @@
 import { LoginSchema, UsuarioCreateSchema, UsuarioUpdateSchema } from '@painel/schema';
-import { badRequest, unauthorized } from '../lib/errors';
+import { notFound, unauthorized } from '../lib/errors';
 import { signJwt, verifyPassword } from '../lib/jwt';
 import { normalizeRole, publicUser, type AuthUser } from '../lib/authTypes';
+import { assertEmailDomainAllowed } from '../lib/emailDomain';
 import { usuarioRepository } from '../repositories/usuarioRepository';
 
 export const authService = {
   async login(body: unknown) {
     const input = LoginSchema.parse(body);
+    await assertEmailDomainAllowed(input.email);
     const user = await usuarioRepository.findByEmail(input.email);
     if (!user || !user.ativo) throw unauthorized('Credenciais inválidas');
     if (!verifyPassword(input.password, user.passwordHash)) {
@@ -56,10 +58,17 @@ export const usuarioService = {
   list: () => usuarioRepository.list(),
   get: async (id: string) => {
     const u = await usuarioRepository.findById(id);
-    if (!u) throw badRequest('Usuário não encontrado');
+    if (!u) throw notFound('Usuário não encontrado');
     return u;
   },
-  create: (body: unknown) => usuarioRepository.create(UsuarioCreateSchema.parse(body)),
-  update: (id: string, body: unknown) =>
-    usuarioRepository.update(id, UsuarioUpdateSchema.parse(body)),
+  create: async (body: unknown) => {
+    const parsed = UsuarioCreateSchema.parse(body);
+    await assertEmailDomainAllowed(parsed.email);
+    return usuarioRepository.create(parsed);
+  },
+  update: async (id: string, body: unknown) => {
+    const parsed = UsuarioUpdateSchema.parse(body);
+    if (parsed.email) await assertEmailDomainAllowed(parsed.email);
+    return usuarioRepository.update(id, parsed);
+  },
 };
