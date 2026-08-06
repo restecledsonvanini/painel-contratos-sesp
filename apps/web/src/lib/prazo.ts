@@ -1,10 +1,10 @@
-export type UnidadeTempoPrazo = 'DIAS' | 'MESES' | 'ANOS';
+import type { UnidadeTempo } from '@painel/domain';
 
 /** Soma prazo à data de início (YYYY-MM-DD) e devolve a data fim sugerida. */
 export function sugerirDataFim(
   dataInicio: string,
   valor: number,
-  unidade: UnidadeTempoPrazo = 'MESES',
+  unidade: UnidadeTempo = 'MESES',
 ): string | null {
   if (!dataInicio || !valor || valor <= 0) return null;
   const [y, m, d] = dataInicio.split('-').map(Number);

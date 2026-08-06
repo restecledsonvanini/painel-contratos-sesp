@@ -21,23 +21,7 @@ import { http, getErrorMessage } from '../../../lib/http';
 import { useIsAdmin } from '../../../lib/access';
 import { qk } from '../../../lib/queryKeys';
 import { useConfirmDialog } from '../../../lib/useConfirmDialog';
-
-type Dominio = {
-  id: string;
-  slug: string;
-  nome: string;
-  editavelPeloUsuario: boolean;
-  _count?: { valores: number };
-};
-
-type DominioValor = {
-  id: string;
-  codigo: string;
-  label: string;
-  ordem: number;
-  ativo: boolean;
-  parentId: string | null;
-};
+import type { DominioDTO, DominioValorDTO } from '@painel/schema';
 
 export default function DominiosPage() {
   const toast = useToast();
@@ -50,7 +34,7 @@ export default function DominiosPage() {
 
   const dominiosQuery = useQuery({
     queryKey: ['dominios'],
-    queryFn: async () => (await http.get<Dominio[]>('/dominios')).data,
+    queryFn: async () => (await http.get<DominioDTO[]>('/dominios')).data,
   });
 
   const selected = useMemo(
@@ -63,7 +47,7 @@ export default function DominiosPage() {
   const valoresQuery = useQuery({
     queryKey: ['dominios', activeSlug, 'valores'],
     queryFn: async () =>
-      (await http.get<DominioValor[]>(`/dominios/${activeSlug}/valores`, {
+      (await http.get<DominioValorDTO[]>(`/dominios/${activeSlug}/valores`, {
         params: { includeInativos: true },
       })).data,
     enabled: Boolean(activeSlug),

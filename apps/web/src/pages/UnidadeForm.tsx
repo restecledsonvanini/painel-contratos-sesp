@@ -6,6 +6,10 @@ import {
   NIVEL_UNIDADE_LABELS,
   enumOptions,
 } from '@painel/domain';
+import type {
+  UnidadeOrganizacionalCreateInput,
+  UnidadeOrganizacionalUpdateInput,
+} from '@painel/schema';
 import {
   useCreateUnidade,
   useMunicipioSearch,
@@ -18,6 +22,7 @@ import { getErrorMessage } from '../lib/http';
 
 const NIVEIS = enumOptions(NIVEL_UNIDADE_LABELS);
 
+/** UI com selects vazios; payload = Create/Update Input. */
 type FormValues = {
   orgaoId: string;
   parentId: string;
@@ -27,6 +32,18 @@ type FormValues = {
   municipioId: string;
   ativo: boolean;
 };
+
+function toCreateBody(data: FormValues): UnidadeOrganizacionalCreateInput {
+  return {
+    orgaoId: data.orgaoId,
+    parentId: data.parentId || null,
+    sigla: data.sigla.trim(),
+    nome: data.nome.trim(),
+    nivel: (data.nivel || null) as UnidadeOrganizacionalCreateInput['nivel'],
+    municipioId: data.municipioId || null,
+    ativo: data.ativo,
+  };
+}
 
 export default function UnidadeForm() {
   const navigate = useNavigate();
@@ -98,18 +115,11 @@ export default function UnidadeForm() {
   );
 
   const onSubmit = async (data: FormValues) => {
-    const payload = {
-      orgaoId: data.orgaoId,
-      parentId: data.parentId || null,
-      sigla: data.sigla.trim(),
-      nome: data.nome.trim(),
-      nivel: data.nivel || null,
-      municipioId: data.municipioId || null,
-      ativo: data.ativo,
-    };
+    const payload = toCreateBody(data);
     try {
       if (id) {
-        await update.mutateAsync({ id, payload });
+        const updatePayload: UnidadeOrganizacionalUpdateInput = payload;
+        await update.mutateAsync({ id, payload: updatePayload });
         toast.success('Unidade atualizada.');
       } else {
         await create.mutateAsync(payload);

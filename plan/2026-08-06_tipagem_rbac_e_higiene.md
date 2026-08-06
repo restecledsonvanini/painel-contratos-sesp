@@ -290,6 +290,14 @@ Ordem **obrigatória** (do plano 2026-08-05 §7):
 - [x] `Role` do schema reexporta/`normalizeRole` de `@painel/domain` (dep schema→domain; domain sem ciclo)
 - [x] Matriz §3 documentada em `packages/domain/src/roles.ts`
 
+### Fase 3 status
+
+- [x] DTOs: Alerta, CatalogoItem, Dominio, DominioValor, AlteracaoSimulacao (+ Usuario já na F2)
+- [x] `createCrudHooks` callers com Create/Update reais; contrato/unidade tipados
+- [x] Forms Dotacao/Unidade/Servidor/Catalogo mapeiam para Create/Update Input
+- [x] `UnidadesList` usa `ArvoreOrgaoDTO`; `UnidadeTempoPrazo` removido
+- [x] Contato/sanção update → `*UpdateInput`; exports `DotacaoUpdateInput` / `UnidadeFsp*Input`
+
 ---
 
 ## 9. Relação com planos anteriores
@@ -299,6 +307,6 @@ Ordem **obrigatória** (do plano 2026-08-05 §7):
 | `2026-08-05_hierarquia_sesp_navegacao_e_saneamento.md` | ✅ 0–9 |
 | `2026-08-04_api_refatoracao_modelo_contratual.md` | ✅ |
 | `apps/web/plan/2026-08-04_frontend_refatoracao_contratual.md` | ✅ |
-| **Este** (`2026-08-06_tipagem_rbac_e_higiene.md`) | Fase 0–2 ✅; próximo: **3 tipagem** |
+| **Este** (`2026-08-06_tipagem_rbac_e_higiene.md`) | Fase 0–3 ✅; próximo: **4 aliases** |
 
 Caminho crítico sugerido: **1 (RBAC) → 2 (usuário) → 3 (tipagem) → 4 (aliases) → 5 (testes/OpenAPI)**.

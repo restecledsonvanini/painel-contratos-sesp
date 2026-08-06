@@ -20,16 +20,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { http, getErrorMessage } from '../lib/http';
 import { useCanWrite } from '../lib/access';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
-
-type CatalogoItem = {
-  id: string;
-  nome: string;
-  codigo?: string | null;
-  descricao?: string | null;
-  categoriaItem?: { codigo: string; label: string };
-  unidadeMedidaPadrao?: { codigo: string; label: string };
-  ativo?: boolean;
-};
+import type { CatalogoItemDTO } from '@painel/schema';
 
 export default function CatalogoList() {
   const qc = useQueryClient();
@@ -38,7 +29,7 @@ export default function CatalogoList() {
   const canWrite = useCanWrite();
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['catalogo-itens'],
-    queryFn: async () => (await http.get<CatalogoItem[]>('/catalogo-itens?flat=true')).data,
+    queryFn: async () => (await http.get<CatalogoItemDTO[]>('/catalogo-itens?flat=true')).data,
   });
   const del = useMutation({
     mutationFn: async (id: string) => (await http.delete(`/catalogo-itens/${id}`)).data,

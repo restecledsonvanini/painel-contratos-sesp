@@ -1,4 +1,4 @@
-import type { Role } from '@painel/domain';
+import type { Role, SimulacaoAlteracaoResult } from '@painel/domain';
 
 /** DTOs de resposta da API — tipagem compartilhada (não confundir com *Create/*Update). */
 
@@ -134,6 +134,58 @@ export type DotacaoDTO = {
   naturezaDespesa?: DominioValorRef;
   fonteRecurso?: DominioValorRef;
 };
+
+export type CatalogoItemDTO = {
+  id: string;
+  nome: string;
+  codigo?: string | null;
+  descricao?: string | null;
+  categoriaItemId?: string;
+  unidadeMedidaPadraoId?: string;
+  ativo?: boolean;
+  atributosPadrao?: Record<string, unknown> | null;
+  categoriaItem?: DominioValorRef;
+  unidadeMedidaPadrao?: DominioValorRef;
+};
+
+export type DominioDTO = {
+  id: string;
+  slug: string;
+  nome: string;
+  editavelPeloUsuario: boolean;
+  _count?: { valores: number };
+};
+
+export type DominioValorDTO = {
+  id: string;
+  codigo: string;
+  label: string;
+  ordem: number;
+  ativo: boolean;
+  parentId?: string | null;
+};
+
+export type AlertaDTO = {
+  id: string;
+  tipo: string;
+  severidade: 'INFO' | 'ATENCAO' | 'CRITICO';
+  janelaDias?: number | null;
+  mensagem: string;
+  dataReferencia: string;
+  reconhecidoEm?: string | null;
+  reconhecidoPorId?: string | null;
+  contratoId?: string;
+  contrato: {
+    id: string;
+    numeroGms: string;
+    anoGms: number;
+    objeto: string;
+    situacao?: string;
+  };
+};
+
+/** Resposta de POST …/alteracoes/simular (espelha `@painel/domain`). */
+export type AlteracaoSimulacaoDTO = SimulacaoAlteracaoResult;
 
 export type DashboardKpisDTO = {
   totalContratos?: number;

@@ -2,10 +2,12 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Page, useToast } from '@painel/ui';
+import type { ServidorCreateInput, ServidorUpdateInput } from '@painel/schema';
 import { useCreateServidor, useServidor, useUpdateServidor } from '../hooks/useReferences';
 import { getErrorMessage } from '../lib/http';
 import { maskCpf, onlyDigits } from '../lib/masks';
 
+/** UI (máscara CPF / strings vazias) ≠ payload API. */
 type FormValues = {
   nome: string;
   cpf: string;
@@ -13,6 +15,16 @@ type FormValues = {
   email: string;
   telefone: string;
 };
+
+function toCreateBody(data: FormValues): ServidorCreateInput {
+  return {
+    nome: data.nome,
+    cpf: data.cpf ? onlyDigits(data.cpf) : null,
+    cargo: data.cargo || null,
+    email: data.email || null,
+    telefone: data.telefone || null,
+  };
+}
 
 export default function ServidoresForm() {
   const navigate = useNavigate();
@@ -37,16 +49,11 @@ export default function ServidoresForm() {
   }, [existing, setValue]);
 
   const onSubmit = async (data: FormValues) => {
-    const payload = {
-      nome: data.nome,
-      cpf: data.cpf ? onlyDigits(data.cpf) : null,
-      cargo: data.cargo || null,
-      email: data.email || null,
-      telefone: data.telefone || null,
-    };
+    const payload = toCreateBody(data);
     try {
       if (id) {
-        await update.mutateAsync({ id, payload });
+        const updatePayload: ServidorUpdateInput = payload;
+        await update.mutateAsync({ id, payload: updatePayload });
         toast.success('Servidor atualizado.');
       } else {
         await create.mutateAsync(payload);

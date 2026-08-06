@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import type { ContratoDTO } from '@painel/schema';
+import type { ContractCreateInput, ContractUpdateInput, ContratoDTO } from '@painel/schema';
 import { http } from '../lib/http';
 import { invalidateContratos } from '../lib/invalidate';
 import { qk } from '../lib/queryKeys';
@@ -38,8 +38,8 @@ export function useContract(id?: string) {
 export function useCreateContract() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<ContratoDTO>) => {
-      const res = await http.post('/contracts', payload);
+    mutationFn: async (payload: ContractCreateInput) => {
+      const res = await http.post<ContratoDTO>('/contracts', payload);
       return res.data;
     },
     onSuccess: () => invalidateContratos(queryClient),
@@ -49,8 +49,8 @@ export function useCreateContract() {
 export function useUpdateContract() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, payload }: { id: string; payload: Partial<ContratoDTO> }) => {
-      const res = await http.patch(`/contracts/${id}`, payload);
+    mutationFn: async ({ id, payload }: { id: string; payload: ContractUpdateInput }) => {
+      const res = await http.patch<ContratoDTO>(`/contracts/${id}`, payload);
       return res.data;
     },
     onSuccess: (_data, vars) => invalidateContratos(queryClient, vars.id),

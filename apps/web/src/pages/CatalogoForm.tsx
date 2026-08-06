@@ -3,10 +3,16 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Input, Page, Textarea, useToast } from '@painel/ui';
+import type {
+  CatalogoItemCreateInput,
+  CatalogoItemDTO,
+  CatalogoItemUpdateInput,
+} from '@painel/schema';
 import { http, getErrorMessage } from '../lib/http';
 import { LookupSelect } from '../components/LookupSelect';
 import { Controller } from 'react-hook-form';
 
+/** UI com strings vazias; API usa Create/Update Input. */
 type FormValues = {
   nome: string;
   descricao: string;
@@ -14,6 +20,16 @@ type FormValues = {
   unidadeMedidaPadraoId: string;
   codigo: string;
 };
+
+function toCreateBody(payload: FormValues): CatalogoItemCreateInput {
+  return {
+    nome: payload.nome,
+    categoriaItemId: payload.categoriaItemId,
+    unidadeMedidaPadraoId: payload.unidadeMedidaPadraoId,
+    codigo: payload.codigo || null,
+    descricao: payload.descricao || null,
+  };
+}
 
 export default function CatalogoForm() {
   const { id } = useParams();
@@ -33,7 +49,7 @@ export default function CatalogoForm() {
 
   const { data: existing } = useQuery({
     queryKey: id ? ['catalogo-itens', id] : ['catalogo-itens', 'empty'],
-    queryFn: async () => (await http.get(`/catalogo-itens/${id}`)).data,
+    queryFn: async () => (await http.get<CatalogoItemDTO>(`/catalogo-itens/${id}`)).data,
     enabled: Boolean(id),
   });
 
@@ -41,21 +57,20 @@ export default function CatalogoForm() {
     if (existing) {
       setValue('nome', existing.nome);
       setValue('descricao', existing.descricao || '');
-      setValue('categoriaItemId', existing.categoriaItemId);
-      setValue('unidadeMedidaPadraoId', existing.unidadeMedidaPadraoId);
+      setValue('categoriaItemId', existing.categoriaItemId || '');
+      setValue('unidadeMedidaPadraoId', existing.unidadeMedidaPadraoId || '');
       setValue('codigo', existing.codigo || '');
     }
   }, [existing, setValue]);
 
   const save = useMutation({
     mutationFn: async (payload: FormValues) => {
-      const body = {
-        ...payload,
-        codigo: payload.codigo || null,
-        descricao: payload.descricao || null,
-      };
-      if (id) return (await http.put(`/catalogo-itens/${id}`, body)).data;
-      return (await http.post('/catalogo-itens', body)).data;
+      const body = toCreateBody(payload);
+      if (id) {
+        const updateBody: CatalogoItemUpdateInput = body;
+        return (await http.put<CatalogoItemDTO>(`/catalogo-itens/${id}`, updateBody)).data;
+      }
+      return (await http.post<CatalogoItemDTO>('/catalogo-itens', body)).data;
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['catalogo-itens'] });

@@ -3,7 +3,9 @@ import type {
   ArvoreOrgaoDTO,
   MunicipioDTO,
   OrgaoDTO,
+  UnidadeOrganizacionalCreateInput,
   UnidadeOrganizacionalDTO,
+  UnidadeOrganizacionalUpdateInput,
 } from '@painel/schema';
 import { http } from '../lib/http';
 import { invalidateOrganizacao } from '../lib/invalidate';
@@ -68,7 +70,7 @@ export function useMunicipioSearch(q: string) {
 export function useCreateUnidade() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Record<string, unknown>) =>
+    mutationFn: async (payload: UnidadeOrganizacionalCreateInput) =>
       (await http.post<UnidadeOrganizacionalDTO>('/unidades', payload)).data,
     onSuccess: () => invalidateOrganizacao(queryClient),
   });
@@ -77,8 +79,13 @@ export function useCreateUnidade() {
 export function useUpdateUnidade() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, payload }: { id: string; payload: Record<string, unknown> }) =>
-      (await http.put<UnidadeOrganizacionalDTO>(`/unidades/${id}`, payload)).data,
+    mutationFn: async ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: UnidadeOrganizacionalUpdateInput;
+    }) => (await http.put<UnidadeOrganizacionalDTO>(`/unidades/${id}`, payload)).data,
     onSuccess: (_data, vars) => invalidateOrganizacao(queryClient, vars.id),
   });
 }

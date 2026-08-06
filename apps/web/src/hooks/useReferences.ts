@@ -2,11 +2,19 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type {
   FornecedorContatoCreateInput,
   FornecedorContatoDTO,
+  FornecedorContatoUpdateInput,
+  FornecedorCreateInput,
   FornecedorDTO,
   FornecedorSancaoCreateInput,
   FornecedorSancaoDTO,
+  FornecedorSancaoUpdateInput,
+  FornecedorUpdateInput,
+  ServidorCreateInput,
   ServidorDTO,
+  ServidorUpdateInput,
+  UnidadeFspCreateInput,
   UnidadeFspDTO,
+  UnidadeFspUpdateInput,
   UnidadeOrganizacionalDTO,
 } from '@painel/schema';
 import { http } from '../lib/http';
@@ -25,7 +33,11 @@ export type {
 export type ContatoInput = FornecedorContatoCreateInput;
 export type SancaoInput = FornecedorSancaoCreateInput;
 
-const fornecedorCrud = createCrudHooks<FornecedorDTO>({
+const fornecedorCrud = createCrudHooks<
+  FornecedorDTO,
+  FornecedorCreateInput,
+  FornecedorUpdateInput
+>({
   resource: 'fornecedores',
   listKey: qk.fornecedores,
   detailKey: qk.fornecedor,
@@ -44,7 +56,7 @@ export const useDeleteFornecedor = fornecedorCrud.useRemove;
 export function useCreateFornecedorContato(fornecedorId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: ContatoInput) =>
+    mutationFn: async (payload: FornecedorContatoCreateInput) =>
       (await http.post(`/fornecedores/${fornecedorId}/contatos`, payload)).data as FornecedorContatoDTO,
     onSuccess: () => invalidateFornecedor(qc, fornecedorId),
   });
@@ -58,7 +70,7 @@ export function useUpdateFornecedorContato(fornecedorId: string) {
       payload,
     }: {
       contatoId: string;
-      payload: Partial<ContatoInput>;
+      payload: FornecedorContatoUpdateInput;
     }) =>
       (await http.put(`/fornecedores/${fornecedorId}/contatos/${contatoId}`, payload)).data,
     onSuccess: () => invalidateFornecedor(qc, fornecedorId),
@@ -77,7 +89,7 @@ export function useDeleteFornecedorContato(fornecedorId: string) {
 export function useCreateFornecedorSancao(fornecedorId: string) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: SancaoInput) =>
+    mutationFn: async (payload: FornecedorSancaoCreateInput) =>
       (await http.post(`/fornecedores/${fornecedorId}/sancoes`, payload)).data as FornecedorSancaoDTO,
     onSuccess: () => invalidateFornecedor(qc, fornecedorId),
   });
@@ -91,7 +103,7 @@ export function useUpdateFornecedorSancao(fornecedorId: string) {
       payload,
     }: {
       sancaoId: string;
-      payload: Partial<SancaoInput>;
+      payload: FornecedorSancaoUpdateInput;
     }) =>
       (await http.put(`/fornecedores/${fornecedorId}/sancoes/${sancaoId}`, payload)).data,
     onSuccess: () => invalidateFornecedor(qc, fornecedorId),
@@ -107,7 +119,7 @@ export function useDeleteFornecedorSancao(fornecedorId: string) {
   });
 }
 
-const servidorCrud = createCrudHooks<ServidorDTO>({
+const servidorCrud = createCrudHooks<ServidorDTO, ServidorCreateInput, ServidorUpdateInput>({
   resource: 'servidores',
   listKey: qk.servidores,
   detailKey: qk.servidor,
@@ -123,7 +135,11 @@ export const useCreateServidor = servidorCrud.useCreate;
 export const useUpdateServidor = servidorCrud.useUpdate;
 export const useDeleteServidor = servidorCrud.useRemove;
 
-const unidadeFspCrud = createCrudHooks<UnidadeFspDTO>({
+const unidadeFspCrud = createCrudHooks<
+  UnidadeFspDTO,
+  UnidadeFspCreateInput,
+  UnidadeFspUpdateInput
+>({
   resource: 'unidadesFsp',
   listKey: qk.unidadesFsp,
   detailKey: qk.unidadeFsp,

@@ -231,6 +231,7 @@ export const DocumentoCreateSchema = z
   }));
 
 export type DotacaoCreateInput = z.infer<typeof DotacaoCreateSchema>;
+export type DotacaoUpdateInput = z.infer<typeof DotacaoUpdateSchema>;
 export type ContratoDotacaoCreateInput = z.infer<typeof ContratoDotacaoCreateSchema>;
 export type EmpenhoCreateInput = z.infer<typeof EmpenhoCreateSchema>;
 export type EmpenhoUpdateInput = z.infer<typeof EmpenhoUpdateSchema>;

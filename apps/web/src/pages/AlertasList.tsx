@@ -18,17 +18,7 @@ import {
 import { useCanAct } from '../lib/access';
 import { http, getErrorMessage } from '../lib/http';
 import { alertaTipoToTab, contractHref } from '../lib/recentContracts';
-
-type Alerta = {
-  id: string;
-  tipo: string;
-  severidade: 'INFO' | 'ATENCAO' | 'CRITICO';
-  janelaDias?: number | null;
-  mensagem: string;
-  dataReferencia: string;
-  reconhecidoEm?: string | null;
-  contrato: { id: string; numeroGms: string; anoGms: number; objeto: string };
-};
+import type { AlertaDTO } from '@painel/schema';
 
 const sevVariant: Record<string, 'default' | 'warning' | 'danger' | 'success'> = {
   INFO: 'default',
@@ -47,7 +37,7 @@ export default function AlertasList() {
     queryKey: ['alertas', somenteAbertos],
     queryFn: async () =>
       (
-        await http.get<Alerta[]>('/alertas', {
+        await http.get<AlertaDTO[]>('/alertas', {
           params: somenteAbertos ? { reconhecido: 'false' } : undefined,
         })
       ).data,

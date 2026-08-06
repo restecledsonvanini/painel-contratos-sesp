@@ -3,24 +3,9 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Input, Meter, Page, Textarea, useToast } from '@painel/ui';
 import { TIPO_ALTERACAO_LABELS, type TipoAlteracao } from '@painel/domain';
+import type { AlteracaoSimulacaoDTO } from '@painel/schema';
 import { http, getErrorMessage } from '../lib/http';
 import { useContract } from '../hooks/useContracts';
-
-type Simulacao = {
-  ok: boolean;
-  erros: string[];
-  avisos: string[];
-  acrescimo: {
-    percentualAcrescido: number;
-    limitePercent: number;
-    disponivelCents: number;
-    excedeu: boolean;
-  };
-  mesesProrrogados: number;
-  dataFimVigenciaAtual: string;
-  dataFimVigenciaProjetada: string | null;
-  exigeJustificativaExcepcional: boolean;
-};
 
 /** Subconjunto usado no wizard (labels vindos do domínio). */
 const TIPOS_FORM: TipoAlteracao[] = [
@@ -50,7 +35,7 @@ export default function AlteracaoForm() {
   const [valorSuprimido, setValorSuprimido] = useState(0);
   const [justificativaExcepcional, setJustificativaExcepcional] = useState('');
   const [situacao, setSituacao] = useState('ASSINADO');
-  const [simulacao, setSimulacao] = useState<Simulacao | null>(null);
+  const [simulacao, setSimulacao] = useState<AlteracaoSimulacaoDTO | null>(null);
 
   const payload = () => ({
     tipo,
@@ -66,7 +51,7 @@ export default function AlteracaoForm() {
 
   const simular = useMutation({
     mutationFn: async () => {
-      const res = await http.post<Simulacao>(
+      const res = await http.post<AlteracaoSimulacaoDTO>(
         `/contracts/${contratoId}/alteracoes/simular`,
         payload(),
       );

@@ -3,10 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Input, Page, Textarea, useToast } from '@painel/ui';
+import type { DotacaoCreateInput, DotacaoDTO, DotacaoUpdateInput } from '@painel/schema';
 import { http, getErrorMessage } from '../lib/http';
 import { LookupSelect } from '../components/LookupSelect';
 import { invalidateDotacoes } from '../lib/invalidate';
 
+/** Campos de formulário (strings vazias); payload API = Create/Update Input. */
 type FormValues = {
   exercicio: number;
   codigo: string;
@@ -16,6 +18,18 @@ type FormValues = {
   fonteRecursoId: string;
   descricao: string;
 };
+
+function toCreateBody(payload: FormValues): DotacaoCreateInput {
+  return {
+    exercicio: Number(payload.exercicio),
+    codigo: payload.codigo.trim(),
+    unidadeOrcamentaria: payload.unidadeOrcamentaria.trim() || null,
+    funcionalProgramatica: payload.funcionalProgramatica.trim() || null,
+    naturezaDespesaId: payload.naturezaDespesaId,
+    fonteRecursoId: payload.fonteRecursoId,
+    descricao: payload.descricao.trim() || null,
+  };
+}
 
 export default function DotacaoForm() {
   const { id } = useParams();
@@ -37,7 +51,7 @@ export default function DotacaoForm() {
 
   const { data: existing } = useQuery({
     queryKey: id ? ['dotacoes', id] : ['dotacoes', 'empty'],
-    queryFn: async () => (await http.get(`/dotacoes/${id}`)).data,
+    queryFn: async () => (await http.get<DotacaoDTO>(`/dotacoes/${id}`)).data,
     enabled: Boolean(id),
   });
 
@@ -47,24 +61,19 @@ export default function DotacaoForm() {
     setValue('codigo', existing.codigo);
     setValue('unidadeOrcamentaria', existing.unidadeOrcamentaria || '');
     setValue('funcionalProgramatica', existing.funcionalProgramatica || '');
-    setValue('naturezaDespesaId', existing.naturezaDespesaId);
-    setValue('fonteRecursoId', existing.fonteRecursoId);
+    setValue('naturezaDespesaId', existing.naturezaDespesaId || '');
+    setValue('fonteRecursoId', existing.fonteRecursoId || '');
     setValue('descricao', existing.descricao || '');
   }, [existing, setValue]);
 
   const save = useMutation({
     mutationFn: async (payload: FormValues) => {
-      const body = {
-        exercicio: Number(payload.exercicio),
-        codigo: payload.codigo.trim(),
-        unidadeOrcamentaria: payload.unidadeOrcamentaria.trim() || null,
-        funcionalProgramatica: payload.funcionalProgramatica.trim() || null,
-        naturezaDespesaId: payload.naturezaDespesaId,
-        fonteRecursoId: payload.fonteRecursoId,
-        descricao: payload.descricao.trim() || null,
-      };
-      if (id) return (await http.put(`/dotacoes/${id}`, body)).data;
-      return (await http.post('/dotacoes', body)).data;
+      const body = toCreateBody(payload);
+      if (id) {
+        const updateBody: DotacaoUpdateInput = body;
+        return (await http.put<DotacaoDTO>(`/dotacoes/${id}`, updateBody)).data;
+      }
+      return (await http.post<DotacaoDTO>('/dotacoes', body)).data;
     },
     onSuccess: () => invalidateDotacoes(qc),
   });

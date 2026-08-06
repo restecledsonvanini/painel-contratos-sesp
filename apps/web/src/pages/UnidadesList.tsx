@@ -15,20 +15,9 @@ import { useCanManage } from '../lib/access';
 import { useDeleteUnidade, useOrgaos, useUnidadesArvore, useUnidadesList } from '../hooks/useOrganizacao';
 import { getErrorMessage } from '../lib/http';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
+import type { ArvoreOrgaoDTO } from '@painel/schema';
 
-type TreeNode = {
-  id: string;
-  kind?: 'orgao' | 'unidade';
-  label: string;
-  sigla: string;
-  nome?: string;
-  nivel?: string;
-  tipo?: string;
-  municipio?: { nome: string; uf: string };
-  children: TreeNode[];
-};
-
-function isUnidade(node: TreeNode) {
+function isUnidade(node: ArvoreOrgaoDTO) {
   return node.kind === 'unidade' || Boolean(node.nivel);
 }
 
@@ -38,7 +27,7 @@ function UnitNode({
   canWrite,
   onDelete,
 }: {
-  node: TreeNode;
+  node: ArvoreOrgaoDTO;
   depth: number;
   canWrite: boolean;
   onDelete: (id: string, label: string) => void;
@@ -118,7 +107,7 @@ function UnitNode({
   );
 }
 
-function findOrgaoBranch(nodes: TreeNode[], orgaoId: string): TreeNode | null {
+function findOrgaoBranch(nodes: ArvoreOrgaoDTO[], orgaoId: string): ArvoreOrgaoDTO | null {
   for (const n of nodes) {
     if (n.id === orgaoId && !isUnidade(n)) return n;
     const nested = findOrgaoBranch(n.children, orgaoId);
@@ -139,7 +128,7 @@ export default function UnidadesList() {
   const [orgaoFiltro, setOrgaoFiltro] = useState('');
 
   const tree = useMemo(() => {
-    const rows = (Array.isArray(arvore) ? arvore : []) as TreeNode[];
+    const rows = Array.isArray(arvore) ? arvore : [];
     if (!orgaoFiltro) return rows;
     const branch = findOrgaoBranch(rows, orgaoFiltro);
     return branch ? [branch] : [];

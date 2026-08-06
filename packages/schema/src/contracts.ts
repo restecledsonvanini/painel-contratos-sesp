@@ -439,3 +439,5 @@ export type ContractUpdateInput = z.infer<typeof ContractUpdateSchema>;
 export type AditivoCreateInput = z.infer<typeof AditivoCreateSchema>;
 export type ContratoResponsavelCreateInput = z.infer<typeof ContratoResponsavelCreateSchema>;
 export type ContratoRateioCreateInput = z.infer<typeof ContratoRateioCreateSchema>;
+export type UnidadeFspCreateInput = z.infer<typeof UnidadeFspCreateSchema>;
+export type UnidadeFspUpdateInput = z.infer<typeof UnidadeFspUpdateSchema>;
