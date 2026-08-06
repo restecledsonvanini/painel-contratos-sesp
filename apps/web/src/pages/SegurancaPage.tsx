@@ -62,7 +62,7 @@ export default function SegurancaPage() {
   const toggle = useMutation({
     mutationFn: async (row: DominioValor) =>
       (
-        await http.patch(`/dominios/${EMAIL_DOMAINS_SLUG}/valores/${row.id}`, {
+        await http.put(`/dominios/${EMAIL_DOMAINS_SLUG}/valores/${row.id}`, {
           ativo: !row.ativo,
         })
       ).data,

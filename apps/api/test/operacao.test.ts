@@ -47,13 +47,13 @@ describe('alertas, importação e observabilidade', () => {
     if (!ready) return;
     const gerar1 = await request(app)
       .post('/api/v1/admin/gerar-alertas')
-      .set('Authorization', 'Bearer colaborador');
+      .set('Authorization', 'Bearer admin');
     expect(gerar1.status).toBe(200);
     expect(gerar1.body.ok).toBe(true);
 
     const gerar2 = await request(app)
       .post('/api/v1/admin/gerar-alertas')
-      .set('Authorization', 'Bearer colaborador');
+      .set('Authorization', 'Bearer admin');
     expect(gerar2.status).toBe(200);
     expect(gerar2.body.created).toBe(0);
 
@@ -65,7 +65,7 @@ describe('alertas, importação e observabilidade', () => {
       const id = list.body[0].id;
       const ack = await request(app)
         .post(`/api/v1/alertas/${id}/reconhecer`)
-        .set('Authorization', 'Bearer colaborador');
+        .set('Authorization', 'Bearer analista');
       expect(ack.status).toBe(200);
       expect(ack.body.reconhecidoEm).toBeTruthy();
     }

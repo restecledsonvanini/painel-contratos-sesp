@@ -23,7 +23,7 @@ import { formatCurrencyFromReais } from '../lib/format';
 import { getErrorMessage } from '../lib/http';
 import { authorLabel, formatRelativePast } from '../lib/formatRelative';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
-import { useAuth } from '../providers/AuthProvider';
+import { useCanAct } from '../lib/access';
 
 function diasAteFim(contract: Contract): number | null {
   const raw = contract.dataFimVigenciaOriginal || contract.dataFimOrig;
@@ -55,8 +55,7 @@ export default function ContractsList() {
   const deleteContract = useDeleteContract();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
-  const { hasMinRole, token } = useAuth();
-  const canWrite = !token || hasMinRole('ANALISTA');
+  const canWrite = useCanAct('ANALISTA');
   const allContracts = Array.isArray(data) ? data.filter(Boolean) : [];
 
   const filterKey = searchParams.toString();

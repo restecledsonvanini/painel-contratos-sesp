@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { asyncHandler } from '../lib/errors';
 import { getOrgaoScope } from '../lib/audit';
 import { getPrisma } from '../lib/prisma';
+import { requireMinRole } from '../middleware/rbac';
 import {
   contractsToCsv,
   contractsToXlsx,
@@ -134,8 +135,9 @@ export async function exportContractPdf(req: Request, res: Response) {
 }
 
 const router = Router();
-router.get('/exports/contratos.csv', asyncHandler(exportAcervoCsv));
-router.get('/exports/contratos.xlsx', asyncHandler(exportAcervoXlsx));
-router.get('/search', asyncHandler(globalSearch));
+const exportRoles = requireMinRole('ANALISTA');
+router.get('/exports/contratos.csv', exportRoles, asyncHandler(exportAcervoCsv));
+router.get('/exports/contratos.xlsx', exportRoles, asyncHandler(exportAcervoXlsx));
+router.get('/search', exportRoles, asyncHandler(globalSearch));
 
 export default router;

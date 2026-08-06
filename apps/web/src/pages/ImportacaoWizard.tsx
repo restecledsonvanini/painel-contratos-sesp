@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Button, Card, Page, Textarea } from '@painel/ui';
 import { http, getErrorMessage } from '../lib/http';
+import { useCanAct } from '../lib/access';
 import { useAuth } from '../providers/AuthProvider';
 
 type TipoEntidade = 'fornecedor' | 'servidor' | 'dotacao' | 'unidade';
@@ -62,8 +63,8 @@ function formatErros(erros: unknown): string {
 }
 
 export default function ImportacaoWizard() {
-  const { hasMinRole, token, user } = useAuth();
-  const canImport = !token || hasMinRole('ANALISTA');
+  const { user, token } = useAuth();
+  const canImport = useCanAct('ANALISTA');
   const fileRef = useRef<HTMLInputElement>(null);
   const [tipoEntidade, setTipoEntidade] = useState<TipoEntidade>('fornecedor');
   const [csv, setCsv] = useState(SAMPLES.fornecedor);

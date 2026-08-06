@@ -18,6 +18,7 @@ import {
 import { Plus } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { http, getErrorMessage } from '../lib/http';
+import { useCanWrite } from '../lib/access';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 
 type CatalogoItem = {
@@ -34,6 +35,7 @@ export default function CatalogoList() {
   const qc = useQueryClient();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
+  const canWrite = useCanWrite();
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['catalogo-itens'],
     queryFn: async () => (await http.get<CatalogoItem[]>('/catalogo-itens?flat=true')).data,
@@ -81,11 +83,13 @@ export default function CatalogoList() {
       title="Catálogo de itens"
       description="Itens reutilizáveis nos contratos (viaturas, postos, alimentos…)."
       actions={
-        <Link to="/catalogo-itens/new">
-          <Button>
-            <Plus size={16} /> Novo
-          </Button>
-        </Link>
+        canWrite ? (
+          <Link to="/catalogo-itens/new">
+            <Button>
+              <Plus size={16} /> Novo
+            </Button>
+          </Link>
+        ) : undefined
       }
     >
       <Card variant="bordered" className="overflow-hidden">
@@ -107,6 +111,7 @@ export default function CatalogoList() {
                     <TableCell>{item.categoriaItem?.label || '—'}</TableCell>
                     <TableCell>{item.unidadeMedidaPadrao?.codigo || '—'}</TableCell>
                     <TableCell>
+                      {canWrite ? (
                       <div className="flex gap-2">
                         <Link to={`/catalogo-itens/${item.id}/edit`}>
                           <Button size="sm" variant="secondary">
@@ -123,6 +128,9 @@ export default function CatalogoList() {
                           Desativar
                         </Button>
                       </div>
+                      ) : (
+                        '—'
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

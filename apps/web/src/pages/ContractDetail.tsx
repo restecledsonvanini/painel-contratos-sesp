@@ -25,7 +25,7 @@ import { getErrorMessage, http } from '../lib/http';
 import { downloadApiFile } from '../lib/download';
 import { formatCents, formatCurrencyFromReais } from '../lib/format';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
-import { useAuth } from '../providers/AuthProvider';
+import { useCanAct } from '../lib/access';
 import { CONTRACT_TAB_LABELS, pushRecentContract } from '../lib/recentContracts';
 import { authorLabel, formatDateBr, formatRelativePast } from '../lib/formatRelative';
 import { Download } from 'lucide-react';
@@ -60,8 +60,7 @@ export default function ContractDetail() {
   const deleteContract = useDeleteContract();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
-  const { hasMinRole, token } = useAuth();
-  const canWrite = !token || hasMinRole('ANALISTA');
+  const canWrite = useCanAct('ANALISTA');
 
   useEffect(() => {
     if (!contract?.id) return;

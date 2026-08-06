@@ -15,9 +15,9 @@ import {
   TableHeader,
   TableRow,
 } from '@painel/ui';
+import { useCanAct } from '../lib/access';
 import { http, getErrorMessage } from '../lib/http';
 import { alertaTipoToTab, contractHref } from '../lib/recentContracts';
-import { useAuth } from '../providers/AuthProvider';
 
 type Alerta = {
   id: string;
@@ -39,8 +39,9 @@ const sevVariant: Record<string, 'default' | 'warning' | 'danger' | 'success'> =
 export default function AlertasList() {
   const qc = useQueryClient();
   const [somenteAbertos, setSomenteAbertos] = useState(true);
-  const { hasMinRole, token } = useAuth();
-  const canAct = !token || hasMinRole('ANALISTA');
+  const canAck = useCanAct('ANALISTA');
+  const canGenerate = useCanAct('ADMIN');
+  const canImport = useCanAct('ANALISTA');
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['alertas', somenteAbertos],
@@ -93,12 +94,12 @@ export default function AlertasList() {
           <Button variant="ghost" onClick={() => setSomenteAbertos((v) => !v)}>
             {somenteAbertos ? 'Mostrar todos' : 'Só abertos'}
           </Button>
-          {canAct ? (
+          {canGenerate ? (
             <Button onClick={() => gerar.mutate()} disabled={gerar.isPending}>
               {gerar.isPending ? 'Gerando…' : 'Atualizar alertas'}
             </Button>
           ) : null}
-          {hasMinRole('ADMIN') ? (
+          {canImport ? (
             <Link to="/utilitarios?tab=importacao">
               <Button variant="ghost">Importação</Button>
             </Link>
@@ -135,7 +136,7 @@ export default function AlertasList() {
                   </TableCell>
                   <TableCell>{a.mensagem}</TableCell>
                   <TableCell>
-                    {!a.reconhecidoEm && canAct ? (
+                    {!a.reconhecidoEm && canAck ? (
                       <Button
                         size="sm"
                         variant="ghost"

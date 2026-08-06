@@ -45,10 +45,10 @@ function synthetic(id: string, email: string, nome: string, roleRaw: string): Au
 }
 
 /**
- * Auth real (JWT) + compat de tokens legados + bypass de desenvolvimento.
+ * Auth real (JWT) + tokens de teste + bypass de desenvolvimento.
  *
  * - Authorization: Bearer <jwt> → Usuario do banco
- * - Bearer admin|colaborador|analista|gestor|fiscal|leitor|visitante → papel sintético
+ * - Bearer admin|analista|gestor|visitante (+ legado só com VITEST) → papel sintético
  * - Sem header → ANALISTA system se AUTH_REQUIRED não estiver ativo; senão 401
  * - /auth/login, /health*, /docs, /metrics são públicos
  */
@@ -76,13 +76,17 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
 
     const legacy: Record<string, AuthUser> = {
       admin: synthetic('user-admin', 'admin@local', 'Admin legado', 'ADMIN'),
-      colaborador: synthetic('user-colab', 'colaborador@local', 'Colaborador legado', 'COLABORADOR'),
       analista: synthetic('user-analista', 'analista@local', 'Analista legado', 'ANALISTA'),
       gestor: synthetic('user-gestor', 'gestor@local', 'Gestor legado', 'GESTOR'),
-      fiscal: synthetic('user-fiscal', 'fiscal@local', 'Fiscal legado', 'FISCAL'),
-      leitor: synthetic('user-leitor', 'leitor@local', 'Leitor legado', 'LEITOR'),
       visitante: synthetic('user-visitante', 'visitante@local', 'Visitante legado', 'VISITANTE'),
     };
+
+    // Tokens legados só em teste automatizado
+    if (process.env.VITEST === 'true') {
+      legacy.colaborador = synthetic('user-colab', 'colaborador@local', 'Colaborador legado', 'ANALISTA');
+      legacy.fiscal = synthetic('user-fiscal', 'fiscal@local', 'Fiscal legado', 'ANALISTA');
+      legacy.leitor = synthetic('user-leitor', 'leitor@local', 'Leitor legado', 'VISITANTE');
+    }
 
     if (legacy[token]) {
       req.user = legacy[token];

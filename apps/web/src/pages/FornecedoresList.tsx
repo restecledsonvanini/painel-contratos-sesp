@@ -18,6 +18,7 @@ import {
 import { Plus } from 'lucide-react';
 import { useFornecedores, useDeleteFornecedor } from '../hooks/useReferences';
 import { getErrorMessage } from '../lib/http';
+import { useCanWrite } from '../lib/access';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 import { maskCnpj, maskCpf } from '../lib/masks';
 
@@ -31,6 +32,7 @@ export default function FornecedoresList() {
   const del = useDeleteFornecedor();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
+  const canWrite = useCanWrite();
 
   const handleDelete = async () => {
     if (!confirm.pending) return;
@@ -68,11 +70,13 @@ export default function FornecedoresList() {
       title="Fornecedores"
       description="Cadastro unificado de contratadas (PJ/PF), com contatos e sanções."
       actions={
-        <Link to="/fornecedores/new">
-          <Button>
-            <Plus size={16} /> Novo
-          </Button>
-        </Link>
+        canWrite ? (
+          <Link to="/fornecedores/new">
+            <Button>
+              <Plus size={16} /> Novo
+            </Button>
+          </Link>
+        ) : undefined
       }
     >
       <Card variant="bordered" className="overflow-hidden">
@@ -106,6 +110,7 @@ export default function FornecedoresList() {
                       )}
                     </TableCell>
                     <TableCell>
+                      {canWrite ? (
                       <div className="flex gap-2">
                         <Link to={`/fornecedores/${f.id}/edit`}>
                           <Button size="sm" variant="secondary">
@@ -122,6 +127,9 @@ export default function FornecedoresList() {
                           Desativar
                         </Button>
                       </div>
+                      ) : (
+                        '—'
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

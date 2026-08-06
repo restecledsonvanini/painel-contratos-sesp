@@ -12,13 +12,14 @@ import { asyncHandler } from '../lib/errors';
 import { requireMinRole } from '../middleware/rbac';
 
 const router = Router();
-const writeRoles = requireMinRole('COLABORADOR');
+const writeRoles = requireMinRole('ANALISTA');
 const importRoles = requireMinRole('ANALISTA');
+const adminRoles = requireMinRole('ADMIN');
 
 router.get('/alertas', asyncHandler(listAlertas));
 router.get('/alertas/configs', asyncHandler(listAlertaConfigs));
 router.post('/alertas/:id/reconhecer', writeRoles, asyncHandler(reconhecerAlerta));
-router.post('/admin/gerar-alertas', writeRoles, asyncHandler(gerarAlertas));
+router.post('/admin/gerar-alertas', adminRoles, asyncHandler(gerarAlertas));
 
 router.post('/importacoes', importRoles, asyncHandler(createImportacao));
 router.get('/importacoes/:id', importRoles, asyncHandler(getImportacao));

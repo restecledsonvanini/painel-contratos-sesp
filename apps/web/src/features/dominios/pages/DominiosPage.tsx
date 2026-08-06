@@ -18,6 +18,7 @@ import {
   useToast,
 } from '@painel/ui';
 import { http, getErrorMessage } from '../../../lib/http';
+import { useIsAdmin } from '../../../lib/access';
 import { qk } from '../../../lib/queryKeys';
 import { useConfirmDialog } from '../../../lib/useConfirmDialog';
 
@@ -42,6 +43,7 @@ export default function DominiosPage() {
   const toast = useToast();
   const qc = useQueryClient();
   const confirm = useConfirmDialog<string>();
+  const canEdit = useIsAdmin();
   const [slug, setSlug] = useState<string>('');
   const [codigo, setCodigo] = useState('');
   const [label, setLabel] = useState('');
@@ -163,11 +165,13 @@ export default function DominiosPage() {
                 <h2 className="text-[var(--font-size-lg)] font-bold text-[var(--primary)]">{selected.nome}</h2>
                 <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">
                   {selected.editavelPeloUsuario
-                    ? 'Editável — valores podem ser criados e desativados.'
+                    ? canEdit
+                      ? 'Editável — valores podem ser criados e desativados.'
+                      : 'Editável apenas por ADMIN — você está em modo consulta.'
                     : 'Lista legal fixa — apenas consulta.'}
                 </p>
 
-                {selected.editavelPeloUsuario && (
+                {selected.editavelPeloUsuario && canEdit && (
                   <form
                     className="mt-[var(--space-md)] grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto]"
                     onSubmit={(e) => {
@@ -209,7 +213,7 @@ export default function DominiosPage() {
                           <TableCell>{v.label}</TableCell>
                           <TableCell>{v.ativo ? 'Sim' : 'Não'}</TableCell>
                           <TableCell>
-                            {selected.editavelPeloUsuario && (
+                            {selected.editavelPeloUsuario && canEdit && (
                               <div className="flex flex-wrap gap-2">
                                 <Button
                                   size="sm"

@@ -29,7 +29,7 @@ import {
 import { asyncHandler } from '../lib/errors';
 import { requireMinRole } from '../middleware/rbac';
 
-const writeRoles = requireMinRole('COLABORADOR');
+const writeRoles = requireMinRole('ANALISTA');
 
 const router = Router();
 

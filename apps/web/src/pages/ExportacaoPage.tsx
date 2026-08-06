@@ -4,7 +4,7 @@ import { Button, Card, Page, useToast } from '@painel/ui';
 import { Download, FileSpreadsheet, FileText } from 'lucide-react';
 import { downloadApiFile } from '../lib/download';
 import { getErrorMessage } from '../lib/http';
-import { useAuth } from '../providers/AuthProvider';
+import { useCanAct } from '../lib/access';
 
 type Formato = 'csv' | 'xlsx';
 type Escopo = 'todos' | 'filtros';
@@ -22,8 +22,7 @@ const FILTER_KEYS = [
 
 export default function ExportacaoPage() {
   const toast = useToast();
-  const { hasMinRole, token } = useAuth();
-  const canExport = !token || hasMinRole('ANALISTA');
+  const canExport = useCanAct('ANALISTA');
   const [searchParams] = useSearchParams();
   const [formato, setFormato] = useState<Formato>('xlsx');
   const [escopo, setEscopo] = useState<Escopo>('todos');

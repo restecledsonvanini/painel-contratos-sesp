@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Header, Sidebar, useSidebar } from '@painel/ui';
 import { useAuth } from '../providers/AuthProvider';
 import { CommandPalette } from '../components/CommandPalette';
+import { canSeeNav } from '../lib/access';
 
 function AuthTrailing() {
   const { user, token, logout } = useAuth();
@@ -38,7 +39,7 @@ function ShellFrame({ children }: { children: React.ReactNode }) {
       <a href="#conteudo-principal" className="skip-link">
         Ir para o conteúdo principal
       </a>
-      <Sidebar canSee={(min) => !min || !token || hasMinRole(min)} />
+      <Sidebar canSee={(min) => canSeeNav(min, { token, hasMinRole })} />
       <div className="app-content">
         <Header trailing={<AuthTrailing />} />
         <main id="conteudo-principal" className="app-main Seção-Main" tabIndex={-1}>

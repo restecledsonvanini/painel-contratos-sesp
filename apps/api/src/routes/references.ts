@@ -30,7 +30,7 @@ import { asyncHandler } from '../lib/errors';
 import { requireMinRole } from '../middleware/rbac';
 
 const router = Router();
-const writeRoles = requireMinRole('COLABORADOR');
+const writeRoles = requireMinRole('ANALISTA');
 
 router.get('/empresas', asyncHandler(listEmpresas));
 router.post('/empresas', writeRoles, asyncHandler(createEmpresa));

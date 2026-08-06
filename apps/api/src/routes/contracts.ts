@@ -15,12 +15,12 @@ import {
 } from './exports';
 
 const router = Router();
-const writeRoles = requireMinRole('COLABORADOR');
+const writeRoles = requireMinRole('ANALISTA');
 
 router.get('/', asyncHandler(listContracts));
-router.get('/:id/export.csv', asyncHandler(exportContractCsv));
-router.get('/:id/export.xlsx', asyncHandler(exportContractXlsx));
-router.get('/:id/export.pdf', asyncHandler(exportContractPdf));
+router.get('/:id/export.csv', writeRoles, asyncHandler(exportContractCsv));
+router.get('/:id/export.xlsx', writeRoles, asyncHandler(exportContractXlsx));
+router.get('/:id/export.pdf', writeRoles, asyncHandler(exportContractPdf));
 router.get('/:id', asyncHandler(getContract));
 router.post('/', writeRoles, asyncHandler(createContract));
 router.put('/:id', writeRoles, asyncHandler(updateContract));

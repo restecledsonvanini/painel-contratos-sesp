@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { Skeleton, Tabs } from '@painel/ui';
 import { useTabParam } from '../lib/useTabParam';
-import { useAuth } from '../providers/AuthProvider';
+import { useIsAdmin } from '../lib/access';
 
 const UnidadesList = lazy(() => import('./UnidadesList'));
 const DominiosPage = lazy(() => import('../features/dominios/pages/DominiosPage'));
@@ -11,8 +11,7 @@ const SegurancaPage = lazy(() => import('./SegurancaPage'));
 const ALL_TABS = ['organizacao', 'listas', 'usuarios', 'seguranca'] as const;
 
 export default function ConfiguracoesPage() {
-  const { hasMinRole, token } = useAuth();
-  const isAdmin = !token || hasMinRole('ADMIN');
+  const isAdmin = useIsAdmin();
   const [tabRaw, setTab] = useTabParam(ALL_TABS, 'organizacao');
   const tab =
     !isAdmin && (tabRaw === 'usuarios' || tabRaw === 'seguranca') ? 'organizacao' : tabRaw;

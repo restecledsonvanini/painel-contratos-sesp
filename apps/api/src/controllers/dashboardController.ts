@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { routeParam } from '../lib/params';
+import { getOrgaoScope } from '../lib/audit';
 import { dashboardService } from '../services/dashboardService';
 
 function etagFrom(payload: unknown) {
@@ -35,7 +36,15 @@ export async function getVencimentos(req: Request, res: Response) {
 }
 
 export async function getPorOrgao(req: Request, res: Response) {
-  return sendCached(req, res, await dashboardService.porOrgao());
+  const scope = getOrgaoScope(req);
+  const rows = await dashboardService.porOrgao();
+  if (scope.orgaoId) {
+    const filtered = (Array.isArray(rows) ? rows : []).filter(
+      (r: Record<string, unknown>) => r.orgaoId === scope.orgaoId,
+    );
+    return sendCached(req, res, filtered);
+  }
+  return sendCached(req, res, rows);
 }
 
 export async function getCustos(req: Request, res: Response) {

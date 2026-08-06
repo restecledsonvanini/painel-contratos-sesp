@@ -18,7 +18,7 @@ import { asyncHandler } from '../lib/errors';
 import { requireMinRole } from '../middleware/rbac';
 
 const router = Router();
-const writeRoles = requireMinRole('COLABORADOR');
+const writeRoles = requireMinRole('GESTOR');
 
 router.get('/orgaos', asyncHandler(listOrgaos));
 router.get('/orgaos/arvore', asyncHandler(arvoreOrgaos));

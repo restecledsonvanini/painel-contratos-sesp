@@ -11,10 +11,10 @@ import {
   useToast,
 } from '@painel/ui';
 import { ChevronDown, ChevronRight, Plus } from 'lucide-react';
+import { useCanManage } from '../lib/access';
 import { useDeleteUnidade, useOrgaos, useUnidadesArvore, useUnidadesList } from '../hooks/useOrganizacao';
 import { getErrorMessage } from '../lib/http';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
-import { useAuth } from '../providers/AuthProvider';
 
 type TreeNode = {
   id: string;
@@ -135,8 +135,7 @@ export default function UnidadesList() {
   const del = useDeleteUnidade();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
-  const { hasMinRole, token } = useAuth();
-  const canWrite = !token || hasMinRole('GESTOR');
+  const canWrite = useCanManage();
   const [orgaoFiltro, setOrgaoFiltro] = useState('');
 
   const tree = useMemo(() => {

@@ -12,6 +12,7 @@ import {
 import { Button, ChartCard, KpiCard, Meter, Page, Skeleton } from '@painel/ui';
 import { Bell, Clock, FilePlus2, LineChart } from 'lucide-react';
 import { formatCents, formatCurrencyFromReais } from '../lib/format';
+import { useCanAct } from '../lib/access';
 import { contractsListHref, janelaToVencimentoParam } from '../lib/dashboardLinks';
 import {
   alertaTipoToTab,
@@ -26,7 +27,6 @@ import {
   useDashboardPublicidade,
   useDashboardVencimentos,
 } from '../hooks/useDashboard';
-import { useAuth } from '../providers/AuthProvider';
 
 function num(v: unknown) {
   return Number(v ?? 0);
@@ -34,8 +34,7 @@ function num(v: unknown) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { hasMinRole, token } = useAuth();
-  const canWrite = !token || hasMinRole('ANALISTA');
+  const canWrite = useCanAct('ANALISTA');
 
   const { data: kpis, isLoading: loadingKpis } = useDashboardKpis();
   const { data: vencimentos = [], isLoading: loadingVenc } = useDashboardVencimentos();

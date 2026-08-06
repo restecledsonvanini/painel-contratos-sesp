@@ -18,6 +18,7 @@ import {
 import { Plus } from 'lucide-react';
 import { useServidores, useDeleteServidor } from '../hooks/useReferences';
 import { getErrorMessage } from '../lib/http';
+import { useCanWrite } from '../lib/access';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 import { maskCpf } from '../lib/masks';
 
@@ -26,6 +27,7 @@ export default function ServidoresList() {
   const del = useDeleteServidor();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
+  const canWrite = useCanWrite();
 
   const handleDelete = async () => {
     if (!confirm.pending) return;
@@ -63,11 +65,13 @@ export default function ServidoresList() {
       title="Servidores"
       description="Gestores e fiscais de contrato (servidores públicos)."
       actions={
-        <Link to="/servidores/new">
-          <Button>
-            <Plus size={16} /> Novo
-          </Button>
-        </Link>
+        canWrite ? (
+          <Link to="/servidores/new">
+            <Button>
+              <Plus size={16} /> Novo
+            </Button>
+          </Link>
+        ) : undefined
       }
     >
       <Card variant="bordered" className="overflow-hidden">
@@ -89,6 +93,7 @@ export default function ServidoresList() {
                     <TableCell>{s.cpf ? maskCpf(s.cpf) : '—'}</TableCell>
                     <TableCell>{s.cargo || '—'}</TableCell>
                     <TableCell>
+                      {canWrite ? (
                       <div className="flex gap-2">
                         <Link to={`/servidores/${s.id}/edit`}>
                           <Button size="sm" variant="secondary">
@@ -105,6 +110,9 @@ export default function ServidoresList() {
                           Desativar
                         </Button>
                       </div>
+                      ) : (
+                        '—'
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

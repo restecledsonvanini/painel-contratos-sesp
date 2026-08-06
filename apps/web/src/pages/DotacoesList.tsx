@@ -18,6 +18,7 @@ import {
 } from '@painel/ui';
 import { Plus } from 'lucide-react';
 import { http, getErrorMessage } from '../lib/http';
+import { useCanWrite } from '../lib/access';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 import { invalidateDotacoes } from '../lib/invalidate';
 import type { DotacaoDTO } from '@painel/schema';
@@ -26,6 +27,7 @@ export default function DotacoesList() {
   const qc = useQueryClient();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
+  const canWrite = useCanWrite();
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['dotacoes'],
     queryFn: async () => (await http.get<DotacaoDTO[]>('/dotacoes')).data,
@@ -70,11 +72,13 @@ export default function DotacoesList() {
       title="Dotações orçamentárias"
       description="Natureza de despesa e fonte de recurso por exercício."
       actions={
-        <Link to="/dotacoes/new">
-          <Button>
-            <Plus size={16} /> Nova dotação
-          </Button>
-        </Link>
+        canWrite ? (
+          <Link to="/dotacoes/new">
+            <Button>
+              <Plus size={16} /> Nova dotação
+            </Button>
+          </Link>
+        ) : undefined
       }
     >
       <Card variant="bordered" className="overflow-hidden p-0">
@@ -99,6 +103,7 @@ export default function DotacoesList() {
                   <TableCell>{d.fonteRecurso?.label || d.fonteRecurso?.codigo || '—'}</TableCell>
                   <TableCell>{d.descricao || '—'}</TableCell>
                   <TableCell>
+                    {canWrite ? (
                     <div className="flex gap-2">
                       <Link to={`/dotacoes/${d.id}/edit`}>
                         <Button size="sm" variant="secondary">
@@ -119,6 +124,9 @@ export default function DotacoesList() {
                         Excluir
                       </Button>
                     </div>
+                    ) : (
+                      '—'
+                    )}
                   </TableCell>
                 </TableRow>
               ))
