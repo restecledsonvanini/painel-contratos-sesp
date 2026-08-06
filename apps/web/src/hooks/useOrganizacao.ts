@@ -1,49 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type {
+  ArvoreOrgaoDTO,
+  MunicipioDTO,
+  OrgaoDTO,
+  UnidadeOrganizacionalDTO,
+} from '@painel/schema';
 import { http } from '../lib/http';
-import { qk } from '../lib/queryKeys';
+import { invalidateOrganizacao } from '../lib/invalidate';
 
-export type Orgao = {
-  id: string;
-  sigla: string;
-  nome: string;
-  tipo: string;
-  ativo: boolean;
-  parentId?: string | null;
-  parent?: { id: string; sigla: string; nome: string } | null;
-};
-
-export type UnidadeOrganizacional = {
-  id: string;
-  orgaoId: string;
-  parentId?: string | null;
-  sigla: string;
-  nome: string;
-  nivel: string;
-  municipioId: string;
-  ativo: boolean;
-  orgao?: { id: string; sigla: string; nome: string };
-  municipio?: { id: string; nome: string; uf: string; codigoIbge?: string };
-  parent?: { id: string; sigla: string; nome: string } | null;
-};
-
-export type ArvoreOrgao = {
-  id: string;
-  kind?: 'orgao' | 'unidade';
-  label: string;
-  sigla: string;
-  nome?: string;
-  tipo?: string;
-  nivel?: string;
-  parentId?: string | null;
-  municipio?: { id: string; nome: string; uf: string };
-  children: ArvoreOrgao[];
-};
-
-export type Municipio = {
-  id: string;
-  nome: string;
-  uf: string;
-  codigoIbge: string;
+export type {
+  ArvoreOrgaoDTO as ArvoreOrgao,
+  MunicipioDTO as Municipio,
+  OrgaoDTO as Orgao,
+  UnidadeOrganizacionalDTO as UnidadeOrganizacional,
 };
 
 const UNIDADES_KEY = ['unidadesOrganizacionais'] as const;
@@ -53,7 +22,7 @@ const ARVORE_KEY = ['unidades', 'arvore'] as const;
 export function useOrgaos() {
   return useQuery({
     queryKey: ORGAOS_KEY,
-    queryFn: async () => (await http.get<Orgao[]>('/orgaos')).data,
+    queryFn: async () => (await http.get<OrgaoDTO[]>('/orgaos')).data,
     staleTime: 1000 * 60 * 10,
   });
 }
@@ -61,7 +30,7 @@ export function useOrgaos() {
 export function useUnidadesList() {
   return useQuery({
     queryKey: UNIDADES_KEY,
-    queryFn: async () => (await http.get<UnidadeOrganizacional[]>('/unidades')).data,
+    queryFn: async () => (await http.get<UnidadeOrganizacionalDTO[]>('/unidades')).data,
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -69,7 +38,7 @@ export function useUnidadesList() {
 export function useUnidadesArvore() {
   return useQuery({
     queryKey: ARVORE_KEY,
-    queryFn: async () => (await http.get<ArvoreOrgao[]>('/unidades/arvore')).data,
+    queryFn: async () => (await http.get<ArvoreOrgaoDTO[]>('/unidades/arvore')).data,
     staleTime: 1000 * 60 * 5,
   });
 }
@@ -77,7 +46,7 @@ export function useUnidadesArvore() {
 export function useUnidade(id?: string) {
   return useQuery({
     queryKey: id ? ['unidade', id] : ['unidade', 'empty'],
-    queryFn: async () => (await http.get<UnidadeOrganizacional>(`/unidades/${id}`)).data,
+    queryFn: async () => (await http.get<UnidadeOrganizacionalDTO>(`/unidades/${id}`)).data,
     enabled: Boolean(id),
   });
 }
@@ -86,7 +55,9 @@ export function useMunicipioSearch(q: string) {
   return useQuery({
     queryKey: ['municipios', q],
     queryFn: async () => {
-      const res = await http.get<{ data: Municipio[] }>('/municipios', { params: { q, pageSize: 20 } });
+      const res = await http.get<{ data: MunicipioDTO[] }>('/municipios', {
+        params: { q, pageSize: 20 },
+      });
       return res.data.data ?? [];
     },
     enabled: q.trim().length >= 2,
@@ -94,19 +65,12 @@ export function useMunicipioSearch(q: string) {
   });
 }
 
-function invalidateOrg(queryClient: ReturnType<typeof useQueryClient>) {
-  queryClient.invalidateQueries({ queryKey: UNIDADES_KEY });
-  queryClient.invalidateQueries({ queryKey: ORGAOS_KEY });
-  queryClient.invalidateQueries({ queryKey: ARVORE_KEY });
-  queryClient.invalidateQueries({ queryKey: qk.lookups });
-}
-
 export function useCreateUnidade() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Record<string, unknown>) =>
-      (await http.post<UnidadeOrganizacional>('/unidades', payload)).data,
-    onSuccess: () => invalidateOrg(queryClient),
+      (await http.post<UnidadeOrganizacionalDTO>('/unidades', payload)).data,
+    onSuccess: () => invalidateOrganizacao(queryClient),
   });
 }
 
@@ -114,11 +78,8 @@ export function useUpdateUnidade() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, payload }: { id: string; payload: Record<string, unknown> }) =>
-      (await http.put<UnidadeOrganizacional>(`/unidades/${id}`, payload)).data,
-    onSuccess: (_data, vars) => {
-      invalidateOrg(queryClient);
-      queryClient.invalidateQueries({ queryKey: ['unidade', vars.id] });
-    },
+      (await http.put<UnidadeOrganizacionalDTO>(`/unidades/${id}`, payload)).data,
+    onSuccess: (_data, vars) => invalidateOrganizacao(queryClient, vars.id),
   });
 }
 
@@ -126,6 +87,6 @@ export function useDeleteUnidade() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => (await http.delete(`/unidades/${id}`)).data,
-    onSuccess: () => invalidateOrg(queryClient),
+    onSuccess: () => invalidateOrganizacao(queryClient),
   });
 }

@@ -6,3 +6,4 @@ export * from './alteracoes';
 export * from './orcamento';
 export * from './operacao';
 export * from './auth';
+export * from './dto';

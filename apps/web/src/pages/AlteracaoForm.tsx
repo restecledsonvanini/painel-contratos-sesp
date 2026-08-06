@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button, Input, Meter, Page, Textarea, useToast } from '@painel/ui';
+import { TIPO_ALTERACAO_LABELS, type TipoAlteracao } from '@painel/domain';
 import { http, getErrorMessage } from '../lib/http';
 import { useContract } from '../hooks/useContracts';
 
@@ -21,16 +22,18 @@ type Simulacao = {
   exigeJustificativaExcepcional: boolean;
 };
 
-const TIPOS = [
-  { value: 'ADITIVO_PRAZO', label: 'Aditivo de prazo' },
-  { value: 'ADITIVO_PRAZO_VALOR', label: 'Aditivo de prazo e valor' },
-  { value: 'ADITIVO_ACRESCIMO_QUANTITATIVO', label: 'Aditivo de acréscimo' },
-  { value: 'ADITIVO_SUPRESSAO', label: 'Aditivo de supressão' },
-  { value: 'ADITIVO_QUALITATIVO', label: 'Aditivo qualitativo' },
-  { value: 'APOSTILAMENTO_REAJUSTE', label: 'Apostilamento — reajuste' },
-  { value: 'APOSTILAMENTO_REEQUILIBRIO', label: 'Apostilamento — reequilíbrio' },
-  { value: 'APOSTILAMENTO_CORRECAO_MATERIAL', label: 'Apostilamento — correção material' },
+/** Subconjunto usado no wizard (labels vindos do domínio). */
+const TIPOS_FORM: TipoAlteracao[] = [
+  'ADITIVO_PRAZO',
+  'ADITIVO_PRAZO_VALOR',
+  'ADITIVO_ACRESCIMO_QUANTITATIVO',
+  'ADITIVO_SUPRESSAO',
+  'ADITIVO_QUALITATIVO',
+  'APOSTILAMENTO_REAJUSTE',
+  'APOSTILAMENTO_REEQUILIBRIO',
+  'APOSTILAMENTO_CORRECAO_MATERIAL',
 ];
+
 
 export default function AlteracaoForm() {
   const { id: contratoId } = useParams();
@@ -111,9 +114,9 @@ export default function AlteracaoForm() {
             <div className="app-form__span-3">
               <span className="field-label">Tipo</span>
               <select className="select-field" value={tipo} onChange={(e) => setTipo(e.target.value)}>
-                {TIPOS.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
+                {TIPOS_FORM.map((value) => (
+                  <option key={value} value={value}>
+                    {TIPO_ALTERACAO_LABELS[value]}
                   </option>
                 ))}
               </select>

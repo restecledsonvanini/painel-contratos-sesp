@@ -11,7 +11,7 @@ import {
 } from 'recharts';
 import { Button, ChartCard, KpiCard, Meter, Page, Skeleton } from '@painel/ui';
 import { Bell, Clock, FilePlus2, LineChart } from 'lucide-react';
-import { formatCents } from '../lib/format';
+import { formatCents, formatCurrencyFromReais } from '../lib/format';
 import { contractsListHref, janelaToVencimentoParam } from '../lib/dashboardLinks';
 import {
   alertaTipoToTab,
@@ -183,9 +183,7 @@ export default function Dashboard() {
                   <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                   <Tooltip
                     formatter={(value: number, name: string) =>
-                      name === 'valor'
-                        ? value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
-                        : value
+                      name === 'valor' ? formatCurrencyFromReais(value) : value
                     }
                   />
                   <Bar dataKey="qtd" name="Contratos" fill="var(--primary)" radius={[4, 4, 0, 0]} />

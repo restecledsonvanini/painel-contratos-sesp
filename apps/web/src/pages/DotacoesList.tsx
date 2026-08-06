@@ -19,15 +19,8 @@ import {
 import { Plus } from 'lucide-react';
 import { http, getErrorMessage } from '../lib/http';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
-
-type Dotacao = {
-  id: string;
-  exercicio: number;
-  codigo: string;
-  descricao?: string | null;
-  naturezaDespesa?: { codigo: string; label: string };
-  fonteRecurso?: { codigo: string; label: string };
-};
+import { invalidateDotacoes } from '../lib/invalidate';
+import type { DotacaoDTO } from '@painel/schema';
 
 export default function DotacoesList() {
   const qc = useQueryClient();
@@ -35,13 +28,11 @@ export default function DotacoesList() {
   const confirm = useConfirmDialog<string>();
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['dotacoes'],
-    queryFn: async () => (await http.get<Dotacao[]>('/dotacoes')).data,
+    queryFn: async () => (await http.get<DotacaoDTO[]>('/dotacoes')).data,
   });
   const del = useMutation({
     mutationFn: async (id: string) => (await http.delete(`/dotacoes/${id}`)).data,
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['dotacoes'] });
-    },
+    onSuccess: () => invalidateDotacoes(qc),
   });
 
   const handleDelete = async () => {

@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import type { DashboardKpisDTO, VencimentoJanelaDTO } from '@painel/schema';
 import { http } from '../lib/http';
 import { qk } from '../lib/queryKeys';
 
@@ -7,27 +8,12 @@ function asArray<T>(data: T | T[] | null | undefined): T[] {
   return Array.isArray(data) ? data : [data];
 }
 
-export type DashboardKpis = {
-  totalContratos?: number;
-  vigentes?: number;
-  aVencer?: number;
-  vencidos?: number;
-  valorSobGestaoCents?: number;
-  percentualAditadoMedio?: number;
-  atualizadoEm?: string;
-};
-
-export type VencimentoJanela = {
-  janela: string;
-  qtd: number;
-  valorCents: number;
-  atualizadoEm?: string;
-};
+export type { DashboardKpisDTO as DashboardKpis, VencimentoJanelaDTO as VencimentoJanela };
 
 export function useDashboardKpis() {
   return useQuery({
     queryKey: qk.dashboard('kpis'),
-    queryFn: async () => (await http.get<DashboardKpis>('/dashboard/kpis')).data,
+    queryFn: async () => (await http.get<DashboardKpisDTO>('/dashboard/kpis')).data,
     staleTime: 60_000,
   });
 }
@@ -35,7 +21,8 @@ export function useDashboardKpis() {
 export function useDashboardVencimentos() {
   return useQuery({
     queryKey: qk.dashboard('vencimentos'),
-    queryFn: async () => asArray((await http.get<VencimentoJanela[]>('/dashboard/vencimentos')).data),
+    queryFn: async () =>
+      asArray((await http.get<VencimentoJanelaDTO[]>('/dashboard/vencimentos')).data),
     staleTime: 60_000,
   });
 }

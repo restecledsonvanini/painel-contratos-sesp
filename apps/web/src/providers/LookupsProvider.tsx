@@ -1,15 +1,10 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { LookupOption } from '@painel/schema';
 import { http } from '../lib/http';
 import { qk } from '../lib/queryKeys';
 
-export type LookupOption = {
-  id: string;
-  label: string;
-  codigo?: string;
-  parentId?: string | null;
-  metadata?: Record<string, unknown> | null;
-};
+export type { LookupOption };
 
 export type LookupsPayload = {
   dominios: Record<string, LookupOption[]>;

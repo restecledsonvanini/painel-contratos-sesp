@@ -23,7 +23,7 @@ import {
 } from '@painel/ui';
 import { getErrorMessage, http } from '../lib/http';
 import { downloadApiFile } from '../lib/download';
-import { formatCents } from '../lib/format';
+import { formatCents, formatCurrencyFromReais } from '../lib/format';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 import { useAuth } from '../providers/AuthProvider';
 import { CONTRACT_TAB_LABELS, pushRecentContract } from '../lib/recentContracts';
@@ -198,9 +198,7 @@ export default function ContractDetail() {
   ]
     .filter(Boolean)
     .join(' / ') ||
-    contract.unidadeFsp?.sigla ||
     contract.unidadeGestoraId ||
-    contract.unidadeFspId ||
     '—';
 
   const tabItems = [
@@ -223,7 +221,7 @@ export default function ContractDetail() {
               items={[
                 { term: 'GMS / Ano', detail: `${contract.numGms}/${contract.anoGms}` },
                 { term: 'e-Protocolo', detail: contract.eProtocolo || contract.protocoloCabeca || '—' },
-                { term: 'Fornecedor', detail: contract.fornecedorName || contract.empresaName || '—' },
+                { term: 'Fornecedor', detail: contract.fornecedorName || '—' },
                 { term: 'Unidade gestora', detail: unidadeLabel },
                 { term: 'Natureza', detail: contract.naturezaObjeto || '—' },
                 {
@@ -319,15 +317,9 @@ export default function ContractDetail() {
                 <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">
                   {item.quantidade} {item.unidadeMedida || 'un'}
                   {' · '}
-                  {(item.valorUnitario ?? 0).toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                  })}
+                  {formatCurrencyFromReais(item.valorUnitario ?? 0)}
                   {' unit. · total '}
-                  {(item.valorTotal ?? 0).toLocaleString('pt-BR', {
-                    style: 'currency',
-                    currency: 'BRL',
-                  })}
+                  {formatCurrencyFromReais(item.valorTotal ?? 0)}
                   {item.periodicidade ? ` · ${item.periodicidade}` : ''}
                 </p>
               </div>
@@ -358,7 +350,7 @@ export default function ContractDetail() {
                     {a.situacao ? `${a.situacao} · ` : ''}
                     Novo fim: {a.novaDataFimVigencia ? String(a.novaDataFimVigencia).slice(0, 10) : '—'}
                     {a.valorAcrescido != null
-                      ? ` · + ${a.valorAcrescido.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}`
+                      ? ` · + ${formatCurrencyFromReais(a.valorAcrescido)}`
                       : ''}
                   </p>
                 </div>
@@ -428,10 +420,7 @@ export default function ContractDetail() {
                   <p key={d.id} className="text-[var(--font-size-sm)]">
                     {d.exercicio} · {d.dotacao?.codigo}
                     {' · '}
-                    {(d.valorPrevisto ?? 0).toLocaleString('pt-BR', {
-                      style: 'currency',
-                      currency: 'BRL',
-                    })}
+                    {formatCurrencyFromReais(d.valorPrevisto ?? 0)}
                     {d.dotacao?.fonteRecurso?.label ? ` · ${d.dotacao.fonteRecurso.label}` : ''}
                   </p>
                 ))
@@ -452,10 +441,7 @@ export default function ContractDetail() {
                   <p key={e.id} className="text-[var(--font-size-sm)]">
                     {e.numero}/{e.exercicio} · {e.situacao}
                     {' · '}
-                    {(e.valor ?? 0).toLocaleString('pt-BR', {
-                      style: 'currency',
-                      currency: 'BRL',
-                    })}
+                    {formatCurrencyFromReais(e.valor ?? 0)}
                   </p>
                 ))
               ) : (
@@ -687,7 +673,7 @@ export default function ContractDetail() {
       title={contract.protocoloCabeca || `Contrato ${contract.numGms}/${contract.anoGms}`}
       description={
         <>
-          {unidadeLabel} · {contract.fornecedorName || contract.empresaName || 'Fornecedor'} · Lei
+          {unidadeLabel} · {contract.fornecedorName || 'Fornecedor'} · Lei
           14.133/2021
           <br />
           <button

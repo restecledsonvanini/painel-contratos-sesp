@@ -364,8 +364,8 @@ Cada fase é entregável e reversível sozinha. Nenhuma fase começa com a anter
 | **5. Descoberta** | Breadcrumbs; linha clicável; deep-link por aba; recentes; palette | não | baixo | ✅ **Feita (2026-08-05)** — ≤2 cliques ao detalhe |
 | **6. Auth** | `ANALISTA`/`VISITANTE`; allowlist de domínio; UI de usuários; `RequireRole` | sim (enum) | médio | ✅ **Feita (2026-08-05)** — papéis + allowlist + UI |
 | **7. Rastreabilidade** | `criadoPorId`/`atualizadoPorId` + backfill; header do detalhe; fim da auditoria duplicada | sim (aditiva) | baixo | ✅ **Feita (2026-08-05)** — autoria no detalhe/lista |
-| **8. Dotações + importação** | Form de dotação; entidades `dotacao`/`unidade` no import; transação; upload de arquivo; RBAC no GET | não | médio | Importar os 5 CRPM por CSV; lote com duplicata não corrompe |
-| **9. Saneamento** | DTOs; factory de hooks; labels de enum; aliases; páginas mortas; `NIVEIS` hardcoded | não | médio | Zero interface duplicada; `invalidateQueries` centralizado |
+| **8. Dotações + importação** | Form de dotação; entidades `dotacao`/`unidade` no import; transação; upload de arquivo; RBAC no GET | não | médio | ✅ **Feita (2026-08-05)** — CRUD + import CSV |
+| **9. Saneamento** | DTOs; factory de hooks; labels de enum; aliases; páginas mortas; `NIVEIS` hardcoded | não | médio | ✅ **Feita (2026-08-05)** — DTOs + invalidate + labels |
 
 ⭐ Exportação foi promovida a Fase 4 por decisão de 2026-08-05.
 
@@ -397,7 +397,7 @@ Uma dependência a respeitar: a **Fase 4 depende da 2**, porque a ficha exportad
 
 1. **PDF** — ficha de 1 página por contrato (identificação, fornecedor, vigência, valores, responsáveis, últimas alterações). Relatório completo fica fora do escopo desta fase.
 2. **Contratos legados** — depois da Fase 2, zerar `subunidadeId` nos contratos em que ele aponta para a sede do órgão, ou manter a sede como subunidade responsável? *(default: manter)*
-3. **Nomenclatura de subunidade** — quando voltar ao tema, a lista é única para todas as forças ou uma por força? *(decidir na Fase 9)*
+3. **Nomenclatura de subunidade** — quando voltar ao tema, a lista é única para todas as forças ou uma por força? *(decidido na Fase 9: lista única via `NivelUnidade` / `NIVEL_UNIDADE_LABELS`)*
 
 ---
 

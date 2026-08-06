@@ -3,6 +3,10 @@ import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Button, Input, Page, useToast } from '@painel/ui';
 import {
+  NIVEL_UNIDADE_LABELS,
+  enumOptions,
+} from '@painel/domain';
+import {
   useCreateUnidade,
   useMunicipioSearch,
   useOrgaos,
@@ -12,16 +16,7 @@ import {
 } from '../hooks/useOrganizacao';
 import { getErrorMessage } from '../lib/http';
 
-const NIVEIS = [
-  'COMANDO_GERAL',
-  'DIRETORIA',
-  'COMANDO_REGIONAL',
-  'BATALHAO',
-  'COMPANHIA',
-  'DELEGACIA',
-  'UNIDADE_PRISIONAL',
-  'SETOR',
-] as const;
+const NIVEIS = enumOptions(NIVEL_UNIDADE_LABELS);
 
 type FormValues = {
   orgaoId: string;
@@ -73,8 +68,8 @@ export default function UnidadeForm() {
     setValue('parentId', existing.parentId || '');
     setValue('sigla', existing.sigla);
     setValue('nome', existing.nome);
-    setValue('nivel', existing.nivel);
-    setValue('municipioId', existing.municipioId);
+    setValue('nivel', existing.nivel || '');
+    setValue('municipioId', existing.municipioId || '');
     setValue('ativo', existing.ativo);
     if (existing.municipio) {
       setMunicipioLabel(`${existing.municipio.nome}/${existing.municipio.uf}`);
@@ -195,8 +190,8 @@ export default function UnidadeForm() {
               <select className="select-field" aria-labelledby="label-nivel" {...register('nivel')}>
                 <option value="">Não informado</option>
                 {NIVEIS.map((n) => (
-                  <option key={n} value={n}>
-                    {n.replaceAll('_', ' ')}
+                  <option key={n.value} value={n.value}>
+                    {n.label}
                   </option>
                 ))}
               </select>

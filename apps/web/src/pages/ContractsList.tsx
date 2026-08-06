@@ -19,6 +19,7 @@ import {
 import { Download, Plus, X } from 'lucide-react';
 import { useContracts, useDeleteContract, type Contract } from '../hooks/useContracts';
 import { downloadApiFile } from '../lib/download';
+import { formatCurrencyFromReais } from '../lib/format';
 import { getErrorMessage } from '../lib/http';
 import { authorLabel, formatRelativePast } from '../lib/formatRelative';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
@@ -99,7 +100,7 @@ export default function ContractsList() {
             : sit === want;
         if (!legacy) return false;
       }
-      if (filters.fornecedorId && c.fornecedorId !== filters.fornecedorId && c.empresaId !== filters.fornecedorId) {
+      if (filters.fornecedorId && c.fornecedorId !== filters.fornecedorId) {
         return false;
       }
       if (filters.modalidade && (c.modalidade || '').toUpperCase() !== filters.modalidade.toUpperCase()) {
@@ -276,28 +277,17 @@ export default function ContractsList() {
                       ]
                         .filter(Boolean)
                         .join(' / ') ||
-                        contract.unidadeFsp?.sigla ||
                         contract.unidadeGestoraId ||
-                        contract.unidadeFspId ||
                         '—'}
                     </TableCell>
                     <TableCell data-label="Fornecedor">
-                      {contract.fornecedorName ||
-                        contract.empresaName ||
-                        contract.fornecedorId ||
-                        contract.empresaId ||
-                        '—'}
+                      {contract.fornecedorName || contract.fornecedorId || '—'}
                     </TableCell>
                     <TableCell data-label="Status">
                       <StatusBadge status={contract.status || contract.situacao?.toLowerCase()} />
                     </TableCell>
                     <TableCell data-label="Valor anual">
-                      {contract.valorAnual != null
-                        ? contract.valorAnual.toLocaleString('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
-                          })
-                        : '—'}
+                      {formatCurrencyFromReais(contract.valorAnual)}
                     </TableCell>
                     <TableCell data-label="Última alteração">
                       <span className="text-[var(--font-size-xs)] text-[var(--text-muted)]">

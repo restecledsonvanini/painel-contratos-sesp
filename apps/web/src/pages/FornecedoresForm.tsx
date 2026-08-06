@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Button, ConfirmDialog, Input, Page, useToast } from '@painel/ui';
+import { TIPO_SANCAO_LABELS, enumOptions } from '@painel/domain';
 import {
   useCreateFornecedor,
   useCreateFornecedorContato,
@@ -30,12 +31,7 @@ type FormValues = {
   contatoTelefone: string;
 };
 
-const TIPOS_SANCAO = [
-  { value: 'ADVERTENCIA', label: 'Advertência' },
-  { value: 'MULTA', label: 'Multa' },
-  { value: 'IMPEDIMENTO_LICITAR', label: 'Impedimento de licitar' },
-  { value: 'DECLARACAO_INIDONEIDADE', label: 'Declaração de inidoneidade' },
-] as const;
+const TIPOS_SANCAO = enumOptions(TIPO_SANCAO_LABELS);
 
 function ContatosSection({ fornecedorId, contatos }: { fornecedorId: string; contatos: FornecedorContato[] }) {
   const toast = useToast();

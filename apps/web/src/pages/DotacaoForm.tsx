@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button, Input, Page, Textarea, useToast } from '@painel/ui';
 import { http, getErrorMessage } from '../lib/http';
 import { LookupSelect } from '../components/LookupSelect';
+import { invalidateDotacoes } from '../lib/invalidate';
 
 type FormValues = {
   exercicio: number;
@@ -65,9 +66,7 @@ export default function DotacaoForm() {
       if (id) return (await http.put(`/dotacoes/${id}`, body)).data;
       return (await http.post('/dotacoes', body)).data;
     },
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['dotacoes'] });
-    },
+    onSuccess: () => invalidateDotacoes(qc),
   });
 
   const onSubmit = async (data: FormValues) => {

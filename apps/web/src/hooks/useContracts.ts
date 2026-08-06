@@ -1,105 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { ContratoDTO } from '@painel/schema';
 import { http } from '../lib/http';
+import { invalidateContratos } from '../lib/invalidate';
 import { qk } from '../lib/queryKeys';
 
-export interface Contract {
-  id: string;
-  protocoloCabeca?: string | null;
-  eProtocolo?: string | null;
-  numGms: number;
-  numeroGms?: string;
-  anoGms: number;
-  unidadeFspId?: string;
-  unidadeFsp?: { id: string; sigla: string; nome: string };
-  unidadeGestoraId?: string;
-  unidadeGestora?: { id: string; sigla: string; nome: string; tipo?: string };
-  subunidadeId?: string | null;
-  subunidade?: { id: string; sigla: string; nome: string; nivel?: string | null } | null;
-  gestorId?: string;
-  gestorName?: string;
-  fiscalId?: string;
-  fiscalName?: string;
-  fornecedorId?: string;
-  fornecedorName?: string;
-  /** @deprecated */
-  empresaId?: string;
-  /** @deprecated */
-  empresaName?: string;
-  modalidade?: string;
-  pilar?: string;
-  naturezaObjeto?: string;
-  situacao?: string;
-  objeto?: string;
-  valorAnual?: number;
-  valorAnualCents?: number;
-  valorGlobalOriginal?: number;
-  dataInicio?: string | null;
-  dataInicioVigencia?: string | null;
-  dataFimOrig?: string | null;
-  dataFimVigenciaOriginal?: string | null;
-  status?: string;
-  observacoes?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-  criadoPor?: { id: string; nome?: string | null; email?: string | null } | null;
-  atualizadoPor?: { id: string; nome?: string | null; email?: string | null } | null;
-  itens?: Array<{
-    id: string;
-    sequencia: number;
-    catalogoItemId: string;
-    catalogoNome?: string;
-    categoria?: string;
-    quantidade: number;
-    unidadeMedida?: string;
-    valorUnitario?: number;
-    valorTotal?: number;
-    periodicidade?: string;
-    atributos?: Record<string, unknown> | null;
-  }>;
-  alteracoes?: Array<{
-    id: string;
-    tipo: string;
-    numero: number;
-    eProtocolo?: string | null;
-    novaDataFimVigencia?: string | null;
-    valorAcrescido?: number;
-    situacao?: string;
-  }>;
-  responsaveis?: Array<{
-    id: string;
-    servidorId: string;
-    servidorNome?: string;
-    papel: string;
-    atoDesignacao?: string | null;
-    dataInicio?: string;
-    dataFim?: string | null;
-  }>;
-  rateios?: Array<{
-    id: string;
-    unidadeId: string;
-    unidadeSigla?: string;
-    unidadeNome?: string;
-    percentual?: number | null;
-    valorCents?: number | null;
-    quantidade?: number | null;
-    observacao?: string | null;
-  }>;
-  aditivos?: Array<{
-    id?: string;
-    numAditivo: number;
-    protocoloAdit: string;
-    novoFimVigencia?: string | null;
-    valorAdicional?: number;
-  }>;
-}
+export type { ContratoDTO as Contract };
 
 async function getContracts() {
-  const res = await http.get<Contract[]>('/contracts');
+  const res = await http.get<ContratoDTO[]>('/contracts');
   return res.data;
 }
 
 async function getContract(id: string) {
-  const res = await http.get<Contract>(`/contracts/${id}`);
+  const res = await http.get<ContratoDTO>(`/contracts/${id}`);
   return res.data;
 }
 
@@ -125,29 +38,22 @@ export function useContract(id?: string) {
 export function useCreateContract() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: Partial<Contract>) => {
+    mutationFn: async (payload: Partial<ContratoDTO>) => {
       const res = await http.post('/contracts', payload);
       return res.data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['contratos'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-    },
+    onSuccess: () => invalidateContratos(queryClient),
   });
 }
 
 export function useUpdateContract() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async ({ id, payload }: { id: string; payload: Partial<Contract> }) => {
+    mutationFn: async ({ id, payload }: { id: string; payload: Partial<ContratoDTO> }) => {
       const res = await http.patch(`/contracts/${id}`, payload);
       return res.data;
     },
-    onSuccess: (_data, vars) => {
-      queryClient.invalidateQueries({ queryKey: ['contratos'] });
-      queryClient.invalidateQueries({ queryKey: qk.contrato(vars.id) });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-    },
+    onSuccess: (_data, vars) => invalidateContratos(queryClient, vars.id),
   });
 }
 
@@ -158,10 +64,6 @@ export function useDeleteContract() {
       const res = await http.delete(`/contracts/${id}`);
       return res.data;
     },
-    onSuccess: (_data, id) => {
-      queryClient.invalidateQueries({ queryKey: ['contratos'] });
-      queryClient.invalidateQueries({ queryKey: qk.contrato(id) });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-    },
+    onSuccess: (_data, id) => invalidateContratos(queryClient, id),
   });
 }

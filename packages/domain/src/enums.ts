@@ -80,6 +80,27 @@ export const Periodicidade = {
 } as const;
 export type Periodicidade = (typeof Periodicidade)[keyof typeof Periodicidade];
 
+/** Lista única de níveis para todas as forças (decisão Fase 9). */
+export const NivelUnidade = {
+  COMANDO_GERAL: 'COMANDO_GERAL',
+  DIRETORIA: 'DIRETORIA',
+  COMANDO_REGIONAL: 'COMANDO_REGIONAL',
+  BATALHAO: 'BATALHAO',
+  COMPANHIA: 'COMPANHIA',
+  DELEGACIA: 'DELEGACIA',
+  UNIDADE_PRISIONAL: 'UNIDADE_PRISIONAL',
+  SETOR: 'SETOR',
+} as const;
+export type NivelUnidade = (typeof NivelUnidade)[keyof typeof NivelUnidade];
+
+export const TipoSancao = {
+  ADVERTENCIA: 'ADVERTENCIA',
+  MULTA: 'MULTA',
+  IMPEDIMENTO_LICITAR: 'IMPEDIMENTO_LICITAR',
+  DECLARACAO_INIDONEIDADE: 'DECLARACAO_INIDONEIDADE',
+} as const;
+export type TipoSancao = (typeof TipoSancao)[keyof typeof TipoSancao];
+
 export const PILAR_LABELS: Record<PilarOrcamentario, string> = {
   CUSTEIO: 'Custeio',
   INVESTIMENTO: 'Investimento',
@@ -96,3 +117,52 @@ export const NATUREZA_OBJETO_LABELS: Record<NaturezaObjeto, string> = {
   LOCACAO_IMOVEL: 'Locação de imóvel',
   SOLUCAO_TIC: 'Solução de TIC',
 };
+
+export const SITUACAO_CONTRATO_LABELS: Record<SituacaoContrato, string> = {
+  EM_ELABORACAO: 'Em elaboração',
+  ASSINADO: 'Assinado',
+  VIGENTE: 'Vigente',
+  SUSPENSO: 'Suspenso',
+  RESCINDIDO: 'Rescindido',
+  ENCERRADO: 'Encerrado',
+  ANULADO: 'Anulado',
+};
+
+export const TIPO_ALTERACAO_LABELS: Record<TipoAlteracao, string> = {
+  ADITIVO_PRAZO: 'Aditivo de prazo',
+  ADITIVO_ACRESCIMO_QUANTITATIVO: 'Aditivo de acréscimo',
+  ADITIVO_SUPRESSAO: 'Aditivo de supressão',
+  ADITIVO_PRAZO_VALOR: 'Aditivo de prazo e valor',
+  ADITIVO_QUALITATIVO: 'Aditivo qualitativo',
+  ADITIVO_SUBROGACAO: 'Aditivo de sub-rogação',
+  APOSTILAMENTO_REAJUSTE: 'Apostilamento — reajuste',
+  APOSTILAMENTO_REPACTUACAO: 'Apostilamento — repactuação',
+  APOSTILAMENTO_REEQUILIBRIO: 'Apostilamento — reequilíbrio',
+  APOSTILAMENTO_DOTACAO: 'Apostilamento — dotação',
+  APOSTILAMENTO_FISCALIZACAO: 'Apostilamento — fiscalização',
+  APOSTILAMENTO_CORRECAO_MATERIAL: 'Apostilamento — correção material',
+};
+
+export const TIPO_SANCAO_LABELS: Record<TipoSancao, string> = {
+  ADVERTENCIA: 'Advertência',
+  MULTA: 'Multa',
+  IMPEDIMENTO_LICITAR: 'Impedimento de licitar',
+  DECLARACAO_INIDONEIDADE: 'Declaração de inidoneidade',
+};
+
+export const NIVEL_UNIDADE_LABELS: Record<NivelUnidade, string> = {
+  COMANDO_GERAL: 'Comando geral',
+  DIRETORIA: 'Diretoria',
+  COMANDO_REGIONAL: 'Comando regional',
+  BATALHAO: 'Batalhão',
+  COMPANHIA: 'Companhia',
+  DELEGACIA: 'Delegacia',
+  UNIDADE_PRISIONAL: 'Unidade prisional',
+  SETOR: 'Setor',
+};
+
+export function enumOptions<T extends string>(
+  labels: Record<T, string>,
+): Array<{ value: T; label: string }> {
+  return (Object.keys(labels) as T[]).map((value) => ({ value, label: labels[value] }));
+}
