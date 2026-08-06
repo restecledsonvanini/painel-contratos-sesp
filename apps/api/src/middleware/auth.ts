@@ -81,13 +81,6 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
       visitante: synthetic('user-visitante', 'visitante@local', 'Visitante legado', 'VISITANTE'),
     };
 
-    // Tokens legados só em teste automatizado
-    if (process.env.VITEST === 'true') {
-      legacy.colaborador = synthetic('user-colab', 'colaborador@local', 'Colaborador legado', 'ANALISTA');
-      legacy.fiscal = synthetic('user-fiscal', 'fiscal@local', 'Fiscal legado', 'ANALISTA');
-      legacy.leitor = synthetic('user-leitor', 'leitor@local', 'Leitor legado', 'VISITANTE');
-    }
-
     if (legacy[token]) {
       req.user = legacy[token];
       return next();

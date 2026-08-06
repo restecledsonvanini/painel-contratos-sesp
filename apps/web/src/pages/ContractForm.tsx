@@ -198,7 +198,7 @@ export default function ContractForm() {
       setValue('valorAnual', existingContract.valorAnual ?? existingContract.valorGlobalOriginal ?? undefined);
       setValue(
         'unidadeGestoraId',
-        existingContract.unidadeGestoraId || existingContract.unidadeFspId || '',
+        existingContract.unidadeGestoraId || '',
       );
       setValue('subunidadeId', existingContract.subunidadeId || '');
       setValue('modalidade', existingContract.modalidade || '');
@@ -207,7 +207,7 @@ export default function ContractForm() {
       setValue('objeto', existingContract.objeto || '');
       setValue('gestorId', existingContract.gestorId || '');
       setValue('fiscalId', existingContract.fiscalId || '');
-      setValue('fornecedorId', existingContract.fornecedorId || existingContract.empresaId || '');
+      setValue('fornecedorId', existingContract.fornecedorId || '');
       setValue(
         'dataInicio',
         (existingContract.dataInicioVigencia || existingContract.dataInicio || '').toString().slice(0, 10),
@@ -567,7 +567,7 @@ export default function ContractForm() {
                   <option value="">Selecione o fornecedor</option>
                   {fornecedores?.map((item) => (
                     <option key={item.id} value={item.id}>
-                      {item.razaoSocial || item.nome} — {item.documento || item.cnpj}
+                      {item.razaoSocial} — {item.documento}
                     </option>
                   ))}
                 </select>

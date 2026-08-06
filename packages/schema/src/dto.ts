@@ -51,9 +51,6 @@ export type FornecedorDTO = {
   porte?: string | null;
   municipioId?: string | null;
   situacao?: string;
-  /** @deprecated aliases de compat — preferir documento / razaoSocial */
-  cnpj?: string;
-  nome?: string;
   contatos?: FornecedorContatoDTO[];
   sancoes?: FornecedorSancaoDTO[];
   _count?: { contatos?: number; sancoes?: number; contratos?: number };
@@ -249,7 +246,7 @@ export type ContratoRateioDTO = {
   observacao?: string | null;
 };
 
-/** Lista / detalhe de contrato (API ainda pode emitir aliases legados). */
+/** Lista / detalhe de contrato. */
 export type ContratoDTO = {
   id: string;
   protocoloCabeca?: string | null;
@@ -257,9 +254,6 @@ export type ContratoDTO = {
   numGms: number;
   numeroGms?: string;
   anoGms: number;
-  /** @deprecated preferir unidadeGestora */
-  unidadeFspId?: string;
-  unidadeFsp?: RefSiglaNome;
   unidadeGestoraId?: string;
   unidadeGestora?: RefSiglaNome;
   subunidadeId?: string | null;
@@ -270,9 +264,6 @@ export type ContratoDTO = {
   fiscalName?: string;
   fornecedorId?: string;
   fornecedorName?: string;
-  /** @deprecated preferir fornecedorId / fornecedorName */
-  empresaId?: string;
-  empresaName?: string;
   modalidade?: string;
   pilar?: string;
   naturezaObjeto?: string;

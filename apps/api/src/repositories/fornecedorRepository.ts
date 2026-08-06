@@ -17,12 +17,7 @@ const detailInclude = {
 } as const;
 
 function mapFornecedor<T extends { documento: string; razaoSocial: string }>(row: T) {
-  return {
-    ...row,
-    // aliases legados para UI/testes em transição
-    cnpj: row.documento,
-    nome: row.razaoSocial,
-  };
+  return row;
 }
 
 export const fornecedorRepository = {

@@ -97,7 +97,7 @@ export default function FornecedoresList() {
                 fornecedores.map((f) => (
                   <TableRow key={f.id}>
                     <TableCell className="font-semibold">{f.razaoSocial || f.nome}</TableCell>
-                    <TableCell>{formatDoc(f.documento || f.cnpj || '', f.tipoPessoa)}</TableCell>
+                    <TableCell>{formatDoc(f.documento || '', f.tipoPessoa)}</TableCell>
                     <TableCell>{f.situacao || 'ATIVO'}</TableCell>
                     <TableCell>{f._count?.contatos ?? f.contatos?.length ?? 0}</TableCell>
                     <TableCell>

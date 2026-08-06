@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   ContractCreateSchema,
   ContractUpdateSchema,
-  EmpresaCreateSchema,
   FornecedorCreateSchema,
 } from '@painel/schema';
 
@@ -29,7 +28,7 @@ describe('ContractCreateSchema', () => {
     expect(parsed.situacao).toBe('VIGENTE');
   });
 
-  it('accepts empresaId as alias for fornecedorId', () => {
+  it('accepts empresaId as alias for fornecedorId (input, um release)', () => {
     const { fornecedorId: _f, ...rest } = baseContract;
     const parsed = ContractCreateSchema.parse({
       ...rest,
@@ -43,7 +42,7 @@ describe('ContractCreateSchema', () => {
       ContractCreateSchema.parse({
         ...baseContract,
         fiscalId: baseContract.gestorId,
-      })
+      }),
     ).toThrow();
   });
 
@@ -83,7 +82,7 @@ describe('ContractUpdateSchema', () => {
   it('accepts partial payload and converts valorAnual', () => {
     const parsed = ContractUpdateSchema.parse({ valorAnual: 10, status: 'encerrado' });
     expect(parsed).toMatchObject({ valorGlobalOriginalCents: 1000, situacao: 'ENCERRADO' });
-    expect((parsed as any).valorAnual).toBeUndefined();
+    expect((parsed as { valorAnual?: number }).valorAnual).toBeUndefined();
   });
 
   it('rejects identical gestor and fiscal when both present', () => {
@@ -91,25 +90,17 @@ describe('ContractUpdateSchema', () => {
       ContractUpdateSchema.parse({
         gestorId: 'a2222222-2222-4222-8222-222222222222',
         fiscalId: 'a2222222-2222-4222-8222-222222222222',
-      })
+      }),
     ).toThrow();
   });
 });
 
-describe('reference schemas', () => {
-  it('maps empresa create to fornecedor shape', () => {
-    expect(EmpresaCreateSchema.parse({ cnpj: '12345678000100', razaoSocial: 'ACME' })).toEqual({
-      tipoPessoa: 'JURIDICA',
-      documento: '12345678000100',
-      razaoSocial: 'ACME',
-    });
-  });
-
+describe('fornecedor schemas', () => {
   it('requires fornecedor documento and razaoSocial', () => {
     expect(() => FornecedorCreateSchema.parse({ cnpj: '1' })).toThrow();
   });
 
-  it('accepts legacy nome/cnpj aliases', () => {
+  it('accepts legacy nome/cnpj aliases on input (um release)', () => {
     const parsed = FornecedorCreateSchema.parse({
       nome: 'ACME Ltda',
       cnpj: '12345678000100',

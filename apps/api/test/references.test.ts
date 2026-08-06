@@ -36,7 +36,7 @@ describe('references API integration', () => {
     }
   });
 
-  it('persists fornecedor CRUD on /api/v1 and references alias', async () => {
+  it('persists fornecedor CRUD on /api/v1', async () => {
     if (!ready) {
       console.warn('Skipping references integration — DATABASE_URL unreachable');
       return;
@@ -50,14 +50,19 @@ describe('references API integration', () => {
     expect(createRes.status).toBe(201);
     createdFornecedorIds.push(createRes.body.id);
     expect(createRes.body.razaoSocial).toBe('ACME Ltda');
+    expect(createRes.body.documento).toBe(cnpj);
+    expect(createRes.body.cnpj).toBeUndefined();
+    expect(createRes.body.nome).toBeUndefined();
 
     const listRes = await request(app).get('/api/v1/fornecedores?flat=true');
     expect(listRes.status).toBe(200);
-    expect(listRes.body.some((item: any) => item.id === createRes.body.id)).toBe(true);
+    expect(listRes.body.some((item: { id: string }) => item.id === createRes.body.id)).toBe(true);
 
     const lookupRes = await request(app).get(`/api/v1/lookups/fornecedores?q=ACME`);
     expect(lookupRes.status).toBe(200);
-    expect(lookupRes.body.data.some((item: any) => item.id === createRes.body.id)).toBe(true);
+    expect(lookupRes.body.data.some((item: { id: string }) => item.id === createRes.body.id)).toBe(
+      true,
+    );
 
     const updateRes = await request(app)
       .put(`/api/v1/fornecedores/${createRes.body.id}`)
@@ -70,7 +75,7 @@ describe('references API integration', () => {
     createdFornecedorIds.pop();
   });
 
-  it('persists catalogo-itens and servicos alias', async () => {
+  it('persists catalogo-itens; rotas alias empresas/servicos desmontadas', async () => {
     if (!ready) return;
 
     const invalid = await request(app).post('/api/v1/catalogo-itens').send({});
@@ -98,17 +103,20 @@ describe('references API integration', () => {
 
     const lookupRes = await request(app).get('/api/v1/lookups/catalogo?q=Monitoramento');
     expect(lookupRes.status).toBe(200);
-    expect(lookupRes.body.data.some((item: any) => item.id === createRes.body.id)).toBe(true);
+    expect(lookupRes.body.data.some((item: { id: string }) => item.id === createRes.body.id)).toBe(
+      true,
+    );
 
-    const aliasRes = await request(app)
-      .post('/.netlify/functions/api/references/servicos')
-      .send({ titulo: `Alias ${Date.now()}`, descricao: 'legado' });
-    expect(aliasRes.status).toBe(201);
-    createdCatalogoIds.push(aliasRes.body.id);
-    expect(aliasRes.body.titulo).toBeTruthy();
+    const goneEmpresas = await request(app).get('/api/v1/references/empresas');
+    expect(goneEmpresas.status).toBe(404);
+    const goneServicos = await request(app).post('/api/v1/references/servicos').send({
+      titulo: 'x',
+    });
+    expect(goneServicos.status).toBe(404);
+    const goneEntidades = await request(app).get('/api/v1/references/entidades-gestoras');
+    expect(goneEntidades.status).toBe(404);
 
     await request(app).delete(`/api/v1/catalogo-itens/${createRes.body.id}`);
-    await request(app).delete(`/.netlify/functions/api/references/servicos/${aliasRes.body.id}`);
     createdCatalogoIds.length = 0;
     await disconnectPrisma();
   });

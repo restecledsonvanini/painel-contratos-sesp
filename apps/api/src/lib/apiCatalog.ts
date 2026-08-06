@@ -112,22 +112,7 @@ export const publicApiCatalog = {
     },
     references: {
       unidadesFsp: { method: 'GET', path: `${API_BASE}/references/unidades-fsp` },
-      empresas: {
-        method: 'GET',
-        path: `${API_BASE}/references/empresas`,
-        note: 'alias → Fornecedor (compat)',
-      },
-      entidadesGestoras: {
-        method: 'GET',
-        path: `${API_BASE}/references/entidades-gestoras`,
-        note: 'alias → Servidor (compat)',
-      },
       fornecedores: { method: 'GET', path: `${API_BASE}/references/fornecedores` },
-      servicos: {
-        method: 'GET',
-        path: `${API_BASE}/references/servicos`,
-        note: 'alias → CatalogoItem (compat)',
-      },
     },
   },
   tryNow: [

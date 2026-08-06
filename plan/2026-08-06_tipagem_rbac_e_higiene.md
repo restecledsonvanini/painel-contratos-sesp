@@ -298,6 +298,15 @@ Ordem **obrigatória** (do plano 2026-08-05 §7):
 - [x] `UnidadesList` usa `ArvoreOrgaoDTO`; `UnidadeTempoPrazo` removido
 - [x] Contato/sanção update → `*UpdateInput`; exports `DotacaoUpdateInput` / `UnidadeFsp*Input`
 
+### Fase 4 status
+
+- [x] Front: sem fallbacks `empresa*` / `unidadeFsp*` / `cnpj` como fonte
+- [x] API: contrato/fornecedor/export sem aliases de resposta
+- [x] DTOs response sem campos `@deprecated` empresa/unidadeFsp/cnpj/nome
+- [x] Rotas `/references/empresas|entidades-gestoras|servicos` desmontadas (+ schemas Empresa/Entidade/Servico)
+- [x] `LEGACY_ROLES` e tokens VITEST `leitor|colaborador|fiscal` removidos
+- [ ] Zod ainda aceita `cnpj`/`nome`/`empresaId` no **input** (um release) — Fase 5 ou follow-up
+
 ---
 
 ## 9. Relação com planos anteriores
@@ -307,6 +316,6 @@ Ordem **obrigatória** (do plano 2026-08-05 §7):
 | `2026-08-05_hierarquia_sesp_navegacao_e_saneamento.md` | ✅ 0–9 |
 | `2026-08-04_api_refatoracao_modelo_contratual.md` | ✅ |
 | `apps/web/plan/2026-08-04_frontend_refatoracao_contratual.md` | ✅ |
-| **Este** (`2026-08-06_tipagem_rbac_e_higiene.md`) | Fase 0–3 ✅; próximo: **4 aliases** |
+| **Este** (`2026-08-06_tipagem_rbac_e_higiene.md`) | Fase 0–4 ✅; próximo: **5 OpenAPI/testes** |
 
 Caminho crítico sugerido: **1 (RBAC) → 2 (usuário) → 3 (tipagem) → 4 (aliases) → 5 (testes/OpenAPI)**.

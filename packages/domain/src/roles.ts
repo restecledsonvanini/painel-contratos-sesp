@@ -20,13 +20,6 @@ export const Role = {
 } as const;
 export type Role = (typeof Role)[keyof typeof Role];
 
-/** Aliases legados ainda aceitos por um release (normalizados). */
-export const LEGACY_ROLES = {
-  LEITOR: 'LEITOR',
-  COLABORADOR: 'COLABORADOR',
-  FISCAL: 'FISCAL',
-} as const;
-
 export const ROLE_RANK: Record<Role, number> = {
   VISITANTE: 1,
   ANALISTA: 2,
@@ -39,13 +32,7 @@ const ALIASES: Record<string, Role> = {
   ANALISTA: 'ANALISTA',
   GESTOR: 'GESTOR',
   ADMIN: 'ADMIN',
-  // legado → alvo
-  LEITOR: 'VISITANTE',
-  COLABORADOR: 'ANALISTA',
-  FISCAL: 'ANALISTA',
-  leitor: 'VISITANTE',
-  colaborador: 'ANALISTA',
-  fiscal: 'ANALISTA',
+  // casing / labels comuns (não papéis legados LEITOR/COLABORADOR/FISCAL)
   gestor: 'GESTOR',
   admin: 'ADMIN',
   administrador: 'ADMIN',

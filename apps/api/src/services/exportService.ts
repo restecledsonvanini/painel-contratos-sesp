@@ -95,11 +95,7 @@ export function filterExportRows(rows: MappedContract[], filters: ExportFilters)
           : sit === want;
       if (!ok) return false;
     }
-    if (
-      filters.fornecedorId &&
-      c.fornecedorId !== filters.fornecedorId &&
-      c.empresaId !== filters.fornecedorId
-    ) {
+    if (filters.fornecedorId && c.fornecedorId !== filters.fornecedorId) {
       return false;
     }
     if (
@@ -132,8 +128,8 @@ function rowValues(c: MappedContract): (string | number)[] {
     c.protocoloCabeca ?? c.eProtocolo ?? '',
     c.objeto ?? '',
     c.situacao ?? c.status ?? '',
-    c.fornecedorName ?? c.empresaName ?? '',
-    c.unidadeGestora?.sigla ?? c.unidadeFsp?.sigla ?? '',
+    c.fornecedorName ?? '',
+    c.unidadeGestora?.sigla ?? '',
     c.subunidade?.sigla ?? '',
     c.valorGlobalOriginal ?? c.valorAnual ?? '',
     toDateStr(c.dataInicioVigencia ?? c.dataInicio),
@@ -252,7 +248,7 @@ export async function contractToPdf(
 
     doc.fontSize(11).font('Helvetica-Bold').text('Fornecedor');
     doc.moveDown(0.3);
-    line('Razão social:', String(contract.fornecedorName ?? contract.empresaName ?? '—'));
+    line('Razão social:', String(contract.fornecedorName ?? '—'));
     doc.moveDown(0.6);
 
     doc.fontSize(11).font('Helvetica-Bold').text('Vigência e valores');

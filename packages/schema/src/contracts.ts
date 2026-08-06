@@ -368,13 +368,6 @@ export const UnidadeFspCreateSchema = z.object({
 
 export const UnidadeFspUpdateSchema = UnidadeFspCreateSchema.partial();
 
-export const ServicoCreateSchema = z.object({
-  titulo: z.string().min(1),
-  descricao: z.string().optional().nullable(),
-});
-
-export const ServicoUpdateSchema = ServicoCreateSchema.partial();
-
 /** Etapas do wizard de lançamento (front). */
 export const CONTRACT_WIZARD_STEPS = [
   { id: 'identificacao', label: 'Identificação' },

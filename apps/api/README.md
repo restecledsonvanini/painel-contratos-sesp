@@ -50,18 +50,18 @@ Rotas:
 
 O Vite (`apps/web`) faz proxy de `/.netlify/functions/api` → `:8888`.
 
-## Auth (stub de desenvolvimento)
+## Auth
 
-JWT/Supabase ainda não implementado. Contrato atual:
+JWT via `POST /auth/login`. Em desenvolvimento/testes, tokens sintéticos:
 
-| Header | Resultado |
+| Header | Papel |
 |---|---|
-| (ausente) | `role=colaborador`, `id=system` |
-| `Authorization: Bearer admin` | `role=admin` |
-| `Authorization: Bearer colaborador` | `role=colaborador` |
+| `Authorization: Bearer admin` | ADMIN |
+| `Authorization: Bearer analista` | ANALISTA |
+| `Authorization: Bearer gestor` | GESTOR |
+| `Authorization: Bearer visitante` | VISITANTE |
 
-Mutações (POST/PUT/DELETE) em contracts e references exigem role `colaborador` ou `admin`.
-
+Flags: `AUTH_REQUIRED` (API) e `VITE_AUTH_REQUIRED` (web) devem casar.
 ## Erros
 
 Formato uniforme:

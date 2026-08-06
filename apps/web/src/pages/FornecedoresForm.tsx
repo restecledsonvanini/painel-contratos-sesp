@@ -343,8 +343,8 @@ export default function FornecedoresForm() {
   useEffect(() => {
     if (existing) {
       setValue('tipoPessoa', existing.tipoPessoa || 'JURIDICA');
-      setValue('documento', existing.documento || existing.cnpj || '');
-      setValue('razaoSocial', existing.razaoSocial || existing.nome || '');
+      setValue('documento', existing.documento || '');
+      setValue('razaoSocial', existing.razaoSocial || '');
       setValue('nomeFantasia', existing.nomeFantasia || '');
       setValue('situacao', existing.situacao || 'ATIVO');
     }

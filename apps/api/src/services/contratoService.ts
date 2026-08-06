@@ -58,8 +58,6 @@ function mapContractRecord(record: any) {
     objeto: record.objeto,
     fornecedorId: record.fornecedorId,
     fornecedorName: record.fornecedor?.razaoSocial,
-    empresaId: record.fornecedorId,
-    empresaName: record.fornecedor?.razaoSocial,
     unidadeGestoraId: record.unidadeGestoraId,
     unidadeGestora: record.unidadeGestora
       ? {
@@ -79,15 +77,6 @@ function mapContractRecord(record: any) {
           orgaoId: record.subunidade.orgaoId,
         }
       : null,
-    /** @deprecated aliases — gestora agora é Orgao */
-    unidadeFspId: record.unidadeGestoraId,
-    unidadeFsp: record.unidadeGestora
-      ? {
-          id: record.unidadeGestora.id,
-          sigla: record.unidadeGestora.sigla,
-          nome: record.unidadeGestora.nome,
-        }
-      : undefined,
     gestorId: gestor?.servidorId,
     gestorName: gestor?.servidor?.nome,
     fiscalId: fiscal?.servidorId,

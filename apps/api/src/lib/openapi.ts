@@ -136,7 +136,7 @@ export function buildOpenApiDocument() {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          description: 'JWT de POST /auth/login, ou tokens legados admin|colaborador|gestor|leitor',
+          description: 'JWT de POST /auth/login, ou tokens sintéticos admin|analista|gestor|visitante',
         },
       },
       schemas: {

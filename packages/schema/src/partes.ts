@@ -204,53 +204,6 @@ export const ServidorUpdateSchema = z
     return next;
   });
 
-/** @deprecated Use FornecedorCreateSchema — mantido só para migração de payload legado. */
-export const EmpresaCreateSchema = z
-  .object({
-    cnpj: z.string().min(8),
-    razaoSocial: z.string().min(1),
-  })
-  .transform((raw) => ({
-    tipoPessoa: 'JURIDICA' as const,
-    documento: digits(raw.cnpj),
-    razaoSocial: raw.razaoSocial,
-  }));
-
-export const EmpresaUpdateSchema = z
-  .object({
-    cnpj: z.string().min(8).optional(),
-    razaoSocial: z.string().min(1).optional(),
-  })
-  .transform((raw) => {
-    const next: { documento?: string; razaoSocial?: string } = {};
-    if (raw.cnpj !== undefined) next.documento = digits(raw.cnpj);
-    if (raw.razaoSocial !== undefined) next.razaoSocial = raw.razaoSocial;
-    return next;
-  });
-
-/** @deprecated Use ServidorCreateSchema */
-export const EntidadeGestoraCreateSchema = z
-  .object({
-    nome: z.string().min(1),
-    cpf: z.string().min(11),
-  })
-  .transform((raw) => ({
-    nome: raw.nome,
-    cpf: digits(raw.cpf),
-  }));
-
-export const EntidadeGestoraUpdateSchema = z
-  .object({
-    nome: z.string().min(1).optional(),
-    cpf: z.string().min(11).optional(),
-  })
-  .transform((raw) => {
-    const next: { nome?: string; cpf?: string | null } = {};
-    if (raw.nome !== undefined) next.nome = raw.nome;
-    if (raw.cpf !== undefined) next.cpf = digits(raw.cpf);
-    return next;
-  });
-
 export type FornecedorCreateInput = z.infer<typeof FornecedorCreateSchema>;
 export type FornecedorUpdateInput = z.infer<typeof FornecedorUpdateSchema>;
 export type FornecedorContatoCreateInput = z.infer<typeof FornecedorContatoCreateSchema>;
