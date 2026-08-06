@@ -17,6 +17,7 @@ import {
   getPublicidade,
   getTimeline,
   getVencimentos,
+  getAuditoria,
   refreshAnalytics,
 } from '../controllers/dashboardController';
 import { asyncHandler } from '../lib/errors';
@@ -45,5 +46,6 @@ export const contratoAnaliticoRouter = Router({ mergeParams: true });
 contratoAnaliticoRouter.get('/timeline', asyncHandler(getTimeline));
 contratoAnaliticoRouter.get('/limites', asyncHandler(getLimites));
 contratoAnaliticoRouter.get('/financeiro', asyncHandler(getFinanceiro));
+contratoAnaliticoRouter.get('/auditoria', asyncHandler(getAuditoria));
 
 export default router;

@@ -727,8 +727,8 @@ export default function ContractForm() {
                 {...register('valorAnual', { valueAsNumber: true })}
               />
               <div className="app-form__span-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-muted)] p-3 text-[var(--font-size-sm)] text-[var(--text-muted)]">
-                Dotações, reservas e empenhos detalhados ficam na ficha do contrato após o rascunho
-                (aba Financeiro). Aqui basta o valor global para gravar o rascunho.
+                Dotações, reservas e empenhos detalhados ficam na ficha do contrato (aba Financeiro)
+                após salvar o rascunho. Aqui basta o valor global.
               </div>
             </div>
           )}

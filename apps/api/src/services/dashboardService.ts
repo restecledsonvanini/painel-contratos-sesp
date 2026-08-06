@@ -43,4 +43,9 @@ export const dashboardService = {
     if (!row) throw notFound('Financeiro not found');
     return row;
   },
+
+  async auditoria(contratoId: string) {
+    await ensureContrato(contratoId);
+    return dashboardRepository.auditoria(contratoId);
+  },
 };

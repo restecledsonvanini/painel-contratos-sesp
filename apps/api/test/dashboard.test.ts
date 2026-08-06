@@ -62,6 +62,10 @@ describe('dashboard analitico API', () => {
     const fin = await request(app).get(`/api/v1/contracts/${contratoId}/financeiro`);
     expect(fin.status).toBe(200);
     expect(fin.body.valorGlobalOriginalCents).toBe(480000000);
+
+    const audit = await request(app).get(`/api/v1/contracts/${contratoId}/auditoria`);
+    expect(audit.status).toBe(200);
+    expect(Array.isArray(audit.body)).toBe(true);
   });
 
   it('refresh analytics responde ok', async () => {

@@ -77,6 +77,7 @@ export const publicApiCatalog = {
       timeline: { method: 'GET', path: `${API_BASE}/contracts/:id/timeline` },
       limites: { method: 'GET', path: `${API_BASE}/contracts/:id/limites` },
       financeiro: { method: 'GET', path: `${API_BASE}/contracts/:id/financeiro` },
+      auditoria: { method: 'GET', path: `${API_BASE}/contracts/:id/auditoria` },
       refresh: { method: 'POST', path: `${API_BASE}/admin/refresh-analytics` },
     },
     alertas: {

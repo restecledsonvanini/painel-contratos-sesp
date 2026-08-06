@@ -218,4 +218,13 @@ export const dashboardRepository = {
     );
     return rows[0] ? serializeRow(rows[0]) : null;
   },
+
+  async auditoria(contratoId: string) {
+    const db = getPrisma();
+    return db.auditLog.findMany({
+      where: { tabela: 'Contrato', registroId: contratoId },
+      orderBy: { changedAt: 'desc' },
+      take: 100,
+    });
+  },
 };

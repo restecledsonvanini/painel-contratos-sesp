@@ -372,7 +372,7 @@ Tela de login, `AuthProvider` real, UI sensível a papel e escopo por órgão; a
 - [x] `fase1-design-system` — Select, Combobox, TreeSelect, Modal, Tabs, DataTable, DatePicker, CurrencyInput, FormField, galeria `/dev/ui`
 - [x] `fase2-lookups-cadastros` — LookupsProvider, quick-create, migração dos cadastros principais
 - [x] `fase3-contrato` — formulário de contrato com itens; lista e detalhe + wizard 8 etapas com rascunho
-- [x] `fase4-timeline` — Timeline, Meter de limites, formulário de alteração com simulação
+- [x] `fase4-timeline` — Timeline, Meter de limites, formulário de alteração; ficha do contrato com abas §9
 - [x] `fase5-dashboards` — painel tático + estratégico consumindo MVs com drill-down
 - [x] `fase6-alertas-importacao` — central de alertas, wizard de importação, CommandPalette, export CSV
 - [x] `fase7-auth-polimento` — login JWT, UI sensível a papel, skip-link, tabela→cards mobile, Playwright/axe smoke

@@ -59,6 +59,25 @@ export interface Contract {
     valorAcrescido?: number;
     situacao?: string;
   }>;
+  responsaveis?: Array<{
+    id: string;
+    servidorId: string;
+    servidorNome?: string;
+    papel: string;
+    atoDesignacao?: string | null;
+    dataInicio?: string;
+    dataFim?: string | null;
+  }>;
+  rateios?: Array<{
+    id: string;
+    unidadeId: string;
+    unidadeSigla?: string;
+    unidadeNome?: string;
+    percentual?: number | null;
+    valorCents?: number | null;
+    quantidade?: number | null;
+    observacao?: string | null;
+  }>;
   aditivos?: Array<{
     id?: string;
     numAditivo: number;

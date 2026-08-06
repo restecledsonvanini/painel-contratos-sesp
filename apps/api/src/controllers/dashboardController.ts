@@ -105,3 +105,7 @@ export async function getLimites(req: Request, res: Response) {
 export async function getFinanceiro(req: Request, res: Response) {
   return res.status(200).json(await dashboardService.financeiro(routeParam(req, 'id')));
 }
+
+export async function getAuditoria(req: Request, res: Response) {
+  return res.status(200).json(await dashboardService.auditoria(routeParam(req, 'id')));
+}
