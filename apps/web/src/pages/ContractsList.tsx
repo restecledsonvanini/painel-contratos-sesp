@@ -20,6 +20,7 @@ import { Download, Plus, X } from 'lucide-react';
 import { useContracts, useDeleteContract, type Contract } from '../hooks/useContracts';
 import { downloadApiFile } from '../lib/download';
 import { getErrorMessage } from '../lib/http';
+import { authorLabel, formatRelativePast } from '../lib/formatRelative';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 import { useAuth } from '../providers/AuthProvider';
 
@@ -233,6 +234,7 @@ export default function ContractsList() {
                 <TableHeader>Fornecedor</TableHeader>
                 <TableHeader>Status</TableHeader>
                 <TableHeader>Valor anual</TableHeader>
+                <TableHeader>Última alteração</TableHeader>
                 <TableHeader>Ações</TableHeader>
               </TableRow>
             </TableHead>
@@ -297,6 +299,12 @@ export default function ContractsList() {
                           })
                         : '—'}
                     </TableCell>
+                    <TableCell data-label="Última alteração">
+                      <span className="text-[var(--font-size-xs)] text-[var(--text-muted)]">
+                        {authorLabel(contract.atualizadoPor)} ·{' '}
+                        {formatRelativePast(contract.updatedAt)}
+                      </span>
+                    </TableCell>
                     <TableCell
                       data-label="Ações"
                       onClick={(e) => e.stopPropagation()}
@@ -337,7 +345,7 @@ export default function ContractsList() {
                 })
               ) : (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-[var(--text-muted)]">
+                  <TableCell colSpan={8} className="text-[var(--text-muted)]">
                     Nenhum contrato {activeFilters.length ? 'com esses filtros' : 'cadastrado'}.
                   </TableCell>
                 </TableRow>

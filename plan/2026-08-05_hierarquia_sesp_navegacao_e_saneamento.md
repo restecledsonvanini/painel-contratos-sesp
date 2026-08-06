@@ -363,7 +363,7 @@ Cada fase é entregável e reversível sozinha. Nenhuma fase começa com a anter
 | **4. Exportação** ⭐ | XLSX real (`exceljs`); PDF (`pdfkit`); ficha por contrato + acervo; UI com escopo | não | baixo | ✅ **Feita (2026-08-05)** — CSV/XLSX/PDF + testes |
 | **5. Descoberta** | Breadcrumbs; linha clicável; deep-link por aba; recentes; palette | não | baixo | ✅ **Feita (2026-08-05)** — ≤2 cliques ao detalhe |
 | **6. Auth** | `ANALISTA`/`VISITANTE`; allowlist de domínio; UI de usuários; `RequireRole` | sim (enum) | médio | ✅ **Feita (2026-08-05)** — papéis + allowlist + UI |
-| **7. Rastreabilidade** | `criadoPorId`/`atualizadoPorId` + backfill; header do detalhe; fim da auditoria duplicada | sim (aditiva) | baixo | Detalhe mostra autoria; sem evento duplicado |
+| **7. Rastreabilidade** | `criadoPorId`/`atualizadoPorId` + backfill; header do detalhe; fim da auditoria duplicada | sim (aditiva) | baixo | ✅ **Feita (2026-08-05)** — autoria no detalhe/lista |
 | **8. Dotações + importação** | Form de dotação; entidades `dotacao`/`unidade` no import; transação; upload de arquivo; RBAC no GET | não | médio | Importar os 5 CRPM por CSV; lote com duplicata não corrompe |
 | **9. Saneamento** | DTOs; factory de hooks; labels de enum; aliases; páginas mortas; `NIVEIS` hardcoded | não | médio | Zero interface duplicada; `invalidateQueries` centralizado |
 

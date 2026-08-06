@@ -274,6 +274,8 @@ exports.Prisma.ContratoScalarFieldEnum = {
   reservaObservacao: 'reservaObservacao',
   observacoes: 'observacoes',
   codigoLegado: 'codigoLegado',
+  criadoPorId: 'criadoPorId',
+  atualizadoPorId: 'atualizadoPorId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

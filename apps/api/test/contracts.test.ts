@@ -131,6 +131,10 @@ describe('contracts API integration', () => {
     expect(getRes.status).toBe(200);
     expect(getRes.body.objeto).toBe('Contrato integração');
     expect(getRes.body.unidadeGestoraId).toBe(unidadeGestoraId);
+    expect(getRes.body).toHaveProperty('criadoPor');
+    expect(getRes.body).toHaveProperty('atualizadoPor');
+    expect(getRes.body).toHaveProperty('createdAt');
+    expect(getRes.body).toHaveProperty('updatedAt');
 
     const updateRes = await request(app)
       .put(`/.netlify/functions/api/contracts/${id}`)

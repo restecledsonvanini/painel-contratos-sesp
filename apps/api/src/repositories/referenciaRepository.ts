@@ -5,6 +5,7 @@ import { servidorRepository } from './servidorRepository';
 import { catalogoRepository } from './catalogoRepository';
 import type { FornecedorCreateInput, ServidorCreateInput } from '@painel/schema';
 
+/** Auditoria app-level só para entidades sem trigger (UnidadeFsp, CatalogoItem). */
 type AuditArgs = {
   tabela: string;
   registroId: string;
@@ -46,7 +47,12 @@ export const referenciaRepository = {
       await audit({ tabela: 'unidadeFsp', registroId: unidade.id, action: 'create', changedBy, diff: unidade });
       return unidade;
     },
-    update: async (id: string, data: Partial<{ sigla: string; nome: string }>, existing: unknown, changedBy: string | null) => {
+    update: async (
+      id: string,
+      data: Partial<{ sigla: string; nome: string }>,
+      existing: unknown,
+      changedBy: string | null,
+    ) => {
       const updated = await getPrisma().unidadeFsp.update({ where: { id }, data });
       await audit({
         tabela: 'unidadeFsp',
@@ -59,100 +65,78 @@ export const referenciaRepository = {
     },
     remove: async (id: string, existing: { id: string }, changedBy: string | null) => {
       await getPrisma().unidadeFsp.delete({ where: { id } });
-      await audit({ tabela: 'unidadeFsp', registroId: existing.id, action: 'delete', changedBy, diff: existing });
+      await audit({
+        tabela: 'unidadeFsp',
+        registroId: existing.id,
+        action: 'delete',
+        changedBy,
+        diff: existing,
+      });
     },
   },
 
-  /** Compat: Empresa → Fornecedor */
+  /** Compat: Empresa → Fornecedor (auditoria via trigger) */
   empresas: {
     list: async () => {
       const rows = await fornecedorRepository.listAll();
       return rows.map(asEmpresaShape);
     },
     get: async (id: string) => asEmpresaShape(await fornecedorRepository.get(id)),
-    create: async (data: FornecedorCreateInput, changedBy: string | null) => {
-      const created = await fornecedorRepository.create(data);
-      await audit({ tabela: 'fornecedor', registroId: created.id, action: 'create', changedBy, diff: created });
-      return asEmpresaShape(created);
+    create: async (data: FornecedorCreateInput, _changedBy: string | null) => {
+      return asEmpresaShape(await fornecedorRepository.create(data));
     },
     update: async (
       id: string,
       data: { documento?: string; razaoSocial?: string },
-      existing: unknown,
-      changedBy: string | null,
+      _existing: unknown,
+      _changedBy: string | null,
     ) => {
-      const updated = await fornecedorRepository.update(id, data);
-      await audit({
-        tabela: 'fornecedor',
-        registroId: updated.id,
-        action: 'update',
-        changedBy,
-        diff: { before: existing, patch: data },
-      });
-      return asEmpresaShape(updated);
+      return asEmpresaShape(await fornecedorRepository.update(id, data));
     },
-    remove: async (id: string, existing: { id: string }, changedBy: string | null) => {
+    remove: async (id: string, _existing: { id: string }, _changedBy: string | null) => {
       await fornecedorRepository.remove(id);
-      await audit({ tabela: 'fornecedor', registroId: existing.id, action: 'delete', changedBy, diff: existing });
     },
   },
 
-  /** Compat: EntidadeGestora → Servidor */
+  /** Compat: EntidadeGestora → Servidor (auditoria via trigger) */
   entidadesGestoras: {
     list: async () => {
       const rows = await servidorRepository.listAll();
       return rows.map(asEntidadeShape);
     },
     get: async (id: string) => asEntidadeShape(await servidorRepository.get(id)),
-    create: async (data: ServidorCreateInput, changedBy: string | null) => {
-      const created = await servidorRepository.create(data);
-      await audit({ tabela: 'servidor', registroId: created.id, action: 'create', changedBy, diff: created });
-      return asEntidadeShape(created);
+    create: async (data: ServidorCreateInput, _changedBy: string | null) => {
+      return asEntidadeShape(await servidorRepository.create(data));
     },
     update: async (
       id: string,
       data: { nome?: string; cpf?: string | null },
-      existing: unknown,
-      changedBy: string | null,
+      _existing: unknown,
+      _changedBy: string | null,
     ) => {
-      const updated = await servidorRepository.update(id, data);
-      await audit({
-        tabela: 'servidor',
-        registroId: updated.id,
-        action: 'update',
-        changedBy,
-        diff: { before: existing, patch: data },
-      });
-      return asEntidadeShape(updated);
+      return asEntidadeShape(await servidorRepository.update(id, data));
     },
-    remove: async (id: string, existing: { id: string }, changedBy: string | null) => {
+    remove: async (id: string, _existing: { id: string }, _changedBy: string | null) => {
       await servidorRepository.remove(id);
-      await audit({ tabela: 'servidor', registroId: existing.id, action: 'delete', changedBy, diff: existing });
     },
   },
 
   fornecedores: {
     list: () => fornecedorRepository.listAll(),
     get: (id: string) => fornecedorRepository.get(id),
-    create: async (data: FornecedorCreateInput, changedBy: string | null) => {
-      const record = await fornecedorRepository.create(data);
-      await audit({ tabela: 'fornecedor', registroId: record.id, action: 'create', changedBy, diff: record });
-      return record;
+    create: async (data: FornecedorCreateInput, _changedBy: string | null) => {
+      return fornecedorRepository.create(data);
     },
-    update: async (id: string, data: Record<string, unknown>, existing: unknown, changedBy: string | null) => {
-      const updated = await fornecedorRepository.update(id, data as never);
-      await audit({
-        tabela: 'fornecedor',
-        registroId: updated.id,
-        action: 'update',
-        changedBy,
-        diff: { before: existing, patch: data },
-      });
-      return updated;
+    update: async (
+      id: string,
+      data: Record<string, unknown>,
+      _existing: unknown,
+      _changedBy: string | null,
+    ) => {
+      return fornecedorRepository.update(id, data as never);
     },
-    remove: async (id: string, existing: { id: string }, changedBy: string | null) => {
+    remove: async (id: string, _existing: { id: string }, _changedBy: string | null) => {
       await fornecedorRepository.remove(id);
-      await audit({ tabela: 'fornecedor', registroId: existing.id, action: 'delete', changedBy, diff: existing });
     },
   },
 

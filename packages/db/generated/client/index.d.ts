@@ -336,6 +336,8 @@ export type ContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
     publicacoes: PublicacaoPayload<ExtArgs>[]
     documentos: DocumentoPayload<ExtArgs>[]
     alertas: AlertaPayload<ExtArgs>[]
+    criadoPor: UsuarioPayload<ExtArgs> | null
+    atualizadoPor: UsuarioPayload<ExtArgs> | null
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -378,6 +380,8 @@ export type ContratoPayload<ExtArgs extends $Extensions.Args = $Extensions.Defau
     reservaObservacao: string | null
     observacoes: string | null
     codigoLegado: string | null
+    criadoPorId: string | null
+    atualizadoPorId: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["contrato"]>
@@ -877,6 +881,8 @@ export type UsuarioPayload<ExtArgs extends $Extensions.Args = $Extensions.Defaul
   objects: {
     servidor: ServidorPayload<ExtArgs> | null
     orgao: OrgaoPayload<ExtArgs> | null
+    contratosCriados: ContratoPayload<ExtArgs>[]
+    contratosAtualizados: ContratoPayload<ExtArgs>[]
   }
   scalars: $Extensions.GetResult<{
     id: string
@@ -5243,6 +5249,51 @@ export namespace Prisma {
    */
   export type ImportacaoLoteCountOutputTypeCountLinhasArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     where?: ImportacaoLinhaWhereInput
+  }
+
+
+
+  /**
+   * Count Type UsuarioCountOutputType
+   */
+
+
+  export type UsuarioCountOutputType = {
+    contratosCriados: number
+    contratosAtualizados: number
+  }
+
+  export type UsuarioCountOutputTypeSelect<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    contratosCriados?: boolean | UsuarioCountOutputTypeCountContratosCriadosArgs
+    contratosAtualizados?: boolean | UsuarioCountOutputTypeCountContratosAtualizadosArgs
+  }
+
+  // Custom InputTypes
+
+  /**
+   * UsuarioCountOutputType without action
+   */
+  export type UsuarioCountOutputTypeArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the UsuarioCountOutputType
+     */
+    select?: UsuarioCountOutputTypeSelect<ExtArgs> | null
+  }
+
+
+  /**
+   * UsuarioCountOutputType without action
+   */
+  export type UsuarioCountOutputTypeCountContratosCriadosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoWhereInput
+  }
+
+
+  /**
+   * UsuarioCountOutputType without action
+   */
+  export type UsuarioCountOutputTypeCountContratosAtualizadosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    where?: ContratoWhereInput
   }
 
 
@@ -16870,6 +16921,8 @@ export namespace Prisma {
     reservaObservacao: string | null
     observacoes: string | null
     codigoLegado: string | null
+    criadoPorId: string | null
+    atualizadoPorId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -16909,6 +16962,8 @@ export namespace Prisma {
     reservaObservacao: string | null
     observacoes: string | null
     codigoLegado: string | null
+    criadoPorId: string | null
+    atualizadoPorId: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -16948,6 +17003,8 @@ export namespace Prisma {
     reservaObservacao: number
     observacoes: number
     codigoLegado: number
+    criadoPorId: number
+    atualizadoPorId: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -17007,6 +17064,8 @@ export namespace Prisma {
     reservaObservacao?: true
     observacoes?: true
     codigoLegado?: true
+    criadoPorId?: true
+    atualizadoPorId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -17046,6 +17105,8 @@ export namespace Prisma {
     reservaObservacao?: true
     observacoes?: true
     codigoLegado?: true
+    criadoPorId?: true
+    atualizadoPorId?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -17085,6 +17146,8 @@ export namespace Prisma {
     reservaObservacao?: true
     observacoes?: true
     codigoLegado?: true
+    criadoPorId?: true
+    atualizadoPorId?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -17212,6 +17275,8 @@ export namespace Prisma {
     reservaObservacao: string | null
     observacoes: string | null
     codigoLegado: string | null
+    criadoPorId: string | null
+    atualizadoPorId: string | null
     createdAt: Date
     updatedAt: Date
     _count: ContratoCountAggregateOutputType | null
@@ -17270,6 +17335,8 @@ export namespace Prisma {
     reservaObservacao?: boolean
     observacoes?: boolean
     codigoLegado?: boolean
+    criadoPorId?: boolean
+    atualizadoPorId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     processo?: boolean | ProcessoContratacaoArgs<ExtArgs>
@@ -17289,6 +17356,8 @@ export namespace Prisma {
     publicacoes?: boolean | Contrato$publicacoesArgs<ExtArgs>
     documentos?: boolean | Contrato$documentosArgs<ExtArgs>
     alertas?: boolean | Contrato$alertasArgs<ExtArgs>
+    criadoPor?: boolean | UsuarioArgs<ExtArgs>
+    atualizadoPor?: boolean | UsuarioArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["contrato"]>
 
@@ -17327,6 +17396,8 @@ export namespace Prisma {
     reservaObservacao?: boolean
     observacoes?: boolean
     codigoLegado?: boolean
+    criadoPorId?: boolean
+    atualizadoPorId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
@@ -17349,6 +17420,8 @@ export namespace Prisma {
     publicacoes?: boolean | Contrato$publicacoesArgs<ExtArgs>
     documentos?: boolean | Contrato$documentosArgs<ExtArgs>
     alertas?: boolean | Contrato$alertasArgs<ExtArgs>
+    criadoPor?: boolean | UsuarioArgs<ExtArgs>
+    atualizadoPor?: boolean | UsuarioArgs<ExtArgs>
     _count?: boolean | ContratoCountOutputTypeArgs<ExtArgs>
   }
 
@@ -17755,6 +17828,10 @@ export namespace Prisma {
     documentos<T extends Contrato$documentosArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$documentosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<DocumentoPayload<ExtArgs>, T, 'findMany', never>| Null>;
 
     alertas<T extends Contrato$alertasArgs<ExtArgs> = {}>(args?: Subset<T, Contrato$alertasArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<AlertaPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    criadoPor<T extends UsuarioArgs<ExtArgs> = {}>(args?: Subset<T, UsuarioArgs<ExtArgs>>): Prisma__UsuarioClient<$Types.GetResult<UsuarioPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
+
+    atualizadoPor<T extends UsuarioArgs<ExtArgs> = {}>(args?: Subset<T, UsuarioArgs<ExtArgs>>): Prisma__UsuarioClient<$Types.GetResult<UsuarioPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
     private get _document();
     /**
@@ -36800,6 +36877,9 @@ export namespace Prisma {
     updatedAt?: boolean
     servidor?: boolean | ServidorArgs<ExtArgs>
     orgao?: boolean | OrgaoArgs<ExtArgs>
+    contratosCriados?: boolean | Usuario$contratosCriadosArgs<ExtArgs>
+    contratosAtualizados?: boolean | Usuario$contratosAtualizadosArgs<ExtArgs>
+    _count?: boolean | UsuarioCountOutputTypeArgs<ExtArgs>
   }, ExtArgs["result"]["usuario"]>
 
   export type UsuarioSelectScalar = {
@@ -36819,6 +36899,9 @@ export namespace Prisma {
   export type UsuarioInclude<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
     servidor?: boolean | ServidorArgs<ExtArgs>
     orgao?: boolean | OrgaoArgs<ExtArgs>
+    contratosCriados?: boolean | Usuario$contratosCriadosArgs<ExtArgs>
+    contratosAtualizados?: boolean | Usuario$contratosAtualizadosArgs<ExtArgs>
+    _count?: boolean | UsuarioCountOutputTypeArgs<ExtArgs>
   }
 
 
@@ -37195,6 +37278,10 @@ export namespace Prisma {
 
     orgao<T extends OrgaoArgs<ExtArgs> = {}>(args?: Subset<T, OrgaoArgs<ExtArgs>>): Prisma__OrgaoClient<$Types.GetResult<OrgaoPayload<ExtArgs>, T, 'findUnique', never> | Null, never, ExtArgs>;
 
+    contratosCriados<T extends Usuario$contratosCriadosArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$contratosCriadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
+    contratosAtualizados<T extends Usuario$contratosAtualizadosArgs<ExtArgs> = {}>(args?: Subset<T, Usuario$contratosAtualizadosArgs<ExtArgs>>): Prisma.PrismaPromise<$Types.GetResult<ContratoPayload<ExtArgs>, T, 'findMany', never>| Null>;
+
     private get _document();
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -37551,6 +37638,48 @@ export namespace Prisma {
 
 
   /**
+   * Usuario.contratosCriados
+   */
+  export type Usuario$contratosCriadosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contrato
+     */
+    select?: ContratoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoInclude<ExtArgs> | null
+    where?: ContratoWhereInput
+    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
+    cursor?: ContratoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
+   * Usuario.contratosAtualizados
+   */
+  export type Usuario$contratosAtualizadosArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Contrato
+     */
+    select?: ContratoSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     */
+    include?: ContratoInclude<ExtArgs> | null
+    where?: ContratoWhereInput
+    orderBy?: Enumerable<ContratoOrderByWithRelationInput>
+    cursor?: ContratoWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Enumerable<ContratoScalarFieldEnum>
+  }
+
+
+  /**
    * Usuario without action
    */
   export type UsuarioArgs<ExtArgs extends $Extensions.Args = $Extensions.DefaultArgs> = {
@@ -37782,6 +37911,8 @@ export namespace Prisma {
     reservaObservacao: 'reservaObservacao',
     observacoes: 'observacoes',
     codigoLegado: 'codigoLegado',
+    criadoPorId: 'criadoPorId',
+    atualizadoPorId: 'atualizadoPorId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -38988,6 +39119,8 @@ export namespace Prisma {
     reservaObservacao?: StringNullableFilter | string | null
     observacoes?: StringNullableFilter | string | null
     codigoLegado?: StringNullableFilter | string | null
+    criadoPorId?: StringNullableFilter | string | null
+    atualizadoPorId?: StringNullableFilter | string | null
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
     processo?: XOR<ProcessoContratacaoRelationFilter, ProcessoContratacaoWhereInput> | null
@@ -39007,6 +39140,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoListRelationFilter
     documentos?: DocumentoListRelationFilter
     alertas?: AlertaListRelationFilter
+    criadoPor?: XOR<UsuarioRelationFilter, UsuarioWhereInput> | null
+    atualizadoPor?: XOR<UsuarioRelationFilter, UsuarioWhereInput> | null
   }
 
   export type ContratoOrderByWithRelationInput = {
@@ -39044,6 +39179,8 @@ export namespace Prisma {
     reservaObservacao?: SortOrderInput | SortOrder
     observacoes?: SortOrderInput | SortOrder
     codigoLegado?: SortOrderInput | SortOrder
+    criadoPorId?: SortOrderInput | SortOrder
+    atualizadoPorId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     processo?: ProcessoContratacaoOrderByWithRelationInput
@@ -39063,6 +39200,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoOrderByRelationAggregateInput
     documentos?: DocumentoOrderByRelationAggregateInput
     alertas?: AlertaOrderByRelationAggregateInput
+    criadoPor?: UsuarioOrderByWithRelationInput
+    atualizadoPor?: UsuarioOrderByWithRelationInput
   }
 
   export type ContratoWhereUniqueInput = {
@@ -39106,6 +39245,8 @@ export namespace Prisma {
     reservaObservacao?: SortOrderInput | SortOrder
     observacoes?: SortOrderInput | SortOrder
     codigoLegado?: SortOrderInput | SortOrder
+    criadoPorId?: SortOrderInput | SortOrder
+    atualizadoPorId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ContratoCountOrderByAggregateInput
@@ -39153,6 +39294,8 @@ export namespace Prisma {
     reservaObservacao?: StringNullableWithAggregatesFilter | string | null
     observacoes?: StringNullableWithAggregatesFilter | string | null
     codigoLegado?: StringNullableWithAggregatesFilter | string | null
+    criadoPorId?: StringNullableWithAggregatesFilter | string | null
+    atualizadoPorId?: StringNullableWithAggregatesFilter | string | null
     createdAt?: DateTimeWithAggregatesFilter | Date | string
     updatedAt?: DateTimeWithAggregatesFilter | Date | string
   }
@@ -40508,6 +40651,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter | Date | string
     servidor?: XOR<ServidorRelationFilter, ServidorWhereInput> | null
     orgao?: XOR<OrgaoRelationFilter, OrgaoWhereInput> | null
+    contratosCriados?: ContratoListRelationFilter
+    contratosAtualizados?: ContratoListRelationFilter
   }
 
   export type UsuarioOrderByWithRelationInput = {
@@ -40524,6 +40669,8 @@ export namespace Prisma {
     updatedAt?: SortOrder
     servidor?: ServidorOrderByWithRelationInput
     orgao?: OrgaoOrderByWithRelationInput
+    contratosCriados?: ContratoOrderByRelationAggregateInput
+    contratosAtualizados?: ContratoOrderByRelationAggregateInput
   }
 
   export type UsuarioWhereUniqueInput = {
@@ -41686,6 +41833,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateInput = {
@@ -41723,6 +41872,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -41784,6 +41935,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateInput = {
@@ -41821,6 +41974,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -41870,6 +42025,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -41941,6 +42098,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -43667,6 +43826,8 @@ export namespace Prisma {
     updatedAt?: Date | string
     servidor?: ServidorCreateNestedOneWithoutUsuariosInput
     orgao?: OrgaoCreateNestedOneWithoutUsuariosInput
+    contratosCriados?: ContratoCreateNestedManyWithoutCriadoPorInput
+    contratosAtualizados?: ContratoCreateNestedManyWithoutAtualizadoPorInput
   }
 
   export type UsuarioUncheckedCreateInput = {
@@ -43681,6 +43842,8 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    contratosCriados?: ContratoUncheckedCreateNestedManyWithoutCriadoPorInput
+    contratosAtualizados?: ContratoUncheckedCreateNestedManyWithoutAtualizadoPorInput
   }
 
   export type UsuarioUpdateInput = {
@@ -43695,6 +43858,8 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     servidor?: ServidorUpdateOneWithoutUsuariosNestedInput
     orgao?: OrgaoUpdateOneWithoutUsuariosNestedInput
+    contratosCriados?: ContratoUpdateManyWithoutCriadoPorNestedInput
+    contratosAtualizados?: ContratoUpdateManyWithoutAtualizadoPorNestedInput
   }
 
   export type UsuarioUncheckedUpdateInput = {
@@ -43709,6 +43874,8 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratosCriados?: ContratoUncheckedUpdateManyWithoutCriadoPorNestedInput
+    contratosAtualizados?: ContratoUncheckedUpdateManyWithoutAtualizadoPorNestedInput
   }
 
   export type UsuarioCreateManyInput = {
@@ -44843,6 +45010,11 @@ export namespace Prisma {
     none?: AlertaWhereInput
   }
 
+  export type UsuarioRelationFilter = {
+    is?: UsuarioWhereInput | null
+    isNot?: UsuarioWhereInput | null
+  }
+
   export type ContratoDotacaoOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
@@ -44895,6 +45067,8 @@ export namespace Prisma {
     reservaObservacao?: SortOrder
     observacoes?: SortOrder
     codigoLegado?: SortOrder
+    criadoPorId?: SortOrder
+    atualizadoPorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -44943,6 +45117,8 @@ export namespace Prisma {
     reservaObservacao?: SortOrder
     observacoes?: SortOrder
     codigoLegado?: SortOrder
+    criadoPorId?: SortOrder
+    atualizadoPorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -44982,6 +45158,8 @@ export namespace Prisma {
     reservaObservacao?: SortOrder
     observacoes?: SortOrder
     codigoLegado?: SortOrder
+    criadoPorId?: SortOrder
+    atualizadoPorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -48336,6 +48514,18 @@ export namespace Prisma {
     connect?: Enumerable<AlertaWhereUniqueInput>
   }
 
+  export type UsuarioCreateNestedOneWithoutContratosCriadosInput = {
+    create?: XOR<UsuarioCreateWithoutContratosCriadosInput, UsuarioUncheckedCreateWithoutContratosCriadosInput>
+    connectOrCreate?: UsuarioCreateOrConnectWithoutContratosCriadosInput
+    connect?: UsuarioWhereUniqueInput
+  }
+
+  export type UsuarioCreateNestedOneWithoutContratosAtualizadosInput = {
+    create?: XOR<UsuarioCreateWithoutContratosAtualizadosInput, UsuarioUncheckedCreateWithoutContratosAtualizadosInput>
+    connectOrCreate?: UsuarioCreateOrConnectWithoutContratosAtualizadosInput
+    connect?: UsuarioWhereUniqueInput
+  }
+
   export type ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput = {
     create?: XOR<Enumerable<ContratoResponsavelCreateWithoutContratoInput>, Enumerable<ContratoResponsavelUncheckedCreateWithoutContratoInput>>
     connectOrCreate?: Enumerable<ContratoResponsavelCreateOrConnectWithoutContratoInput>
@@ -48642,6 +48832,26 @@ export namespace Prisma {
     update?: Enumerable<AlertaUpdateWithWhereUniqueWithoutContratoInput>
     updateMany?: Enumerable<AlertaUpdateManyWithWhereWithoutContratoInput>
     deleteMany?: Enumerable<AlertaScalarWhereInput>
+  }
+
+  export type UsuarioUpdateOneWithoutContratosCriadosNestedInput = {
+    create?: XOR<UsuarioCreateWithoutContratosCriadosInput, UsuarioUncheckedCreateWithoutContratosCriadosInput>
+    connectOrCreate?: UsuarioCreateOrConnectWithoutContratosCriadosInput
+    upsert?: UsuarioUpsertWithoutContratosCriadosInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: UsuarioWhereUniqueInput
+    update?: XOR<UsuarioUpdateWithoutContratosCriadosInput, UsuarioUncheckedUpdateWithoutContratosCriadosInput>
+  }
+
+  export type UsuarioUpdateOneWithoutContratosAtualizadosNestedInput = {
+    create?: XOR<UsuarioCreateWithoutContratosAtualizadosInput, UsuarioUncheckedCreateWithoutContratosAtualizadosInput>
+    connectOrCreate?: UsuarioCreateOrConnectWithoutContratosAtualizadosInput
+    upsert?: UsuarioUpsertWithoutContratosAtualizadosInput
+    disconnect?: boolean
+    delete?: boolean
+    connect?: UsuarioWhereUniqueInput
+    update?: XOR<UsuarioUpdateWithoutContratosAtualizadosInput, UsuarioUncheckedUpdateWithoutContratosAtualizadosInput>
   }
 
   export type ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput = {
@@ -49749,6 +49959,34 @@ export namespace Prisma {
     connect?: OrgaoWhereUniqueInput
   }
 
+  export type ContratoCreateNestedManyWithoutCriadoPorInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutCriadoPorInput>, Enumerable<ContratoUncheckedCreateWithoutCriadoPorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutCriadoPorInput>
+    createMany?: ContratoCreateManyCriadoPorInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoCreateNestedManyWithoutAtualizadoPorInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutAtualizadoPorInput>, Enumerable<ContratoUncheckedCreateWithoutAtualizadoPorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutAtualizadoPorInput>
+    createMany?: ContratoCreateManyAtualizadoPorInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoUncheckedCreateNestedManyWithoutCriadoPorInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutCriadoPorInput>, Enumerable<ContratoUncheckedCreateWithoutCriadoPorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutCriadoPorInput>
+    createMany?: ContratoCreateManyCriadoPorInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
+  export type ContratoUncheckedCreateNestedManyWithoutAtualizadoPorInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutAtualizadoPorInput>, Enumerable<ContratoUncheckedCreateWithoutAtualizadoPorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutAtualizadoPorInput>
+    createMany?: ContratoCreateManyAtualizadoPorInputEnvelope
+    connect?: Enumerable<ContratoWhereUniqueInput>
+  }
+
   export type EnumRoleFieldUpdateOperationsInput = {
     set?: Role
   }
@@ -49771,6 +50009,62 @@ export namespace Prisma {
     delete?: boolean
     connect?: OrgaoWhereUniqueInput
     update?: XOR<OrgaoUpdateWithoutUsuariosInput, OrgaoUncheckedUpdateWithoutUsuariosInput>
+  }
+
+  export type ContratoUpdateManyWithoutCriadoPorNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutCriadoPorInput>, Enumerable<ContratoUncheckedCreateWithoutCriadoPorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutCriadoPorInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutCriadoPorInput>
+    createMany?: ContratoCreateManyCriadoPorInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutCriadoPorInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutCriadoPorInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoUpdateManyWithoutAtualizadoPorNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutAtualizadoPorInput>, Enumerable<ContratoUncheckedCreateWithoutAtualizadoPorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutAtualizadoPorInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutAtualizadoPorInput>
+    createMany?: ContratoCreateManyAtualizadoPorInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutAtualizadoPorInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutAtualizadoPorInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutCriadoPorNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutCriadoPorInput>, Enumerable<ContratoUncheckedCreateWithoutCriadoPorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutCriadoPorInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutCriadoPorInput>
+    createMany?: ContratoCreateManyCriadoPorInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutCriadoPorInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutCriadoPorInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutAtualizadoPorNestedInput = {
+    create?: XOR<Enumerable<ContratoCreateWithoutAtualizadoPorInput>, Enumerable<ContratoUncheckedCreateWithoutAtualizadoPorInput>>
+    connectOrCreate?: Enumerable<ContratoCreateOrConnectWithoutAtualizadoPorInput>
+    upsert?: Enumerable<ContratoUpsertWithWhereUniqueWithoutAtualizadoPorInput>
+    createMany?: ContratoCreateManyAtualizadoPorInputEnvelope
+    set?: Enumerable<ContratoWhereUniqueInput>
+    disconnect?: Enumerable<ContratoWhereUniqueInput>
+    delete?: Enumerable<ContratoWhereUniqueInput>
+    connect?: Enumerable<ContratoWhereUniqueInput>
+    update?: Enumerable<ContratoUpdateWithWhereUniqueWithoutAtualizadoPorInput>
+    updateMany?: Enumerable<ContratoUpdateManyWithWhereWithoutAtualizadoPorInput>
+    deleteMany?: Enumerable<ContratoScalarWhereInput>
   }
 
   export type NestedStringFilter = {
@@ -51083,6 +51377,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutCategoriaContratacaoInput = {
@@ -51119,6 +51415,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -51189,6 +51487,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutModalidadeRefInput = {
@@ -51225,6 +51525,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -51295,6 +51597,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutFundamentoLegalInput = {
@@ -51331,6 +51635,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -51931,6 +52237,8 @@ export namespace Prisma {
     reservaObservacao?: StringNullableFilter | string | null
     observacoes?: StringNullableFilter | string | null
     codigoLegado?: StringNullableFilter | string | null
+    criadoPorId?: StringNullableFilter | string | null
+    atualizadoPorId?: StringNullableFilter | string | null
     createdAt?: DateTimeFilter | Date | string
     updatedAt?: DateTimeFilter | Date | string
   }
@@ -52426,6 +52734,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutUnidadeGestoraInput = {
@@ -52462,6 +52772,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -52539,6 +52851,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     servidor?: ServidorCreateNestedOneWithoutUsuariosInput
+    contratosCriados?: ContratoCreateNestedManyWithoutCriadoPorInput
+    contratosAtualizados?: ContratoCreateNestedManyWithoutAtualizadoPorInput
   }
 
   export type UsuarioUncheckedCreateWithoutOrgaoInput = {
@@ -52552,6 +52866,8 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    contratosCriados?: ContratoUncheckedCreateNestedManyWithoutCriadoPorInput
+    contratosAtualizados?: ContratoUncheckedCreateNestedManyWithoutAtualizadoPorInput
   }
 
   export type UsuarioCreateOrConnectWithoutOrgaoInput = {
@@ -52963,6 +53279,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutSubunidadeInput = {
@@ -52999,6 +53317,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -53493,6 +53813,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutFornecedorInput = {
@@ -53529,6 +53851,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -53928,6 +54252,8 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     orgao?: OrgaoCreateNestedOneWithoutUsuariosInput
+    contratosCriados?: ContratoCreateNestedManyWithoutCriadoPorInput
+    contratosAtualizados?: ContratoCreateNestedManyWithoutAtualizadoPorInput
   }
 
   export type UsuarioUncheckedCreateWithoutServidorInput = {
@@ -53941,6 +54267,8 @@ export namespace Prisma {
     ativo?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    contratosCriados?: ContratoUncheckedCreateNestedManyWithoutCriadoPorInput
+    contratosAtualizados?: ContratoUncheckedCreateNestedManyWithoutAtualizadoPorInput
   }
 
   export type UsuarioCreateOrConnectWithoutServidorInput = {
@@ -54221,6 +54549,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutProcessoInput = {
@@ -54257,6 +54587,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -55225,6 +55557,76 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type UsuarioCreateWithoutContratosCriadosInput = {
+    id?: string
+    sub?: string | null
+    email?: string | null
+    nome?: string | null
+    passwordHash?: string | null
+    role?: Role
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    servidor?: ServidorCreateNestedOneWithoutUsuariosInput
+    orgao?: OrgaoCreateNestedOneWithoutUsuariosInput
+    contratosAtualizados?: ContratoCreateNestedManyWithoutAtualizadoPorInput
+  }
+
+  export type UsuarioUncheckedCreateWithoutContratosCriadosInput = {
+    id?: string
+    sub?: string | null
+    email?: string | null
+    nome?: string | null
+    passwordHash?: string | null
+    role?: Role
+    servidorId?: string | null
+    orgaoId?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contratosAtualizados?: ContratoUncheckedCreateNestedManyWithoutAtualizadoPorInput
+  }
+
+  export type UsuarioCreateOrConnectWithoutContratosCriadosInput = {
+    where: UsuarioWhereUniqueInput
+    create: XOR<UsuarioCreateWithoutContratosCriadosInput, UsuarioUncheckedCreateWithoutContratosCriadosInput>
+  }
+
+  export type UsuarioCreateWithoutContratosAtualizadosInput = {
+    id?: string
+    sub?: string | null
+    email?: string | null
+    nome?: string | null
+    passwordHash?: string | null
+    role?: Role
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    servidor?: ServidorCreateNestedOneWithoutUsuariosInput
+    orgao?: OrgaoCreateNestedOneWithoutUsuariosInput
+    contratosCriados?: ContratoCreateNestedManyWithoutCriadoPorInput
+  }
+
+  export type UsuarioUncheckedCreateWithoutContratosAtualizadosInput = {
+    id?: string
+    sub?: string | null
+    email?: string | null
+    nome?: string | null
+    passwordHash?: string | null
+    role?: Role
+    servidorId?: string | null
+    orgaoId?: string | null
+    ativo?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    contratosCriados?: ContratoUncheckedCreateNestedManyWithoutCriadoPorInput
+  }
+
+  export type UsuarioCreateOrConnectWithoutContratosAtualizadosInput = {
+    where: UsuarioWhereUniqueInput
+    create: XOR<UsuarioCreateWithoutContratosAtualizadosInput, UsuarioUncheckedCreateWithoutContratosAtualizadosInput>
+  }
+
   export type ProcessoContratacaoUpsertWithoutContratosInput = {
     update: XOR<ProcessoContratacaoUpdateWithoutContratosInput, ProcessoContratacaoUncheckedUpdateWithoutContratosInput>
     create: XOR<ProcessoContratacaoCreateWithoutContratosInput, ProcessoContratacaoUncheckedCreateWithoutContratosInput>
@@ -55771,6 +56173,76 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter | Date | string
   }
 
+  export type UsuarioUpsertWithoutContratosCriadosInput = {
+    update: XOR<UsuarioUpdateWithoutContratosCriadosInput, UsuarioUncheckedUpdateWithoutContratosCriadosInput>
+    create: XOR<UsuarioCreateWithoutContratosCriadosInput, UsuarioUncheckedCreateWithoutContratosCriadosInput>
+  }
+
+  export type UsuarioUpdateWithoutContratosCriadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sub?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    nome?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | Role
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    servidor?: ServidorUpdateOneWithoutUsuariosNestedInput
+    orgao?: OrgaoUpdateOneWithoutUsuariosNestedInput
+    contratosAtualizados?: ContratoUpdateManyWithoutAtualizadoPorNestedInput
+  }
+
+  export type UsuarioUncheckedUpdateWithoutContratosCriadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sub?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    nome?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | Role
+    servidorId?: NullableStringFieldUpdateOperationsInput | string | null
+    orgaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratosAtualizados?: ContratoUncheckedUpdateManyWithoutAtualizadoPorNestedInput
+  }
+
+  export type UsuarioUpsertWithoutContratosAtualizadosInput = {
+    update: XOR<UsuarioUpdateWithoutContratosAtualizadosInput, UsuarioUncheckedUpdateWithoutContratosAtualizadosInput>
+    create: XOR<UsuarioCreateWithoutContratosAtualizadosInput, UsuarioUncheckedCreateWithoutContratosAtualizadosInput>
+  }
+
+  export type UsuarioUpdateWithoutContratosAtualizadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sub?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    nome?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | Role
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    servidor?: ServidorUpdateOneWithoutUsuariosNestedInput
+    orgao?: OrgaoUpdateOneWithoutUsuariosNestedInput
+    contratosCriados?: ContratoUpdateManyWithoutCriadoPorNestedInput
+  }
+
+  export type UsuarioUncheckedUpdateWithoutContratosAtualizadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    sub?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    nome?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | Role
+    servidorId?: NullableStringFieldUpdateOperationsInput | string | null
+    orgaoId?: NullableStringFieldUpdateOperationsInput | string | null
+    ativo?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratosCriados?: ContratoUncheckedUpdateManyWithoutCriadoPorNestedInput
+  }
+
   export type ContratoCreateWithoutResponsaveisInput = {
     id?: string
     numeroGms: string
@@ -55817,6 +56289,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutResponsaveisInput = {
@@ -55854,6 +56328,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
@@ -55960,6 +56436,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutResponsaveisInput = {
@@ -55997,6 +56475,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
@@ -56093,6 +56573,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutRateiosInput = {
@@ -56130,6 +56612,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -56240,6 +56724,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutRateiosInput = {
@@ -56277,6 +56763,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -56377,6 +56865,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutAlteracoesInput = {
@@ -56414,6 +56904,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -56642,6 +57134,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutAlteracoesInput = {
@@ -56679,6 +57173,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -57583,6 +58079,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutItensInput = {
@@ -57620,6 +58118,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -57877,6 +58377,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutItensInput = {
@@ -57914,6 +58416,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -58481,6 +58985,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutDotacoesInput = {
@@ -58518,6 +59024,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -58620,6 +59128,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutDotacoesInput = {
@@ -58657,6 +59167,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -58749,6 +59261,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutEmpenhosInput = {
@@ -58786,6 +59300,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -58888,6 +59404,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutEmpenhosInput = {
@@ -58925,6 +59443,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -59017,6 +59537,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutReservasInput = {
@@ -59054,6 +59576,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -59168,6 +59692,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutReservasInput = {
@@ -59205,6 +59731,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -59309,6 +59837,8 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutPublicacoesInput = {
@@ -59346,6 +59876,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -59531,6 +60063,8 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutPublicacoesInput = {
@@ -59568,6 +60102,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -59743,6 +60279,8 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutDocumentosInput = {
@@ -59780,6 +60318,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -60010,6 +60550,8 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutDocumentosInput = {
@@ -60047,6 +60589,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -60267,6 +60811,8 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
     publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
     documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
   }
 
   export type ContratoUncheckedCreateWithoutAlertasInput = {
@@ -60304,6 +60850,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
@@ -60373,6 +60921,8 @@ export namespace Prisma {
     reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutAlertasInput = {
@@ -60410,6 +60960,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -60625,6 +61177,226 @@ export namespace Prisma {
     create: XOR<OrgaoCreateWithoutUsuariosInput, OrgaoUncheckedCreateWithoutUsuariosInput>
   }
 
+  export type ContratoCreateWithoutCriadoPorInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
+    atualizadoPor?: UsuarioCreateNestedOneWithoutContratosAtualizadosInput
+  }
+
+  export type ContratoUncheckedCreateWithoutCriadoPorInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    subunidadeId?: string | null
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    atualizadoPorId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutCriadoPorInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutCriadoPorInput, ContratoUncheckedCreateWithoutCriadoPorInput>
+  }
+
+  export type ContratoCreateManyCriadoPorInputEnvelope = {
+    data: Enumerable<ContratoCreateManyCriadoPorInput>
+    skipDuplicates?: boolean
+  }
+
+  export type ContratoCreateWithoutAtualizadoPorInput = {
+    id?: string
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    naturezaObjeto: NaturezaObjeto
+    objeto: string
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    processo?: ProcessoContratacaoCreateNestedOneWithoutContratosInput
+    categoriaContratacao: DominioValorCreateNestedOneWithoutContratosCategoriaInput
+    modalidadeRef: DominioValorCreateNestedOneWithoutContratosModalidadeInput
+    fundamentoLegal?: DominioValorCreateNestedOneWithoutContratosFundamentoInput
+    fornecedor: FornecedorCreateNestedOneWithoutContratosInput
+    unidadeGestora: OrgaoCreateNestedOneWithoutContratosGestoraInput
+    subunidade?: UnidadeOrganizacionalCreateNestedOneWithoutContratosSubunidadeInput
+    responsaveis?: ContratoResponsavelCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoCreateNestedManyWithoutContratoInput
+    alertas?: AlertaCreateNestedManyWithoutContratoInput
+    criadoPor?: UsuarioCreateNestedOneWithoutContratosCriadosInput
+  }
+
+  export type ContratoUncheckedCreateWithoutAtualizadoPorInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    subunidadeId?: string | null
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    criadoPorId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    responsaveis?: ContratoResponsavelUncheckedCreateNestedManyWithoutContratoInput
+    rateios?: ContratoRateioUncheckedCreateNestedManyWithoutContratoInput
+    itens?: ItemContratoUncheckedCreateNestedManyWithoutContratoInput
+    alteracoes?: AlteracaoContratualUncheckedCreateNestedManyWithoutContratoInput
+    dotacoes?: ContratoDotacaoUncheckedCreateNestedManyWithoutContratoInput
+    empenhos?: EmpenhoUncheckedCreateNestedManyWithoutContratoInput
+    reservas?: ReservaOrcamentariaUncheckedCreateNestedManyWithoutContratoInput
+    publicacoes?: PublicacaoUncheckedCreateNestedManyWithoutContratoInput
+    documentos?: DocumentoUncheckedCreateNestedManyWithoutContratoInput
+    alertas?: AlertaUncheckedCreateNestedManyWithoutContratoInput
+  }
+
+  export type ContratoCreateOrConnectWithoutAtualizadoPorInput = {
+    where: ContratoWhereUniqueInput
+    create: XOR<ContratoCreateWithoutAtualizadoPorInput, ContratoUncheckedCreateWithoutAtualizadoPorInput>
+  }
+
+  export type ContratoCreateManyAtualizadoPorInputEnvelope = {
+    data: Enumerable<ContratoCreateManyAtualizadoPorInput>
+    skipDuplicates?: boolean
+  }
+
   export type ServidorUpsertWithoutUsuariosInput = {
     update: XOR<ServidorUpdateWithoutUsuariosInput, ServidorUncheckedUpdateWithoutUsuariosInput>
     create: XOR<ServidorCreateWithoutUsuariosInput, ServidorUncheckedCreateWithoutUsuariosInput>
@@ -60695,6 +61467,38 @@ export namespace Prisma {
     unidades?: UnidadeOrganizacionalUncheckedUpdateManyWithoutOrgaoNestedInput
     contratosGestora?: ContratoUncheckedUpdateManyWithoutUnidadeGestoraNestedInput
     servidores?: ServidorUncheckedUpdateManyWithoutOrgaoNestedInput
+  }
+
+  export type ContratoUpsertWithWhereUniqueWithoutCriadoPorInput = {
+    where: ContratoWhereUniqueInput
+    update: XOR<ContratoUpdateWithoutCriadoPorInput, ContratoUncheckedUpdateWithoutCriadoPorInput>
+    create: XOR<ContratoCreateWithoutCriadoPorInput, ContratoUncheckedCreateWithoutCriadoPorInput>
+  }
+
+  export type ContratoUpdateWithWhereUniqueWithoutCriadoPorInput = {
+    where: ContratoWhereUniqueInput
+    data: XOR<ContratoUpdateWithoutCriadoPorInput, ContratoUncheckedUpdateWithoutCriadoPorInput>
+  }
+
+  export type ContratoUpdateManyWithWhereWithoutCriadoPorInput = {
+    where: ContratoScalarWhereInput
+    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosCriadosInput>
+  }
+
+  export type ContratoUpsertWithWhereUniqueWithoutAtualizadoPorInput = {
+    where: ContratoWhereUniqueInput
+    update: XOR<ContratoUpdateWithoutAtualizadoPorInput, ContratoUncheckedUpdateWithoutAtualizadoPorInput>
+    create: XOR<ContratoCreateWithoutAtualizadoPorInput, ContratoUncheckedCreateWithoutAtualizadoPorInput>
+  }
+
+  export type ContratoUpdateWithWhereUniqueWithoutAtualizadoPorInput = {
+    where: ContratoWhereUniqueInput
+    data: XOR<ContratoUpdateWithoutAtualizadoPorInput, ContratoUncheckedUpdateWithoutAtualizadoPorInput>
+  }
+
+  export type ContratoUpdateManyWithWhereWithoutAtualizadoPorInput = {
+    where: ContratoScalarWhereInput
+    data: XOR<ContratoUpdateManyMutationInput, ContratoUncheckedUpdateManyWithoutContratosAtualizadosInput>
   }
 
   export type UnidadeOrganizacionalCreateManyMunicipioInput = {
@@ -61016,6 +61820,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -61054,6 +61860,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -61092,6 +61900,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -61354,6 +62164,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutCategoriaContratacaoInput = {
@@ -61390,6 +62202,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -61438,6 +62252,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -61488,6 +62304,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutModalidadeRefInput = {
@@ -61524,6 +62342,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -61572,6 +62392,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -61622,6 +62444,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutFundamentoLegalInput = {
@@ -61658,6 +62482,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -61706,6 +62532,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -62231,6 +63059,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -62384,6 +63214,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutUnidadeGestoraInput = {
@@ -62420,6 +63252,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -62468,6 +63302,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -62529,6 +63365,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     servidor?: ServidorUpdateOneWithoutUsuariosNestedInput
+    contratosCriados?: ContratoUpdateManyWithoutCriadoPorNestedInput
+    contratosAtualizados?: ContratoUpdateManyWithoutAtualizadoPorNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutOrgaoInput = {
@@ -62542,6 +63380,8 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratosCriados?: ContratoUncheckedUpdateManyWithoutCriadoPorNestedInput
+    contratosAtualizados?: ContratoUncheckedUpdateManyWithoutAtualizadoPorNestedInput
   }
 
   export type UsuarioUncheckedUpdateManyWithoutUsuariosInput = {
@@ -62617,6 +63457,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -62791,6 +63633,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutSubunidadeInput = {
@@ -62827,6 +63671,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -62875,6 +63721,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -63074,6 +63922,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -63187,6 +64037,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutFornecedorInput = {
@@ -63223,6 +64075,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -63271,6 +64125,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -63339,6 +64195,8 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     orgao?: OrgaoUpdateOneWithoutUsuariosNestedInput
+    contratosCriados?: ContratoUpdateManyWithoutCriadoPorNestedInput
+    contratosAtualizados?: ContratoUpdateManyWithoutAtualizadoPorNestedInput
   }
 
   export type UsuarioUncheckedUpdateWithoutServidorInput = {
@@ -63352,6 +64210,8 @@ export namespace Prisma {
     ativo?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    contratosCriados?: ContratoUncheckedUpdateManyWithoutCriadoPorNestedInput
+    contratosAtualizados?: ContratoUncheckedUpdateManyWithoutAtualizadoPorNestedInput
   }
 
   export type ContratoCreateManyProcessoInput = {
@@ -63388,6 +64248,8 @@ export namespace Prisma {
     reservaObservacao?: string | null
     observacoes?: string | null
     codigoLegado?: string | null
+    criadoPorId?: string | null
+    atualizadoPorId?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -63463,6 +64325,8 @@ export namespace Prisma {
     publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
     documentos?: DocumentoUpdateManyWithoutContratoNestedInput
     alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
   }
 
   export type ContratoUncheckedUpdateWithoutProcessoInput = {
@@ -63499,6 +64363,8 @@ export namespace Prisma {
     reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
     observacoes?: NullableStringFieldUpdateOperationsInput | string | null
     codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
@@ -64453,6 +65319,366 @@ export namespace Prisma {
     erros?: NullableJsonNullValueInput | InputJsonValue
     registroCriadoId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoCreateManyCriadoPorInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    subunidadeId?: string | null
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    atualizadoPorId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContratoCreateManyAtualizadoPorInput = {
+    id?: string
+    processoId?: string | null
+    numeroGms: string
+    anoGms: number
+    numeroContrato?: string | null
+    eProtocolo?: string | null
+    pilar: PilarOrcamentario
+    categoriaContratacaoId: string
+    naturezaObjeto: NaturezaObjeto
+    modalidadeId: string
+    fundamentoLegalId?: string | null
+    objeto: string
+    fornecedorId: string
+    unidadeGestoraId: string
+    subunidadeId?: string | null
+    dataAssinatura?: Date | string | null
+    dataInicioVigencia: Date | string
+    prazoInicialValor: number
+    prazoInicialUnidade?: UnidadeTempo
+    dataFimVigenciaOriginal: Date | string
+    prorrogavel?: boolean
+    limiteProrrogacaoMeses?: number | null
+    valorGlobalOriginalCents: bigint | number
+    indiceReajuste?: string | null
+    mesAniversarioReajuste?: number | null
+    situacao?: SituacaoContrato
+    dataEncerramento?: Date | string | null
+    motivoEncerramento?: string | null
+    garantiaTipo?: TipoGarantia | null
+    garantiaValorCents?: bigint | number | null
+    garantiaValidade?: Date | string | null
+    reservaObservacao?: string | null
+    observacoes?: string | null
+    codigoLegado?: string | null
+    criadoPorId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type ContratoUpdateWithoutCriadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    atualizadoPor?: UsuarioUpdateOneWithoutContratosAtualizadosNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutCriadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutContratosCriadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    atualizadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type ContratoUpdateWithoutAtualizadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    objeto?: StringFieldUpdateOperationsInput | string
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    processo?: ProcessoContratacaoUpdateOneWithoutContratosNestedInput
+    categoriaContratacao?: DominioValorUpdateOneRequiredWithoutContratosCategoriaNestedInput
+    modalidadeRef?: DominioValorUpdateOneRequiredWithoutContratosModalidadeNestedInput
+    fundamentoLegal?: DominioValorUpdateOneWithoutContratosFundamentoNestedInput
+    fornecedor?: FornecedorUpdateOneRequiredWithoutContratosNestedInput
+    unidadeGestora?: OrgaoUpdateOneRequiredWithoutContratosGestoraNestedInput
+    subunidade?: UnidadeOrganizacionalUpdateOneWithoutContratosSubunidadeNestedInput
+    responsaveis?: ContratoResponsavelUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUpdateManyWithoutContratoNestedInput
+    criadoPor?: UsuarioUpdateOneWithoutContratosCriadosNestedInput
+  }
+
+  export type ContratoUncheckedUpdateWithoutAtualizadoPorInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    responsaveis?: ContratoResponsavelUncheckedUpdateManyWithoutContratoNestedInput
+    rateios?: ContratoRateioUncheckedUpdateManyWithoutContratoNestedInput
+    itens?: ItemContratoUncheckedUpdateManyWithoutContratoNestedInput
+    alteracoes?: AlteracaoContratualUncheckedUpdateManyWithoutContratoNestedInput
+    dotacoes?: ContratoDotacaoUncheckedUpdateManyWithoutContratoNestedInput
+    empenhos?: EmpenhoUncheckedUpdateManyWithoutContratoNestedInput
+    reservas?: ReservaOrcamentariaUncheckedUpdateManyWithoutContratoNestedInput
+    publicacoes?: PublicacaoUncheckedUpdateManyWithoutContratoNestedInput
+    documentos?: DocumentoUncheckedUpdateManyWithoutContratoNestedInput
+    alertas?: AlertaUncheckedUpdateManyWithoutContratoNestedInput
+  }
+
+  export type ContratoUncheckedUpdateManyWithoutContratosAtualizadosInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    processoId?: NullableStringFieldUpdateOperationsInput | string | null
+    numeroGms?: StringFieldUpdateOperationsInput | string
+    anoGms?: IntFieldUpdateOperationsInput | number
+    numeroContrato?: NullableStringFieldUpdateOperationsInput | string | null
+    eProtocolo?: NullableStringFieldUpdateOperationsInput | string | null
+    pilar?: EnumPilarOrcamentarioFieldUpdateOperationsInput | PilarOrcamentario
+    categoriaContratacaoId?: StringFieldUpdateOperationsInput | string
+    naturezaObjeto?: EnumNaturezaObjetoFieldUpdateOperationsInput | NaturezaObjeto
+    modalidadeId?: StringFieldUpdateOperationsInput | string
+    fundamentoLegalId?: NullableStringFieldUpdateOperationsInput | string | null
+    objeto?: StringFieldUpdateOperationsInput | string
+    fornecedorId?: StringFieldUpdateOperationsInput | string
+    unidadeGestoraId?: StringFieldUpdateOperationsInput | string
+    subunidadeId?: NullableStringFieldUpdateOperationsInput | string | null
+    dataAssinatura?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    dataInicioVigencia?: DateTimeFieldUpdateOperationsInput | Date | string
+    prazoInicialValor?: IntFieldUpdateOperationsInput | number
+    prazoInicialUnidade?: EnumUnidadeTempoFieldUpdateOperationsInput | UnidadeTempo
+    dataFimVigenciaOriginal?: DateTimeFieldUpdateOperationsInput | Date | string
+    prorrogavel?: BoolFieldUpdateOperationsInput | boolean
+    limiteProrrogacaoMeses?: NullableIntFieldUpdateOperationsInput | number | null
+    valorGlobalOriginalCents?: BigIntFieldUpdateOperationsInput | bigint | number
+    indiceReajuste?: NullableStringFieldUpdateOperationsInput | string | null
+    mesAniversarioReajuste?: NullableIntFieldUpdateOperationsInput | number | null
+    situacao?: EnumSituacaoContratoFieldUpdateOperationsInput | SituacaoContrato
+    dataEncerramento?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    motivoEncerramento?: NullableStringFieldUpdateOperationsInput | string | null
+    garantiaTipo?: NullableEnumTipoGarantiaFieldUpdateOperationsInput | TipoGarantia | null
+    garantiaValorCents?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    garantiaValidade?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    reservaObservacao?: NullableStringFieldUpdateOperationsInput | string | null
+    observacoes?: NullableStringFieldUpdateOperationsInput | string | null
+    codigoLegado?: NullableStringFieldUpdateOperationsInput | string | null
+    criadoPorId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

@@ -3,7 +3,7 @@ import React from 'react';
 
 interface PageProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
-  description?: string;
+  description?: React.ReactNode;
   actions?: React.ReactNode;
   /** Trilha acima do título (ex.: Breadcrumbs). */
   breadcrumb?: React.ReactNode;
@@ -31,7 +31,7 @@ export function Page({
               </h1>
             )}
             {description && (
-              <p className="mt-1 text-[var(--font-size-sm)] text-[var(--text-muted)]">{description}</p>
+              <div className="mt-1 text-[var(--font-size-sm)] text-[var(--text-muted)]">{description}</div>
             )}
           </div>
           {actions && <div className="Bloco-Toolbar flex flex-wrap items-center gap-2">{actions}</div>}

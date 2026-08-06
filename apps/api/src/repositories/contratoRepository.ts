@@ -2,6 +2,15 @@ import { getPrisma } from '../lib/prisma';
 import { limiteProrrogacaoMesesDefault } from '@painel/domain';
 import type { NaturezaObjeto } from '@painel/domain';
 
+function asUsuarioFk(actorId: string | null | undefined): string | null {
+  if (!actorId) return null;
+  if (actorId === 'system' || actorId.startsWith('user-')) return null;
+  if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(actorId)) {
+    return null;
+  }
+  return actorId;
+}
+
 const contractInclude = {
   alteracoes: {
     orderBy: [{ dataAssinatura: 'asc' as const }, { numero: 'asc' as const }],
@@ -20,6 +29,8 @@ const contractInclude = {
   modalidadeRef: true,
   categoriaContratacao: true,
   fundamentoLegal: true,
+  criadoPor: { select: { id: true, nome: true, email: true } },
+  atualizadoPor: { select: { id: true, nome: true, email: true } },
   responsaveis: {
     include: { servidor: true },
     orderBy: [{ papel: 'asc' as const }, { dataInicio: 'desc' as const }],
@@ -319,6 +330,7 @@ export const contratoRepository = {
             },
           ];
 
+    const actorId = asUsuarioFk(audit.changedBy);
     const db = getPrisma();
     return db.$transaction(async (tx) => {
       const contrato = await tx.contrato.create({
@@ -354,6 +366,8 @@ export const contratoRepository = {
           garantiaValidade: input.garantiaValidade ? new Date(input.garantiaValidade) : null,
           observacoes: input.observacoes,
           codigoLegado: input.codigoLegado,
+          criadoPorId: actorId,
+          atualizadoPorId: actorId,
         },
       });
 
@@ -456,17 +470,6 @@ export const contratoRepository = {
         });
       }
 
-      await tx.auditLog.create({
-        data: {
-          tabela: 'contrato',
-          registroId: contrato.id,
-          action: 'create',
-          diff: { id: contrato.id },
-          changedBy: audit.changedBy,
-          source: 'api',
-        },
-      });
-
       return contrato.id;
     });
   },
@@ -478,7 +481,9 @@ export const contratoRepository = {
     audit: { changedBy: string | null },
   ) {
     const db = getPrisma();
+    const actorId = asUsuarioFk(audit.changedBy);
     const patch: Record<string, unknown> = { ...data };
+    if (actorId) patch.atualizadoPorId = actorId;
 
     if (patch.modalidadeCodigo && !patch.modalidadeId) {
       patch.modalidadeId = await resolveModalidadeId(null, String(patch.modalidadeCodigo));
@@ -565,24 +570,13 @@ export const contratoRepository = {
           },
         });
       }
-
-      await tx.auditLog.create({
-        data: {
-          tabela: 'contrato',
-          registroId: id,
-          action: 'update',
-          diff: { before: existing, patch: data } as object,
-          changedBy: audit.changedBy,
-          source: 'api',
-        },
-      });
     });
   },
 
   async delete(
     id: string,
     existing: { id: string; alteracoes?: unknown[]; aditivos?: unknown[] },
-    audit: { changedBy: string | null },
+    _audit: { changedBy: string | null },
   ) {
     const db = getPrisma();
     await db.$transaction(async (tx) => {
@@ -594,19 +588,6 @@ export const contratoRepository = {
       await tx.contratoResponsavel.deleteMany({ where: { contratoId: id } });
       await tx.contratoRateio.deleteMany({ where: { contratoId: id } });
       await tx.contrato.delete({ where: { id } });
-      await tx.auditLog.create({
-        data: {
-          tabela: 'contrato',
-          registroId: id,
-          action: 'delete',
-          diff: {
-            id: existing.id,
-            alteracoes: (existing.alteracoes ?? existing.aditivos ?? []).length,
-          },
-          changedBy: audit.changedBy,
-          source: 'api',
-        },
-      });
     });
   },
 };

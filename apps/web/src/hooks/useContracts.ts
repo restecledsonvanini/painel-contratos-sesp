@@ -39,6 +39,10 @@ export interface Contract {
   dataFimVigenciaOriginal?: string | null;
   status?: string;
   observacoes?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+  criadoPor?: { id: string; nome?: string | null; email?: string | null } | null;
+  atualizadoPor?: { id: string; nome?: string | null; email?: string | null } | null;
   itens?: Array<{
     id: string;
     sequencia: number;

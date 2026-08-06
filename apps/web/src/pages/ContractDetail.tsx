@@ -27,6 +27,7 @@ import { formatCents } from '../lib/format';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 import { useAuth } from '../providers/AuthProvider';
 import { CONTRACT_TAB_LABELS, pushRecentContract } from '../lib/recentContracts';
+import { authorLabel, formatDateBr, formatRelativePast } from '../lib/formatRelative';
 import { Download } from 'lucide-react';
 
 const TAB_IDS = [
@@ -667,6 +668,10 @@ export default function ContractDetail() {
 
   const gmsLabel = `GMS ${contract.numGms}/${contract.anoGms}`;
   const tabLabel = CONTRACT_TAB_LABELS[tab] ?? tab;
+  const autoria = [
+    `Criado por ${authorLabel(contract.criadoPor)} em ${formatDateBr(contract.createdAt)}`,
+    `Última alteração por ${authorLabel(contract.atualizadoPor)} ${formatRelativePast(contract.updatedAt)}`,
+  ].join(' · ');
 
   return (
     <Page
@@ -680,7 +685,20 @@ export default function ContractDetail() {
         />
       }
       title={contract.protocoloCabeca || `Contrato ${contract.numGms}/${contract.anoGms}`}
-      description={`${unidadeLabel} · ${contract.fornecedorName || contract.empresaName || 'Fornecedor'} · Lei 14.133/2021`}
+      description={
+        <>
+          {unidadeLabel} · {contract.fornecedorName || contract.empresaName || 'Fornecedor'} · Lei
+          14.133/2021
+          <br />
+          <button
+            type="button"
+            className="mt-1 text-left text-[var(--font-size-xs)] text-[var(--text-muted)] underline-offset-2 hover:underline"
+            onClick={() => setTab('auditoria')}
+          >
+            {autoria} — ver auditoria
+          </button>
+        </>
+      }
       actions={
         <>
           <Link to="/contracts">

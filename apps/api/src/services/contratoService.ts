@@ -111,6 +111,20 @@ function mapContractRecord(record: any) {
     status: SITUACAO_TO_STATUS[record.situacao] ?? String(record.situacao).toLowerCase(),
     observacoes: record.observacoes,
     codigoLegado: record.codigoLegado,
+    criadoPorId: record.criadoPorId ?? null,
+    criadoPor: record.criadoPor
+      ? { id: record.criadoPor.id, nome: record.criadoPor.nome, email: record.criadoPor.email }
+      : null,
+    atualizadoPorId: record.atualizadoPorId ?? null,
+    atualizadoPor: record.atualizadoPor
+      ? {
+          id: record.atualizadoPor.id,
+          nome: record.atualizadoPor.nome,
+          email: record.atualizadoPor.email,
+        }
+      : null,
+    createdAt: record.createdAt,
+    updatedAt: record.updatedAt,
     responsaveis: record.responsaveis?.map((r: any) => ({
       id: r.id,
       servidorId: r.servidorId,
