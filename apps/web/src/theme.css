@@ -272,6 +272,31 @@ a:focus-visible {
   }
 }
 
+.app-sidebar__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.app-sidebar__children {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.app-sidebar__link--child {
+  font-weight: 500;
+  font-size: var(--font-size-sm);
+  padding-block: 0.35rem;
+}
+
+.app-sidebar__link--child.is-active {
+  background: transparent;
+  color: var(--primary);
+}
+
 .app-sidebar__nav {
   display: flex;
   flex: 1;

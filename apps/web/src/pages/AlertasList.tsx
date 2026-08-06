@@ -98,7 +98,7 @@ export default function AlertasList() {
             </Button>
           ) : null}
           {hasMinRole('ADMIN') ? (
-            <Link to="/importacao">
+            <Link to="/utilitarios?tab=importacao">
               <Button variant="ghost">Importação</Button>
             </Link>
           ) : null}

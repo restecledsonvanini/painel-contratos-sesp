@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { useNavigate, useParams, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useTabParam } from '../lib/useTabParam';
 import { useQuery } from '@tanstack/react-query';
 import { useContract, useDeleteContract } from '../hooks/useContracts';
 import {
@@ -36,12 +37,6 @@ const TAB_IDS = [
   'auditoria',
 ] as const;
 
-type TabId = (typeof TAB_IDS)[number];
-
-function isTabId(value: string | null): value is TabId {
-  return Boolean(value && (TAB_IDS as readonly string[]).includes(value));
-}
-
 function num(v: unknown) {
   return Number(v ?? 0);
 }
@@ -53,9 +48,7 @@ function money(cents: unknown) {
 export default function ContractDetail() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const tabParam = searchParams.get('tab');
-  const tab: TabId = isTabId(tabParam) ? tabParam : 'resumo';
+  const [tab, setTab] = useTabParam(TAB_IDS, 'resumo');
 
   const { data: contract, isLoading, error, refetch } = useContract(id);
   const deleteContract = useDeleteContract();
@@ -63,14 +56,6 @@ export default function ContractDetail() {
   const confirm = useConfirmDialog<string>();
   const { hasMinRole, token } = useAuth();
   const canWrite = !token || hasMinRole('COLABORADOR');
-
-  const setTab = (next: string) => {
-    setSearchParams((prev) => {
-      const p = new URLSearchParams(prev);
-      p.set('tab', next);
-      return p;
-    });
-  };
 
   const { data: financeiro } = useQuery({
     queryKey: ['contrato-financeiro', id],

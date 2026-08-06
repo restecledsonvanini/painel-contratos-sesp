@@ -82,6 +82,13 @@ export function CommandPalette() {
 
             <Command.Group heading="Atalhos" className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1 [&_[cmdk-group-heading]]:text-[var(--text-muted)]">
               <Command.Item
+                value="ir-painel"
+                onSelect={() => go('/painel?tab=tatico')}
+                className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"
+              >
+                Ir para painel tático
+              </Command.Item>
+              <Command.Item
                 value="ir-contratos"
                 onSelect={() => go('/contracts')}
                 className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"
@@ -90,28 +97,35 @@ export function CommandPalette() {
               </Command.Item>
               <Command.Item
                 value="ir-estrategico"
-                onSelect={() => go('/estrategico')}
+                onSelect={() => go('/painel?tab=estrategico')}
                 className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"
               >
                 Ir para painel estratégico
               </Command.Item>
               <Command.Item
                 value="ir-alertas"
-                onSelect={() => go('/alertas')}
+                onSelect={() => go('/painel?tab=alertas')}
                 className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"
               >
                 Ir para alertas
               </Command.Item>
               <Command.Item
+                value="ir-cadastros"
+                onSelect={() => go('/cadastros?tab=fornecedores')}
+                className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"
+              >
+                Ir para cadastros
+              </Command.Item>
+              <Command.Item
                 value="ir-unidades"
-                onSelect={() => go('/unidades')}
+                onSelect={() => go('/configuracoes?tab=organizacao')}
                 className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"
               >
                 Ir para estrutura organizacional
               </Command.Item>
               <Command.Item
                 value="ir-importacao"
-                onSelect={() => go('/importacao')}
+                onSelect={() => go('/utilitarios?tab=importacao')}
                 className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"
               >
                 Ir para importação

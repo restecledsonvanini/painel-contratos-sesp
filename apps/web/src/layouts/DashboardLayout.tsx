@@ -32,12 +32,13 @@ function AuthTrailing() {
 
 function ShellFrame({ children }: { children: React.ReactNode }) {
   const { collapsed } = useSidebar();
+  const { hasMinRole, token } = useAuth();
   return (
     <div className={`app-shell Página-Shell${collapsed ? ' is-rail-collapsed' : ''}`}>
       <a href="#conteudo-principal" className="skip-link">
         Ir para o conteúdo principal
       </a>
-      <Sidebar />
+      <Sidebar canSee={(min) => !min || !token || hasMinRole(min)} />
       <div className="app-content">
         <Header trailing={<AuthTrailing />} />
         <main id="conteudo-principal" className="app-main Seção-Main" tabIndex={-1}>

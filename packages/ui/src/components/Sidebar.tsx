@@ -1,47 +1,107 @@
 import clsx from 'clsx';
 import {
-  Bell,
   Briefcase,
   ChevronLeft,
   ChevronRight,
-  FilePlus2,
   FileText,
   LayoutDashboard,
-  LineChart,
-  ListTree,
-  Shield,
-  Upload,
-  Users,
-  Wallet,
+  Settings,
   Wrench,
   type LucideIcon,
 } from 'lucide-react';
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { useSidebar } from '../SidebarContext';
+
+type NavChild = {
+  label: string;
+  to: string;
+  /** Papel mínimo para exibir o sub-item (ex.: usuarios = ADMIN). */
+  minRole?: string;
+};
 
 type NavItem = {
   label: string;
   to: string;
   icon: LucideIcon;
+  minRole?: string;
+  children?: NavChild[];
 };
 
 const navItems: NavItem[] = [
-  { label: 'Painel tático', to: '/', icon: LayoutDashboard },
-  { label: 'Estratégico', to: '/estrategico', icon: LineChart },
+  {
+    label: 'Painel',
+    to: '/painel?tab=tatico',
+    icon: LayoutDashboard,
+    children: [
+      { label: 'Tático', to: '/painel?tab=tatico' },
+      { label: 'Estratégico', to: '/painel?tab=estrategico' },
+      { label: 'Alertas', to: '/painel?tab=alertas' },
+    ],
+  },
   { label: 'Contratos', to: '/contracts', icon: FileText },
-  { label: 'Novo contrato', to: '/contracts/new', icon: FilePlus2 },
-  { label: 'Fornecedores', to: '/fornecedores', icon: Briefcase },
-  { label: 'Servidores', to: '/servidores', icon: Users },
-  { label: 'Catálogo de itens', to: '/catalogo-itens', icon: Wrench },
-  { label: 'Dotações', to: '/dotacoes', icon: Wallet },
-  { label: 'Alertas', to: '/alertas', icon: Bell },
-  { label: 'Importação', to: '/importacao', icon: Upload },
-  { label: 'Estrutura organizacional', to: '/unidades', icon: Shield },
-  { label: 'Listas suspensas', to: '/dominios', icon: ListTree },
+  {
+    label: 'Cadastros',
+    to: '/cadastros?tab=fornecedores',
+    icon: Briefcase,
+    children: [
+      { label: 'Fornecedores', to: '/cadastros?tab=fornecedores' },
+      { label: 'Servidores', to: '/cadastros?tab=servidores' },
+      { label: 'Catálogo', to: '/cadastros?tab=catalogo' },
+      { label: 'Dotações', to: '/cadastros?tab=dotacoes' },
+    ],
+  },
+  {
+    label: 'Utilitários',
+    to: '/utilitarios?tab=importacao',
+    icon: Wrench,
+    minRole: 'COLABORADOR',
+    children: [
+      { label: 'Importação', to: '/utilitarios?tab=importacao' },
+      { label: 'Exportação', to: '/utilitarios?tab=exportacao' },
+    ],
+  },
+  {
+    label: 'Configurações',
+    to: '/configuracoes?tab=organizacao',
+    icon: Settings,
+    minRole: 'GESTOR',
+    children: [
+      { label: 'Estrutura', to: '/configuracoes?tab=organizacao' },
+      { label: 'Listas suspensas', to: '/configuracoes?tab=listas' },
+      { label: 'Usuários', to: '/configuracoes?tab=usuarios', minRole: 'ADMIN' },
+      { label: 'Segurança', to: '/configuracoes?tab=seguranca', minRole: 'ADMIN' },
+    ],
+  },
 ];
-export function Sidebar() {
+
+function pathOf(to: string): string {
+  return to.split('?')[0] ?? to;
+}
+
+function tabOf(to: string): string | null {
+  const q = to.includes('?') ? to.slice(to.indexOf('?') + 1) : '';
+  return new URLSearchParams(q).get('tab');
+}
+
+function linkIsActive(to: string, pathname: string, search: string): boolean {
+  if (pathname !== pathOf(to)) return false;
+  const wantTab = tabOf(to);
+  if (!wantTab) return true;
+  return new URLSearchParams(search).get('tab') === wantTab;
+}
+
+export type SidebarProps = {
+  /** Gate de papel — app passa `hasMinRole`. Sem prop = tudo visível. */
+  canSee?: (minRole?: string) => boolean;
+};
+
+export function Sidebar({ canSee }: SidebarProps) {
   const { collapsed, toggleCollapsed, mobileOpen, closeMobile } = useSidebar();
+  const location = useLocation();
+  const visible = (min?: string) => (canSee ? canSee(min) : true);
+
+  const items = navItems.filter((item) => visible(item.minRole));
 
   return (
     <>
@@ -68,20 +128,49 @@ export function Sidebar() {
         </div>
 
         <nav id="navegacao-principal" className="app-sidebar__nav" aria-label="Navegação principal">
-          {navItems.map((item) => {
+          {items.map((item) => {
             const Icon = item.icon;
+            const sectionPath = pathOf(item.to);
+            const sectionActive =
+              location.pathname === sectionPath || location.pathname.startsWith(`${sectionPath}/`);
+            const children = (item.children ?? []).filter((c) => visible(c.minRole));
+            const showChildren = Boolean(sectionActive && children.length && !collapsed);
+
             return (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.to === '/'}
-                title={item.label}
-                onClick={closeMobile}
-                className={({ isActive }) => clsx('app-sidebar__link', isActive && 'is-active')}
-              >
-                <Icon size={18} strokeWidth={2} aria-hidden />
-                <span className="app-sidebar__label">{item.label}</span>
-              </NavLink>
+              <div key={sectionPath} className="app-sidebar__group">
+                <NavLink
+                  to={item.to}
+                  end
+                  title={item.label}
+                  onClick={closeMobile}
+                  className={({ isActive }) =>
+                    clsx('app-sidebar__link', (isActive || sectionActive) && 'is-active')
+                  }
+                >
+                  <Icon size={18} strokeWidth={2} aria-hidden />
+                  <span className="app-sidebar__label">{item.label}</span>
+                </NavLink>
+                {showChildren && (
+                  <div className="app-sidebar__children" role="group" aria-label={item.label}>
+                    {children.map((child) => (
+                      <NavLink
+                        key={child.to}
+                        to={child.to}
+                        title={child.label}
+                        onClick={closeMobile}
+                        className={() =>
+                          clsx(
+                            'app-sidebar__link app-sidebar__link--child',
+                            linkIsActive(child.to, location.pathname, location.search) && 'is-active',
+                          )
+                        }
+                      >
+                        <span className="app-sidebar__label">{child.label}</span>
+                      </NavLink>
+                    ))}
+                  </div>
+                )}
+              </div>
             );
           })}
         </nav>
@@ -89,7 +178,6 @@ export function Sidebar() {
         <div className="app-sidebar__footer">Hub de Inteligência Contratual · Lei 14.133/2021</div>
       </aside>
 
-      {/* Irmão do aside (filho do shell) — acompanha a borda no collapse */}
       <button
         type="button"
         className="app-sidebar__edge-toggle"
