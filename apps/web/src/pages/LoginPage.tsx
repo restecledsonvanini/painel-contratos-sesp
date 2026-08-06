@@ -60,7 +60,8 @@ export default function LoginPage() {
           </Button>
         </form>
         <p className="text-xs text-[var(--text-muted)]">
-          Demo: admin@sesp.pr.gov.br / admin123 · gestor@… / gestor123 · leitor@… / leitor123
+          Demo: admin@… / admin123 · gestor@… / gestor123 · analista@… / analista123 ·
+          visitante@sesp.pr.gov.br / visitante123
         </p>
       </Card>
     </Page>

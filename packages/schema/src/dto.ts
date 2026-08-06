@@ -1,3 +1,5 @@
+import type { Role } from '@painel/domain';
+
 /** DTOs de resposta da API — tipagem compartilhada (não confundir com *Create/*Update). */
 
 export type RefSiglaNome = {
@@ -251,3 +253,22 @@ export type ContratoDTO = {
 };
 
 export type ContratoDetailDTO = ContratoDTO;
+
+/** Sessão /me e login — sem relações. */
+export type AuthUserDTO = {
+  id: string;
+  email: string | null;
+  nome: string | null;
+  role: Role;
+  orgaoId: string | null;
+  servidorId: string | null;
+  ativo: boolean;
+};
+
+/** Usuário administrativo (lista/detalhe). */
+export type UsuarioDTO = AuthUserDTO & {
+  createdAt?: string;
+  updatedAt?: string;
+  orgao?: { id: string; sigla: string; nome: string } | null;
+  servidor?: { id: string; nome: string; cpf?: string | null } | null;
+};

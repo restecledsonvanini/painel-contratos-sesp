@@ -1,4 +1,16 @@
-/** Papéis de acesso (RBAC). FISCAL contratual ≠ papel de login. */
+/**
+ * Papéis de acesso (RBAC). FISCAL contratual ≠ papel de login.
+ *
+ * Matriz alvo (mínimo por recurso) — espelhar front + API:
+ * | Recurso                         | Leitura   | Escrita      |
+ * | Painel / contratos lista-detalhe | VISITANTE | —            |
+ * | Contrato CUD / cadastros / CSV   | VISITANTE | ANALISTA     |
+ * | Alterações / organograma write   | VISITANTE | GESTOR       |
+ * | Domínios / usuários / segurança  | GESTOR*   | ADMIN        |
+ * | Jobs admin (alertas, analytics)  | —         | ADMIN        |
+ * (* domínios: GESTOR lê; ADMIN escreve)
+ * Detalhe: plan/2026-08-06_tipagem_rbac_e_higiene.md §3
+ */
 
 export const Role = {
   VISITANTE: 'VISITANTE',

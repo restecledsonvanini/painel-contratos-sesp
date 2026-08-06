@@ -840,8 +840,17 @@ async function main() {
       servidorId: servidorGestor?.id ?? null,
     },
     {
-      email: 'leitor@sesp.pr.gov.br',
+      email: 'visitante@sesp.pr.gov.br',
       nome: 'Visitante Escopo SESP',
+      password: 'visitante123',
+      role: 'VISITANTE' as const,
+      orgaoId: orgaoSesp?.id ?? null,
+      servidorId: null as string | null,
+    },
+    // Alias legado (um release): mesmo papel VISITANTE
+    {
+      email: 'leitor@sesp.pr.gov.br',
+      nome: 'Visitante (legado leitor@)',
       password: 'leitor123',
       role: 'VISITANTE' as const,
       orgaoId: orgaoSesp?.id ?? null,

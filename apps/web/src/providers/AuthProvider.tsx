@@ -1,16 +1,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { hasMinRole as rankHasMinRole } from '@painel/domain';
+import type { AuthUserDTO } from '@painel/schema';
 import { http } from '../lib/http';
 
-export type AuthUser = {
-  id: string;
-  email: string | null;
-  nome: string | null;
-  role: string;
-  orgaoId: string | null;
-  servidorId: string | null;
-  ativo: boolean;
-};
+export type AuthUser = AuthUserDTO;
 
 type AuthContextValue = {
   user: AuthUser | null;

@@ -281,6 +281,15 @@ Ordem **obrigatória** (do plano 2026-08-05 §7):
 - [x] Seguranca PUT; Dominios ADMIN UI; `.env.example`
 - [x] Testes API verdes (46/46); e2e bloqueado neste ambiente (Playwright browser ausente no sandbox) — revalidar localmente
 
+### Fase 2 status
+
+- [x] `UsuarioDTO` / `AuthUserDTO` em schema; AuthProvider + UsuariosPage tipados
+- [x] UsuariosPage: editar `orgaoId` / `servidorId` (lista + create); `GET /usuarios/:id` coberto em teste
+- [x] Seed `visitante@sesp.pr.gov.br` (+ `leitor@` legado um release)
+- [x] LoginPage hint sem “leitor” como demo principal
+- [x] `Role` do schema reexporta/`normalizeRole` de `@painel/domain` (dep schema→domain; domain sem ciclo)
+- [x] Matriz §3 documentada em `packages/domain/src/roles.ts`
+
 ---
 
 ## 9. Relação com planos anteriores
@@ -290,6 +299,6 @@ Ordem **obrigatória** (do plano 2026-08-05 §7):
 | `2026-08-05_hierarquia_sesp_navegacao_e_saneamento.md` | ✅ 0–9 |
 | `2026-08-04_api_refatoracao_modelo_contratual.md` | ✅ |
 | `apps/web/plan/2026-08-04_frontend_refatoracao_contratual.md` | ✅ |
-| **Este** (`2026-08-06_tipagem_rbac_e_higiene.md`) | 🔲 próximo |
+| **Este** (`2026-08-06_tipagem_rbac_e_higiene.md`) | Fase 0–2 ✅; próximo: **3 tipagem** |
 
 Caminho crítico sugerido: **1 (RBAC) → 2 (usuário) → 3 (tipagem) → 4 (aliases) → 5 (testes/OpenAPI)**.

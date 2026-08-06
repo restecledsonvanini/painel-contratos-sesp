@@ -1,24 +1,18 @@
 import { z } from 'zod';
+import { normalizeRole, Role as RoleEnum, type Role } from '@painel/domain';
 
-const CANONICAL = ['VISITANTE', 'ANALISTA', 'GESTOR', 'ADMIN'] as const;
+const CANONICAL = [
+  RoleEnum.VISITANTE,
+  RoleEnum.ANALISTA,
+  RoleEnum.GESTOR,
+  RoleEnum.ADMIN,
+] as const;
 
-function toCanonicalRole(raw: unknown): string {
-  if (typeof raw !== 'string') return 'VISITANTE';
-  const upper = raw.toUpperCase();
-  const aliases: Record<string, (typeof CANONICAL)[number]> = {
-    VISITANTE: 'VISITANTE',
-    ANALISTA: 'ANALISTA',
-    GESTOR: 'GESTOR',
-    ADMIN: 'ADMIN',
-    LEITOR: 'VISITANTE',
-    COLABORADOR: 'ANALISTA',
-    FISCAL: 'ANALISTA',
-  };
-  return aliases[upper] ?? aliases[raw.toLowerCase()] ?? 'VISITANTE';
-}
-
-/** Papéis canônicos; entrada aceita aliases legados (LEITOR/COLABORADOR/FISCAL). */
-export const RoleSchema = z.preprocess(toCanonicalRole, z.enum(CANONICAL));
+/** Papéis canônicos (`@painel/domain`); entrada aceita aliases legados. */
+export const RoleSchema = z.preprocess(
+  (raw) => normalizeRole(typeof raw === 'string' ? raw : undefined),
+  z.enum(CANONICAL),
+);
 
 export const LoginSchema = z.object({
   email: z.string().email(),
@@ -47,7 +41,7 @@ export const UsuarioUpdateSchema = z.object({
   sub: z.string().nullable().optional(),
 });
 
-export type Role = (typeof CANONICAL)[number];
+export type { Role };
 export type LoginInput = z.infer<typeof LoginSchema>;
 export type UsuarioCreateInput = z.infer<typeof UsuarioCreateSchema>;
 export type UsuarioUpdateInput = z.infer<typeof UsuarioUpdateSchema>;

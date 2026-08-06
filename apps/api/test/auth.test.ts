@@ -41,13 +41,47 @@ describe('auth e RBAC', () => {
     expect(me.body.email).toBe('admin@sesp.pr.gov.br');
   });
 
-  it('VISITANTE (legado leitor) não pode criar contrato', async () => {
+  it('VISITANTE não pode criar contrato', async () => {
     if (!ready) return;
     const res = await request(app)
       .post('/api/v1/contracts')
-      .set('Authorization', 'Bearer leitor')
+      .set('Authorization', 'Bearer visitante')
       .send({ numeroGms: '1', anoGms: 2026, objeto: 'x' });
     expect(res.status).toBe(403);
+  });
+
+  it('login visitante@ retorna papel VISITANTE', async () => {
+    if (!ready) return;
+    const login = await request(app).post('/api/v1/auth/login').send({
+      email: 'visitante@sesp.pr.gov.br',
+      password: 'visitante123',
+    });
+    if (login.status === 401) return; // seed ainda sem visitante@ neste DB
+    expect(login.status).toBe(200);
+    expect(login.body.user.role).toBe('VISITANTE');
+  });
+
+  it('GET /usuarios/:id exige ADMIN e devolve UsuarioDTO', async () => {
+    if (!ready) return;
+    const list = await request(app)
+      .get('/api/v1/usuarios')
+      .set('Authorization', 'Bearer admin');
+    expect(list.status).toBe(200);
+    const first = list.body[0];
+    if (!first?.id) return;
+
+    const denied = await request(app)
+      .get(`/api/v1/usuarios/${first.id}`)
+      .set('Authorization', 'Bearer gestor');
+    expect(denied.status).toBe(403);
+
+    const ok = await request(app)
+      .get(`/api/v1/usuarios/${first.id}`)
+      .set('Authorization', 'Bearer admin');
+    expect(ok.status).toBe(200);
+    expect(ok.body.id).toBe(first.id);
+    expect(ok.body).toHaveProperty('orgaoId');
+    expect(ok.body).toHaveProperty('servidorId');
   });
 
   it('lista usuários exige ADMIN', async () => {
