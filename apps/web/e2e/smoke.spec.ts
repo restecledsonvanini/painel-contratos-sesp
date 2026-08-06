@@ -32,6 +32,14 @@ test.describe('smoke + a11y', () => {
     await skip.press('Enter');
     await expect(page.locator('#conteudo-principal')).toBeFocused();
 
+    const row = page.getByRole('link', { name: /Abrir contrato/i }).first();
+    if (await row.count()) {
+      await row.click();
+      const crumbs = page.getByRole('navigation', { name: /Breadcrumb/i });
+      await expect(crumbs).toBeVisible({ timeout: 15_000 });
+      await expect(crumbs.getByRole('link', { name: /^Contratos$/i })).toBeVisible();
+    }
+
     await assertNoCriticalAxe(page, 'contratos');
   });
 

@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useTabParam } from '../lib/useTabParam';
 import { useQuery } from '@tanstack/react-query';
 import { useContract, useDeleteContract } from '../hooks/useContracts';
 import {
   Badge,
+  Breadcrumbs,
   Button,
   Card,
   ConfirmDialog,
@@ -25,6 +26,7 @@ import { downloadApiFile } from '../lib/download';
 import { formatCents } from '../lib/format';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 import { useAuth } from '../providers/AuthProvider';
+import { CONTRACT_TAB_LABELS, pushRecentContract } from '../lib/recentContracts';
 import { Download } from 'lucide-react';
 
 const TAB_IDS = [
@@ -59,6 +61,16 @@ export default function ContractDetail() {
   const confirm = useConfirmDialog<string>();
   const { hasMinRole, token } = useAuth();
   const canWrite = !token || hasMinRole('COLABORADOR');
+
+  useEffect(() => {
+    if (!contract?.id) return;
+    const gms = `${contract.numGms}/${contract.anoGms}`;
+    pushRecentContract({
+      id: contract.id,
+      gms,
+      label: contract.protocoloCabeca || `GMS ${gms}`,
+    });
+  }, [contract?.id, contract?.numGms, contract?.anoGms, contract?.protocoloCabeca]);
 
   const { data: financeiro } = useQuery({
     queryKey: ['contrato-financeiro', id],
@@ -653,8 +665,20 @@ export default function ContractDetail() {
     },
   ];
 
+  const gmsLabel = `GMS ${contract.numGms}/${contract.anoGms}`;
+  const tabLabel = CONTRACT_TAB_LABELS[tab] ?? tab;
+
   return (
     <Page
+      breadcrumb={
+        <Breadcrumbs
+          items={[
+            { label: 'Contratos', href: '/contracts' },
+            { label: gmsLabel, href: `/contracts/${id}` },
+            { label: tabLabel },
+          ]}
+        />
+      }
       title={contract.protocoloCabeca || `Contrato ${contract.numGms}/${contract.anoGms}`}
       description={`${unidadeLabel} · ${contract.fornecedorName || contract.empresaName || 'Fornecedor'} · Lei 14.133/2021`}
       actions={

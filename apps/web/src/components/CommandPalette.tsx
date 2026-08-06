@@ -3,6 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Command } from 'cmdk';
 import { useQuery } from '@tanstack/react-query';
 import { http } from '../lib/http';
+import {
+  CONTRACT_TAB_LABELS,
+  CONTRACT_TAB_SHORTCUTS,
+  contractHref,
+  readRecentContracts,
+  type RecentContract,
+} from '../lib/recentContracts';
 
 type SearchHit = { id: string; label: string; to: string };
 type SearchResult = {
@@ -19,6 +26,7 @@ export function openCommandPalette() {
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
+  const [recentes, setRecentes] = useState<RecentContract[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -40,6 +48,10 @@ export function CommandPalette() {
     };
   }, []);
 
+  useEffect(() => {
+    if (open) setRecentes(readRecentContracts());
+  }, [open]);
+
   const { data } = useQuery({
     queryKey: ['search', q],
     queryFn: async () => (await http.get<SearchResult>('/search', { params: { q } })).data,
@@ -54,6 +66,9 @@ export function CommandPalette() {
   }
 
   if (!open) return null;
+
+  const searching = q.trim().length >= 2;
+  const contratos = data?.contratos ?? [];
 
   return (
     <div
@@ -77,10 +92,32 @@ export function CommandPalette() {
           />
           <Command.List className="max-h-80 overflow-y-auto p-2 text-[var(--font-size-sm)]">
             <Command.Empty className="px-3 py-6 text-[var(--text-muted)]">
-              {q.trim().length < 2 ? 'Digite ao menos 2 caracteres.' : 'Nenhum resultado.'}
+              {searching ? 'Nenhum resultado.' : 'Digite ao menos 2 caracteres ou escolha um recente.'}
             </Command.Empty>
 
-            <Command.Group heading="Atalhos" className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1 [&_[cmdk-group-heading]]:text-[var(--text-muted)]">
+            {!searching && recentes.length > 0 && (
+              <Command.Group
+                heading="Vistos recentemente"
+                className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1 [&_[cmdk-group-heading]]:text-[var(--text-muted)]"
+              >
+                {recentes.map((r) => (
+                  <Command.Item
+                    key={`recent-${r.id}`}
+                    value={`recent-${r.gms}-${r.label}`}
+                    onSelect={() => go(contractHref(r.id))}
+                    className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"
+                  >
+                    GMS {r.gms}
+                    {r.label && r.label !== `GMS ${r.gms}` ? ` — ${r.label}` : ''}
+                  </Command.Item>
+                ))}
+              </Command.Group>
+            )}
+
+            <Command.Group
+              heading="Atalhos"
+              className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1 [&_[cmdk-group-heading]]:text-[var(--text-muted)]"
+            >
               <Command.Item
                 value="ir-painel"
                 onSelect={() => go('/painel?tab=tatico')}
@@ -132,7 +169,28 @@ export function CommandPalette() {
               </Command.Item>
             </Command.Group>
 
-            {(data?.contratos ?? []).map((c) => (
+            {contratos.slice(0, 3).map((c) => (
+              <React.Fragment key={c.id}>
+                <Command.Item
+                  value={`c-${c.id}-${c.label}`}
+                  onSelect={() => go(c.to)}
+                  className="cursor-pointer rounded px-2 py-2 data-[selected=true]:bg-[var(--surface-muted)]"
+                >
+                  {c.label}
+                </Command.Item>
+                {CONTRACT_TAB_SHORTCUTS.map((tabId) => (
+                  <Command.Item
+                    key={`${c.id}-${tabId}`}
+                    value={`c-${c.id}-${c.label}-${CONTRACT_TAB_LABELS[tabId]}`}
+                    onSelect={() => go(contractHref(c.id, tabId))}
+                    className="cursor-pointer rounded px-2 py-1.5 pl-4 text-[var(--text-muted)] data-[selected=true]:bg-[var(--surface-muted)] data-[selected=true]:text-[var(--text)]"
+                  >
+                    {c.label.split('—')[0]?.trim() || c.label} › {CONTRACT_TAB_LABELS[tabId]}
+                  </Command.Item>
+                ))}
+              </React.Fragment>
+            ))}
+            {contratos.slice(3).map((c) => (
               <Command.Item
                 key={c.id}
                 value={`c-${c.id}-${c.label}`}

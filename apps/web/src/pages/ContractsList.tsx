@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -47,6 +47,7 @@ function matchVencimento(dias: number | null, filtro: string): boolean {
 }
 
 export default function ContractsList() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { data, isLoading, error, refetch } = useContracts();
   const deleteContract = useDeleteContract();
@@ -237,10 +238,29 @@ export default function ContractsList() {
             </TableHead>
             <TableBody>
               {contracts.length > 0 ? (
-                contracts.map((contract) => (
-                  <TableRow key={contract.id}>
+                contracts.map((contract) => {
+                  const detailTo = `/contracts/${contract.id}`;
+                  return (
+                  <TableRow
+                    key={contract.id}
+                    className="cursor-pointer"
+                    role="link"
+                    tabIndex={0}
+                    aria-label={`Abrir contrato ${contract.protocoloCabeca || `${contract.numGms}/${contract.anoGms}`}`}
+                    onClick={() => navigate(detailTo)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        navigate(detailTo);
+                      }
+                    }}
+                  >
                     <TableCell className="font-semibold" data-label="Protocolo">
-                      <Link className="text-[var(--primary)] hover:underline" to={`/contracts/${contract.id}`}>
+                      <Link
+                        className="text-[var(--primary)] hover:underline"
+                        to={detailTo}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         {contract.protocoloCabeca || '—'}
                       </Link>
                     </TableCell>
@@ -277,9 +297,13 @@ export default function ContractsList() {
                           })
                         : '—'}
                     </TableCell>
-                    <TableCell data-label="Ações">
+                    <TableCell
+                      data-label="Ações"
+                      onClick={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
+                    >
                       <div className="flex flex-wrap gap-2">
-                        <Link to={`/contracts/${contract.id}`}>
+                        <Link to={detailTo}>
                           <Button size="sm" variant="secondary">
                             Ver
                           </Button>
@@ -309,7 +333,8 @@ export default function ContractsList() {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))
+                  );
+                })
               ) : (
                 <TableRow>
                   <TableCell colSpan={7} className="text-[var(--text-muted)]">

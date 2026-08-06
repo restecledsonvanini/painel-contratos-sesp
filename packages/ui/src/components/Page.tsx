@@ -5,12 +5,23 @@ interface PageProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
   description?: string;
   actions?: React.ReactNode;
+  /** Trilha acima do título (ex.: Breadcrumbs). */
+  breadcrumb?: React.ReactNode;
 }
 
 /** Container de página full-width — padding único (sem max-width estreito). */
-export function Page({ title, description, actions, className, children, ...props }: PageProps) {
+export function Page({
+  title,
+  description,
+  actions,
+  breadcrumb,
+  className,
+  children,
+  ...props
+}: PageProps) {
   return (
     <div className={clsx('Página-App mx-auto w-full space-y-[var(--space-lg)]', className)} {...props}>
+      {breadcrumb}
       {(title || actions) && (
         <div className="Bloco-PageHeader flex flex-col gap-3 border-b border-[var(--border)] pb-[var(--space-md)] sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">

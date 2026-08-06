@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Bar,
@@ -10,9 +10,15 @@ import {
   YAxis,
 } from 'recharts';
 import { Button, ChartCard, KpiCard, Meter, Page, Skeleton } from '@painel/ui';
-import { Bell, FilePlus2, LineChart } from 'lucide-react';
+import { Bell, Clock, FilePlus2, LineChart } from 'lucide-react';
 import { formatCents } from '../lib/format';
 import { contractsListHref, janelaToVencimentoParam } from '../lib/dashboardLinks';
+import {
+  alertaTipoToTab,
+  contractHref,
+  readRecentContracts,
+  type RecentContract,
+} from '../lib/recentContracts';
 import {
   useDashboardAlertas,
   useDashboardFiscalizacao,
@@ -55,6 +61,19 @@ export default function Dashboard() {
     .filter((a: { reconhecidoEm?: string | null }) => !a.reconhecidoEm)
     .slice(0, 6);
 
+  const [recentes, setRecentes] = useState<RecentContract[]>(() => readRecentContracts());
+  useEffect(() => {
+    function refresh() {
+      setRecentes(readRecentContracts());
+    }
+    window.addEventListener('painel:recent-contracts', refresh);
+    window.addEventListener('storage', refresh);
+    return () => {
+      window.removeEventListener('painel:recent-contracts', refresh);
+      window.removeEventListener('storage', refresh);
+    };
+  }, []);
+
   const acaoNecessaria = vencimentos.filter((j) =>
     ['vencidos', '0-30', '31-60'].includes(String(j.janela)),
   );
@@ -94,6 +113,24 @@ export default function Dashboard() {
         </div>
       }
     >
+      {recentes.length > 0 && (
+        <section aria-label="Vistos recentemente" className="flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1 text-[var(--font-size-xs)] font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+            <Clock size={14} aria-hidden />
+            Recentes
+          </span>
+          {recentes.map((r) => (
+            <Link
+              key={r.id}
+              to={contractHref(r.id)}
+              className="rounded-[var(--radius-sm)] border border-[var(--border)] bg-[var(--surface)] px-2.5 py-1 text-[var(--font-size-sm)] font-semibold text-[var(--primary)] hover:border-[var(--primary)]"
+            >
+              {r.gms ? `GMS ${r.gms}` : r.label}
+            </Link>
+          ))}
+        </section>
+      )}
+
       <section className="grid grid-cols-1 gap-[var(--space-md)] sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
           title="Contratos"
@@ -183,13 +220,18 @@ export default function Dashboard() {
           <div className="space-y-2">
             {alertasAbertos.map((a: {
               id: string;
+              tipo?: string;
               severidade: string;
               mensagem: string;
               contrato?: { id: string; numeroGms: string; anoGms: number };
             }) => (
               <Link
                 key={a.id}
-                to={`/contracts/${a.contrato?.id}`}
+                to={
+                  a.contrato?.id
+                    ? contractHref(a.contrato.id, alertaTipoToTab(a.tipo))
+                    : '/painel?tab=alertas'
+                }
                 className="block rounded-[var(--radius-md)] border border-[var(--border)] px-3 py-2 hover:border-[var(--primary)]"
               >
                 <p className="text-[var(--font-size-xs)] font-semibold uppercase text-[var(--text-muted)]">

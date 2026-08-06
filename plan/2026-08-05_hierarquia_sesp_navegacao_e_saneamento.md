@@ -361,7 +361,7 @@ Cada fase é entregável e reversível sozinha. Nenhuma fase começa com a anter
 | **2. Unidade gestora = força** | `unidadeGestoraId` → `Orgao`; `subunidadeId` opcional; `municipioId` e `nivel` nullable; escopo direto | sim (2 migrations) | **alto** | ✅ **Feita (2026-08-05)** — API 40/40 |
 | **3. Navegação** | Sidebar com grupos + gate; 4 páginas de seção; `useTabParam`; todos os redirects | não | médio | ✅ **Feita (2026-08-05)** — e2e atualizado |
 | **4. Exportação** ⭐ | XLSX real (`exceljs`); PDF (`pdfkit`); ficha por contrato + acervo; UI com escopo | não | baixo | ✅ **Feita (2026-08-05)** — CSV/XLSX/PDF + testes |
-| **5. Descoberta** | Breadcrumbs; linha clicável; deep-link por aba; recentes; palette | não | baixo | Chegar ao detalhe em ≤ 2 cliques de qualquer painel |
+| **5. Descoberta** | Breadcrumbs; linha clicável; deep-link por aba; recentes; palette | não | baixo | ✅ **Feita (2026-08-05)** — ≤2 cliques ao detalhe |
 | **6. Auth** | `ANALISTA`/`VISITANTE`; allowlist de domínio; UI de usuários; `RequireRole` | sim (enum) | médio | Login barra domínio externo; admin gerencia domínios e usuários |
 | **7. Rastreabilidade** | `criadoPorId`/`atualizadoPorId` + backfill; header do detalhe; fim da auditoria duplicada | sim (aditiva) | baixo | Detalhe mostra autoria; sem evento duplicado |
 | **8. Dotações + importação** | Form de dotação; entidades `dotacao`/`unidade` no import; transação; upload de arquivo; RBAC no GET | não | médio | Importar os 5 CRPM por CSV; lote com duplicata não corrompe |

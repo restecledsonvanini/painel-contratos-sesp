@@ -16,6 +16,7 @@ import {
   TableRow,
 } from '@painel/ui';
 import { http, getErrorMessage } from '../lib/http';
+import { alertaTipoToTab, contractHref } from '../lib/recentContracts';
 import { useAuth } from '../providers/AuthProvider';
 
 type Alerta = {
@@ -125,7 +126,10 @@ export default function AlertasList() {
                   </TableCell>
                   <TableCell>{a.tipo}</TableCell>
                   <TableCell>
-                    <Link to={`/contracts/${a.contrato.id}`} className="font-semibold underline">
+                    <Link
+                      to={contractHref(a.contrato.id, alertaTipoToTab(a.tipo))}
+                      className="font-semibold underline"
+                    >
                       GMS {a.contrato.numeroGms}/{a.contrato.anoGms}
                     </Link>
                   </TableCell>
