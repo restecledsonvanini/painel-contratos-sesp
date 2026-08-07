@@ -12,6 +12,7 @@
     "db:seed": "npm --workspace packages/db run seed",
     "api:dev": "npm --workspace apps/api run dev",
     "api:test": "npm --workspace apps/api run test",
+    "domain:test": "npm --workspace @painel/domain run test",
     "web:e2e": "npm --workspace apps/web run test:e2e",
     "prepare": "npm run db:generate",
     "build:all": "npm run db:generate && npm --workspace apps/web run build && npm --workspace apps/api run build",
@@ -25,6 +26,12 @@
     "prisma": "^4.16.2"
   },
   "dependencies": {
-    "@prisma/client": "^4.16.2"
+    "@prisma/client": "^4.16.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "overrides": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   }
 }

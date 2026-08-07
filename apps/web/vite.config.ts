@@ -5,20 +5,24 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 const rootDir = fileURLToPath(new URL('.', import.meta.url));
+const repoRoot = path.resolve(rootDir, '../..');
+const reactPkg = path.resolve(repoRoot, 'node_modules/react');
+const reactDomPkg = path.resolve(repoRoot, 'node_modules/react-dom');
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
+    dedupe: ['react', 'react-dom'],
     alias: {
-      react: path.resolve(rootDir, 'node_modules/react'),
-      'react-dom': path.resolve(rootDir, 'node_modules/react-dom'),
-      'react/jsx-runtime': path.resolve(rootDir, 'node_modules/react/jsx-runtime.js'),
-      'react/jsx-dev-runtime': path.resolve(rootDir, 'node_modules/react/jsx-dev-runtime.js'),
-      '@painel/schema': path.resolve(rootDir, '../../packages/schema/src/index.ts'),
-      '@painel/domain': path.resolve(rootDir, '../../packages/domain/src/index.ts'),
-      'date-fns': path.resolve(rootDir, '../../node_modules/date-fns'),
-      sonner: path.resolve(rootDir, '../../node_modules/sonner'),
-      cmdk: path.resolve(rootDir, '../../node_modules/cmdk'),
+      react: reactPkg,
+      'react-dom': reactDomPkg,
+      'react/jsx-runtime': path.resolve(reactPkg, 'jsx-runtime.js'),
+      'react/jsx-dev-runtime': path.resolve(reactPkg, 'jsx-dev-runtime.js'),
+      '@painel/schema': path.resolve(repoRoot, 'packages/schema/src/index.ts'),
+      '@painel/domain': path.resolve(repoRoot, 'packages/domain/src/index.ts'),
+      'date-fns': path.resolve(repoRoot, 'node_modules/date-fns'),
+      sonner: path.resolve(repoRoot, 'node_modules/sonner'),
+      cmdk: path.resolve(repoRoot, 'node_modules/cmdk'),
     },
   },
   server: {

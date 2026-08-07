@@ -64,6 +64,10 @@ export function useDeleteContract() {
       const res = await http.delete(`/contracts/${id}`);
       return res.data;
     },
-    onSuccess: (_data, id) => invalidateContratos(queryClient, id),
+    onSuccess: (_data, id) => {
+      // Evita refetch 404 do detalhe já excluído.
+      queryClient.removeQueries({ queryKey: qk.contrato(id) });
+      invalidateContratos(queryClient);
+    },
   });
 }

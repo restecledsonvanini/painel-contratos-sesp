@@ -25,8 +25,21 @@ export function Popover({
 }: PopoverProps) {
   return (
     <RadixPopover.Root open={open} onOpenChange={onOpenChange}>
-      <RadixPopover.Trigger asChild className={className}>
-        {trigger}
+      <RadixPopover.Trigger asChild>
+        {React.isValidElement(trigger) ? (
+          className
+            ? React.cloneElement(trigger as React.ReactElement<{ className?: string }>, {
+                className: cn(
+                  (trigger as React.ReactElement<{ className?: string }>).props.className,
+                  className,
+                ),
+              })
+            : trigger
+        ) : (
+          <button type="button" className={className}>
+            {trigger}
+          </button>
+        )}
       </RadixPopover.Trigger>
       <RadixPopover.Portal>
         <RadixPopover.Content

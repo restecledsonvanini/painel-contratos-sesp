@@ -1,6 +1,7 @@
 import { getPrisma } from '../lib/prisma';
 import { notFound, badRequest } from '../lib/errors';
 import type { DominioValorCreateInput, DominioValorUpdateInput } from '@painel/schema';
+import { EMAIL_DOMAINS_SLUG } from '@painel/domain';
 
 export const dominioRepository = {
   list() {
@@ -21,8 +22,30 @@ export const dominioRepository = {
     return record;
   },
 
+  /** Bootstrap do allowlist de e-mail se o seed ainda não rodou neste DB. */
+  async ensureEmailDomainsDominio() {
+    const db = getPrisma();
+    const existing = await db.dominio.findUnique({ where: { slug: EMAIL_DOMAINS_SLUG } });
+    if (existing) return existing;
+    return db.dominio.create({
+      data: {
+        slug: EMAIL_DOMAINS_SLUG,
+        nome: 'Domínios de e-mail permitidos',
+        descricao: 'Allowlist de domínio no login e no cadastro de usuários (ADMIN).',
+        editavelPeloUsuario: true,
+        valores: {
+          create: [{ codigo: 'sesp.pr.gov.br', label: 'sesp.pr.gov.br', ordem: 1 }],
+        },
+      },
+    });
+  },
+
   async listValores(slug: string, includeInativos = false) {
-    const dominio = await this.getBySlug(slug);
+    let dominio = await getPrisma().dominio.findUnique({ where: { slug } });
+    if (!dominio && slug === EMAIL_DOMAINS_SLUG) {
+      dominio = await this.ensureEmailDomainsDominio();
+    }
+    if (!dominio) throw notFound(`Domínio '${slug}' não encontrado`);
     return getPrisma().dominioValor.findMany({
       where: {
         dominioId: dominio.id,
@@ -33,7 +56,11 @@ export const dominioRepository = {
   },
 
   async createValor(slug: string, data: DominioValorCreateInput) {
-    const dominio = await this.getBySlug(slug);
+    let dominio = await getPrisma().dominio.findUnique({ where: { slug } });
+    if (!dominio && slug === EMAIL_DOMAINS_SLUG) {
+      dominio = await this.ensureEmailDomainsDominio();
+    }
+    if (!dominio) throw notFound(`Domínio '${slug}' não encontrado`);
     if (!dominio.editavelPeloUsuario) {
       throw badRequest(`Domínio '${slug}' não é editável pelo usuário`);
     }

@@ -264,6 +264,7 @@ export type ContratoDTO = {
   fiscalName?: string;
   fornecedorId?: string;
   fornecedorName?: string;
+  fundamentoLegalId?: string | null;
   modalidade?: string;
   pilar?: string;
   naturezaObjeto?: string;

@@ -25,7 +25,7 @@ import { getErrorMessage, http } from '../lib/http';
 import { downloadApiFile } from '../lib/download';
 import { formatCents, formatCurrencyFromReais } from '../lib/format';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
-import { useCanAct } from '../lib/access';
+import { useCanManage, useCanWrite } from '../lib/access';
 import { CONTRACT_TAB_LABELS, pushRecentContract } from '../lib/recentContracts';
 import { authorLabel, formatDateBr, formatRelativePast } from '../lib/formatRelative';
 import { Download } from 'lucide-react';
@@ -60,7 +60,8 @@ export default function ContractDetail() {
   const deleteContract = useDeleteContract();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
-  const canWrite = useCanAct('ANALISTA');
+  const canWrite = useCanWrite();
+  const canManage = useCanManage();
 
   useEffect(() => {
     if (!contract?.id) return;
@@ -378,7 +379,7 @@ export default function ContractDetail() {
             ) : (
               <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Limites indisponíveis.</p>
             )}
-            {id && canWrite && (
+            {id && canManage && (
               <Link to={`/contracts/${id}/alteracoes/nova`}>
                 <Button className="w-full">Nova alteração</Button>
               </Link>
@@ -730,7 +731,7 @@ export default function ContractDetail() {
               <Button variant="secondary">Editar</Button>
             </Link>
           )}
-          {id && canWrite && (
+          {id && canManage && (
             <Link to={`/contracts/${id}/alteracoes/nova`}>
               <Button variant="secondary">Nova alteração</Button>
             </Link>

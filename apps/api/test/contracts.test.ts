@@ -146,6 +146,67 @@ describe('contracts API integration', () => {
     const deleteRes = await request(app).delete(`/.netlify/functions/api/contracts/${id}`);
     expect(deleteRes.status).toBe(200);
 
+    const getAfterDelete = await request(app).get(`/api/v1/contracts/${id}`);
+    expect(getAfterDelete.status).toBe(404);
+    expect(getAfterDelete.body.error?.code).toBe('NOT_FOUND');
+  });
+
+  it('PATCH DISPENSA sem fundamentoLegalId retorna 422', async () => {
+    if (!ready) {
+      console.warn('Skipping DB integration test — DATABASE_URL unreachable');
+      return;
+    }
+
+    const db = getPrisma();
+    const modalidadeDispensa = await db.dominioValor.findFirst({
+      where: {
+        codigo: 'DISPENSA',
+        ativo: true,
+        dominio: { slug: 'modalidade-licitacao' },
+      },
+    });
+    const fundamento = await db.dominioValor.findFirst({
+      where: {
+        ativo: true,
+        codigo: 'ART_75_I',
+        dominio: { slug: 'fundamento-legal' },
+      },
+    });
+    if (!modalidadeDispensa || !fundamento) {
+      console.warn('Skipping — domínio DISPENSA/ART_75_I ausente no seed');
+      return;
+    }
+
+    const numGms = Math.floor(Math.random() * 900000) + 100000;
+    const createRes = await request(app)
+      .post('/api/v1/contracts')
+      .set('Authorization', 'Bearer analista')
+      .send({
+        numGms,
+        anoGms: 2026,
+        unidadeGestoraId,
+        subunidadeId: subunidadeId || undefined,
+        gestorId,
+        fiscalId,
+        fornecedorId,
+        modalidade: 'DISPENSA',
+        fundamentoLegalId: fundamento.id,
+        objeto: 'Contrato dispensa teste fundamento',
+        valorAnual: 1000,
+        dataInicio: '2026-01-01',
+        dataFimOrig: '2026-12-31',
+      });
+    expect(createRes.status).toBe(201);
+    const id = createRes.body.id as string;
+
+    const patchRes = await request(app)
+      .patch(`/api/v1/contracts/${id}`)
+      .set('Authorization', 'Bearer analista')
+      .send({ fundamentoLegalId: null });
+    expect(patchRes.status).toBe(422);
+    expect(patchRes.body.error?.code).toBe('LEGAL_RULE_VIOLATION');
+
+    await request(app).delete(`/api/v1/contracts/${id}`).set('Authorization', 'Bearer analista');
     await disconnectPrisma();
   });
 });

@@ -89,7 +89,26 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
 
   const message = err instanceof Error ? err.message : 'Internal server error';
   const name = err instanceof Error ? err.name : '';
-  console.error(JSON.stringify({ code: 'INTERNAL_ERROR', name, message, err: String(err) }));
+  const full = String(err);
+
+  // Triggers PL/pgSQL (check_violation / RAISE) — regra de negócio, não 500
+  const legalMsg =
+    message.match(/Modalidade \w+ exige fundamentoLegalId/i)?.[0] ||
+    full.match(/Modalidade \w+ exige fundamentoLegalId/i)?.[0] ||
+    (full.includes('exige fundamentoLegalId')
+      ? 'Modalidade DISPENSA/INEXIGIBILIDADE exige fundamento legal'
+      : null);
+  if (legalMsg || full.includes('SqlState(E23514)') || full.includes('check_violation')) {
+    const body: ApiErrorBody = {
+      error: {
+        code: 'LEGAL_RULE_VIOLATION',
+        message: legalMsg || 'Regra legal do banco violada',
+      },
+    };
+    return res.status(422).json(body);
+  }
+
+  console.error(JSON.stringify({ code: 'INTERNAL_ERROR', name, message, err: full }));
 
   const dbDown =
     name === 'PrismaClientInitializationError' ||

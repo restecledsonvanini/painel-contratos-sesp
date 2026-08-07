@@ -6,15 +6,13 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   size?: 'sm' | 'md';
 }
 
-export function Button({
-  className,
-  variant = 'primary',
-  size = 'md',
-  type = 'button',
-  ...props
-}: ButtonProps) {
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { className, variant = 'primary', size = 'md', type = 'button', ...props },
+  ref,
+) {
   return (
     <button
+      ref={ref}
       type={type}
       className={clsx(
         'Botão inline-flex items-center justify-center gap-2 font-semibold transition duration-150',
@@ -35,4 +33,5 @@ export function Button({
       {...props}
     />
   );
-}
+});
+Button.displayName = 'Button';

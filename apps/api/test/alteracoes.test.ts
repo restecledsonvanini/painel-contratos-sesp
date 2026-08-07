@@ -63,6 +63,63 @@ describe('alteracoes API', () => {
     expect(res.body.dataFimVigenciaProjetada).toBe(nextFim);
   });
 
+  it('simular rejeita aditivo de prazo sem novaDataFimVigencia', async () => {
+    if (!ready) return;
+    const res = await request(app)
+      .post(`/api/v1/contracts/${contratoId}/alteracoes/simular`)
+      .set('Authorization', 'Bearer gestor')
+      .send({
+        tipo: 'ADITIVO_PRAZO',
+        objetoDescricao: 'Sem data',
+        dataAssinatura: '2026-03-01',
+        valorAcrescido: 0,
+      });
+    expect(res.status).toBe(200);
+    expect(res.body.ok).toBe(false);
+    expect(res.body.erros.join(' ')).toMatch(/exige novaDataFimVigencia/i);
+  });
+
+  it('simular rejeita data fim igual ou anterior à vigência atual', async () => {
+    if (!ready) return;
+    const rows = await getPrisma().$queryRawUnsafe<Array<{ fim: Date }>>(
+      `SELECT fn_data_fim_vigencia_atual($1)::date AS fim`,
+      contratoId,
+    );
+    const atual = rows[0]?.fim
+      ? new Date(rows[0].fim).toISOString().slice(0, 10)
+      : '2026-12-31';
+
+    const res = await request(app)
+      .post(`/api/v1/contracts/${contratoId}/alteracoes/simular`)
+      .set('Authorization', 'Bearer gestor')
+      .send({
+        tipo: 'ADITIVO_PRAZO',
+        objetoDescricao: 'Data inválida',
+        dataAssinatura: '2026-03-01',
+        novaDataFimVigencia: atual,
+        valorAcrescido: 0,
+      });
+    expect(res.status).toBe(200);
+    expect(res.body.ok).toBe(false);
+    expect(res.body.erros.join(' ')).toMatch(/posterior/i);
+  });
+
+  it('create ASSINADO sem novaDataFimVigencia retorna 422', async () => {
+    if (!ready) return;
+    const res = await request(app)
+      .post(`/api/v1/contracts/${contratoId}/alteracoes`)
+      .set('Authorization', 'Bearer gestor')
+      .send({
+        tipo: 'ADITIVO_PRAZO',
+        objetoDescricao: 'Assinado sem data',
+        dataAssinatura: '2026-06-01',
+        situacao: 'ASSINADO',
+      });
+    expect(res.status).toBe(422);
+    expect(res.body.error?.code).toBe('LEGAL_RULE_VIOLATION');
+    expect(String(res.body.error?.message || '')).toMatch(/novaDataFimVigencia/i);
+  });
+
   it('rejeita apostilamento com acréscimo de valor', async () => {
     if (!ready) return;
     const res = await request(app)

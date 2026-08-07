@@ -203,6 +203,7 @@ export default function ContractForm() {
       );
       setValue('subunidadeId', existingContract.subunidadeId || '');
       setValue('modalidade', existingContract.modalidade || '');
+      setValue('fundamentoLegalId', existingContract.fundamentoLegalId || '');
       setValue('pilar', (existingContract.pilar as FormValues['pilar']) || 'SERVICOS');
       setValue('naturezaObjeto', existingContract.naturezaObjeto || 'SERVICO_CONTINUADO');
       setValue('objeto', existingContract.objeto || '');

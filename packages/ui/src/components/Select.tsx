@@ -1,6 +1,6 @@
 import * as RadixSelect from '@radix-ui/react-select';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { cn } from '../lib/cn';
 import { inputBaseClass } from '../lib/inputStyles';
 
@@ -39,6 +39,19 @@ export function Select({
 }: SelectProps) {
   const selectId = id || (label ? `select-${label.replace(/\s+/g, '-').toLowerCase()}` : undefined);
 
+  // Radix não aceita value=""; e value fora das options derruba o SelectValue.
+  const normalized = value && value.trim() ? value : undefined;
+  const items = useMemo(() => {
+    const base = options.filter((o) => o.id && o.id.trim());
+    if (normalized && !base.some((o) => o.id === normalized)) {
+      return [{ id: normalized, label: normalized, disabled: true }, ...base];
+    }
+    return base;
+  }, [options, normalized]);
+
+  // Sempre controlado: "" = sem seleção (Radix trata "" como vazio; Item nunca usa "").
+  const rootValue = normalized && items.some((o) => o.id === normalized) ? normalized : '';
+
   return (
     <div className={cn('block text-[var(--font-size-sm)] text-[var(--label-color)]', className)}>
       {label && (
@@ -46,14 +59,19 @@ export function Select({
           {label}
         </label>
       )}
-      <RadixSelect.Root value={value} onValueChange={onChange} disabled={disabled} name={name}>
+      <RadixSelect.Root
+        value={rootValue}
+        onValueChange={onChange}
+        disabled={disabled}
+        name={name}
+      >
         <RadixSelect.Trigger
           id={selectId}
           aria-invalid={error ? true : undefined}
           className={cn(
             inputBaseClass,
             'inline-flex items-center justify-between gap-2 text-left',
-            !value && 'text-[var(--text-muted)]',
+            !rootValue && 'text-[var(--text-muted)]',
           )}
         >
           <RadixSelect.Value placeholder={placeholder} />
@@ -71,7 +89,7 @@ export function Select({
               <ChevronUp className="h-4 w-4" />
             </RadixSelect.ScrollUpButton>
             <RadixSelect.Viewport className="p-1">
-              {options.map((option) => (
+              {items.map((option) => (
                 <RadixSelect.Item
                   key={option.id}
                   value={option.id}

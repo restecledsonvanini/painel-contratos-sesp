@@ -34,16 +34,18 @@ export function LookupSelect({
     ? options.filter((o) => o.parentId === parentId)
     : options;
 
-  const selectOptions = filtered.map((o) => ({
-    id: valueMode === 'codigo' ? (o.codigo ?? o.id) : o.id,
-    label: o.label,
-  }));
+  const selectOptions = filtered
+    .map((o) => ({
+      id: valueMode === 'codigo' ? (o.codigo ?? o.id) : o.id,
+      label: o.label,
+    }))
+    .filter((o) => Boolean(o.id));
 
   return (
     <Select
       label={label ?? meta?.nome}
       options={selectOptions}
-      value={value || undefined}
+      value={value?.trim() ? value : ''}
       onChange={onChange}
       placeholder={isLoading ? 'Carregando…' : placeholder ?? 'Selecione…'}
       disabled={disabled || isLoading}

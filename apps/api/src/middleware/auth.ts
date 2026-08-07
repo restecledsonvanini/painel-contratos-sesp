@@ -7,11 +7,12 @@ import { unauthorized } from '../lib/errors';
 const DEV_BYPASS =
   process.env.AUTH_REQUIRED !== '1' && process.env.AUTH_REQUIRED !== 'true';
 
+/** Bypass local: ADMIN para espelhar o front (useCanAct liberado sem AUTH). */
 const SYSTEM_USER: AuthUser = {
   id: 'system',
   email: null,
   nome: 'Sistema (dev)',
-  role: 'ANALISTA',
+  role: 'ADMIN',
   orgaoId: null,
   servidorId: null,
   ativo: true,
@@ -49,7 +50,7 @@ function synthetic(id: string, email: string, nome: string, roleRaw: string): Au
  *
  * - Authorization: Bearer <jwt> → Usuario do banco
  * - Bearer admin|analista|gestor|visitante (+ legado só com VITEST) → papel sintético
- * - Sem header → ANALISTA system se AUTH_REQUIRED não estiver ativo; senão 401
+ * - Sem header → ADMIN system se AUTH_REQUIRED não estiver ativo; senão 401
  * - /auth/login, /health*, /docs, /metrics são públicos
  */
 export async function authenticate(req: Request, _res: Response, next: NextFunction) {
