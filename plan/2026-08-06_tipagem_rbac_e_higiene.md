@@ -232,15 +232,15 @@ Ordem **obrigatória** (do plano 2026-08-05 §7):
 
 ## 6. Critérios de pronto (plano inteiro)
 
-- [ ] Zero `!token || hasMinRole` em páginas/layout (exceto bypass explícito via `canAct` + `isAuthRequired`).
-- [ ] Matriz §3 implementada e coberta por pelo menos um teste por célula crítica.
-- [ ] Dashboard respeita `getOrgaoScope`.
-- [ ] SegurancaPage toggle funciona (PUT).
-- [ ] DTOs cobrem Usuario, Alerta, CatalogoItem, Dominio*, Simulação.
-- [ ] Mutations de domínio tipadas com Create/Update Input.
-- [ ] `.env.example` documenta auth.
-- [ ] Front não depende de `empresa*` / `unidadeFsp*` para exibir contrato.
-- [ ] `api:test` e `web:e2e` verdes.
+- [x] Zero `!token || hasMinRole` em páginas/layout (exceto bypass explícito via `canAct` + `isAuthRequired`).
+- [x] Matriz §3 implementada e coberta por pelo menos um teste por célula crítica.
+- [x] Dashboard respeita `getOrgaoScope` (por-orgao; demais MVs: follow-up).
+- [x] SegurancaPage toggle funciona (PUT).
+- [x] DTOs cobrem Usuario, Alerta, CatalogoItem, Dominio*, Simulação.
+- [x] Mutations de domínio tipadas com Create/Update Input.
+- [x] `.env.example` documenta auth.
+- [x] Front não depende de `empresa*` / `unidadeFsp*` para exibir contrato.
+- [x] `api:test` e `web:e2e` verdes (chromium).
 
 ---
 
@@ -307,6 +307,15 @@ Ordem **obrigatória** (do plano 2026-08-05 §7):
 - [x] `LEGACY_ROLES` e tokens VITEST `leitor|colaborador|fiscal` removidos
 - [ ] Zod ainda aceita `cnpj`/`nome`/`empresaId` no **input** (um release) — Fase 5 ou follow-up
 
+### Fase 5 status
+
+- [x] OpenAPI: partes, catálogo, dotações, órgãos/unidades, usuários, dashboard (+ security canônico)
+- [x] `auth.test.ts` matriz crítica (VISITANTE/ANALISTA/GESTOR/ADMIN + export)
+- [x] e2e RBAC: VISITANTE sem Novo contrato; ANALISTA com botão (`AUTH_REQUIRED` no Playwright)
+- [x] `formatCurrencyFromReais` / `formatCents` em ContractForm / DevUi
+- [x] `makeCrudService` — pulado (opcional)
+- [x] API **51/51**; e2e chromium **6 passed** (browser instalado neste ambiente)
+
 ---
 
 ## 9. Relação com planos anteriores
@@ -316,6 +325,7 @@ Ordem **obrigatória** (do plano 2026-08-05 §7):
 | `2026-08-05_hierarquia_sesp_navegacao_e_saneamento.md` | ✅ 0–9 |
 | `2026-08-04_api_refatoracao_modelo_contratual.md` | ✅ |
 | `apps/web/plan/2026-08-04_frontend_refatoracao_contratual.md` | ✅ |
-| **Este** (`2026-08-06_tipagem_rbac_e_higiene.md`) | Fase 0–4 ✅; próximo: **5 OpenAPI/testes** |
+| **Este** (`2026-08-06_tipagem_rbac_e_higiene.md`) | ✅ Fases 0–5 |
 
-Caminho crítico sugerido: **1 (RBAC) → 2 (usuário) → 3 (tipagem) → 4 (aliases) → 5 (testes/OpenAPI)**.
+Caminho crítico: **1 → 2 → 3 → 4 → 5** concluído.
+

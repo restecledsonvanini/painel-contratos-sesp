@@ -102,16 +102,28 @@ describe('exports, search e openapi schemas', () => {
     expect(Array.isArray(res.body.servidores)).toBe(true);
   });
 
-  it('OpenAPI inclui schemas Zod e exports', async () => {
+  it('OpenAPI inclui schemas Zod, exports e domínios principais', async () => {
     if (!ready) return;
     const docs = await request(app).get('/api/v1/docs');
     expect(docs.status).toBe(200);
     expect(docs.body.components.schemas.Login).toBeTruthy();
     expect(docs.body.components.schemas.ContractCreate).toBeTruthy();
+    expect(docs.body.components.schemas.Role).toBeTruthy();
     expect(docs.body.paths['/api/v1/exports/contratos.csv']).toBeTruthy();
     expect(docs.body.paths['/api/v1/exports/contratos.xlsx']).toBeTruthy();
     expect(docs.body.paths['/api/v1/contracts/{id}/export.pdf']).toBeTruthy();
     expect(docs.body.paths['/api/v1/search']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/fornecedores']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/servidores']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/catalogo-itens']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/dotacoes']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/orgaos']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/unidades']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/unidades/arvore']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/usuarios/{id}']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/dashboard/vencimentos']).toBeTruthy();
+    expect(docs.body.paths['/api/v1/dashboard/por-orgao']).toBeTruthy();
+    expect(docs.body.components.securitySchemes.bearerAuth.description).toMatch(/VISITANTE/);
     await disconnectPrisma();
   });
 });

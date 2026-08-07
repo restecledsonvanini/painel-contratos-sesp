@@ -2,6 +2,14 @@ import { defineConfig, devices } from '@playwright/test';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173';
 
+/** e2e com AUTH ligada para exercitar gates de papel (canAct / RequireRole). */
+const authEnv = {
+  AUTH_REQUIRED: '1',
+  VITE_AUTH_REQUIRED: '1',
+  AUTH_EMAIL_DOMAINS: '*',
+  DATABASE_URL: process.env.DATABASE_URL || 'postgresql://painel:pass@localhost:5434/painel_db',
+};
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
@@ -26,12 +34,14 @@ export default defineConfig({
       url: 'http://localhost:8888/api/v1/health',
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
+      env: { ...process.env, ...authEnv },
     },
     {
       command: 'npm run dev',
       url: baseURL,
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
+      env: { ...process.env, ...authEnv },
     },
   ],
 });

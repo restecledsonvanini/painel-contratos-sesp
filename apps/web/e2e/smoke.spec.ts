@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { loginAs } from './helpers/auth';
 
 async function assertNoCriticalAxe(page: import('@playwright/test').Page, context: string) {
   const results = await new AxeBuilder({ page })
@@ -16,6 +17,7 @@ async function assertNoCriticalAxe(page: import('@playwright/test').Page, contex
 
 test.describe('smoke + a11y', () => {
   test('painel tático carrega e passa axe', async ({ page }) => {
+    await loginAs(page, 'admin@sesp.pr.gov.br', 'admin123');
     await page.goto('/');
     await expect(page.getByRole('heading', { name: /Painel tático/i })).toBeVisible();
     await expect(page.locator('#conteudo-principal')).toBeVisible();
@@ -23,6 +25,7 @@ test.describe('smoke + a11y', () => {
   });
 
   test('lista de contratos e skip-link', async ({ page }) => {
+    await loginAs(page, 'admin@sesp.pr.gov.br', 'admin123');
     await page.goto('/contracts');
     await expect(page.getByRole('heading', { name: /Contratos/i })).toBeVisible({ timeout: 15_000 });
 
@@ -54,6 +57,7 @@ test.describe('smoke + a11y', () => {
   });
 
   test('painel estratégico e wizard novo contrato', async ({ page }) => {
+    await loginAs(page, 'analista@sesp.pr.gov.br', 'analista123');
     await page.goto('/estrategico');
     await expect(page.getByRole('heading', { name: /Painel estratégico/i })).toBeVisible({
       timeout: 15_000,
@@ -68,6 +72,7 @@ test.describe('smoke + a11y', () => {
 
   test('viewport mobile 375px — shell e lista', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'mobile', 'somente projeto mobile');
+    await loginAs(page, 'admin@sesp.pr.gov.br', 'admin123');
     await page.goto('/');
     await expect(page.getByRole('heading', { name: /Painel tático/i })).toBeVisible();
     await page.getByRole('button', { name: /Abrir menu|Fechar menu/i }).click();

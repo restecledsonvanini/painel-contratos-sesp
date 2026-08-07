@@ -34,6 +34,7 @@ import {
 import { useOrgaos } from '../hooks/useOrganizacao';
 import { LookupSelect } from '../components/LookupSelect';
 import { getErrorMessage, http } from '../lib/http';
+import { formatCurrencyFromReais } from '../lib/format';
 import { sugerirDataFim } from '../lib/prazo';
 
 type CatalogoOption = {
@@ -631,10 +632,7 @@ export default function ContractForm() {
                         {' · '}
                         {item.quantidade} {item.unidadeMedida || 'un'}
                         {' · '}
-                        {(item.valorUnitario ?? 0).toLocaleString('pt-BR', {
-                          style: 'currency',
-                          currency: 'BRL',
-                        })}
+                        {formatCurrencyFromReais(item.valorUnitario ?? 0)}
                       </div>
                     ))
                   ) : (
@@ -840,10 +838,7 @@ export default function ContractForm() {
                     term: 'Valor global',
                     detail:
                       valoresWatch.valorAnual != null
-                        ? valoresWatch.valorAnual.toLocaleString('pt-BR', {
-                            style: 'currency',
-                            currency: 'BRL',
-                          })
+                        ? formatCurrencyFromReais(valoresWatch.valorAnual)
                         : '—',
                   },
                   {

@@ -86,7 +86,62 @@ export function buildOpenApiDocument() {
       bodySchema: { $ref: '#/components/schemas/Login' },
     }),
     [`${API_BASE}/auth/me`]: pathItem('get', 'Usuário autenticado', { tags: ['auth'] }),
-    [`${API_BASE}/usuarios`]: pathItem('get', 'Listar usuários', { tags: ['auth'] }),
+    [`${API_BASE}/usuarios`]: {
+      ...pathItem('get', 'Listar usuários (ADMIN)', { tags: ['auth'] }),
+      ...pathItem('post', 'Criar usuário (ADMIN)', { tags: ['auth'] }),
+    },
+    [`${API_BASE}/usuarios/{id}`]: {
+      ...pathItem('get', 'Obter usuário (ADMIN)', { tags: ['auth'] }),
+      ...pathItem('patch', 'Atualizar usuário (ADMIN)', { tags: ['auth'] }),
+    },
+    [`${API_BASE}/fornecedores`]: {
+      ...pathItem('get', 'Listar fornecedores', { tags: ['partes'] }),
+      ...pathItem('post', 'Criar fornecedor (ANALISTA+)', { tags: ['partes'] }),
+    },
+    [`${API_BASE}/fornecedores/{id}`]: {
+      ...pathItem('get', 'Obter fornecedor', { tags: ['partes'] }),
+      ...pathItem('put', 'Atualizar fornecedor (ANALISTA+)', { tags: ['partes'] }),
+      ...pathItem('delete', 'Excluir fornecedor (ANALISTA+)', { tags: ['partes'] }),
+    },
+    [`${API_BASE}/servidores`]: {
+      ...pathItem('get', 'Listar servidores', { tags: ['partes'] }),
+      ...pathItem('post', 'Criar servidor (ANALISTA+)', { tags: ['partes'] }),
+    },
+    [`${API_BASE}/servidores/{id}`]: {
+      ...pathItem('get', 'Obter servidor', { tags: ['partes'] }),
+      ...pathItem('put', 'Atualizar servidor (ANALISTA+)', { tags: ['partes'] }),
+      ...pathItem('delete', 'Excluir servidor (ANALISTA+)', { tags: ['partes'] }),
+    },
+    [`${API_BASE}/catalogo-itens`]: {
+      ...pathItem('get', 'Listar itens do catálogo', { tags: ['catalogo'] }),
+      ...pathItem('post', 'Criar item (ANALISTA+)', { tags: ['catalogo'] }),
+    },
+    [`${API_BASE}/catalogo-itens/{id}`]: {
+      ...pathItem('get', 'Obter item do catálogo', { tags: ['catalogo'] }),
+      ...pathItem('put', 'Atualizar item (ANALISTA+)', { tags: ['catalogo'] }),
+      ...pathItem('delete', 'Excluir item (ANALISTA+)', { tags: ['catalogo'] }),
+    },
+    [`${API_BASE}/dotacoes`]: {
+      ...pathItem('get', 'Listar dotações', { tags: ['orcamento'] }),
+      ...pathItem('post', 'Criar dotação (ANALISTA+)', { tags: ['orcamento'] }),
+    },
+    [`${API_BASE}/dotacoes/{id}`]: {
+      ...pathItem('get', 'Obter dotação', { tags: ['orcamento'] }),
+      ...pathItem('put', 'Atualizar dotação (ANALISTA+)', { tags: ['orcamento'] }),
+      ...pathItem('delete', 'Excluir dotação (ANALISTA+)', { tags: ['orcamento'] }),
+    },
+    [`${API_BASE}/orgaos`]: {
+      ...pathItem('get', 'Listar órgãos', { tags: ['organizacao'] }),
+      ...pathItem('post', 'Criar órgão (GESTOR+)', { tags: ['organizacao'] }),
+    },
+    [`${API_BASE}/orgaos/arvore`]: pathItem('get', 'Árvore de órgãos', { tags: ['organizacao'] }),
+    [`${API_BASE}/unidades`]: {
+      ...pathItem('get', 'Listar unidades organizacionais', { tags: ['organizacao'] }),
+      ...pathItem('post', 'Criar unidade (GESTOR+)', { tags: ['organizacao'] }),
+    },
+    [`${API_BASE}/unidades/arvore`]: pathItem('get', 'Árvore órgão→unidades', {
+      tags: ['organizacao'],
+    }),
     [`${API_BASE}/alertas`]: pathItem('get', 'Listar alertas', {
       tags: ['alertas'],
       querySchema: { $ref: '#/components/schemas/AlertaQuery' },
@@ -95,7 +150,7 @@ export function buildOpenApiDocument() {
     [`${API_BASE}/alertas/{id}/reconhecer`]: pathItem('post', 'Reconhecer alerta', {
       tags: ['alertas'],
     }),
-    [`${API_BASE}/admin/gerar-alertas`]: pathItem('post', 'Job idempotente de alertas', {
+    [`${API_BASE}/admin/gerar-alertas`]: pathItem('post', 'Job idempotente de alertas (ADMIN)', {
       tags: ['admin'],
     }),
     [`${API_BASE}/importacoes`]: pathItem('post', 'Upload CSV + dry-run', {
@@ -108,18 +163,26 @@ export function buildOpenApiDocument() {
     }),
     [`${API_BASE}/contracts`]: {
       ...pathItem('get', 'Listar contratos (escopo por órgão)', { tags: ['contratos'] }),
-      ...pathItem('post', 'Criar contrato', {
+      ...pathItem('post', 'Criar contrato (ANALISTA+)', {
         tags: ['contratos'],
         bodySchema: { $ref: '#/components/schemas/ContractCreate' },
       }),
     },
     [`${API_BASE}/contracts/{id}`]: {
       ...pathItem('get', 'Obter contrato', { tags: ['contratos'] }),
-      ...pathItem('put', 'Atualizar contrato', { tags: ['contratos'] }),
-      ...pathItem('delete', 'Excluir contrato', { tags: ['contratos'] }),
+      ...pathItem('put', 'Atualizar contrato (ANALISTA+)', { tags: ['contratos'] }),
+      ...pathItem('delete', 'Excluir contrato (ANALISTA+)', { tags: ['contratos'] }),
     },
     [`${API_BASE}/dashboard/kpis`]: pathItem('get', 'KPIs do dashboard', { tags: ['dashboard'] }),
-    [`${API_BASE}/admin/refresh-analytics`]: pathItem('post', 'Refresh MVs', { tags: ['admin'] }),
+    [`${API_BASE}/dashboard/vencimentos`]: pathItem('get', 'Vencimentos por janela', {
+      tags: ['dashboard'],
+    }),
+    [`${API_BASE}/dashboard/por-orgao`]: pathItem('get', 'Contratos por órgão (escopo)', {
+      tags: ['dashboard'],
+    }),
+    [`${API_BASE}/admin/refresh-analytics`]: pathItem('post', 'Refresh MVs (ADMIN)', {
+      tags: ['admin'],
+    }),
   };
 
   return {
@@ -127,7 +190,7 @@ export function buildOpenApiDocument() {
     info: {
       title: publicApiCatalog.service,
       version: publicApiCatalog.version,
-      description: `${publicApiCatalog.note} Schemas Zod publicados em components.schemas.`,
+      description: `${publicApiCatalog.note} Schemas Zod em components.schemas. Papéis: VISITANTE | ANALISTA | GESTOR | ADMIN.`,
     },
     servers: [{ url: 'http://localhost:8888' }],
     paths,
@@ -136,7 +199,8 @@ export function buildOpenApiDocument() {
         bearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          description: 'JWT de POST /auth/login, ou tokens sintéticos admin|analista|gestor|visitante',
+          description:
+            'JWT (POST /auth/login) ou tokens sintéticos de teste: admin | analista | gestor | visitante. Papéis canônicos: VISITANTE, ANALISTA, GESTOR, ADMIN.',
         },
       },
       schemas: {

@@ -40,6 +40,7 @@ import {
   useToast,
 } from '@painel/ui';
 import { FileText, TrendingUp } from 'lucide-react';
+import { formatCents } from '../lib/format';
 
 type DemoRow = { id: string; nome: string; valor: number };
 
@@ -64,8 +65,7 @@ export default function DevUi() {
       {
         accessorKey: 'valor',
         header: 'Valor',
-        cell: ({ getValue }) =>
-          (getValue<number>() / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }),
+        cell: ({ getValue }) => formatCents(getValue<number>()),
       },
     ],
     [],
