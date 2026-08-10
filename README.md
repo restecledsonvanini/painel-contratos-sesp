@@ -46,10 +46,11 @@ Arquitetura: **Planilhas Mestre** → **Google Apps Script (ETL / Join de Aditiv
 ---
 
 ## 🛠️ Stack & Boas Práticas (resumo)
-- Frontend: **React 19+**, **TypeScript**, **Tailwind v4.1**, **Lucid React**, **Design System**, **theme-toggle**.
-- ETL: **Google Apps Script** para automações; cache em memória (ou Redis quando escalar).
-- Tests: **Vitest / Playwright**; documentação em **Storybook**.
-- CI/CD: **GitHub Actions**, linters e checks automatizados.
+- Frontend: **React 18**, **TypeScript**, **Vite**, **Tailwind**, **@painel/ui**
+- Backend: **Express**, **Prisma**, **Postgres** (Docker)
+- Tests: **Vitest** (API/domain), **Playwright** (e2e)
+
+**Rodar local (Windows ou Codespaces):** veja [`docs/DEV.md`](docs/DEV.md) — `npm run setup` → `npm run dev`.
 
 ---
 

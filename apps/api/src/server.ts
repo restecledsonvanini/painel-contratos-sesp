@@ -2,7 +2,8 @@ import path from 'node:path';
 import { config as loadEnv } from 'dotenv';
 
 // Load monorepo root .env then apps/api/.env (latter wins)
-loadEnv({ path: path.resolve(__dirname, '../../../../.env') });
+// src/ e dist/ ficam a 3 níveis da raiz (apps/api/*)
+loadEnv({ path: path.resolve(__dirname, '../../../.env') });
 loadEnv({ path: path.resolve(__dirname, '../../.env') });
 
 if (!process.env.DATABASE_URL) {

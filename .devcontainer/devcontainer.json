@@ -1,0 +1,37 @@
+{
+  "name": "Painel Contratos SESP",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": true
+    }
+  },
+  "forwardPorts": [5173, 8888, 5434],
+  "portsAttributes": {
+    "5173": {
+      "label": "Web (Vite)",
+      "onAutoForward": "openBrowser"
+    },
+    "8888": {
+      "label": "API (Express)"
+    },
+    "5434": {
+      "label": "Postgres (Docker)"
+    }
+  },
+  "remoteEnv": {
+    "DATABASE_URL": "postgresql://painel:pass@localhost:5434/painel_db"
+  },
+  "postCreateCommand": "npm run setup",
+  "postStartCommand": "npm run db:up",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "Prisma.prisma",
+        "ms-playwright.playwright"
+      ]
+    }
+  }
+}
