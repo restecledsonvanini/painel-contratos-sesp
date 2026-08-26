@@ -6,8 +6,16 @@ import { qk } from '../lib/queryKeys';
 
 export type { ContratoDTO as Contract };
 
-async function getContracts() {
-  const res = await http.get<ContratoDTO[]>('/contracts');
+export type ContratosPage = {
+  data: ContratoDTO[];
+  meta: { page: number; pageSize: number; total: number; totalPages: number };
+};
+
+async function getContracts(params: Record<string, string | number | undefined>) {
+  const clean = Object.fromEntries(
+    Object.entries(params).filter(([, v]) => v !== undefined && v !== ''),
+  );
+  const res = await http.get<ContratosPage>('/contracts', { params: clean });
   return res.data;
 }
 
@@ -16,10 +24,10 @@ async function getContract(id: string) {
   return res.data;
 }
 
-export function useContracts() {
+export function useContracts(params: Record<string, string | number | undefined> = {}) {
   return useQuery({
-    queryKey: qk.contratos(),
-    queryFn: getContracts,
+    queryKey: qk.contratos(params),
+    queryFn: () => getContracts(params),
     staleTime: 1000 * 60 * 2,
     retry: 1,
   });

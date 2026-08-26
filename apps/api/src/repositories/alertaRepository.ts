@@ -94,45 +94,48 @@ export const alertaRepository = {
 
   async upsertMany(candidates: AlertaCandidate[]) {
     const db = getPrisma();
-    let created = 0;
-    let updated = 0;
-    for (const c of candidates) {
-      const dataReferencia = asDateOnly(c.dataReferencia);
-      const existing = await db.alerta.findUnique({
-        where: {
-          contratoId_tipo_dataReferencia: {
-            contratoId: c.contratoId,
-            tipo: c.tipo,
-            dataReferencia,
-          },
-        },
-      });
-      if (existing) {
-        if (existing.resolvidoEm) continue;
-        await db.alerta.update({
-          where: { id: existing.id },
-          data: {
-            severidade: c.severidade,
-            janelaDias: c.janelaDias,
-            mensagem: c.mensagem,
+    if (!candidates.length) return { created: 0, updated: 0, total: 0 };
+    return db.$transaction(async (tx) => {
+      let created = 0;
+      let updated = 0;
+      for (const c of candidates) {
+        const dataReferencia = asDateOnly(c.dataReferencia);
+        const existing = await tx.alerta.findUnique({
+          where: {
+            contratoId_tipo_dataReferencia: {
+              contratoId: c.contratoId,
+              tipo: c.tipo,
+              dataReferencia,
+            },
           },
         });
-        updated += 1;
-      } else {
-        await db.alerta.create({
-          data: {
-            contratoId: c.contratoId,
-            tipo: c.tipo,
-            severidade: c.severidade,
-            janelaDias: c.janelaDias,
-            mensagem: c.mensagem,
-            dataReferencia,
-          },
-        });
-        created += 1;
+        if (existing) {
+          if (existing.resolvidoEm) continue;
+          await tx.alerta.update({
+            where: { id: existing.id },
+            data: {
+              severidade: c.severidade,
+              janelaDias: c.janelaDias,
+              mensagem: c.mensagem,
+            },
+          });
+          updated += 1;
+        } else {
+          await tx.alerta.create({
+            data: {
+              contratoId: c.contratoId,
+              tipo: c.tipo,
+              severidade: c.severidade,
+              janelaDias: c.janelaDias,
+              mensagem: c.mensagem,
+              dataReferencia,
+            },
+          });
+          created += 1;
+        }
       }
-    }
-    return { created, updated, total: candidates.length };
+      return { created, updated, total: candidates.length };
+    });
   },
 
   async collectCandidates(): Promise<AlertaCandidate[]> {

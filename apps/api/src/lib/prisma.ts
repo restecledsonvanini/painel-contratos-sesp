@@ -12,11 +12,23 @@ export function getDatabaseUrl(): string {
   return url;
 }
 
+const WRITE_ACTIONS = new Set([
+  'create',
+  'createMany',
+  'update',
+  'updateMany',
+  'upsert',
+  'delete',
+  'deleteMany',
+]);
+
 function attachAuditGuc(client: PrismaClient) {
   if (middlewareAttached) return;
   middlewareAttached = true;
   client.$use(async (params, next) => {
-    if (params.action === 'executeRaw' || params.action === 'queryRaw') {
+    // Triggers de auditoria só disparam em escrita. Em findMany da listagem
+    // o GUC dobrava round-trip à toa.
+    if (!WRITE_ACTIONS.has(params.action)) {
       return next(params);
     }
     const actorId = getActorFromContext() ?? '';

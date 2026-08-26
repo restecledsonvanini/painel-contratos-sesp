@@ -346,6 +346,7 @@ model Fornecedor {
 
   @@index([razaoSocial])
   @@index([situacao])
+  @@index([municipioId])
 }
 
 model FornecedorContato {
@@ -398,6 +399,8 @@ model Servidor {
 
   @@index([nome])
   @@index([orgaoId])
+  @@index([unidadeId])
+  @@index([ativo])
 }
 
 model ProcessoContratacao {
@@ -497,6 +500,10 @@ model Contrato {
   @@index([modalidadeId])
   @@index([criadoPorId])
   @@index([atualizadoPorId])
+  @@index([createdAt])
+  @@index([dataAssinatura])
+  @@index([garantiaValidade])
+  @@index([processoId])
 }
 
 model ContratoResponsavel {
@@ -796,6 +803,7 @@ model Alerta {
   @@unique([contratoId, tipo, dataReferencia])
   @@index([tipo, severidade])
   @@index([contratoId])
+  @@index([reconhecidoEm])
 }
 
 model ImportacaoLote {

@@ -166,12 +166,14 @@ Continua **em aberto** nesta seção: `emailDomain` segue fail-open quando não 
 
 **Correção:** separar `listInclude` (enxuto, com `select` explícito) de `detailInclude`; aplicar o `parsePagination` que já existe (`lib/pagination.ts`, teto `MAX_PAGE_SIZE=100`); query dedicada com projeção mínima para export.
 
+> **Resolvido na onda 4.** `GET /contracts` pagina (`{ data, meta }`) com include de listagem (sem itens/rateios/alterações). Filtros da URL vão para o `WHERE`. Export usa `findManyForExport` com a mesma projeção, sem skip/take. O detalhe segue com `detailInclude`.
+
 ### 3.2 Endpoints mais caros
 
 | # | Endpoint | Motivo |
 |---|---|---|
-| 1 | `GET /contracts` | grafo completo, sem paginação |
-| 2 | `GET /exports/contratos.csv` \| `.xlsx` | mesma carga + serialização em memória |
+| 1 | `GET /contracts` | ~~grafo completo, sem paginação~~ **onda 4: paginado + listInclude** |
+| 2 | `GET /exports/contratos.csv` \| `.xlsx` | ~~mesma carga~~ **onda 4: projeção de listagem** |
 | 3 | `GET /lookups` | reconstrói todo o dicionário por request |
 | 4 | `POST /admin/refresh-analytics` | 14× `REFRESH MV CONCURRENTLY` sequencial, sem mutex |
 | 5 | `POST /admin/gerar-alertas` | queries em views + N upserts sequenciais |
@@ -181,7 +183,7 @@ Continua **em aberto** nesta seção: `emailDomain` segue fail-open quando não 
 
 ### 3.3 Paginação — cobertura
 
-`lib/pagination.ts` (default 25, máx. 100) é usado em 5 repositories. **Não** é usado em: `GET /contracts`, `GET /lookups`, `GET /alertas`, `/references/fornecedores`, `/dotacoes`, `/orgaos`, `/unidades`, `/dominios` e em todo `?flat=true`. A função `paginate()` (`:37-46`) está definida e nunca é chamada.
+`lib/pagination.ts` (default 25, máx. 100) é usado em 5 repositories. **Não** é usado em: `GET /lookups`, `GET /alertas`, `/references/fornecedores`, `/dotacoes`, `/orgaos`, `/unidades`, `/dominios` e em todo `?flat=true`. `GET /contracts` passou a usar na onda 4. A função `paginate()` (`:37-46`) está definida e nunca é chamada.
 
 ### 3.4 Custo por operação Prisma
 
@@ -189,12 +191,14 @@ Continua **em aberto** nesta seção: `emailDomain` segue fail-open quando não 
 
 **Correção:** aplicar o GUC uma vez por transação/request via `$transaction` interativa, em vez de por operação.
 
+> **Parcial na onda 4.** O middleware deixa de emitir `set_config` em leitura (`findMany`/`count`/etc.), que era o custo da listagem. Escrita continua com GUC por operação — o trigger só dispara aí, e Prisma 4 não oferece sessão por request sem reembrulhar todo write em `$transaction`.
+
 ### 3.5 N+1 e transações
 
 | Local | Problema |
 |---|---|
-| `alertaRepository.ts:90-125` | `findUnique` + `update`/`create` por candidato, **sem transação** — estado parcial em caso de falha |
-| `contratoRepository.ts:401-424` | `findUnique` de catálogo por item dentro do loop |
+| `alertaRepository.ts:90-125` | `findUnique` + `update`/`create` por candidato, **sem transação** — estado parcial em caso de falha. **Onda 4:** o loop inteiro corre dentro de `$transaction`. |
+| `contratoRepository.ts:401-424` | `findUnique` de catálogo por item dentro do loop. **Onda 4:** `findMany` único + `Map`. |
 | `importacaoRepository.ts:430-462` | lote inteiro em **uma** transação — locks prolongados |
 | `importacaoRepository.ts:354-364` | validação linha a linha, sequencial |
 | `contratoService.ts:225-243` | `update` faz `findByIdBare` + `findById` completo depois |
@@ -202,6 +206,8 @@ Continua **em aberto** nesta seção: `emailDomain` segue fail-open quando não 
 ### 3.6 Índices ausentes
 
 Colunas usadas em filtro/ordenação sem índice: `Contrato.createdAt` (é o `orderBy` padrão da listagem), `Contrato.dataAssinatura`, `Contrato.garantiaValidade`, `Servidor.ativo`, `Alerta.reconhecidoEm`, além das FKs `Contrato.processoId`, `Servidor.unidadeId` e `Fornecedor.municipioId`.
+
+> **Resolvido na onda 4** (`20260826200000_perf_indexes`).
 
 Não há índices redundantes no estado final do schema.
 
@@ -291,7 +297,7 @@ Papel mínimo para escrita varia sem critério documentado em recursos equivalen
 | ~~**1**~~ | ~~Guarda `VITEST` nos tokens sintéticos; `DEV_BYPASS` fail-closed; fail-fast de `JWT_SECRET`/`DATABASE_URL`~~ | **Concluída.** |
 | ~~**2**~~ | ~~`assertContratoInScope` em `lib/`; escopo em todos os acessos por ID; `getOrgaoScope` fail-closed; amarrar `unidadeGestoraId` na criação~~ | **Concluída**, menos importações e KPIs agregados (decisão de produto). |
 | ~~**3**~~ | ~~helmet, CORS, rate limit no login, `trust proxy`, compression; fechar `/metrics` e `/docs`; sanitizar `/health/db`; anti-injection no CSV~~ | **Concluída.** `requireMinRole` em `/alertas` descartado por incoerência com as demais leituras. |
-| **4** | `listInclude` vs `detailInclude`; paginar `/contracts`; export com projeção dedicada; GUC por transação; índices faltantes | Performance; exige atenção ao contrato de resposta consumido pelo front. |
+| ~~**4**~~ | ~~`listInclude` vs `detailInclude`; paginar `/contracts`; export com projeção dedicada; GUC por transação; índices faltantes~~ | **Concluída** no gargalo da listagem/export/índices. GUC só foi desligado em leitura (não há sessão por request). Lookups, refresh de MVs e `?flat=true` continuam em aberto. |
 | **5** | Extrair busca global para service; quebrar `contratoRepository`; mover mappers para service e tipar (eliminar `any`); unificar `ensureContrato` e conversão de centavos; remover código morto | Dívida técnica; sem urgência, alto ganho de manutenção. |
 | **6** | Upgrade Prisma 4 → versão atual | Precisa de janela e regressão completa. |
 

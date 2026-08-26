@@ -192,7 +192,10 @@ export async function loadContractForExport(id: string, req: Request) {
 }
 
 export async function listContractsForExport(req: Request, filters: ExportFilters) {
-  const rows = (await contratoService.list(getOrgaoScope(req))) as MappedContract[];
+  const rows = (await contratoService.listForExport(
+    getOrgaoScope(req),
+    filters as Record<string, unknown>,
+  )) as MappedContract[];
   return filterExportRows(rows, filters);
 }
 

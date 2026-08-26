@@ -8,6 +8,7 @@ import {
 } from '../lib/scope';
 import { badRequest, notFound } from '../lib/errors';
 import { contratoRepository } from '../repositories/contratoRepository';
+import { parseContratoListQuery } from '../lib/contratoQuery';
 import type { Request } from 'express';
 
 const SITUACAO_TO_STATUS: Record<string, string> = {
@@ -196,8 +197,14 @@ async function loadMappedContract(id: string) {
 }
 
 export const contratoService = {
-  async list(scope?: { orgaoId?: string | null }) {
-    const records = await contratoRepository.findMany(scope);
+  async list(scope?: { orgaoId?: string | null }, query: Record<string, unknown> = {}) {
+    const { data, meta } = await contratoRepository.findMany(scope, parseContratoListQuery(query));
+    return { data: data.map(mapContractRecord), meta };
+  },
+
+  async listForExport(scope?: { orgaoId?: string | null }, query: Record<string, unknown> = {}) {
+    const filters = parseContratoListQuery(query);
+    const records = await contratoRepository.findManyForExport(scope, filters);
     return records.map(mapContractRecord);
   },
 

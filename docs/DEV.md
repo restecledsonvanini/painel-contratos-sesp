@@ -110,6 +110,10 @@ Um usuário não-ADMIN **sem órgão vinculado** é negado, não liberado. Se um
 
 O usuário do `AUTH_DEV_BYPASS` é ADMIN, então o bypass local continua vendo tudo.
 
+## Listagem de contratos
+
+`GET /api/v1/contracts` devolve `{ data, meta }` (página padrão 25, teto 100). Filtros de query (`situacao`, `vencimento`, `orgaoId`, `fornecedorId`, `modalidade`, `pilar`, `responsavelId`, `q`) são aplicados no banco. O detalhe `GET /contracts/:id` continua com o grafo completo. Export CSV/XLSX usa a mesma projeção enxuta, sem paginar.
+
 ## Endurecimento HTTP
 
 A API aplica `helmet`, `compression` e rate limit de login. Rotas públicas são exatamente três: `/auth/login`, `/health` e `/health/db` — qualquer outra exige token.
@@ -137,7 +141,7 @@ npm run setup        # install + docker + migrate + seed
 npm run db:up        # só Postgres
 npm run db:down      # para Postgres
 npm run db:seed      # reaplica seed
-npm run api:test     # Vitest API (76 testes)
+npm run api:test     # Vitest API (78 testes)
 npm run domain:test  # Vitest domain
 npm run web:e2e      # Playwright (AUTH ligada; sobe servidores sozinho)
 ```
@@ -173,6 +177,7 @@ Mapas detalhados: [`plan/flow-maps/`](../plan/flow-maps/README.md)
 | 401 em tudo, sem ter ligado auth | Falta `AUTH_DEV_BYPASS=1` no `.env` (ou `AUTH_REQUIRED=1` está ligado) |
 | `Bearer admin` devolve 401 | Esperado: tokens sintéticos só valem em teste. Use `POST /auth/login` |
 | 403 em contrato que existe | Contrato é de outro órgão; só ADMIN atravessa o escopo |
+| Lista de contratos vazia / `.map is not a function` | `GET /contracts` agora devolve `{ data, meta }`; o front já trata isso |
 | 403 em tudo após login | Usuário sem `orgaoId`: `npx tsx scripts/ensure-demo-users.ts` |
 | 403 em `/docs` ou `/metrics` | Passaram a exigir ADMIN; use `AUTH_DEV_BYPASS=1` ou logue como admin |
 | 429 no login | Rate limit após 10 senhas erradas para o mesmo e-mail; espere 15 min |

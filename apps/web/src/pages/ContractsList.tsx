@@ -6,6 +6,7 @@ import {
   ConfirmDialog,
   ErrorState,
   Page,
+  Pagination,
   Skeleton,
   StatusBadge,
   Table,
@@ -51,12 +52,10 @@ function matchVencimento(dias: number | null, filtro: string): boolean {
 export default function ContractsList() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { data, isLoading, error, refetch } = useContracts();
   const deleteContract = useDeleteContract();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
   const canWrite = useCanAct('ANALISTA');
-  const allContracts = Array.isArray(data) ? data.filter(Boolean) : [];
 
   const filterKey = searchParams.toString();
   const filters = useMemo(
@@ -73,6 +72,11 @@ export default function ContractsList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- filterKey captura searchParams
     [filterKey],
   );
+  const page = Math.max(1, Number(searchParams.get('page') || 1) || 1);
+  const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize') || 25) || 25));
+  const { data, isLoading, error, refetch } = useContracts({ ...filters, page, pageSize });
+  const contracts = data?.data ?? [];
+  const meta = data?.meta;
 
   React.useEffect(() => {
     const payload: Record<string, string> = {};
@@ -88,40 +92,23 @@ export default function ContractsList() {
 
   const activeFilters = Object.entries(filters).filter(([, v]) => Boolean(v));
 
-  const contracts = useMemo(() => {
-    return allContracts.filter((c) => {
-      if (filters.situacao) {
-        const sit = (c.situacao || c.status || '').toUpperCase();
-        const want = filters.situacao.toUpperCase();
-        const legacy =
-          want === 'VIGENTE'
-            ? sit === 'VIGENTE' || (c.status || '').toLowerCase() === 'vigente'
-            : sit === want;
-        if (!legacy) return false;
-      }
-      if (filters.fornecedorId && c.fornecedorId !== filters.fornecedorId) {
-        return false;
-      }
-      if (filters.modalidade && (c.modalidade || '').toUpperCase() !== filters.modalidade.toUpperCase()) {
-        return false;
-      }
-      if (filters.pilar && (c.pilar || '').toUpperCase() !== filters.pilar.toUpperCase()) {
-        return false;
-      }
-      if (filters.orgaoId) {
-        if (c.unidadeGestoraId !== filters.orgaoId) return false;
-      }
-      if (filters.responsavelId) {
-        if (c.gestorId !== filters.responsavelId && c.fiscalId !== filters.responsavelId) return false;
-      }
-      if (filters.vencimento && !matchVencimento(diasAteFim(c), filters.vencimento)) return false;
-      return true;
-    });
-  }, [allContracts, filters]);
+  const setPage = (nextPage: number) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('page', String(nextPage));
+    setSearchParams(next);
+  };
+
+  const setPageSize = (nextSize: number) => {
+    const next = new URLSearchParams(searchParams);
+    next.set('pageSize', String(nextSize));
+    next.set('page', '1');
+    setSearchParams(next);
+  };
 
   const clearFilter = (key: string) => {
     const next = new URLSearchParams(searchParams);
     next.delete(key);
+    next.delete('page');
     setSearchParams(next);
   };
 
@@ -179,8 +166,10 @@ export default function ContractsList() {
     <Page
       title="Contratos"
       description={
-        activeFilters.length
-          ? `${contracts.length} de ${allContracts.length} contratos (filtros do dashboard).`
+        meta
+          ? `${meta.total} contrato${meta.total === 1 ? '' : 's'}${
+              activeFilters.length ? ' (filtros do dashboard)' : ''
+            }.`
           : 'Lista e gestão dos contratos cadastrados.'
       }
       actions={
@@ -343,6 +332,19 @@ export default function ContractsList() {
           </Table>
         </div>
       </Card>
+
+      {meta && meta.totalPages > 1 ? (
+        <Pagination
+          pageIndex={page - 1}
+          pageSize={pageSize}
+          pageCount={meta.totalPages}
+          totalRows={meta.total}
+          onPageChange={(pageIndex) => setPage(pageIndex + 1)}
+          onPageSizeChange={setPageSize}
+          pageSizeOptions={[10, 25, 50, 100]}
+          className="mt-[var(--space-md)]"
+        />
+      ) : null}
 
       <ConfirmDialog
         open={confirm.open}

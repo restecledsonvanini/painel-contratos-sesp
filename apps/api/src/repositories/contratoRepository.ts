@@ -1,6 +1,8 @@
 import { getPrisma } from '../lib/prisma';
 import { limiteProrrogacaoMesesDefault } from '@painel/domain';
 import type { NaturezaObjeto } from '@painel/domain';
+import { buildContratoWhere, type ContratoListFilters } from '../lib/contratoQuery';
+import { paginationMeta, skipTake } from '../lib/pagination';
 
 function asUsuarioFk(actorId: string | null | undefined): string | null {
   if (!actorId) return null;
@@ -11,26 +13,44 @@ function asUsuarioFk(actorId: string | null | undefined): string | null {
   return actorId;
 }
 
-const contractInclude = {
+const orgaoSelect = { id: true, sigla: true, nome: true, tipo: true } as const;
+const unidadeSelect = {
+  id: true,
+  sigla: true,
+  nome: true,
+  nivel: true,
+  orgaoId: true,
+} as const;
+const usuarioSelect = { id: true, nome: true, email: true } as const;
+
+/** Listagem e export: sem itens, rateios nem alterações. */
+const listInclude = {
+  fornecedor: { select: { id: true, razaoSocial: true, documento: true } },
+  unidadeGestora: { select: orgaoSelect },
+  subunidade: { select: unidadeSelect },
+  modalidadeRef: { select: { id: true, codigo: true, label: true } },
+  categoriaContratacao: { select: { id: true, codigo: true, label: true } },
+  criadoPor: { select: usuarioSelect },
+  atualizadoPor: { select: usuarioSelect },
+  responsaveis: {
+    where: { dataFim: null },
+    include: { servidor: { select: { id: true, nome: true } } },
+    orderBy: [{ papel: 'asc' as const }, { dataInicio: 'desc' as const }],
+  },
+};
+
+const detailInclude = {
   alteracoes: {
     orderBy: [{ dataAssinatura: 'asc' as const }, { numero: 'asc' as const }],
   },
   fornecedor: true,
-  unidadeGestora: { select: { id: true, sigla: true, nome: true, tipo: true } },
-  subunidade: {
-    select: {
-      id: true,
-      sigla: true,
-      nome: true,
-      nivel: true,
-      orgaoId: true,
-    },
-  },
+  unidadeGestora: { select: orgaoSelect },
+  subunidade: { select: unidadeSelect },
   modalidadeRef: true,
   categoriaContratacao: true,
   fundamentoLegal: true,
-  criadoPor: { select: { id: true, nome: true, email: true } },
-  atualizadoPor: { select: { id: true, nome: true, email: true } },
+  criadoPor: { select: usuarioSelect },
+  atualizadoPor: { select: usuarioSelect },
   responsaveis: {
     include: { servidor: true },
     orderBy: [{ papel: 'asc' as const }, { dataInicio: 'desc' as const }],
@@ -48,9 +68,9 @@ const contractInclude = {
       unidadeDestino: { select: { id: true, sigla: true, nome: true } },
     },
   },
-} as const;
+};
 
-export type ContractInclude = typeof contractInclude;
+export type ContractInclude = typeof detailInclude;
 
 async function resolveModalidadeId(modalidadeId: string | null, modalidadeCodigo: string | null) {
   if (modalidadeId) return modalidadeId;
@@ -139,20 +159,48 @@ function monthsBetween(start: Date, end: Date) {
 }
 
 export const contratoRepository = {
-  include: contractInclude,
+  include: detailInclude,
 
-  async findMany(scope?: { orgaoId?: string | null }) {
+  async findMany(
+    scope?: { orgaoId?: string | null },
+    filters: ContratoListFilters = { page: 1, pageSize: 25 },
+  ) {
+    const built = buildContratoWhere(scope?.orgaoId, filters);
+    if ('impossible' in built) {
+      return { data: [], meta: paginationMeta(0, filters.page, filters.pageSize) };
+    }
+    const { skip, take } = skipTake(filters.page, filters.pageSize);
+    const db = getPrisma();
+    const [total, rows] = await Promise.all([
+      db.contrato.count({ where: built }),
+      db.contrato.findMany({
+        where: built,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+        include: listInclude,
+      }),
+    ]);
+    return { data: rows, meta: paginationMeta(total, filters.page, filters.pageSize) };
+  },
+
+  async findManyForExport(
+    scope?: { orgaoId?: string | null },
+    filters: Omit<ContratoListFilters, 'page' | 'pageSize' | 'sort'> = {},
+  ) {
+    const built = buildContratoWhere(scope?.orgaoId, filters);
+    if ('impossible' in built) return [];
     return getPrisma().contrato.findMany({
-      where: scope?.orgaoId ? { unidadeGestoraId: scope.orgaoId } : undefined,
+      where: built,
       orderBy: { createdAt: 'desc' },
-      include: contractInclude,
+      include: listInclude,
     });
   },
 
   async findById(id: string) {
     return getPrisma().contrato.findUnique({
       where: { id },
-      include: contractInclude,
+      include: detailInclude,
     });
   },
 
@@ -397,9 +445,16 @@ export const contratoRepository = {
         });
       }
 
+      const itens = input.itens ?? [];
+      const catalogoIds = [...new Set(itens.map((i) => i.catalogoItemId))];
+      const catalogos = catalogoIds.length
+        ? await tx.catalogoItem.findMany({ where: { id: { in: catalogoIds } } })
+        : [];
+      const catalogoById = new Map(catalogos.map((c) => [c.id, c]));
+
       let seq = 1;
-      for (const item of input.itens ?? []) {
-        const catalogo = await tx.catalogoItem.findUnique({ where: { id: item.catalogoItemId } });
+      for (const item of itens) {
+        const catalogo = catalogoById.get(item.catalogoItemId);
         if (!catalogo) {
           throw Object.assign(new Error(`Catálogo ${item.catalogoItemId} não encontrado`), {
             status: 400,

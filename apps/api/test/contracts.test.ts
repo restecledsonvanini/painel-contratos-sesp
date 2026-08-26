@@ -209,4 +209,33 @@ describe('contracts API integration', () => {
     await request(app).delete(`/api/v1/contracts/${id}`).set('Authorization', 'Bearer analista');
     await disconnectPrisma();
   });
+
+  it('GET /contracts pagina e omite o grafo pesado', async () => {
+    if (!ready) return;
+    const res = await request(app)
+      .get('/api/v1/contracts')
+      .query({ page: 1, pageSize: 2 })
+      .set('Authorization', 'Bearer admin');
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data.length).toBeLessThanOrEqual(2);
+    expect(res.body.meta).toMatchObject({ page: 1, pageSize: 2 });
+    expect(res.body.meta.total).toBeGreaterThan(0);
+    if (res.body.data[0]) {
+      expect(res.body.data[0].itens).toBeUndefined();
+      expect(res.body.data[0].alteracoes).toBeUndefined();
+    }
+  });
+
+  it('GET /contracts filtra por situacao no banco', async () => {
+    if (!ready) return;
+    const res = await request(app)
+      .get('/api/v1/contracts')
+      .query({ situacao: 'VIGENTE', pageSize: 100 })
+      .set('Authorization', 'Bearer admin');
+    expect(res.status).toBe(200);
+    for (const row of res.body.data) {
+      expect(row.situacao).toBe('VIGENTE');
+    }
+  });
 });

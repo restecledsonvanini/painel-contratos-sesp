@@ -5,7 +5,9 @@ import { routeParam } from '../lib/params';
 import { contratoService } from '../services/contratoService';
 
 export async function listContracts(req: Request, res: Response) {
-  return res.status(200).json(await contratoService.list(getOrgaoScope(req)));
+  return res.status(200).json(
+    await contratoService.list(getOrgaoScope(req), req.query as Record<string, unknown>),
+  );
 }
 
 export async function getContract(req: Request, res: Response) {
