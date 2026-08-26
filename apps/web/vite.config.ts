@@ -9,6 +9,16 @@ const repoRoot = path.resolve(rootDir, '../..');
 const reactPkg = path.resolve(repoRoot, 'node_modules/react');
 const reactDomPkg = path.resolve(repoRoot, 'node_modules/react-dom');
 
+/**
+ * Codespaces serve o dev server atrás de um proxy HTTPS em *.app.github.dev.
+ * Sem liberar o host, o Vite responde "Blocked request" (proteção contra DNS
+ * rebinding); sem clientPort 443, o socket de HMR tenta a porta 5173 e falha.
+ * Em Windows/local nada disso se aplica e os defaults do Vite valem.
+ */
+const isCodespaces = process.env.CODESPACES === 'true';
+const forwardingDomain =
+  process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN || 'app.github.dev';
+
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -28,6 +38,9 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    host: isCodespaces,
+    allowedHosts: isCodespaces ? [`.${forwardingDomain}`] : undefined,
+    hmr: isCodespaces ? { clientPort: 443, protocol: 'wss' } : undefined,
     fs: { allow: [repoRoot] },
     proxy: {
       '/api/v1': {

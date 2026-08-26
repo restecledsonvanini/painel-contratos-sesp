@@ -20,7 +20,8 @@
     }
   },
   "remoteEnv": {
-    "DATABASE_URL": "postgresql://painel:pass@localhost:5434/painel_db"
+    "DATABASE_URL": "postgresql://painel:pass@localhost:5434/painel_db",
+    "AUTH_DEV_BYPASS": "1"
   },
   "postCreateCommand": "npm run setup",
   "postStartCommand": "npm run db:up",

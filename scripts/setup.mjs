@@ -58,8 +58,11 @@ async function main() {
     console.warn('⚠ .env.example não encontrado; usando defaults');
   }
 
-  console.log('\n→ npm install');
-  run('npm', ['install']);
+  // npm ci garante a mesma árvore em Windows e Codespaces; sem lockfile não há
+  // o que reproduzir e caímos no install normal.
+  const hasLockfile = existsSync(path.join(root, 'package-lock.json'));
+  console.log(hasLockfile ? '\n→ npm ci' : '\n→ npm install');
+  run('npm', [hasLockfile ? 'ci' : 'install']);
 
   console.log('\n→ Postgres (Docker Compose)');
   dockerCompose(['up', '-d', '--build']);

@@ -43,7 +43,11 @@ npm run dev
 1. Abra o repo no GitHub → **Code** → **Codespaces** → **Create codespace**.
 2. O `.devcontainer` roda `npm run setup` na criação e `npm run db:up` ao retomar.
 3. Quando terminar, no terminal: `npm run dev`.
-4. A aba **Ports** encaminha **5173** (web) e **8888** (API). Abra a URL pública do 5173 se quiser testar fora do IDE.
+4. A aba **Ports** encaminha **5173** (web) e **8888** (API). Abra a URL do 5173 — é a única que você precisa: o front chama `/api/v1` e o próprio Vite faz o proxy para a API dentro do container.
+
+O `vite.config.ts` detecta a variável `CODESPACES` e ajusta o dev server sozinho: bind em `0.0.0.0`, host `*.app.github.dev` liberado (sem isso o Vite responde `Blocked request`) e HMR pela porta 443. Em Windows nada disso é aplicado.
+
+Não deixe a porta **8888** pública: a API confia no `AUTH_DEV_BYPASS` que o devcontainer injeta e responderia como ADMIN a qualquer um com a URL.
 
 **Nota:** na primeira criação o setup pode levar alguns minutos (Docker build + seed).
 
@@ -67,6 +71,12 @@ Copie `.env.example` → `.env`. Mínimo:
 DATABASE_URL="postgresql://painel:pass@localhost:5434/painel_db"
 ```
 
+Para trabalhar sem login (padrão do `.env.example`):
+
+```env
+AUTH_DEV_BYPASS=1
+```
+
 Opcional (auth ligada — API e web **devem casar**):
 
 ```env
@@ -79,11 +89,15 @@ AUTH_EMAIL_DOMAINS=sesp.pr.gov.br
 | Flag | Onde | Efeito |
 |------|------|--------|
 | `DATABASE_URL` | API + Prisma + seed | Conexão Postgres |
-| `AUTH_REQUIRED` | API | Sem token → 401 (exceto login/health) |
+| `AUTH_DEV_BYPASS` | API | Sem header → usuário sistema **ADMIN**. Opt-in; ignorado em produção |
+| `AUTH_REQUIRED` | API | Sem token → 401 (exceto login/health). Prevalece sobre o bypass |
 | `VITE_AUTH_REQUIRED` | Web | Sidebar/guards exigem login |
 | `VITE_API_URL` | Web | Default `/api/v1` (proxy Vite); só mude se API estiver em outro host |
+| `JWT_SECRET` | API | **Obrigatório em produção** (32+ caracteres); a API não sobe sem ele |
 
-Com auth **desligada** (padrão do `.env.example`), a API usa usuário sistema **ADMIN** e a UI libera ações — ideal para estudar o código.
+Com `AUTH_DEV_BYPASS=1` a API responde como **ADMIN** sem header e a UI libera ações — ideal para estudar o código. Sem a flag e sem token, toda rota protegida devolve 401.
+
+Os tokens sintéticos (`Authorization: Bearer admin|gestor|analista|visitante`) funcionam **apenas** na suíte de testes; em `npm run dev` eles resultam em 401.
 
 ## Login demo (após seed)
 
@@ -104,7 +118,7 @@ npm run setup        # install + docker + migrate + seed
 npm run db:up        # só Postgres
 npm run db:down      # para Postgres
 npm run db:seed      # reaplica seed
-npm run api:test     # Vitest API (55 testes)
+npm run api:test     # Vitest API (59 testes)
 npm run domain:test  # Vitest domain
 npm run web:e2e      # Playwright (AUTH ligada; sobe servidores sozinho)
 ```
@@ -137,5 +151,10 @@ Mapas detalhados: [`plan/flow-maps/`](../plan/flow-maps/README.md)
 | 404 contrato | ID inexistente ou já excluído |
 | 403 alteração | Login como **GESTOR+** |
 | Select / React estranho | Hard refresh; confirme React 18 único (`npm ls react`) |
+| 401 em tudo, sem ter ligado auth | Falta `AUTH_DEV_BYPASS=1` no `.env` (ou `AUTH_REQUIRED=1` está ligado) |
+| `Bearer admin` devolve 401 | Esperado: tokens sintéticos só valem em teste. Use `POST /auth/login` |
+| API não sobe: "JWT_SECRET é obrigatório" | `NODE_ENV=production` sem `JWT_SECRET` de 32+ caracteres |
+| Codespaces: `Blocked request` no 5173 | Container antigo, sem o `allowedHosts`; rebuild para pegar o `vite.config.ts` atual |
+| Codespaces: HMR não recarrega | Confirme que a porta 5173 está encaminhada e que `CODESPACES=true` no terminal |
 | Codespaces: Docker falhou | Rebuild container; verifique se Docker-in-Docker iniciou |
 | `port already in use` | `npm run db:down`; pare `npm run dev` |
