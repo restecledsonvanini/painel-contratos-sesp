@@ -7,6 +7,9 @@ loadEnv({ path: path.resolve(__dirname, '../../../.env') });
 loadEnv({ path: path.resolve(__dirname, '../../.env') });
 
 if (!process.env.DATABASE_URL) {
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('DATABASE_URL é obrigatório em produção');
+  }
   process.env.DATABASE_URL = 'postgresql://painel:pass@localhost:5434/painel_db';
 }
 

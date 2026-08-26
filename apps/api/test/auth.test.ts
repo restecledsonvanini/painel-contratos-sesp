@@ -1,5 +1,5 @@
 import request from 'supertest';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { app } from '../src/index';
 import { getPrisma, disconnectPrisma } from '../src/lib/prisma';
 
@@ -201,6 +201,58 @@ describe('auth e RBAC', () => {
     });
     expect(res.status).toBe(401);
     await disconnectPrisma();
+  });
+});
+
+describe('endurecimento de autenticação', () => {
+  const keys = ['VITEST', 'NODE_ENV', 'AUTH_REQUIRED', 'AUTH_DEV_BYPASS'] as const;
+  let saved: Record<string, string | undefined> = {};
+
+  beforeEach(() => {
+    saved = Object.fromEntries(keys.map((k) => [k, process.env[k]]));
+  });
+
+  afterEach(() => {
+    for (const k of keys) {
+      if (saved[k] === undefined) delete process.env[k];
+      else process.env[k] = saved[k];
+    }
+  });
+
+  /** Sai do modo de teste para exercitar o comportamento real de runtime. */
+  function simulateRuntime(nodeEnv: 'development' | 'production') {
+    delete process.env.VITEST;
+    process.env.NODE_ENV = nodeEnv;
+  }
+
+  it('ignora tokens sintéticos fora de ambiente de teste', async () => {
+    simulateRuntime('development');
+    process.env.AUTH_REQUIRED = '1';
+    const res = await request(app)
+      .get('/api/v1/contracts')
+      .set('Authorization', 'Bearer admin');
+    expect(res.status).toBe(401);
+  });
+
+  it('sem header responde 401 quando o bypass não foi habilitado', async () => {
+    simulateRuntime('development');
+    delete process.env.AUTH_DEV_BYPASS;
+    const res = await request(app).get('/api/v1/contracts');
+    expect(res.status).toBe(401);
+  });
+
+  it('bypass de dev é ignorado em produção mesmo com AUTH_DEV_BYPASS=1', async () => {
+    simulateRuntime('production');
+    process.env.AUTH_DEV_BYPASS = '1';
+    const res = await request(app).get('/api/v1/contracts');
+    expect(res.status).toBe(401);
+  });
+
+  it('rotas públicas continuam acessíveis sem header', async () => {
+    simulateRuntime('development');
+    delete process.env.AUTH_DEV_BYPASS;
+    const res = await request(app).get('/api/v1/health');
+    expect(res.status).toBe(200);
   });
 });
 

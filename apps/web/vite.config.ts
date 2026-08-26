@@ -18,6 +18,7 @@ export default defineConfig({
       'react-dom': reactDomPkg,
       'react/jsx-runtime': path.resolve(reactPkg, 'jsx-runtime.js'),
       'react/jsx-dev-runtime': path.resolve(reactPkg, 'jsx-dev-runtime.js'),
+      '@painel/ui': path.resolve(repoRoot, 'packages/ui/src/index.ts'),
       '@painel/schema': path.resolve(repoRoot, 'packages/schema/src/index.ts'),
       '@painel/domain': path.resolve(repoRoot, 'packages/domain/src/index.ts'),
       'date-fns': path.resolve(repoRoot, 'node_modules/date-fns'),
@@ -27,6 +28,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    fs: { allow: [repoRoot] },
     proxy: {
       '/api/v1': {
         target: 'http://localhost:8888',

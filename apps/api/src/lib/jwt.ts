@@ -1,6 +1,6 @@
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import { getJwtSecret } from './env';
 
-const JWT_SECRET = () => process.env.JWT_SECRET || 'painel-dev-secret-change-me';
 const TOKEN_TTL_SEC = Number(process.env.JWT_TTL_SEC || 60 * 60 * 12);
 
 function b64url(input: Buffer | string) {
@@ -49,7 +49,7 @@ export function signJwt(payload: Omit<JwtPayload, 'iat' | 'exp'>): string {
   };
   const h = b64url(JSON.stringify(header));
   const p = b64url(JSON.stringify(body));
-  const sig = createHmac('sha256', JWT_SECRET()).update(`${h}.${p}`).digest();
+  const sig = createHmac('sha256', getJwtSecret()).update(`${h}.${p}`).digest();
   return `${h}.${p}.${b64url(sig)}`;
 }
 
@@ -57,7 +57,7 @@ export function verifyJwt(token: string): JwtPayload | null {
   const parts = token.split('.');
   if (parts.length !== 3) return null;
   const [h, p, s] = parts;
-  const expected = createHmac('sha256', JWT_SECRET()).update(`${h}.${p}`).digest();
+  const expected = createHmac('sha256', getJwtSecret()).update(`${h}.${p}`).digest();
   let actual: Buffer;
   try {
     actual = fromB64url(s);

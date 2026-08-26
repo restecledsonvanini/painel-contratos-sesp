@@ -23,7 +23,9 @@ import { publicApiCatalog } from './lib/apiCatalog';
 import { buildOpenApiDocument } from './lib/openapi';
 import { getMetricsSnapshot } from './lib/metrics';
 import { getPrisma } from './lib/prisma';
+import { assertProductionConfig } from './lib/env';
 
+assertProductionConfig();
 registerBigIntJson();
 
 const app = express();

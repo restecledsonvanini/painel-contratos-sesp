@@ -3,9 +3,7 @@ import { getPrisma } from '../lib/prisma';
 import { verifyJwt } from '../lib/jwt';
 import { AuthUser, normalizeRole } from '../lib/authTypes';
 import { unauthorized } from '../lib/errors';
-
-const DEV_BYPASS =
-  process.env.AUTH_REQUIRED !== '1' && process.env.AUTH_REQUIRED !== 'true';
+import { devBypassEnabled, syntheticTokensAllowed } from '../lib/env';
 
 /** Bypass local: ADMIN para espelhar o front (useCanAct liberado sem AUTH). */
 const SYSTEM_USER: AuthUser = {
@@ -46,11 +44,22 @@ function synthetic(id: string, email: string, nome: string, roleRaw: string): Au
 }
 
 /**
+ * Papéis sintéticos da suíte de testes. `Map` (e não objeto literal) para que
+ * chaves de Object.prototype — `constructor`, `toString` — não resolvam.
+ */
+const SYNTHETIC_USERS = new Map<string, AuthUser>([
+  ['admin', synthetic('user-admin', 'admin@local', 'Admin legado', 'ADMIN')],
+  ['analista', synthetic('user-analista', 'analista@local', 'Analista legado', 'ANALISTA')],
+  ['gestor', synthetic('user-gestor', 'gestor@local', 'Gestor legado', 'GESTOR')],
+  ['visitante', synthetic('user-visitante', 'visitante@local', 'Visitante legado', 'VISITANTE')],
+]);
+
+/**
  * Auth real (JWT) + tokens de teste + bypass de desenvolvimento.
  *
  * - Authorization: Bearer <jwt> → Usuario do banco
- * - Bearer admin|analista|gestor|visitante (+ legado só com VITEST) → papel sintético
- * - Sem header → ADMIN system se AUTH_REQUIRED não estiver ativo; senão 401
+ * - Bearer admin|analista|gestor|visitante → papel sintético, só em ambiente de teste
+ * - Sem header → ADMIN system só quando o bypass de dev está habilitado; senão 401
  * - /auth/login, /health*, /docs, /metrics são públicos
  */
 export async function authenticate(req: Request, _res: Response, next: NextFunction) {
@@ -64,7 +73,7 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
 
     const auth = req.headers.authorization;
     if (!auth) {
-      if (isPublic || DEV_BYPASS) {
+      if (isPublic || devBypassEnabled()) {
         req.user = SYSTEM_USER;
         return next();
       }
@@ -75,16 +84,12 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
     const token = parts[1];
     if (!token) return next(unauthorized('Token ausente'));
 
-    const legacy: Record<string, AuthUser> = {
-      admin: synthetic('user-admin', 'admin@local', 'Admin legado', 'ADMIN'),
-      analista: synthetic('user-analista', 'analista@local', 'Analista legado', 'ANALISTA'),
-      gestor: synthetic('user-gestor', 'gestor@local', 'Gestor legado', 'GESTOR'),
-      visitante: synthetic('user-visitante', 'visitante@local', 'Visitante legado', 'VISITANTE'),
-    };
-
-    if (legacy[token]) {
-      req.user = legacy[token];
-      return next();
+    if (syntheticTokensAllowed()) {
+      const syntheticUser = SYNTHETIC_USERS.get(token);
+      if (syntheticUser) {
+        req.user = syntheticUser;
+        return next();
+      }
     }
 
     const payload = verifyJwt(token);
