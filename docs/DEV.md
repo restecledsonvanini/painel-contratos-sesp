@@ -6,7 +6,7 @@ Guia único para subir o monorepo **painel-contratos-sesp** em qualquer máquina
 
 | Ferramenta | Windows | Codespaces |
 |------------|---------|------------|
-| Node.js | 20 ou 22 LTS | incluído no devcontainer |
+| Node.js | 20 ou 22 LTS (Prisma 6 pede 18.18+) | incluído no devcontainer |
 | Docker | Docker Desktop | Docker-in-Docker (devcontainer) |
 | Git | sim | sim |
 
@@ -60,6 +60,7 @@ Não deixe a porta **8888** pública: a API confia no `AUTH_DEV_BYPASS` que o de
 ### Windows — dicas
 
 - **Prisma / testes:** pare a API (`Ctrl+C` no terminal do `npm run dev`) antes de `npm run db:generate` ou `npm run api:test` se aparecer erro de DLL bloqueada (`query_engine-windows.dll.node`).
+- **Prisma 6:** o client gerado inclui engine Windows + wasm. No Codespaces/Linux, `npm run setup` (que chama `prisma generate`) baixa o binário da plataforma. Não pule o generate depois do clone.
 - **Portas ocupadas:** `npm run db:down` para parar Postgres; mate processos em 8888/5173 se necessário.
 - **PowerShell:** os scripts npm funcionam nativamente; prefira `npm run …` em vez de comandos bash.
 
@@ -161,7 +162,7 @@ npm run web:e2e
 ## Arquitetura dev (resumo)
 
 ```text
-Browser → Vite :5173 → proxy /api/v1 → Express :8888 → Prisma → Postgres :5434
+Browser → Vite :5173 → proxy /api/v1 → Express :8888 → Prisma 6 → Postgres :5434
 ```
 
 Mapas detalhados: [`plan/flow-maps/`](../plan/flow-maps/README.md)
@@ -180,6 +181,7 @@ Mapas detalhados: [`plan/flow-maps/`](../plan/flow-maps/README.md)
 | Lista de contratos vazia / `.map is not a function` | `GET /contracts` agora devolve `{ data, meta }`; o front já trata isso |
 | 403 em tudo após login | Usuário sem `orgaoId`: `npx tsx scripts/ensure-demo-users.ts` |
 | 403 em `/docs` ou `/metrics` | Passaram a exigir ADMIN; use `AUTH_DEV_BYPASS=1` ou logue como admin |
+| e2e RBAC vê botão que não deveria | Playwright reusa API em :8888. Se ela subiu com `AUTH_DEV_BYPASS=1`, os gates de papel não valem. Pare o `npm run dev` e rode `npm run web:e2e` de novo. |
 | 429 no login | Rate limit após 10 senhas erradas para o mesmo e-mail; espere 15 min |
 | E2E: `Executable doesn't exist` | Falta o browser do Playwright: `npx playwright install chromium` |
 | API não sobe: "JWT_SECRET é obrigatório" | `NODE_ENV=production` sem `JWT_SECRET` de 32+ caracteres |

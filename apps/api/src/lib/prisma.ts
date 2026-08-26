@@ -1,17 +1,6 @@
 import { PrismaClient } from '@painel/db';
 import { getActorFromContext, getRequestId } from './requestContext';
 
-let prisma: PrismaClient | null = null;
-let middlewareAttached = false;
-
-export function getDatabaseUrl(): string {
-  const url = process.env.DATABASE_URL;
-  if (!url) {
-    throw new Error('DATABASE_URL is not configured');
-  }
-  return url;
-}
-
 const WRITE_ACTIONS = new Set([
   'create',
   'createMany',
@@ -22,38 +11,49 @@ const WRITE_ACTIONS = new Set([
   'deleteMany',
 ]);
 
-function attachAuditGuc(client: PrismaClient) {
-  if (middlewareAttached) return;
-  middlewareAttached = true;
-  client.$use(async (params, next) => {
-    // Triggers de auditoria só disparam em escrita. Em findMany da listagem
-    // o GUC dobrava round-trip à toa.
-    if (!WRITE_ACTIONS.has(params.action)) {
-      return next(params);
-    }
-    const actorId = getActorFromContext() ?? '';
-    const requestId = getRequestId() ?? '';
-    try {
-      await client.$executeRawUnsafe(
-        `SELECT set_config('app.current_user', $1, true), set_config('app.request_id', $2, true)`,
-        actorId,
-        requestId,
-      );
-    } catch {
-      // GUC opcional — não bloqueia a operação se a sessão não permitir
-    }
-    return next(params);
+function createPrisma() {
+  const client = new PrismaClient();
+  // Prisma 6 removeu $use. A extensão de query é o substituto: GUC só em
+  // escrita, para o trigger de auditoria, sem round-trip extra na listagem.
+  return client.$extends({
+    query: {
+      async $allOperations({ operation, args, query }) {
+        if (!WRITE_ACTIONS.has(operation)) {
+          return query(args);
+        }
+        const actorId = getActorFromContext() ?? '';
+        const requestId = getRequestId() ?? '';
+        try {
+          await client.$executeRawUnsafe(
+            `SELECT set_config('app.current_user', $1, true), set_config('app.request_id', $2, true)`,
+            actorId,
+            requestId,
+          );
+        } catch {
+          // GUC opcional — não bloqueia a operação se a sessão não permitir
+        }
+        return query(args);
+      },
+    },
   });
 }
 
-export function getPrisma(): PrismaClient {
-  if (prisma) {
-    return prisma;
-  }
+export type AppPrisma = ReturnType<typeof createPrisma>;
 
+let prisma: AppPrisma | null = null;
+
+export function getDatabaseUrl(): string {
+  const url = process.env.DATABASE_URL;
+  if (!url) {
+    throw new Error('DATABASE_URL is not configured');
+  }
+  return url;
+}
+
+export function getPrisma(): AppPrisma {
+  if (prisma) return prisma;
   getDatabaseUrl();
-  prisma = new PrismaClient();
-  attachAuditGuc(prisma);
+  prisma = createPrisma();
   return prisma;
 }
 
@@ -61,6 +61,5 @@ export async function disconnectPrisma(): Promise<void> {
   if (prisma) {
     await prisma.$disconnect();
     prisma = null;
-    middlewareAttached = false;
   }
 }

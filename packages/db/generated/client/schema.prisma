@@ -260,19 +260,19 @@ model DominioValor {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
-  contratosCategoria   Contrato[]             @relation("ContratoCategoria")
-  contratosModalidade  Contrato[]             @relation("ContratoModalidade")
-  contratosFundamento  Contrato[]             @relation("ContratoFundamento")
-  processosModalidade  ProcessoContratacao[]  @relation("ProcessoModalidade")
-  catalogoPorCategoria CatalogoItem[]         @relation("CatalogoCategoria")
+  contratosCategoria    Contrato[]            @relation("ContratoCategoria")
+  contratosModalidade   Contrato[]            @relation("ContratoModalidade")
+  contratosFundamento   Contrato[]            @relation("ContratoFundamento")
+  processosModalidade   ProcessoContratacao[] @relation("ProcessoModalidade")
+  catalogoPorCategoria  CatalogoItem[]        @relation("CatalogoCategoria")
   catalogoUnidadeMedida CatalogoItem[]        @relation("CatalogoUnidadeMedida")
   atributosPorCategoria ItemAtributoDef[]     @relation("AtributoCategoria")
-  itensUnidadeMedida   ItemContrato[]         @relation("ItemUnidadeMedida")
-  alteracoesFundamento AlteracaoContratual[]  @relation("AlteracaoFundamento")
-  dotacoesNatureza     DotacaoOrcamentaria[]  @relation("DotacaoNatureza")
-  dotacoesFonte        DotacaoOrcamentaria[]  @relation("DotacaoFonte")
-  publicacoesVeiculo   Publicacao[]           @relation("PublicacaoVeiculo")
-  documentosTipo       Documento[]            @relation("DocumentoTipo")
+  itensUnidadeMedida    ItemContrato[]        @relation("ItemUnidadeMedida")
+  alteracoesFundamento  AlteracaoContratual[] @relation("AlteracaoFundamento")
+  dotacoesNatureza      DotacaoOrcamentaria[] @relation("DotacaoNatureza")
+  dotacoesFonte         DotacaoOrcamentaria[] @relation("DotacaoFonte")
+  publicacoesVeiculo    Publicacao[]          @relation("PublicacaoVeiculo")
+  documentosTipo        Documento[]           @relation("DocumentoTipo")
 
   @@unique([dominioId, codigo])
   @@index([dominioId, ativo, ordem])
@@ -280,45 +280,45 @@ model DominioValor {
 }
 
 model Orgao {
-  id         String                  @id @default(uuid())
-  sigla      String                  @unique
-  nome       String
-  tipo       TipoOrgao
-  ativo      Boolean                 @default(true)
-  parentId   String?
-  parent     Orgao?                  @relation("OrgaoHierarquia", fields: [parentId], references: [id])
-  children   Orgao[]                 @relation("OrgaoHierarquia")
-  unidades   UnidadeOrganizacional[]
-  contratosGestora Contrato[]        @relation("ContratoUnidadeGestora")
-  servidores Servidor[]
-  usuarios   Usuario[]
-  createdAt  DateTime                @default(now())
-  updatedAt  DateTime                @updatedAt
+  id               String                  @id @default(uuid())
+  sigla            String                  @unique
+  nome             String
+  tipo             TipoOrgao
+  ativo            Boolean                 @default(true)
+  parentId         String?
+  parent           Orgao?                  @relation("OrgaoHierarquia", fields: [parentId], references: [id])
+  children         Orgao[]                 @relation("OrgaoHierarquia")
+  unidades         UnidadeOrganizacional[]
+  contratosGestora Contrato[]              @relation("ContratoUnidadeGestora")
+  servidores       Servidor[]
+  usuarios         Usuario[]
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
 
   @@index([parentId])
   @@index([ativo])
 }
 
 model UnidadeOrganizacional {
-  id          String                  @id @default(uuid())
-  orgaoId     String
-  orgao       Orgao                   @relation(fields: [orgaoId], references: [id])
-  parentId    String?
-  parent      UnidadeOrganizacional?  @relation("UnidadeHierarquia", fields: [parentId], references: [id])
-  children    UnidadeOrganizacional[] @relation("UnidadeHierarquia")
-  sigla       String
-  nome        String
-  nivel       NivelUnidade?
-  municipioId String?
-  municipio   Municipio?              @relation(fields: [municipioId], references: [id])
-  ativo       Boolean                 @default(true)
-  servidores  Servidor[]
-  contratosSubunidade Contrato[]      @relation("ContratoSubunidade")
-  rateios     ContratoRateio[]
-  processosDemandante ProcessoContratacao[] @relation("ProcessoUnidadeDemandante")
-  itensDestino ItemContrato[]         @relation("ItemUnidadeDestino")
-  createdAt   DateTime                @default(now())
-  updatedAt   DateTime                @updatedAt
+  id                  String                  @id @default(uuid())
+  orgaoId             String
+  orgao               Orgao                   @relation(fields: [orgaoId], references: [id])
+  parentId            String?
+  parent              UnidadeOrganizacional?  @relation("UnidadeHierarquia", fields: [parentId], references: [id])
+  children            UnidadeOrganizacional[] @relation("UnidadeHierarquia")
+  sigla               String
+  nome                String
+  nivel               NivelUnidade?
+  municipioId         String?
+  municipio           Municipio?              @relation(fields: [municipioId], references: [id])
+  ativo               Boolean                 @default(true)
+  servidores          Servidor[]
+  contratosSubunidade Contrato[]              @relation("ContratoSubunidade")
+  rateios             ContratoRateio[]
+  processosDemandante ProcessoContratacao[]   @relation("ProcessoUnidadeDemandante")
+  itensDestino        ItemContrato[]          @relation("ItemUnidadeDestino")
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
 
   @@unique([orgaoId, sigla])
   @@index([parentId])
@@ -327,25 +327,26 @@ model UnidadeOrganizacional {
 }
 
 model Fornecedor {
-  id                 String              @id @default(uuid())
-  tipoPessoa         TipoPessoa          @default(JURIDICA)
-  documento          String              @unique
-  razaoSocial        String
-  nomeFantasia       String?
-  inscricaoEstadual  String?
-  porte              PorteEmpresa?
-  municipioId        String?
-  municipio          Municipio?          @relation(fields: [municipioId], references: [id])
-  situacao           SituacaoFornecedor  @default(ATIVO)
-  codigoLegado       String?
-  contatos           FornecedorContato[]
-  sancoes            FornecedorSancao[]
-  contratos          Contrato[]
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  id                String              @id @default(uuid())
+  tipoPessoa        TipoPessoa          @default(JURIDICA)
+  documento         String              @unique
+  razaoSocial       String
+  nomeFantasia      String?
+  inscricaoEstadual String?
+  porte             PorteEmpresa?
+  municipioId       String?
+  municipio         Municipio?          @relation(fields: [municipioId], references: [id])
+  situacao          SituacaoFornecedor  @default(ATIVO)
+  codigoLegado      String?
+  contatos          FornecedorContato[]
+  sancoes           FornecedorSancao[]
+  contratos         Contrato[]
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
 
   @@index([razaoSocial])
   @@index([situacao])
+  @@index([municipioId])
 }
 
 model FornecedorContato {
@@ -398,6 +399,8 @@ model Servidor {
 
   @@index([nome])
   @@index([orgaoId])
+  @@index([unidadeId])
+  @@index([ativo])
 }
 
 model ProcessoContratacao {
@@ -497,67 +500,71 @@ model Contrato {
   @@index([modalidadeId])
   @@index([criadoPorId])
   @@index([atualizadoPorId])
+  @@index([createdAt])
+  @@index([dataAssinatura])
+  @@index([garantiaValidade])
+  @@index([processoId])
 }
 
 model ContratoResponsavel {
-  id             String           @id @default(uuid())
-  contratoId     String
-  contrato       Contrato         @relation(fields: [contratoId], references: [id], onDelete: Cascade)
-  servidorId     String
-  servidor       Servidor         @relation(fields: [servidorId], references: [id])
-  papel          PapelResponsavel
-  atoDesignacao  String?
-  dataInicio     DateTime         @db.Date
-  dataFim        DateTime?        @db.Date
-  createdAt      DateTime         @default(now())
+  id            String           @id @default(uuid())
+  contratoId    String
+  contrato      Contrato         @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  servidorId    String
+  servidor      Servidor         @relation(fields: [servidorId], references: [id])
+  papel         PapelResponsavel
+  atoDesignacao String?
+  dataInicio    DateTime         @db.Date
+  dataFim       DateTime?        @db.Date
+  createdAt     DateTime         @default(now())
 
   @@index([contratoId])
   @@index([servidorId, papel])
 }
 
 model ContratoRateio {
-  id          String                 @id @default(uuid())
-  contratoId  String
-  contrato    Contrato               @relation(fields: [contratoId], references: [id], onDelete: Cascade)
-  unidadeId   String
-  unidade     UnidadeOrganizacional  @relation(fields: [unidadeId], references: [id])
-  percentual  Decimal?               @db.Decimal(7, 4)
-  valorCents  BigInt?
-  quantidade  Decimal?               @db.Decimal(14, 4)
-  observacao  String?
-  createdAt   DateTime               @default(now())
+  id         String                @id @default(uuid())
+  contratoId String
+  contrato   Contrato              @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  unidadeId  String
+  unidade    UnidadeOrganizacional @relation(fields: [unidadeId], references: [id])
+  percentual Decimal?              @db.Decimal(7, 4)
+  valorCents BigInt?
+  quantidade Decimal?              @db.Decimal(14, 4)
+  observacao String?
+  createdAt  DateTime              @default(now())
 
   @@unique([contratoId, unidadeId])
   @@index([unidadeId])
 }
 
 model AlteracaoContratual {
-  id                       String             @id @default(uuid())
+  id                       String            @id @default(uuid())
   contratoId               String
-  contrato                 Contrato           @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  contrato                 Contrato          @relation(fields: [contratoId], references: [id], onDelete: Cascade)
   tipo                     TipoAlteracao
   numero                   Int
   eProtocolo               String?
   objetoDescricao          String
   fundamentoLegalId        String?
-  fundamentoLegal          DominioValor?      @relation("AlteracaoFundamento", fields: [fundamentoLegalId], references: [id])
+  fundamentoLegal          DominioValor?     @relation("AlteracaoFundamento", fields: [fundamentoLegalId], references: [id])
   justificativa            String?
   justificativaExcepcional String?
-  dataAssinatura           DateTime           @db.Date
-  dataInicioEfeito         DateTime?          @db.Date
+  dataAssinatura           DateTime          @db.Date
+  dataInicioEfeito         DateTime?         @db.Date
   prazoAcrescidoValor      Int?
   prazoAcrescidoUnidade    UnidadeTempo?
-  novaDataFimVigencia      DateTime?          @db.Date
-  valorAcrescidoCents      BigInt             @default(0)
-  valorSuprimidoCents      BigInt             @default(0)
-  percentualReajuste       Decimal?           @db.Decimal(7, 4)
-  situacao                 SituacaoAlteracao  @default(MINUTA)
+  novaDataFimVigencia      DateTime?         @db.Date
+  valorAcrescidoCents      BigInt            @default(0)
+  valorSuprimidoCents      BigInt            @default(0)
+  percentualReajuste       Decimal?          @db.Decimal(7, 4)
+  situacao                 SituacaoAlteracao @default(MINUTA)
   codigoLegado             String?
   itens                    AlteracaoItem[]
   publicacoes              Publicacao[]
   documentos               Documento[]
-  createdAt                DateTime           @default(now())
-  updatedAt                DateTime           @updatedAt
+  createdAt                DateTime          @default(now())
+  updatedAt                DateTime          @updatedAt
 
   @@unique([contratoId, tipo, numero])
   @@index([contratoId, situacao])
@@ -565,37 +572,37 @@ model AlteracaoContratual {
 }
 
 model AlteracaoItem {
-  id                     String               @id @default(uuid())
+  id                     String              @id @default(uuid())
   alteracaoId            String
-  alteracao              AlteracaoContratual  @relation(fields: [alteracaoId], references: [id], onDelete: Cascade)
+  alteracao              AlteracaoContratual @relation(fields: [alteracaoId], references: [id], onDelete: Cascade)
   itemContratoId         String?
-  itemContrato           ItemContrato?        @relation(fields: [itemContratoId], references: [id])
+  itemContrato           ItemContrato?       @relation(fields: [itemContratoId], references: [id])
   catalogoItemId         String?
-  catalogoItem           CatalogoItem?        @relation(fields: [catalogoItemId], references: [id])
-  quantidadeDelta        Decimal              @db.Decimal(14, 4)
+  catalogoItem           CatalogoItem?       @relation(fields: [catalogoItemId], references: [id])
+  quantidadeDelta        Decimal             @db.Decimal(14, 4)
   valorUnitarioNovoCents BigInt?
   observacao             String?
-  createdAt              DateTime             @default(now())
+  createdAt              DateTime            @default(now())
 
   @@index([alteracaoId])
   @@index([itemContratoId])
 }
 
 model CatalogoItem {
-  id                     String        @id @default(uuid())
-  categoriaItemId        String
-  categoriaItem          DominioValor  @relation("CatalogoCategoria", fields: [categoriaItemId], references: [id])
-  codigo                 String?
-  nome                   String
-  descricao              String?
-  unidadeMedidaPadraoId  String
-  unidadeMedidaPadrao    DominioValor  @relation("CatalogoUnidadeMedida", fields: [unidadeMedidaPadraoId], references: [id])
-  atributosPadrao        Json?
-  ativo                  Boolean       @default(true)
-  itensContrato          ItemContrato[]
-  alteracaoItens         AlteracaoItem[]
-  createdAt              DateTime      @default(now())
-  updatedAt              DateTime      @updatedAt
+  id                    String          @id @default(uuid())
+  categoriaItemId       String
+  categoriaItem         DominioValor    @relation("CatalogoCategoria", fields: [categoriaItemId], references: [id])
+  codigo                String?
+  nome                  String
+  descricao             String?
+  unidadeMedidaPadraoId String
+  unidadeMedidaPadrao   DominioValor    @relation("CatalogoUnidadeMedida", fields: [unidadeMedidaPadraoId], references: [id])
+  atributosPadrao       Json?
+  ativo                 Boolean         @default(true)
+  itensContrato         ItemContrato[]
+  alteracaoItens        AlteracaoItem[]
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
 
   @@unique([categoriaItemId, nome])
   @@index([nome])
@@ -603,20 +610,20 @@ model CatalogoItem {
 }
 
 model ItemAtributoDef {
-  id               String       @id @default(uuid())
-  categoriaItemId  String
-  categoriaItem    DominioValor @relation("AtributoCategoria", fields: [categoriaItemId], references: [id])
-  chave            String
-  label            String
-  tipo             TipoAtributo
-  dominioSlug      String?
-  obrigatorio      Boolean      @default(false)
-  unidade          String?
-  ordem            Int          @default(0)
-  ajuda            String?
-  ativo            Boolean      @default(true)
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  id              String       @id @default(uuid())
+  categoriaItemId String
+  categoriaItem   DominioValor @relation("AtributoCategoria", fields: [categoriaItemId], references: [id])
+  chave           String
+  label           String
+  tipo            TipoAtributo
+  dominioSlug     String?
+  obrigatorio     Boolean      @default(false)
+  unidade         String?
+  ordem           Int          @default(0)
+  ajuda           String?
+  ativo           Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 
   @@unique([categoriaItemId, chave])
   @@index([categoriaItemId, ativo, ordem])
@@ -651,20 +658,20 @@ model ItemContrato {
 }
 
 model DotacaoOrcamentaria {
-  id                   String            @id @default(uuid())
-  exercicio            Int
-  codigo               String
-  unidadeOrcamentaria  String?
+  id                    String            @id @default(uuid())
+  exercicio             Int
+  codigo                String
+  unidadeOrcamentaria   String?
   funcionalProgramatica String?
-  naturezaDespesaId    String
-  naturezaDespesa      DominioValor      @relation("DotacaoNatureza", fields: [naturezaDespesaId], references: [id])
-  fonteRecursoId       String
-  fonteRecurso         DominioValor      @relation("DotacaoFonte", fields: [fonteRecursoId], references: [id])
-  descricao            String?
-  contratos            ContratoDotacao[]
-  empenhos             Empenho[]
-  createdAt            DateTime          @default(now())
-  updatedAt            DateTime          @updatedAt
+  naturezaDespesaId     String
+  naturezaDespesa       DominioValor      @relation("DotacaoNatureza", fields: [naturezaDespesaId], references: [id])
+  fonteRecursoId        String
+  fonteRecurso          DominioValor      @relation("DotacaoFonte", fields: [fonteRecursoId], references: [id])
+  descricao             String?
+  contratos             ContratoDotacao[]
+  empenhos              Empenho[]
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
 
   @@unique([exercicio, codigo])
   @@index([fonteRecursoId])
@@ -686,21 +693,21 @@ model ContratoDotacao {
 }
 
 model Empenho {
-  id                  String              @id @default(uuid())
+  id                  String               @id @default(uuid())
   contratoId          String
-  contrato            Contrato            @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+  contrato            Contrato             @relation(fields: [contratoId], references: [id], onDelete: Cascade)
   dotacaoId           String?
   dotacao             DotacaoOrcamentaria? @relation(fields: [dotacaoId], references: [id])
   numero              String
   exercicio           Int
-  tipo                TipoEmpenho         @default(ORDINARIO)
-  data                DateTime            @db.Date
+  tipo                TipoEmpenho          @default(ORDINARIO)
+  data                DateTime             @db.Date
   valorCents          BigInt
-  valorLiquidadoCents BigInt              @default(0)
-  valorPagoCents      BigInt              @default(0)
-  situacao            SituacaoEmpenho     @default(EMITIDO)
-  createdAt           DateTime            @default(now())
-  updatedAt           DateTime            @updatedAt
+  valorLiquidadoCents BigInt               @default(0)
+  valorPagoCents      BigInt               @default(0)
+  situacao            SituacaoEmpenho      @default(EMITIDO)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
 
   @@unique([numero, exercicio])
   @@index([contratoId])
@@ -708,17 +715,17 @@ model Empenho {
 }
 
 model ReservaOrcamentaria {
-  id          String                 @id @default(uuid())
-  contratoId  String?
-  contrato    Contrato?              @relation(fields: [contratoId], references: [id], onDelete: SetNull)
-  processoId  String?
-  processo    ProcessoContratacao?   @relation(fields: [processoId], references: [id], onDelete: SetNull)
-  numero      String
-  data        DateTime               @db.Date
-  valorCents  BigInt
-  situacao    SituacaoReserva        @default(ATIVA)
-  createdAt   DateTime               @default(now())
-  updatedAt   DateTime               @updatedAt
+  id         String               @id @default(uuid())
+  contratoId String?
+  contrato   Contrato?            @relation(fields: [contratoId], references: [id], onDelete: SetNull)
+  processoId String?
+  processo   ProcessoContratacao? @relation(fields: [processoId], references: [id], onDelete: SetNull)
+  numero     String
+  data       DateTime             @db.Date
+  valorCents BigInt
+  situacao   SituacaoReserva      @default(ATIVA)
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
 
   @@index([contratoId])
   @@index([processoId])
@@ -769,13 +776,13 @@ model Documento {
 }
 
 model AlertaConfig {
-  id            String      @id @default(uuid())
-  tipo          TipoAlerta  @unique
+  id            String     @id @default(uuid())
+  tipo          TipoAlerta @unique
   janelasDias   Int[]
-  ativo         Boolean     @default(true)
+  ativo         Boolean    @default(true)
   destinatarios Json?
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }
 
 model Alerta {
@@ -796,6 +803,7 @@ model Alerta {
   @@unique([contratoId, tipo, dataReferencia])
   @@index([tipo, severidade])
   @@index([contratoId])
+  @@index([reconhecidoEm])
 }
 
 model ImportacaoLote {
@@ -818,15 +826,15 @@ model ImportacaoLote {
 }
 
 model ImportacaoLinha {
-  id                String         @id @default(uuid())
-  loteId            String
-  lote              ImportacaoLote @relation(fields: [loteId], references: [id], onDelete: Cascade)
-  numeroLinha       Int
-  payloadOriginal   Json
+  id                 String         @id @default(uuid())
+  loteId             String
+  lote               ImportacaoLote @relation(fields: [loteId], references: [id], onDelete: Cascade)
+  numeroLinha        Int
+  payloadOriginal    Json
   payloadNormalizado Json?
-  erros             Json?
-  registroCriadoId  String?
-  createdAt         DateTime       @default(now())
+  erros              Json?
+  registroCriadoId   String?
+  createdAt          DateTime       @default(now())
 
   @@index([loteId, numeroLinha])
 }
@@ -847,21 +855,21 @@ model AuditLog {
 }
 
 model Usuario {
-  id           String    @id @default(uuid())
-  sub          String?   @unique
-  email        String?   @unique
-  nome         String?
-  passwordHash String?
-  role         Role      @default(ANALISTA)
-  servidorId   String?
-  servidor     Servidor? @relation(fields: [servidorId], references: [id])
-  orgaoId      String?
-  orgao        Orgao?    @relation(fields: [orgaoId], references: [id])
-  ativo        Boolean   @default(true)
+  id                   String     @id @default(uuid())
+  sub                  String?    @unique
+  email                String?    @unique
+  nome                 String?
+  passwordHash         String?
+  role                 Role       @default(ANALISTA)
+  servidorId           String?
+  servidor             Servidor?  @relation(fields: [servidorId], references: [id])
+  orgaoId              String?
+  orgao                Orgao?     @relation(fields: [orgaoId], references: [id])
+  ativo                Boolean    @default(true)
   contratosCriados     Contrato[] @relation("ContratoCriadoPor")
   contratosAtualizados Contrato[] @relation("ContratoAtualizadoPor")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
 
   @@index([role, ativo])
   @@index([orgaoId])

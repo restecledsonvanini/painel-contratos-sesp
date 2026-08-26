@@ -1,4 +1,6 @@
 // Prisma schema — Postgres local (Docker) / staging
+// Client: Prisma 6.19.3 (último 6.x). Prisma 7+ exige prisma.config.ts e
+// driver adapter — outro salto, não misturar nesta linha.
 // Migrations: packages/db/prisma/migrations (Prisma Migrate format)
 
 datasource db {
