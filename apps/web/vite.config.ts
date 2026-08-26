@@ -39,6 +39,9 @@ export default defineConfig({
   server: {
     port: 5173,
     host: isCodespaces,
+    watch: {
+      ignored: ['**/playwright-report/**', '**/test-results/**', '**/playwright/.cache/**'],
+    },
     allowedHosts: isCodespaces ? [`.${forwardingDomain}`] : undefined,
     hmr: isCodespaces ? { clientPort: 443, protocol: 'wss' } : undefined,
     fs: { allow: [repoRoot] },

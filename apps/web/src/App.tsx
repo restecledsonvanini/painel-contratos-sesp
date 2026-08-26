@@ -5,21 +5,21 @@ import { RequireAuth } from './components/RequireAuth';
 import { RequireRole } from './components/RequireRole';
 import { LookupsProvider } from './providers/LookupsProvider';
 
-const PainelPage = lazy(() => import('./pages/PainelPage'));
-const CadastrosPage = lazy(() => import('./pages/CadastrosPage'));
-const UtilitariosPage = lazy(() => import('./pages/UtilitariosPage'));
-const ConfiguracoesPage = lazy(() => import('./pages/ConfiguracoesPage'));
-const ContractsList = lazy(() => import('./pages/ContractsList'));
-const ContractForm = lazy(() => import('./pages/ContractForm'));
-const ContractDetail = lazy(() => import('./pages/ContractDetail'));
-const FornecedoresForm = lazy(() => import('./pages/FornecedoresForm'));
-const ServidoresForm = lazy(() => import('./pages/ServidoresForm'));
-const CatalogoForm = lazy(() => import('./pages/CatalogoForm'));
-const DotacaoForm = lazy(() => import('./pages/DotacaoForm'));
-const AlteracaoForm = lazy(() => import('./pages/AlteracaoForm'));
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const UnidadeForm = lazy(() => import('./pages/UnidadeForm'));
-const DevUi = lazy(() => import('./pages/DevUi'));
+const PainelPage = lazy(() => import('./features/painel/pages/PainelPage'));
+const CadastrosPage = lazy(() => import('./features/cadastros/pages/CadastrosPage'));
+const UtilitariosPage = lazy(() => import('./features/utilitarios/pages/UtilitariosPage'));
+const ConfiguracoesPage = lazy(() => import('./features/configuracoes/pages/ConfiguracoesPage'));
+const ContractsList = lazy(() => import('./features/contratos/pages/ContractsList'));
+const ContractForm = lazy(() => import('./features/contratos/wizard/ContractWizard'));
+const ContractDetail = lazy(() => import('./features/contratos/detail/ContractDetail'));
+const FornecedoresForm = lazy(() => import('./features/cadastros/pages/FornecedoresForm'));
+const ServidoresForm = lazy(() => import('./features/cadastros/pages/ServidoresForm'));
+const CatalogoForm = lazy(() => import('./features/cadastros/pages/CatalogoForm'));
+const DotacaoForm = lazy(() => import('./features/cadastros/pages/DotacaoForm'));
+const AlteracaoForm = lazy(() => import('./features/contratos/pages/AlteracaoForm'));
+const LoginPage = lazy(() => import('./features/auth/pages/LoginPage'));
+const UnidadeForm = lazy(() => import('./features/configuracoes/pages/UnidadeForm'));
+const DevUi = lazy(() => import('./features/dev/pages/DevUi'));
 
 function RedirectEdit({ toBase }: { toBase: string }) {
   const { id } = useParams();
