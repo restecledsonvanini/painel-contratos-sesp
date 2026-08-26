@@ -6,6 +6,7 @@ const baseURL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173';
 const authEnv = {
   AUTH_REQUIRED: '1',
   VITE_AUTH_REQUIRED: '1',
+  AUTH_DEV_BYPASS: '0',
   AUTH_EMAIL_DOMAINS: '*',
   DATABASE_URL: process.env.DATABASE_URL || 'postgresql://painel:pass@localhost:5434/painel_db',
 };
@@ -32,14 +33,14 @@ export default defineConfig({
     {
       command: 'npm run dev --prefix ../api',
       url: 'http://localhost:8888/api/v1/health',
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: process.env.PW_REUSE === '1',
       timeout: 120_000,
       env: { ...process.env, ...authEnv },
     },
     {
       command: 'npm run dev',
       url: baseURL,
-      reuseExistingServer: !process.env.CI,
+      reuseExistingServer: process.env.PW_REUSE === '1',
       timeout: 120_000,
       env: { ...process.env, ...authEnv },
     },

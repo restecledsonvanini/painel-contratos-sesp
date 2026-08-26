@@ -2,6 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { hasMinRole as rankHasMinRole } from '@painel/domain';
 import type { AuthUserDTO } from '@painel/schema';
 import { http } from '../lib/http';
+import { getAuthToken, onUnauthorized, setAuthToken } from '../lib/authSession';
 
 export type AuthUser = AuthUserDTO;
 
@@ -16,14 +17,20 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-const TOKEN_KEY = 'auth_token';
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(() =>
-    typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null,
-  );
+  const [token, setToken] = useState<string | null>(() => getAuthToken());
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(Boolean(token));
+
+  const clearSession = useCallback(() => {
+    setAuthToken(null);
+    setToken(null);
+    setUser(null);
+    setIsLoading(false);
+  }, []);
+
+  useEffect(() => onUnauthorized(clearSession), [clearSession]);
 
   const refreshMe = useCallback(async () => {
     if (!token) {
@@ -35,13 +42,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const res = await http.get<AuthUser>('/auth/me');
       setUser(res.data);
     } catch {
-      localStorage.removeItem(TOKEN_KEY);
-      setToken(null);
-      setUser(null);
+      clearSession();
     } finally {
       setIsLoading(false);
     }
-  }, [token]);
+  }, [token, clearSession]);
 
   useEffect(() => {
     void refreshMe();
@@ -52,16 +57,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     });
-    localStorage.setItem(TOKEN_KEY, res.data.token);
+    setAuthToken(res.data.token);
     setToken(res.data.token);
     setUser(res.data.user);
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem(TOKEN_KEY);
-    setToken(null);
-    setUser(null);
-  }, []);
+    clearSession();
+  }, [clearSession]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

@@ -1,7 +1,9 @@
 import React, { Suspense, lazy } from 'react';
-import { Navigate, Routes, Route, useParams } from 'react-router-dom';
+import { Navigate, Route, Routes, useParams } from 'react-router-dom';
 import { DashboardLayout } from './layouts/DashboardLayout';
+import { RequireAuth } from './components/RequireAuth';
 import { RequireRole } from './components/RequireRole';
+import { LookupsProvider } from './providers/LookupsProvider';
 
 const PainelPage = lazy(() => import('./pages/PainelPage'));
 const CadastrosPage = lazy(() => import('./pages/CadastrosPage'));
@@ -24,11 +26,23 @@ function RedirectEdit({ toBase }: { toBase: string }) {
   return <Navigate to={`${toBase}/${id}/edit`} replace />;
 }
 
+function AuthenticatedShell() {
+  return (
+    <RequireAuth>
+      <LookupsProvider>
+        <DashboardLayout />
+      </LookupsProvider>
+    </RequireAuth>
+  );
+}
+
 export default function App() {
   return (
-    <DashboardLayout>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
+    <Suspense fallback={<div>Carregando…</div>}>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route element={<AuthenticatedShell />}>
           <Route path="/" element={<Navigate to="/painel?tab=tatico" replace />} />
           <Route path="/painel" element={<PainelPage />} />
           <Route path="/estrategico" element={<Navigate to="/painel?tab=estrategico" replace />} />
@@ -78,8 +92,6 @@ export default function App() {
               </RequireRole>
             }
           />
-
-          <Route path="/login" element={<LoginPage />} />
 
           <Route path="/fornecedores" element={<Navigate to="/cadastros?tab=fornecedores" replace />} />
           <Route
@@ -185,8 +197,8 @@ export default function App() {
           <Route path="/unidades-fsp/:id/edit" element={<RedirectEdit toBase="/unidades" />} />
           <Route path="/dominios" element={<Navigate to="/configuracoes?tab=listas" replace />} />
           <Route path="/dev/ui" element={<DevUi />} />
-        </Routes>
-      </Suspense>
-    </DashboardLayout>
+        </Route>
+      </Routes>
+    </Suspense>
   );
 }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Outlet } from 'react-router-dom';
 import { Header, Sidebar, useSidebar } from '@painel/ui';
 import { useAuth } from '../providers/AuthProvider';
 import { CommandPalette } from '../components/CommandPalette';
@@ -51,7 +51,11 @@ function ShellFrame({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Shell: [ sidebar ] | [ header + main ] */
-export function DashboardLayout({ children }: { children: React.ReactNode }) {
-  return <ShellFrame>{children}</ShellFrame>;
+/** Shell autenticado: sidebar + header + `<Outlet />`. */
+export function DashboardLayout() {
+  return (
+    <ShellFrame>
+      <Outlet />
+    </ShellFrame>
+  );
 }

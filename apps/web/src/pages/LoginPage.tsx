@@ -1,19 +1,28 @@
 import React, { useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Button, Card, Input, Page } from '@painel/ui';
 import { useAuth } from '../providers/AuthProvider';
 import { getErrorMessage } from '../lib/http';
 
+function safeReturnTo(from: unknown): string {
+  if (typeof from !== 'string') return '/';
+  if (!from.startsWith('/') || from.startsWith('//') || from.startsWith('/login')) return '/';
+  return from;
+}
+
 export default function LoginPage() {
   const { login, token, isLoading } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('admin@sesp.pr.gov.br');
-  const [password, setPassword] = useState('admin123');
+  const location = useLocation();
+  const from = safeReturnTo((location.state as { from?: string } | null)?.from);
+  const isDev = import.meta.env.DEV;
+  const [email, setEmail] = useState(isDev ? 'admin@sesp.pr.gov.br' : '');
+  const [password, setPassword] = useState(isDev ? 'admin123' : '');
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   if (!isLoading && token) {
-    return <Navigate to="/" replace />;
+    return <Navigate to={from} replace />;
   }
 
   async function onSubmit(e: React.FormEvent) {
@@ -22,7 +31,7 @@ export default function LoginPage() {
     setError(null);
     try {
       await login(email, password);
-      navigate('/', { replace: true });
+      navigate(from, { replace: true });
     } catch (err) {
       setError(getErrorMessage(err, 'Falha no login'));
     } finally {
@@ -31,39 +40,43 @@ export default function LoginPage() {
   }
 
   return (
-    <Page title="Entrar" description="Autenticação JWT do painel (demo local).">
-      <Card variant="bordered" className="mx-auto max-w-md space-y-4 p-6">
-        <form className="space-y-3" onSubmit={onSubmit}>
-          <Input
-            label="E-mail"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            autoComplete="username"
-            required
-          />
-          <Input
-            label="Senha"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            autoComplete="current-password"
-            required
-          />
-          {error && (
-            <p className="text-sm text-red-700" role="alert" aria-live="assertive">
-              {error}
+    <div className="flex min-h-screen items-center justify-center p-6">
+      <Page title="Entrar" description="Autenticação JWT do painel.">
+        <Card variant="bordered" className="mx-auto max-w-md space-y-4 p-6">
+          <form className="space-y-3" onSubmit={onSubmit}>
+            <Input
+              label="E-mail"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="username"
+              required
+            />
+            <Input
+              label="Senha"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+            {error && (
+              <p className="text-sm text-red-700" role="alert" aria-live="assertive">
+                {error}
+              </p>
+            )}
+            <Button type="submit" disabled={pending} className="w-full">
+              {pending ? 'Entrando…' : 'Entrar'}
+            </Button>
+          </form>
+          {isDev ? (
+            <p className="text-xs text-[var(--text-muted)]">
+              Demo (só em desenvolvimento): admin@… / admin123 · gestor@… / gestor123 ·
+              analista@… / analista123 · visitante@sesp.pr.gov.br / visitante123
             </p>
-          )}
-          <Button type="submit" disabled={pending} className="w-full">
-            {pending ? 'Entrando…' : 'Entrar'}
-          </Button>
-        </form>
-        <p className="text-xs text-[var(--text-muted)]">
-          Demo: admin@… / admin123 · gestor@… / gestor123 · analista@… / analista123 ·
-          visitante@sesp.pr.gov.br / visitante123
-        </p>
-      </Card>
-    </Page>
+          ) : null}
+        </Card>
+      </Page>
+    </div>
   );
 }

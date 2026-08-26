@@ -1,4 +1,6 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios';
+import { toast } from '@painel/ui';
+import { emitUnauthorized, getAuthToken } from './authSession';
 
 export type ApiErrorBody = {
   error: {
@@ -29,6 +31,10 @@ function newRequestId() {
   return `req-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
+function isAuthLoginRequest(url?: string) {
+  return Boolean(url && /\/auth\/login\/?$/.test(url));
+}
+
 export const http: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? '/api/v1',
   timeout: 15_000,
@@ -37,7 +43,7 @@ export const http: AxiosInstance = axios.create({
 
 http.interceptors.request.use((config) => {
   config.headers.set('x-request-id', newRequestId());
-  const token = typeof localStorage !== 'undefined' ? localStorage.getItem('auth_token') : null;
+  const token = getAuthToken();
   if (token) config.headers.set('Authorization', `Bearer ${token}`);
   return config;
 });
@@ -53,6 +59,15 @@ http.interceptors.response.use(
     }
     const status = error.response.status;
     const body = error.response.data?.error;
+    const url = error.config?.url ?? '';
+
+    if (status === 401 && !isAuthLoginRequest(url)) {
+      emitUnauthorized();
+    }
+    if (status === 403) {
+      toast.error(body?.message ?? 'Acesso negado');
+    }
+
     if (status === 503) {
       return Promise.reject(
         new ApiError(

@@ -92,7 +92,7 @@ AUTH_EMAIL_DOMAINS=sesp.pr.gov.br
 | `DATABASE_URL` | API + Prisma + seed | Conexão Postgres |
 | `AUTH_DEV_BYPASS` | API | Sem header → usuário sistema **ADMIN**. Opt-in; ignorado em produção |
 | `AUTH_REQUIRED` | API | Sem token → 401 (exceto login/health). Prevalece sobre o bypass |
-| `VITE_AUTH_REQUIRED` | Web | Sidebar/guards exigem login |
+| `VITE_AUTH_REQUIRED` | Web | Shell exige login (`RequireAuth`). Deve casar com `AUTH_REQUIRED` |
 | `VITE_API_URL` | Web | Default `/api/v1` (proxy Vite); só mude se API estiver em outro host |
 | `JWT_SECRET` | API | **Obrigatório em produção** (32+ caracteres); a API não sobe sem ele |
 | `CORS_ORIGINS` | API | Origens liberadas no CORS. Vazio = nenhum header (padrão) |
@@ -155,7 +155,8 @@ npm run db:up
 npm run api:test
 npm run domain:test
 
-# e2e (Windows: libere portas 8888/5173 antes)
+# e2e (pare `npm run dev` — o Playwright sobe API+web com AUTH ligada.
+# Para reusar servidores locais: PW_REUSE=1)
 npm run web:e2e
 ```
 
@@ -181,7 +182,7 @@ Mapas detalhados: [`plan/flow-maps/`](../plan/flow-maps/README.md)
 | Lista de contratos vazia / `.map is not a function` | `GET /contracts` agora devolve `{ data, meta }`; o front já trata isso |
 | 403 em tudo após login | Usuário sem `orgaoId`: `npx tsx scripts/ensure-demo-users.ts` |
 | 403 em `/docs` ou `/metrics` | Passaram a exigir ADMIN; use `AUTH_DEV_BYPASS=1` ou logue como admin |
-| e2e RBAC vê botão que não deveria | Playwright reusa API em :8888. Se ela subiu com `AUTH_DEV_BYPASS=1`, os gates de papel não valem. Pare o `npm run dev` e rode `npm run web:e2e` de novo. |
+| e2e RBAC vê botão que não deveria | O Playwright **não** reusa `:8888`/`:5173` (a menos de `PW_REUSE=1`). Pare o `npm run dev` e rode `npm run web:e2e`. |
 | 429 no login | Rate limit após 10 senhas erradas para o mesmo e-mail; espere 15 min |
 | E2E: `Executable doesn't exist` | Falta o browser do Playwright: `npx playwright install chromium` |
 | API não sobe: "JWT_SECRET é obrigatório" | `NODE_ENV=production` sem `JWT_SECRET` de 32+ caracteres |
