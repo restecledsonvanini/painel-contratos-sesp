@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { AlertaQuerySchema, ImportacaoCreateSchema } from '@painel/schema';
-import { getOrgaoScope } from '../lib/audit';
+import { getOrgaoScope } from '../lib/scope';
 import { routeParam } from '../lib/params';
 import { alertaService, importacaoService } from '../services/operacaoService';
 
@@ -14,7 +14,7 @@ export async function listAlertaConfigs(_req: Request, res: Response) {
 }
 
 export async function reconhecerAlerta(req: Request, res: Response) {
-  return res.status(200).json(await alertaService.reconhecer(routeParam(req, 'id')));
+  return res.status(200).json(await alertaService.reconhecer(routeParam(req, 'id'), req));
 }
 
 export async function gerarAlertas(_req: Request, res: Response) {

@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { asyncHandler } from '../lib/errors';
-import { getOrgaoScope } from '../lib/audit';
+import { getOrgaoScope } from '../lib/scope';
 import { getPrisma } from '../lib/prisma';
 import { requireMinRole } from '../middleware/rbac';
 import {

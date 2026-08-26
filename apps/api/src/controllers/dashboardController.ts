@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { routeParam } from '../lib/params';
-import { getOrgaoScope } from '../lib/audit';
+import { getOrgaoScope } from '../lib/scope';
 import { dashboardService } from '../services/dashboardService';
 
 function etagFrom(payload: unknown) {
@@ -104,17 +104,17 @@ export async function refreshAnalytics(_req: Request, res: Response) {
 }
 
 export async function getTimeline(req: Request, res: Response) {
-  return res.status(200).json(await dashboardService.timeline(routeParam(req, 'id')));
+  return res.status(200).json(await dashboardService.timeline(routeParam(req, 'id'), req));
 }
 
 export async function getLimites(req: Request, res: Response) {
-  return res.status(200).json(await dashboardService.limites(routeParam(req, 'id')));
+  return res.status(200).json(await dashboardService.limites(routeParam(req, 'id'), req));
 }
 
 export async function getFinanceiro(req: Request, res: Response) {
-  return res.status(200).json(await dashboardService.financeiro(routeParam(req, 'id')));
+  return res.status(200).json(await dashboardService.financeiro(routeParam(req, 'id'), req));
 }
 
 export async function getAuditoria(req: Request, res: Response) {
-  return res.status(200).json(await dashboardService.auditoria(routeParam(req, 'id')));
+  return res.status(200).json(await dashboardService.auditoria(routeParam(req, 'id'), req));
 }

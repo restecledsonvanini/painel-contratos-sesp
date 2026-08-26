@@ -2,8 +2,8 @@ import PDFDocument from 'pdfkit';
 import ExcelJS from 'exceljs';
 import type { Request } from 'express';
 import { contratoService } from './contratoService';
-import { getOrgaoScope } from '../lib/audit';
-import { forbidden, notFound } from '../lib/errors';
+import { getOrgaoScope } from '../lib/scope';
+import { notFound } from '../lib/errors';
 
 export type ExportFilters = {
   situacao?: string;
@@ -171,18 +171,10 @@ export async function contractsToXlsx(rows: MappedContract[]): Promise<Buffer> {
   return Buffer.from(buf);
 }
 
-function assertContractInScope(contract: MappedContract, req: Request) {
-  const scope = getOrgaoScope(req);
-  if (scope.orgaoId && contract.unidadeGestoraId !== scope.orgaoId) {
-    throw forbidden('Contrato fora do escopo do órgão');
-  }
-}
-
 export async function loadContractForExport(id: string, req: Request) {
   try {
-    const contract = await contratoService.getById(id);
-    assertContractInScope(contract, req);
-    return contract;
+    // getById já valida existência e escopo de órgão.
+    return await contratoService.getById(id, req);
   } catch (err: unknown) {
     const status = (err as { status?: number })?.status;
     if (status === 404) throw notFound('Contract not found');

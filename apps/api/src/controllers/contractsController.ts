@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { ContractCreateSchema, ContractUpdateSchema } from '@painel/schema';
-import { getOrgaoScope } from '../lib/audit';
+import { getOrgaoScope } from '../lib/scope';
 import { routeParam } from '../lib/params';
 import { contratoService } from '../services/contratoService';
 
@@ -9,7 +9,7 @@ export async function listContracts(req: Request, res: Response) {
 }
 
 export async function getContract(req: Request, res: Response) {
-  return res.status(200).json(await contratoService.getById(routeParam(req, 'id')));
+  return res.status(200).json(await contratoService.getById(routeParam(req, 'id'), req));
 }
 
 export async function createContract(req: Request, res: Response) {

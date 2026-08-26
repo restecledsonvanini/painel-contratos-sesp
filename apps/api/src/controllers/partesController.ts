@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getOrgaoScope } from '../lib/audit';
+import { getOrgaoScope } from '../lib/scope';
 import { routeParam } from '../lib/params';
 import { fornecedorService, servidorService } from '../services/partesService';
 
@@ -88,7 +88,7 @@ export async function listServidores(req: Request, res: Response) {
 }
 
 export async function getServidor(req: Request, res: Response) {
-  return res.status(200).json(await servidorService.get(routeParam(req, 'id')));
+  return res.status(200).json(await servidorService.get(routeParam(req, 'id'), req));
 }
 
 export async function createServidor(req: Request, res: Response) {

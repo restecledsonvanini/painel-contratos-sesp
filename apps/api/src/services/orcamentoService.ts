@@ -7,8 +7,9 @@ import type {
   PublicacaoCreateInput,
   ReservaCreateInput,
 } from '@painel/schema';
+import type { Request } from 'express';
 import { badRequest, notFound } from '../lib/errors';
-import { getPrisma } from '../lib/prisma';
+import { assertContratoInScope } from '../lib/scope';
 import {
   mapContratoDotacao,
   mapDocumento,
@@ -19,10 +20,11 @@ import {
   orcamentoRepository,
 } from '../repositories/orcamentoRepository';
 
-async function ensureContrato(contratoId: string) {
-  const db = getPrisma();
-  const c = await db.contrato.findUnique({ where: { id: contratoId }, select: { id: true } });
-  if (!c) throw notFound('Contract not found');
+const ensureContrato = assertContratoInScope;
+
+/** Exclusões por id global: descobre o contrato dono e valida o escopo. */
+async function ensureOwnerContrato(contratoId: string | null, req: Request) {
+  if (contratoId) await assertContratoInScope(contratoId, req);
 }
 
 function wrapPg(err: any): never {
@@ -74,13 +76,13 @@ export const orcamentoService = {
     }
   },
 
-  async listContratoDotacoes(contratoId: string) {
-    await ensureContrato(contratoId);
+  async listContratoDotacoes(contratoId: string, req: Request) {
+    await ensureContrato(contratoId, req);
     return (await orcamentoRepository.listContratoDotacoes(contratoId)).map(mapContratoDotacao);
   },
 
-  async linkContratoDotacao(contratoId: string, body: ContratoDotacaoCreateInput) {
-    await ensureContrato(contratoId);
+  async linkContratoDotacao(contratoId: string, body: ContratoDotacaoCreateInput, req: Request) {
+    await ensureContrato(contratoId, req);
     try {
       return mapContratoDotacao(await orcamentoRepository.linkContratoDotacao(contratoId, body));
     } catch (err) {
@@ -88,20 +90,20 @@ export const orcamentoService = {
     }
   },
 
-  async unlinkContratoDotacao(contratoId: string, id: string) {
-    await ensureContrato(contratoId);
+  async unlinkContratoDotacao(contratoId: string, id: string, req: Request) {
+    await ensureContrato(contratoId, req);
     const ok = await orcamentoRepository.unlinkContratoDotacao(contratoId, id);
     if (!ok) throw notFound('Vínculo de dotação not found');
     return { success: true };
   },
 
-  async listEmpenhos(contratoId: string) {
-    await ensureContrato(contratoId);
+  async listEmpenhos(contratoId: string, req: Request) {
+    await ensureContrato(contratoId, req);
     return (await orcamentoRepository.listEmpenhos(contratoId)).map(mapEmpenho);
   },
 
-  async createEmpenho(contratoId: string, body: EmpenhoCreateInput) {
-    await ensureContrato(contratoId);
+  async createEmpenho(contratoId: string, body: EmpenhoCreateInput, req: Request) {
+    await ensureContrato(contratoId, req);
     try {
       return mapEmpenho(await orcamentoRepository.createEmpenho(contratoId, body));
     } catch (err) {
@@ -109,8 +111,8 @@ export const orcamentoService = {
     }
   },
 
-  async updateEmpenho(contratoId: string, id: string, body: EmpenhoUpdateInput) {
-    await ensureContrato(contratoId);
+  async updateEmpenho(contratoId: string, id: string, body: EmpenhoUpdateInput, req: Request) {
+    await ensureContrato(contratoId, req);
     try {
       const row = await orcamentoRepository.updateEmpenho(contratoId, id, body);
       if (!row) throw notFound('Empenho not found');
@@ -120,20 +122,20 @@ export const orcamentoService = {
     }
   },
 
-  async deleteEmpenho(contratoId: string, id: string) {
-    await ensureContrato(contratoId);
+  async deleteEmpenho(contratoId: string, id: string, req: Request) {
+    await ensureContrato(contratoId, req);
     const ok = await orcamentoRepository.deleteEmpenho(contratoId, id);
     if (!ok) throw notFound('Empenho not found');
     return { success: true };
   },
 
-  async listReservas(contratoId?: string) {
-    if (contratoId) await ensureContrato(contratoId);
+  async listReservas(contratoId: string | undefined, req: Request) {
+    if (contratoId) await ensureContrato(contratoId, req);
     return (await orcamentoRepository.listReservas({ contratoId })).map(mapReserva);
   },
 
-  async createReserva(body: ReservaCreateInput) {
-    if (body.contratoId) await ensureContrato(body.contratoId);
+  async createReserva(body: ReservaCreateInput, req: Request) {
+    if (body.contratoId) await ensureContrato(body.contratoId, req);
     try {
       return mapReserva(await orcamentoRepository.createReserva(body));
     } catch (err) {
@@ -141,7 +143,8 @@ export const orcamentoService = {
     }
   },
 
-  async deleteReserva(id: string) {
+  async deleteReserva(id: string, req: Request) {
+    await ensureOwnerContrato(await orcamentoRepository.contratoIdOfReserva(id), req);
     try {
       return await orcamentoRepository.deleteReserva(id);
     } catch (err: any) {
@@ -150,13 +153,16 @@ export const orcamentoService = {
     }
   },
 
-  async listPublicacoes(filters: { contratoId?: string; alteracaoId?: string }) {
-    if (filters.contratoId) await ensureContrato(filters.contratoId);
+  async listPublicacoes(
+    filters: { contratoId?: string; alteracaoId?: string },
+    req: Request,
+  ) {
+    if (filters.contratoId) await ensureContrato(filters.contratoId, req);
     return (await orcamentoRepository.listPublicacoes(filters)).map(mapPublicacao);
   },
 
-  async createPublicacao(body: PublicacaoCreateInput) {
-    if (body.contratoId) await ensureContrato(body.contratoId);
+  async createPublicacao(body: PublicacaoCreateInput, req: Request) {
+    if (body.contratoId) await ensureContrato(body.contratoId, req);
     try {
       return mapPublicacao(await orcamentoRepository.createPublicacao(body));
     } catch (err) {
@@ -164,7 +170,8 @@ export const orcamentoService = {
     }
   },
 
-  async deletePublicacao(id: string) {
+  async deletePublicacao(id: string, req: Request) {
+    await ensureOwnerContrato(await orcamentoRepository.contratoIdOfPublicacao(id), req);
     try {
       return await orcamentoRepository.deletePublicacao(id);
     } catch (err: any) {
@@ -173,17 +180,20 @@ export const orcamentoService = {
     }
   },
 
-  async listDocumentos(filters: {
-    contratoId?: string;
-    alteracaoId?: string;
-    processoId?: string;
-  }) {
-    if (filters.contratoId) await ensureContrato(filters.contratoId);
+  async listDocumentos(
+    filters: {
+      contratoId?: string;
+      alteracaoId?: string;
+      processoId?: string;
+    },
+    req: Request,
+  ) {
+    if (filters.contratoId) await ensureContrato(filters.contratoId, req);
     return (await orcamentoRepository.listDocumentos(filters)).map(mapDocumento);
   },
 
-  async createDocumento(body: DocumentoCreateInput) {
-    if (body.contratoId) await ensureContrato(body.contratoId);
+  async createDocumento(body: DocumentoCreateInput, req: Request) {
+    if (body.contratoId) await ensureContrato(body.contratoId, req);
     try {
       return mapDocumento(await orcamentoRepository.createDocumento(body));
     } catch (err) {
@@ -191,7 +201,8 @@ export const orcamentoService = {
     }
   },
 
-  async deleteDocumento(id: string) {
+  async deleteDocumento(id: string, req: Request) {
+    await ensureOwnerContrato(await orcamentoRepository.contratoIdOfDocumento(id), req);
     try {
       return await orcamentoRepository.deleteDocumento(id);
     } catch (err: any) {

@@ -65,6 +65,15 @@ export const alertaRepository = {
     });
   },
 
+  /** Contrato do alerta, para checagem de escopo antes de reconhecer. */
+  async contratoIdOf(id: string) {
+    const row = await getPrisma().alerta.findUnique({
+      where: { id },
+      select: { contratoId: true },
+    });
+    return row?.contratoId ?? null;
+  },
+
   async reconhecer(id: string, actorId: string | null) {
     const db = getPrisma();
     const existing = await db.alerta.findUnique({ where: { id } });

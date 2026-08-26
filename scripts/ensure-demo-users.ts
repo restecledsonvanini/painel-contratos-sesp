@@ -27,7 +27,13 @@ async function main() {
     { email: 'admin@sesp.pr.gov.br', nome: 'Admin', password: 'admin123', role: 'ADMIN' },
   ] as const;
 
+  // Papéis fora de ADMIN só enxergam o próprio órgão; sem vínculo a API nega
+  // o acesso, então os usuários demo precisam nascer com órgão.
+  const sesp = await prisma.orgao.findFirst({ where: { sigla: 'SESP' } });
+  if (!sesp) throw new Error('Órgão SESP não encontrado: rode as migrations/seed antes.');
+
   for (const u of users) {
+    const orgaoId = u.role === 'ADMIN' ? null : sesp.id;
     const existing = await prisma.usuario.findUnique({ where: { email: u.email } });
     if (existing) {
       await prisma.usuario.update({
@@ -37,6 +43,7 @@ async function main() {
           role: u.role,
           ativo: true,
           nome: u.nome,
+          orgaoId,
         },
       });
       console.log('updated', u.email);
@@ -46,6 +53,7 @@ async function main() {
           email: u.email,
           nome: u.nome,
           role: u.role,
+          orgaoId,
           passwordHash: hashPassword(u.password),
           ativo: true,
         },

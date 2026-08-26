@@ -8,9 +8,10 @@ import type {
   AlteracaoContratualUpdateInput,
   AlteracaoSimularInput,
 } from '@painel/schema';
+import type { Request } from 'express';
 import { badRequest, legalRuleViolation, notFound } from '../lib/errors';
 import { alteracaoRepository } from '../repositories/alteracaoRepository';
-import { getPrisma } from '../lib/prisma';
+import { assertContratoInScope, loadContratoInScope } from '../lib/scope';
 
 function mapAlteracao(record: any) {
   const valorAcrescidoCents = Number(record.valorAcrescidoCents ?? 0);
@@ -75,28 +76,22 @@ function isPgCheck(err: any) {
   );
 }
 
-async function loadContratoOrThrow(contratoId: string) {
-  const db = getPrisma();
-  const contrato = await db.contrato.findUnique({ where: { id: contratoId } });
-  if (!contrato) throw notFound('Contract not found');
-  return contrato;
-}
-
 export const alteracaoService = {
-  async list(contratoId: string) {
-    await loadContratoOrThrow(contratoId);
+  async list(contratoId: string, req: Request) {
+    await assertContratoInScope(contratoId, req);
     const rows = await alteracaoRepository.listByContrato(contratoId);
     return rows.map(mapAlteracao);
   },
 
-  async get(contratoId: string, alteracaoId: string) {
+  async get(contratoId: string, alteracaoId: string, req: Request) {
+    await assertContratoInScope(contratoId, req);
     const row = await alteracaoRepository.findById(contratoId, alteracaoId);
     if (!row) throw notFound('Alteração not found');
     return mapAlteracao(row);
   },
 
-  async simular(contratoId: string, body: AlteracaoSimularInput) {
-    const contrato = await loadContratoOrThrow(contratoId);
+  async simular(contratoId: string, body: AlteracaoSimularInput, req: Request) {
+    const contrato = await loadContratoInScope(contratoId, req);
     const totais = await alteracaoRepository.totaisAcumulados(contratoId);
     return simularAlteracao({
       tipo: body.tipo as TipoAlteracao,
@@ -117,9 +112,8 @@ export const alteracaoService = {
     });
   },
 
-  async create(contratoId: string, body: AlteracaoContratualCreateInput) {
-    await loadContratoOrThrow(contratoId);
-    const simulacao = await this.simular(contratoId, body);
+  async create(contratoId: string, body: AlteracaoContratualCreateInput, req: Request) {
+    const simulacao = await this.simular(contratoId, body, req);
     if (!simulacao.ok && body.situacao !== 'MINUTA') {
       throw legalRuleViolation(simulacao.erros.join('; '), simulacao);
     }
@@ -135,7 +129,13 @@ export const alteracaoService = {
     }
   },
 
-  async update(contratoId: string, alteracaoId: string, body: AlteracaoContratualUpdateInput) {
+  async update(
+    contratoId: string,
+    alteracaoId: string,
+    body: AlteracaoContratualUpdateInput,
+    req: Request,
+  ) {
+    await assertContratoInScope(contratoId, req);
     const existing = await alteracaoRepository.findById(contratoId, alteracaoId);
     if (!existing) throw notFound('Alteração not found');
     try {
@@ -150,7 +150,8 @@ export const alteracaoService = {
     }
   },
 
-  async remove(contratoId: string, alteracaoId: string) {
+  async remove(contratoId: string, alteracaoId: string, req: Request) {
+    await assertContratoInScope(contratoId, req);
     const ok = await alteracaoRepository.remove(contratoId, alteracaoId);
     if (!ok) throw notFound('Alteração not found');
     return { success: true };

@@ -99,6 +99,14 @@ Com `AUTH_DEV_BYPASS=1` a API responde como **ADMIN** sem header e a UI libera a
 
 Os tokens sintéticos (`Authorization: Bearer admin|gestor|analista|visitante`) funcionam **apenas** na suíte de testes; em `npm run dev` eles resultam em 401.
 
+## Escopo de órgão
+
+ADMIN enxerga todos os órgãos. Os demais papéis ficam restritos ao órgão do próprio usuário (`Usuario.orgaoId`), tanto nas listagens quanto no acesso por ID: pedir um contrato de outro órgão — ou qualquer recurso pendurado nele, como alterações, empenhos, publicações, analítico e export — devolve **403**.
+
+Um usuário não-ADMIN **sem órgão vinculado** é negado, não liberado. Se um login demo passar a responder 403 em tudo, é isso: rode `npx tsx scripts/ensure-demo-users.ts` para revincular. A migration `20260826100000_usuario_orgao_backfill` já faz esse ajuste em bancos existentes.
+
+O usuário do `AUTH_DEV_BYPASS` é ADMIN, então o bypass local continua vendo tudo.
+
 ## Login demo (após seed)
 
 | E-mail | Senha | Papel |
@@ -118,7 +126,7 @@ npm run setup        # install + docker + migrate + seed
 npm run db:up        # só Postgres
 npm run db:down      # para Postgres
 npm run db:seed      # reaplica seed
-npm run api:test     # Vitest API (59 testes)
+npm run api:test     # Vitest API (67 testes)
 npm run domain:test  # Vitest domain
 npm run web:e2e      # Playwright (AUTH ligada; sobe servidores sozinho)
 ```
@@ -153,6 +161,8 @@ Mapas detalhados: [`plan/flow-maps/`](../plan/flow-maps/README.md)
 | Select / React estranho | Hard refresh; confirme React 18 único (`npm ls react`) |
 | 401 em tudo, sem ter ligado auth | Falta `AUTH_DEV_BYPASS=1` no `.env` (ou `AUTH_REQUIRED=1` está ligado) |
 | `Bearer admin` devolve 401 | Esperado: tokens sintéticos só valem em teste. Use `POST /auth/login` |
+| 403 em contrato que existe | Contrato é de outro órgão; só ADMIN atravessa o escopo |
+| 403 em tudo após login | Usuário sem `orgaoId`: `npx tsx scripts/ensure-demo-users.ts` |
 | API não sobe: "JWT_SECRET é obrigatório" | `NODE_ENV=production` sem `JWT_SECRET` de 32+ caracteres |
 | Codespaces: `Blocked request` no 5173 | Container antigo, sem o `allowedHosts`; rebuild para pegar o `vite.config.ts` atual |
 | Codespaces: HMR não recarrega | Confirme que a porta 5173 está encaminhada e que `CODESPACES=true` no terminal |

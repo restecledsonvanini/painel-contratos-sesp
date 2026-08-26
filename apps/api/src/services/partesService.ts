@@ -8,6 +8,9 @@ import {
   ServidorCreateSchema,
   ServidorUpdateSchema,
 } from '@painel/schema';
+import type { Request } from 'express';
+import { notFound } from '../lib/errors';
+import { assertOrgaoInScope } from '../lib/scope';
 import { fornecedorRepository } from '../repositories/fornecedorRepository';
 import { servidorRepository } from '../repositories/servidorRepository';
 
@@ -45,7 +48,12 @@ export const servidorService = {
   list: (query: Record<string, unknown>, scope?: { orgaoId?: string | null }) =>
     servidorRepository.list(query, scope),
   listAll: (scope?: { orgaoId?: string | null }) => servidorRepository.listAll(scope),
-  get: (id: string) => servidorRepository.get(id),
+  get: async (id: string, req: Request) => {
+    const servidor = await servidorRepository.get(id);
+    if (!servidor) throw notFound('Servidor não encontrado');
+    assertOrgaoInScope(servidor.orgaoId, req);
+    return servidor;
+  },
   create: (body: unknown) => servidorRepository.create(ServidorCreateSchema.parse(body)),
   update: (id: string, body: unknown) =>
     servidorRepository.update(id, ServidorUpdateSchema.parse(body)),

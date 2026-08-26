@@ -1,6 +1,11 @@
 import type { ContractCreateInput, ContractUpdateInput } from '@painel/schema';
 import { ContractUpdateSchema } from '@painel/schema';
 import { getActorId } from '../lib/audit';
+import {
+  assertContratoInScope,
+  assertUnidadeGestoraInScope,
+  getOrgaoScope,
+} from '../lib/scope';
 import { badRequest, notFound } from '../lib/errors';
 import { contratoRepository } from '../repositories/contratoRepository';
 import type { Request } from 'express';
@@ -196,11 +201,13 @@ export const contratoService = {
     return records.map(mapContractRecord);
   },
 
-  async getById(id: string) {
+  async getById(id: string, req: Request) {
+    await assertContratoInScope(id, req);
     return loadMappedContract(id);
   },
 
   async create(parsed: ContractCreateInput, req: Request) {
+    await assertUnidadeGestoraInScope(parsed.unidadeGestoraId, req);
     try {
       const createdId = await contratoRepository.createWithNested(
         {
@@ -223,6 +230,8 @@ export const contratoService = {
   },
 
   async update(id: string, parsed: ContractUpdateInput, req: Request) {
+    await assertContratoInScope(id, req);
+    await assertUnidadeGestoraInScope(parsed.unidadeGestoraId as string | undefined, req);
     const existing = await contratoRepository.findByIdBare(id);
     if (!existing) throw notFound('Contract not found');
 
@@ -244,6 +253,7 @@ export const contratoService = {
   },
 
   async remove(id: string, req: Request) {
+    await assertContratoInScope(id, req);
     const existing = await contratoRepository.findById(id);
     if (!existing) throw notFound('Contract not found');
     await contratoRepository.delete(id, existing, { changedBy: getActorId(req) });

@@ -102,11 +102,15 @@ Como os tokens sintéticos têm `orgaoId: null`, mesmo os endpoints que chamam o
 
 **Correção estrutural:** não espalhar `if` pelos controllers. `services/exportService.ts:174-179` já implementa o padrão certo (`assertContractInScope`) — promover para `lib/` e chamar no service antes de qualquer operação por ID. Depois tornar `getOrgaoScope` fail-closed para papéis não-ADMIN sem `orgaoId`.
 
+> **Resolvido na onda 2** (`lib/scope.ts`). O escopo passou a valer em todo acesso por ID de contrato e nos recursos aninhados; `getOrgaoScope` é fail-closed; a migration `20260826100000_usuario_orgao_backfill` vincula usuários órfãos. Continua **em aberto**: importações e KPIs agregados do dashboard — ambos precisam de decisão de produto (a `Importacao` não tem órgão no modelo, e as views analíticas agregam todos os órgãos).
+
 ### 1.5 Criação em órgão alheio
 
 `services/contratoService.ts:203-217` + `repositories/contratoRepository.ts:250-256` aceitam qualquer `unidadeGestoraId` válido. O mesmo vale para `servidorRepository.create` (`orgaoId` livre do body).
 
 **Correção:** para não-ADMIN, forçar `unidadeGestoraId === user.orgaoId` (ou subunidade filha).
+
+> **Resolvido na onda 2** para contratos (`assertUnidadeGestoraInScope`, que aceita o órgão ou uma unidade organizacional dele). `servidorRepository.create` continua aceitando `orgaoId` livre do body.
 
 ---
 
@@ -271,8 +275,8 @@ Papel mínimo para escrita varia sem critério documentado em recursos equivalen
 
 | Onda | Conteúdo | Justificativa |
 |---|---|---|
-| **1** | Guarda `VITEST` nos tokens sintéticos; `DEV_BYPASS` fail-closed; fail-fast de `JWT_SECRET`/`DATABASE_URL` | Fecha o bypass total. Mudança pequena e isolada. |
-| **2** | `assertContratoInScope` em `lib/`; escopo em todos os acessos por ID; `getOrgaoScope` fail-closed; amarrar `unidadeGestoraId` na criação | Fecha o IDOR. É a onda mais trabalhosa e precisa de teste por papel. |
+| ~~**1**~~ | ~~Guarda `VITEST` nos tokens sintéticos; `DEV_BYPASS` fail-closed; fail-fast de `JWT_SECRET`/`DATABASE_URL`~~ | **Concluída.** |
+| ~~**2**~~ | ~~`assertContratoInScope` em `lib/`; escopo em todos os acessos por ID; `getOrgaoScope` fail-closed; amarrar `unidadeGestoraId` na criação~~ | **Concluída**, menos importações e KPIs agregados (decisão de produto). |
 | **3** | helmet, CORS, rate limit no login, `trust proxy`, compression; fechar `/metrics` e `/docs`; sanitizar `/health/db`; anti-injection no CSV; `requireMinRole` em `/alertas` | Endurecimento; baixo risco de regressão. |
 | **4** | `listInclude` vs `detailInclude`; paginar `/contracts`; export com projeção dedicada; GUC por transação; índices faltantes | Performance; exige atenção ao contrato de resposta consumido pelo front. |
 | **5** | Extrair busca global para service; quebrar `contratoRepository`; mover mappers para service e tipar (eliminar `any`); unificar `ensureContrato` e conversão de centavos; remover código morto | Dívida técnica; sem urgência, alto ganho de manutenção. |

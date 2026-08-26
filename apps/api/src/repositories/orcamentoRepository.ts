@@ -316,6 +316,31 @@ export const orcamentoRepository = {
     await db.documento.delete({ where: { id } });
     return { success: true };
   },
+
+  /** Contrato dono do registro, para checagem de escopo antes de excluir. */
+  async contratoIdOfReserva(id: string) {
+    const row = await getPrisma().reservaOrcamentaria.findUnique({
+      where: { id },
+      select: { contratoId: true },
+    });
+    return row?.contratoId ?? null;
+  },
+
+  async contratoIdOfPublicacao(id: string) {
+    const row = await getPrisma().publicacao.findUnique({
+      where: { id },
+      select: { contratoId: true },
+    });
+    return row?.contratoId ?? null;
+  },
+
+  async contratoIdOfDocumento(id: string) {
+    const row = await getPrisma().documento.findUnique({
+      where: { id },
+      select: { contratoId: true },
+    });
+    return row?.contratoId ?? null;
+  },
 };
 
 export function mapDotacao(r: any) {

@@ -1,5 +1,8 @@
+import type { Request } from 'express';
 import type { AlertaQuery, ImportacaoCreateInput } from '@painel/schema';
 import { getActorFromContext } from '../lib/requestContext';
+import { notFound } from '../lib/errors';
+import { assertContratoInScope } from '../lib/scope';
 import { alertaRepository } from '../repositories/alertaRepository';
 import { importacaoRepository } from '../repositories/importacaoRepository';
 
@@ -7,7 +10,12 @@ export const alertaService = {
   list: (query: AlertaQuery, scope?: { orgaoId?: string | null }) =>
     alertaRepository.list(query, scope),
   configs: () => alertaRepository.listConfigs(),
-  reconhecer: (id: string) => alertaRepository.reconhecer(id, getActorFromContext()),
+  async reconhecer(id: string, req: Request) {
+    const contratoId = await alertaRepository.contratoIdOf(id);
+    if (!contratoId) throw notFound('Alerta não encontrado');
+    await assertContratoInScope(contratoId, req);
+    return alertaRepository.reconhecer(id, getActorFromContext());
+  },
   async gerar() {
     const candidates = await alertaRepository.collectCandidates();
     const result = await alertaRepository.upsertMany(candidates);
