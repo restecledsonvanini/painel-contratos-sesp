@@ -15,3 +15,17 @@ export function sugerirDataFim(
   else date.setUTCMonth(date.getUTCMonth() + valor);
   return date.toISOString().slice(0, 10);
 }
+
+/** Filtro de janela de vencimento (lista de contratos / exportação). */
+export function matchVencimento(dias: number | null, filtro: string): boolean {
+  if (dias == null) return false;
+  if (filtro === 'vencidos') return dias < 0;
+  if (filtro === '0-60') return dias >= 0 && dias <= 60;
+  if (filtro === '0-30') return dias >= 0 && dias <= 30;
+  if (filtro === '31-60') return dias >= 31 && dias <= 60;
+  if (filtro === '61-90') return dias >= 61 && dias <= 90;
+  if (filtro === '91-120') return dias >= 91 && dias <= 120;
+  if (filtro === '121-180') return dias >= 121 && dias <= 180;
+  if (filtro === '>180') return dias > 180;
+  return true;
+}

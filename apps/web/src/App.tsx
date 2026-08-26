@@ -20,6 +20,7 @@ const AlteracaoForm = lazy(() => import('./features/contratos/pages/AlteracaoFor
 const LoginPage = lazy(() => import('./features/auth/pages/LoginPage'));
 const UnidadeForm = lazy(() => import('./features/configuracoes/pages/UnidadeForm'));
 const DevUi = lazy(() => import('./features/dev/pages/DevUi'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 function RedirectEdit({ toBase }: { toBase: string }) {
   const { id } = useParams();
@@ -197,6 +198,7 @@ export default function App() {
           <Route path="/unidades-fsp/:id/edit" element={<RedirectEdit toBase="/unidades" />} />
           <Route path="/dominios" element={<Navigate to="/configuracoes?tab=listas" replace />} />
           <Route path="/dev/ui" element={<DevUi />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </Suspense>

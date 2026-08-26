@@ -18,36 +18,13 @@ import {
   useToast,
 } from '@painel/ui';
 import { Download, Plus, X } from 'lucide-react';
-import { useContracts, useDeleteContract, type Contract } from '../../../hooks/useContracts';
+import { useContracts, useDeleteContract } from '../../../hooks/useContracts';
 import { downloadApiFile } from '../../../lib/download';
 import { formatCurrencyFromReais } from '../../../lib/format';
 import { getErrorMessage } from '../../../lib/http';
 import { authorLabel, formatRelativePast } from '../../../lib/formatRelative';
 import { useConfirmDialog } from '../../../lib/useConfirmDialog';
 import { useCanAct } from '../../../lib/access';
-
-function diasAteFim(contract: Contract): number | null {
-  const raw = contract.dataFimVigenciaOriginal || contract.dataFimOrig;
-  if (!raw) return null;
-  const end = new Date(String(raw).slice(0, 10) + 'T00:00:00Z');
-  const today = new Date();
-  const start = Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate());
-  const finish = Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate());
-  return Math.round((finish - start) / 86_400_000);
-}
-
-function matchVencimento(dias: number | null, filtro: string): boolean {
-  if (dias == null) return false;
-  if (filtro === 'vencidos') return dias < 0;
-  if (filtro === '0-60') return dias >= 0 && dias <= 60;
-  if (filtro === '0-30') return dias >= 0 && dias <= 30;
-  if (filtro === '31-60') return dias >= 31 && dias <= 60;
-  if (filtro === '61-90') return dias >= 61 && dias <= 90;
-  if (filtro === '91-120') return dias >= 91 && dias <= 120;
-  if (filtro === '121-180') return dias >= 121 && dias <= 180;
-  if (filtro === '>180') return dias > 180;
-  return true;
-}
 
 export default function ContractsList() {
   const navigate = useNavigate();

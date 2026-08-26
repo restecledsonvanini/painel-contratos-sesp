@@ -31,8 +31,9 @@ export function useIsAdmin() {
 export function canSeeNav(
   min: string | undefined,
   opts: { token: string | null; hasMinRole: (m: string) => boolean },
+  required = isAuthRequired(),
 ): boolean {
   if (!min) return true;
-  if (!isAuthRequired()) return true;
+  if (!required) return true;
   return Boolean(opts.token) && opts.hasMinRole(min);
 }

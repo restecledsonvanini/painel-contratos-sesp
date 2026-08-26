@@ -15,7 +15,7 @@ type CrudPaths = {
   detail: (id: string) => string;
 };
 
-type CreateCrudHooksOptions<TEntity, TCreate, TUpdate> = {
+type CreateCrudHooksOptions<_TEntity, TCreate, TUpdate> = {
   resource: string;
   listKey: QueryKey;
   detailKey: (id: string) => QueryKey;

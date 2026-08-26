@@ -38,13 +38,6 @@ import { sugerirDataFim } from '../../../lib/prazo';
 import { wizardPrefetch } from '../../../lib/wizardPrefetch';
 import { useCatalogoWizard } from './useCatalogoWizard';
 
-type CatalogoOption = {
-  id: string;
-  nome: string;
-  unidadeMedidaPadraoId?: string;
-  categoriaItem?: { codigo: string; label: string };
-};
-
 type FormValues = {
   numGms?: number;
   anoGms?: number;
@@ -274,7 +267,6 @@ export default function ContractForm() {
     };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- saveDraft closes over latest getValues
   });
 
   const setStep = useCallback(

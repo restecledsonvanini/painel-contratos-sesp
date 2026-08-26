@@ -19,6 +19,8 @@
     "api:test": "npm --workspace apps/api run test",
     "domain:test": "npm --workspace @painel/domain run test",
     "web:test": "npm --workspace apps/web run test",
+    "web:lint": "npm --workspace apps/web run lint",
+    "ui:test": "npm --workspace @painel/ui run test",
     "web:e2e": "npm --workspace apps/web run test:e2e",
     "prepare": "npm run db:generate",
     "build:all": "npm run db:generate && npm --workspace apps/web run build && npm --workspace apps/api run build",
