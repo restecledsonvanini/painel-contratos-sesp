@@ -37,6 +37,7 @@ import { getErrorMessage, http } from '../lib/http';
 import { parseListResponse } from '../lib/listResponse';
 import { formatCurrencyFromReais } from '../lib/format';
 import { sugerirDataFim } from '../lib/prazo';
+import { wizardPrefetch } from '../lib/wizardPrefetch';
 
 type CatalogoOption = {
   id: string;
@@ -125,15 +126,22 @@ export default function ContractForm() {
   const toast = useToast();
   const createContract = useCreateContract();
   const updateContract = useUpdateContract();
+  const stepParam = searchParams.get('step');
+  const currentStep: ContractWizardStepId = isStepId(stepParam) ? stepParam : 'identificacao';
+  const prefetch = wizardPrefetch(currentStep);
   const { data: existingContract, isLoading: isContractLoading, error: contractError } = useContract(id);
-  const { data: orgaos, isLoading: orgaosLoading } = useOrgaos();
-  const { data: unidades, isLoading: unidadesLoading } = useUnidadesOrganizacionais();
-  const { data: fornecedoresPage, isLoading: fornecedoresLoading } = useFornecedores({
-    pageSize: 100,
+  const { data: orgaos, isLoading: orgaosLoading } = useOrgaos({ enabled: prefetch.partes });
+  const { data: unidades, isLoading: unidadesLoading } = useUnidadesOrganizacionais({
+    enabled: prefetch.unidades,
   });
-  const { data: servidoresPage, isLoading: servidoresLoading } = useServidores({
-    pageSize: 100,
-  });
+  const { data: fornecedoresPage, isLoading: fornecedoresLoading } = useFornecedores(
+    { pageSize: 100 },
+    { enabled: prefetch.partes },
+  );
+  const { data: servidoresPage, isLoading: servidoresLoading } = useServidores(
+    { pageSize: 100 },
+    { enabled: prefetch.partes },
+  );
   const fornecedores = fornecedoresPage?.data;
   const servidores = servidoresPage?.data;
   const { data: catalogo } = useQuery({
@@ -144,10 +152,8 @@ export default function ContractForm() {
       ).data;
       return parseListResponse<CatalogoOption>(raw, 1, 100).data;
     },
+    enabled: prefetch.itens,
   });
-
-  const stepParam = searchParams.get('step');
-  const currentStep: ContractWizardStepId = isStepId(stepParam) ? stepParam : 'identificacao';
   const [stepErrors, setStepErrors] = useState<Partial<Record<ContractWizardStepId, string>>>({});
   const [dirtyGuard, setDirtyGuard] = useState(false);
 

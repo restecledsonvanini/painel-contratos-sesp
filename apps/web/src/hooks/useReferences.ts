@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
 import type {
   FornecedorContatoCreateInput,
   FornecedorContatoDTO,
@@ -156,11 +156,14 @@ export const useUpdateUnidadeFsp = unidadeFspCrud.useUpdate;
 export const useDeleteUnidadeFsp = unidadeFspCrud.useRemove;
 
 /** Lista flat de unidades (lookup rápido em formulários). */
-export function useUnidadesOrganizacionais() {
+export function useUnidadesOrganizacionais(
+  queryOptions?: Partial<UseQueryOptions<UnidadeOrganizacionalDTO[]>>,
+) {
   return useQuery({
     queryKey: ['unidadesOrganizacionais'] as const,
     queryFn: async () => (await http.get<UnidadeOrganizacionalDTO[]>('/unidades')).data,
     staleTime: 1000 * 60 * 10,
     retry: 1,
+    ...queryOptions,
   });
 }

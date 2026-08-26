@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient, type UseQueryOptions } from '@tanstack/react-query';
 import type {
   ArvoreOrgaoDTO,
   MunicipioDTO,
@@ -21,11 +21,12 @@ const UNIDADES_KEY = ['unidadesOrganizacionais'] as const;
 const ORGAOS_KEY = ['orgaos'] as const;
 const ARVORE_KEY = ['unidades', 'arvore'] as const;
 
-export function useOrgaos() {
+export function useOrgaos(queryOptions?: Partial<UseQueryOptions<OrgaoDTO[]>>) {
   return useQuery({
     queryKey: ORGAOS_KEY,
     queryFn: async () => (await http.get<OrgaoDTO[]>('/orgaos')).data,
     staleTime: 1000 * 60 * 10,
+    ...queryOptions,
   });
 }
 

@@ -12,21 +12,6 @@ export type LookupsPayload = {
     string,
     { id: string; nome: string; editavelPeloUsuario: boolean; permiteHierarquia: boolean }
   >;
-  orgaos: Array<{
-    id: string;
-    sigla: string;
-    nome: string;
-    tipo: string;
-    unidades: Array<{
-      id: string;
-      label: string;
-      sigla: string;
-      nome: string;
-      nivel: string;
-      parentId: string | null;
-      municipioId: string;
-    }>;
-  }>;
   atualizadoEm: string;
 };
 
@@ -94,8 +79,12 @@ export function useDominioValor(id?: string) {
 }
 
 export function useUnidadeArvore() {
-  const { data, isLoading, error } = useLookupsContext();
-  return { orgaos: data?.orgaos ?? [], isLoading, error };
+  const query = useQuery({
+    queryKey: ['unidades', 'arvore'],
+    queryFn: async () => (await http.get<unknown[]>('/unidades/arvore')).data,
+    staleTime: 1000 * 60 * 5,
+  });
+  return { orgaos: query.data ?? [], isLoading: query.isLoading, error: query.error as Error | null };
 }
 
 export function useLookupSearch(slug: string, q: string) {

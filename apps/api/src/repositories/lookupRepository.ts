@@ -21,23 +21,15 @@ function toOption(v: {
 export const lookupRepository = {
   async buildPayload() {
     const db = getPrisma();
-    const [dominios, orgaos, unidades] = await Promise.all([
-      db.dominio.findMany({
-        orderBy: { nome: 'asc' },
-        include: {
-          valores: {
-            where: { ativo: true },
-            orderBy: [{ ordem: 'asc' }, { label: 'asc' }],
-          },
+    const dominios = await db.dominio.findMany({
+      orderBy: { nome: 'asc' },
+      include: {
+        valores: {
+          where: { ativo: true },
+          orderBy: [{ ordem: 'asc' }, { label: 'asc' }],
         },
-      }),
-      db.orgao.findMany({ where: { ativo: true }, orderBy: { sigla: 'asc' } }),
-      db.unidadeOrganizacional.findMany({
-        where: { ativo: true },
-        orderBy: [{ sigla: 'asc' }],
-        include: { municipio: { select: { id: true, nome: true, uf: true, codigoIbge: true } } },
-      }),
-    ]);
+      },
+    });
 
     const dominiosBySlug: Record<string, ReturnType<typeof toOption>[]> = {};
     const dominioMeta: Record<
@@ -55,29 +47,9 @@ export const lookupRepository = {
       dominiosBySlug[d.slug] = d.valores.map(toOption);
     }
 
-    const unidadesPorOrgao = orgaos.map((o) => ({
-      id: o.id,
-      sigla: o.sigla,
-      nome: o.nome,
-      tipo: o.tipo,
-      unidades: unidades
-        .filter((u) => u.orgaoId === o.id)
-        .map((u) => ({
-          id: u.id,
-          label: `${u.sigla} — ${u.nome}`,
-          sigla: u.sigla,
-          nome: u.nome,
-          nivel: u.nivel,
-          parentId: u.parentId,
-          municipioId: u.municipioId,
-          municipio: u.municipio,
-        })),
-    }));
-
     const payload = {
       dominios: dominiosBySlug,
       dominioMeta,
-      orgaos: unidadesPorOrgao,
       atualizadoEm: new Date().toISOString(),
     };
 

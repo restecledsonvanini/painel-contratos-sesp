@@ -14,7 +14,7 @@ describe('lookups API', () => {
     });
   });
 
-  it('GET /api/v1/lookups returns dominios and orgaos', async () => {
+  it('GET /api/v1/lookups returns only dominios (enums)', async () => {
     const res = await request(app).get('/api/v1/lookups');
     if (res.status === 503) {
       console.warn('Skipping — database unavailable');
@@ -22,7 +22,7 @@ describe('lookups API', () => {
     }
     expect(res.status).toBe(200);
     expect(res.body.dominios['modalidade-licitacao']).toBeTruthy();
-    expect(Array.isArray(res.body.orgaos)).toBe(true);
+    expect(res.body.orgaos).toBeUndefined();
     expect(res.headers.etag).toBeTruthy();
   });
 
