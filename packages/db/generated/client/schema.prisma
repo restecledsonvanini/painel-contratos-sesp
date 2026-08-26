@@ -1,9 +1,9 @@
 // Prisma schema — Postgres local (Docker) / staging
+// Client: Prisma 7.10 (adapter-pg). URL e paths de migrate ficam em prisma.config.ts.
 // Migrations: packages/db/prisma/migrations (Prisma Migrate format)
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 generator client {

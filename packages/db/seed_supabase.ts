@@ -2,13 +2,13 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { randomBytes, scryptSync } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
-import { PrismaClient } from './generated/client/index.js';
 import { DOMINIOS_SEED } from './seed/dominios.js';
 import { ORGAOS_SEED, UNIDADES_SEDE } from './seed/orgaos.js';
+import { createPrismaClient } from './src/client.ts';
 
 process.env.DATABASE_URL ||= 'postgresql://painel:pass@localhost:5434/painel_db';
 
-const prisma = new PrismaClient();
+const prisma = createPrismaClient(process.env.DATABASE_URL);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 function hashPassword(password: string): string {

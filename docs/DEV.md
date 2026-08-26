@@ -6,7 +6,7 @@ Guia único para subir o monorepo **painel-contratos-sesp** em qualquer máquina
 
 | Ferramenta | Windows | Codespaces |
 |------------|---------|------------|
-| Node.js | 20 ou 22 LTS (Prisma 6 pede 18.18+) | incluído no devcontainer |
+| Node.js | 20 ou 22 LTS (Prisma 7 pede 18.18+) | incluído no devcontainer |
 | Docker | Docker Desktop | Docker-in-Docker (devcontainer) |
 | Git | sim | sim |
 
@@ -60,7 +60,7 @@ Não deixe a porta **8888** pública: a API confia no `AUTH_DEV_BYPASS` que o de
 ### Windows — dicas
 
 - **Prisma / testes:** pare a API (`Ctrl+C` no terminal do `npm run dev`) antes de `npm run db:generate` ou `npm run api:test` se aparecer erro de DLL bloqueada (`query_engine-windows.dll.node`).
-- **Prisma 6:** o client gerado inclui engine Windows + wasm. No Codespaces/Linux, `npm run setup` (que chama `prisma generate`) baixa o binário da plataforma. Não pule o generate depois do clone.
+- **Prisma 7:** o client usa `@prisma/adapter-pg` (pool `pg`). URL e pastas de migrate estão em `packages/db/prisma.config.ts`, não no schema. `npm run setup` roda `prisma generate`. Não pule o generate depois do clone.
 - **Portas ocupadas:** `npm run db:down` para parar Postgres; mate processos em 8888/5173 se necessário.
 - **PowerShell:** os scripts npm funcionam nativamente; prefira `npm run …` em vez de comandos bash.
 
@@ -162,7 +162,7 @@ npm run web:e2e
 ## Arquitetura dev (resumo)
 
 ```text
-Browser → Vite :5173 → proxy /api/v1 → Express :8888 → Prisma 6 → Postgres :5434
+Browser → Vite :5173 → proxy /api/v1 → Express :8888 → Prisma 7 + pg → Postgres :5434
 ```
 
 Mapas detalhados: [`plan/flow-maps/`](../plan/flow-maps/README.md)

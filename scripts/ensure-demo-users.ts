@@ -1,8 +1,8 @@
 import { randomBytes, scryptSync } from 'node:crypto';
-import { PrismaClient } from '../packages/db/generated/client/index.js';
+import { createPrismaClient } from '../packages/db/src/client.ts';
 
 process.env.DATABASE_URL ||= 'postgresql://painel:pass@localhost:5434/painel_db';
-const prisma = new PrismaClient();
+const prisma = createPrismaClient(process.env.DATABASE_URL);
 
 function hashPassword(password: string): string {
   const salt = randomBytes(16);

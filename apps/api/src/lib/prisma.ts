@@ -1,4 +1,4 @@
-import { PrismaClient } from '@painel/db';
+import { createPrismaClient } from '@painel/db';
 import { getActorFromContext, getRequestId } from './requestContext';
 
 const WRITE_ACTIONS = new Set([
@@ -12,9 +12,8 @@ const WRITE_ACTIONS = new Set([
 ]);
 
 function createPrisma() {
-  const client = new PrismaClient();
-  // Prisma 6 removeu $use. A extensão de query é o substituto: GUC só em
-  // escrita, para o trigger de auditoria, sem round-trip extra na listagem.
+  const url = getDatabaseUrl();
+  const client = createPrismaClient(url);
   return client.$extends({
     query: {
       async $allOperations({ operation, args, query }) {
@@ -52,7 +51,6 @@ export function getDatabaseUrl(): string {
 
 export function getPrisma(): AppPrisma {
   if (prisma) return prisma;
-  getDatabaseUrl();
   prisma = createPrisma();
   return prisma;
 }

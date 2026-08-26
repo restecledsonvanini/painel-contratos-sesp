@@ -11,9 +11,9 @@
     "db:up": "docker compose -f apps/docker/docker-compose.postgres.yml up -d --build",
     "db:down": "docker compose -f apps/docker/docker-compose.postgres.yml down",
     "db:logs": "docker compose -f apps/docker/docker-compose.postgres.yml logs -f db",
-    "db:generate": "cd packages/db && npx prisma generate --schema=./prisma/schema.prisma",
-    "db:migrate:create": "cd packages/db && npx prisma migrate dev --schema=./prisma/schema.prisma --create-only --name init",
-    "db:migrate:deploy": "cd packages/db && npx prisma migrate deploy --schema=./prisma/schema.prisma",
+    "db:generate": "cd packages/db && npx prisma generate",
+    "db:migrate:create": "cd packages/db && npx prisma migrate dev --create-only --name init",
+    "db:migrate:deploy": "cd packages/db && npx prisma migrate deploy",
     "db:seed": "npm --workspace packages/db run seed",
     "api:dev": "npm --workspace apps/api run dev",
     "api:test": "npm --workspace apps/api run test",
@@ -29,10 +29,10 @@
     "@types/react-dom": "^18.3.1",
     "concurrently": "^9.1.2",
     "pg": "^8.18.0",
-    "prisma": "6.19.3"
+    "prisma": "7.10.0"
   },
   "dependencies": {
-    "@prisma/client": "6.19.3",
+    "@prisma/client": "7.10.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

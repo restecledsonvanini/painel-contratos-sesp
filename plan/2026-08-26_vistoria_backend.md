@@ -301,6 +301,6 @@ Papel mínimo para escrita varia sem critério documentado em recursos equivalen
 | ~~**3**~~ | ~~helmet, CORS, rate limit no login, `trust proxy`, compression; fechar `/metrics` e `/docs`; sanitizar `/health/db`; anti-injection no CSV~~ | **Concluída.** `requireMinRole` em `/alertas` descartado por incoerência com as demais leituras. |
 | ~~**4**~~ | ~~`listInclude` vs `detailInclude`; paginar `/contracts`; export com projeção dedicada; GUC por transação; índices faltantes~~ | **Concluída** no gargalo da listagem/export/índices. GUC só foi desligado em leitura (não há sessão por request). Lookups, refresh de MVs e `?flat=true` continuam em aberto. |
 | ~~**5**~~ | ~~Extrair busca global para service; quebrar `contratoRepository`; mover mappers para service e tipar (eliminar `any`); unificar `ensureContrato` e conversão de centavos; remover código morto~~ | **Concluída** no recorte de qualidade. `any` restou só na introspecção Zod. HTTP na persistência e `/references/fornecedores` duplicado continuam em aberto. |
-| ~~**6**~~ | ~~Upgrade Prisma 4 → versão atual~~ | **Concluída em 6.19.3** (último 6.x). `$use` → `$extends`. Prisma 7/8 ficam de fora: exigem `prisma.config.ts` e driver adapter. |
+| ~~**6**~~ | ~~Upgrade Prisma 4 → versão atual~~ | **Concluída em 7.10.0.** `$use` → `$extends`; client via `@prisma/adapter-pg`. Prisma 8 ainda é RC — não entrar. |
 
 **Regra herdada dos planos anteriores:** nenhuma onda fecha com `npm run api:test` ou `npm run web:e2e` vermelho.
