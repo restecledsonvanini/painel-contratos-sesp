@@ -26,7 +26,13 @@ const itemInclude = {
   municipioExecucao: { select: { id: true, nome: true, uf: true } },
 } as const;
 
-function mapItem(row: any) {
+type CatalogItemRow = {
+  quantidade: unknown;
+  valorUnitarioCents: bigint | number;
+  [key: string]: unknown;
+};
+
+function mapItem(row: CatalogItemRow) {
   const qtd = Number(row.quantidade);
   const unit = Number(row.valorUnitarioCents);
   return {

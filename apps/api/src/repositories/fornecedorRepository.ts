@@ -16,10 +16,6 @@ const detailInclude = {
   sancoes: { orderBy: { dataInicio: 'desc' as const } },
 } as const;
 
-function mapFornecedor<T extends { documento: string; razaoSocial: string }>(row: T) {
-  return row;
-}
-
 export const fornecedorRepository = {
   async list(query: Record<string, unknown> = {}) {
     const { page, pageSize, q } = parsePagination(query);
@@ -51,7 +47,7 @@ export const fornecedorRepository = {
       }),
     ]);
     return {
-      data: rows.map(mapFornecedor),
+      data: rows,
       meta: paginationMeta(total, page, pageSize),
     };
   },
@@ -64,7 +60,7 @@ export const fornecedorRepository = {
         _count: { select: { contatos: true, sancoes: true } },
       },
     });
-    return rows.map(mapFornecedor);
+    return rows;
   },
 
   async get(id: string) {
@@ -73,7 +69,7 @@ export const fornecedorRepository = {
       include: detailInclude,
     });
     if (!record) throw notFound('Fornecedor não encontrado');
-    return mapFornecedor(record);
+    return record;
   },
 
   async create(data: FornecedorCreateInput) {
@@ -103,7 +99,7 @@ export const fornecedorRepository = {
       },
       include: detailInclude,
     });
-    return mapFornecedor(created);
+    return created;
   },
 
   async update(id: string, data: FornecedorUpdateInput) {
@@ -113,7 +109,7 @@ export const fornecedorRepository = {
       data,
       include: detailInclude,
     });
-    return mapFornecedor(updated);
+    return updated;
   },
 
   async remove(id: string) {
@@ -123,7 +119,7 @@ export const fornecedorRepository = {
       data: { situacao: 'INATIVO' },
       include: detailInclude,
     });
-    return mapFornecedor(updated);
+    return updated;
   },
 
   async createContato(fornecedorId: string, data: FornecedorContatoCreateInput) {

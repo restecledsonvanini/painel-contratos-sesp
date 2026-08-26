@@ -13,7 +13,7 @@ import {
   listUnidades,
   updateOrgao,
   updateUnidade,
-} from '../controllers/lookupsController';
+} from '../controllers/organizacaoController';
 import { asyncHandler } from '../lib/errors';
 import { requireMinRole } from '../middleware/rbac';
 

@@ -48,6 +48,16 @@ export function tooManyRequests(message = 'Too many requests') {
   return new AppError(429, 'TOO_MANY_REQUESTS', message);
 }
 
+export function httpStatusOf(err: unknown): number | undefined {
+  if (typeof err !== 'object' || err == null || !('status' in err)) return undefined;
+  const status = (err as { status: unknown }).status;
+  return typeof status === 'number' ? status : undefined;
+}
+
+export function isHttpStatus(err: unknown, status: number): err is Error {
+  return httpStatusOf(err) === status;
+}
+
 export function asyncHandler(
   fn: (req: Request, res: Response, next: NextFunction) => Promise<unknown>
 ) {

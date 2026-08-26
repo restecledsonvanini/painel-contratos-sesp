@@ -4,9 +4,9 @@ import { getActorId } from '../lib/audit';
 import {
   assertContratoInScope,
   assertUnidadeGestoraInScope,
-  getOrgaoScope,
 } from '../lib/scope';
-import { badRequest, notFound } from '../lib/errors';
+import { badRequest, isHttpStatus, notFound } from '../lib/errors';
+import { centsToNumber } from '../lib/money';
 import { contratoRepository } from '../repositories/contratoRepository';
 import { parseContratoListQuery } from '../lib/contratoQuery';
 import type { Request } from 'express';
@@ -21,17 +21,112 @@ const SITUACAO_TO_STATUS: Record<string, string> = {
   ANULADO: 'anulado',
 };
 
-function centsToNumber(value: bigint | number | null | undefined) {
-  if (value == null) return undefined;
-  return Number(value);
-}
+type Named = { id: string; nome?: string | null; email?: string | null };
+type ResponsavelRow = {
+  id: string;
+  servidorId: string;
+  papel: string;
+  atoDesignacao?: string | null;
+  dataInicio: Date;
+  dataFim: Date | null;
+  servidor?: { nome?: string | null } | null;
+};
+type RateioRow = {
+  id: string;
+  unidadeId: string;
+  percentual?: unknown;
+  valorCents?: bigint | number | null;
+  quantidade?: unknown;
+  observacao?: string | null;
+  unidade?: { sigla?: string | null; nome?: string | null } | null;
+};
+type ItemRow = {
+  id: string;
+  sequencia: number;
+  catalogoItemId: string;
+  descricaoComplementar?: string | null;
+  quantidade: unknown;
+  unidadeMedidaId: string;
+  valorUnitarioCents: bigint | number;
+  periodicidade?: string | null;
+  unidadeDestinoId?: string | null;
+  atributos?: unknown;
+  catalogoItem?: { nome?: string | null; categoriaItem?: { codigo?: string | null } | null } | null;
+  unidadeMedida?: { codigo?: string | null } | null;
+  unidadeDestino?: { sigla?: string | null } | null;
+};
+type AlteracaoRow = {
+  id: string;
+  tipo: string;
+  numero: number;
+  eProtocolo?: string | null;
+  objetoDescricao: string;
+  dataAssinatura: Date;
+  novaDataFimVigencia?: Date | null;
+  valorAcrescidoCents?: bigint | number | null;
+  valorSuprimidoCents?: bigint | number | null;
+  situacao: string;
+};
 
-function mapContractRecord(record: any) {
-  const gestor = record.responsaveis?.find(
-    (r: any) => r.papel === 'GESTOR' && !r.dataFim,
-  );
+type ContractRecord = {
+  id: string;
+  processoId?: string | null;
+  numeroGms: string;
+  anoGms: number;
+  numeroContrato?: string | null;
+  eProtocolo?: string | null;
+  pilar?: string | null;
+  categoriaContratacaoId?: string | null;
+  categoriaContratacao?: { id: string; codigo: string; label: string } | null;
+  naturezaObjeto?: string | null;
+  modalidadeId?: string | null;
+  modalidadeRef?: { codigo?: string | null; label?: string | null } | null;
+  modalidade?: string | null;
+  fundamentoLegalId?: string | null;
+  objeto: string;
+  fornecedorId: string;
+  fornecedor?: { razaoSocial?: string | null } | null;
+  unidadeGestoraId: string;
+  unidadeGestora?: { id: string; sigla: string; nome: string; tipo: string } | null;
+  subunidadeId?: string | null;
+  subunidade?: {
+    id: string;
+    sigla: string;
+    nome: string;
+    nivel?: string;
+    orgaoId?: string;
+  } | null;
+  gestorId?: string | null;
+  fiscalId?: string | null;
+  dataAssinatura?: Date | null;
+  dataInicioVigencia: Date;
+  prazoInicialValor?: number | null;
+  prazoInicialUnidade?: string | null;
+  dataFimVigenciaOriginal: Date;
+  prorrogavel?: boolean;
+  limiteProrrogacaoMeses?: number | null;
+  valorGlobalOriginalCents?: bigint | number | null;
+  indiceReajuste?: string | null;
+  mesAniversarioReajuste?: number | null;
+  situacao: string;
+  observacoes?: string | null;
+  codigoLegado?: string | null;
+  criadoPorId?: string | null;
+  criadoPor?: Named | null;
+  atualizadoPorId?: string | null;
+  atualizadoPor?: Named | null;
+  createdAt: Date;
+  updatedAt: Date;
+  responsaveis?: ResponsavelRow[];
+  rateios?: RateioRow[];
+  itens?: ItemRow[];
+  alteracoes?: AlteracaoRow[];
+};
+
+function mapContractRecord(record: ContractRecord) {
+  const gestor = record.responsaveis?.find((r) => r.papel === 'GESTOR' && !r.dataFim);
   const fiscal = record.responsaveis?.find(
-    (r: any) =>
+    (r) =>
       ['FISCAL_TECNICO', 'FISCAL_ADMINISTRATIVO', 'FISCAL_SETORIAL', 'FISCAL_SUBSTITUTO'].includes(
         r.papel,
       ) && !r.dataFim,
@@ -120,7 +215,7 @@ function mapContractRecord(record: any) {
       : null,
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
-    responsaveis: record.responsaveis?.map((r: any) => ({
+    responsaveis: record.responsaveis?.map((r) => ({
       id: r.id,
       servidorId: r.servidorId,
       servidorNome: r.servidor?.nome,
@@ -129,7 +224,7 @@ function mapContractRecord(record: any) {
       dataInicio: r.dataInicio,
       dataFim: r.dataFim,
     })),
-    rateios: record.rateios?.map((r: any) => ({
+    rateios: record.rateios?.map((r) => ({
       id: r.id,
       unidadeId: r.unidadeId,
       unidadeSigla: r.unidade?.sigla,
@@ -139,7 +234,7 @@ function mapContractRecord(record: any) {
       quantidade: r.quantidade != null ? Number(r.quantidade) : null,
       observacao: r.observacao,
     })),
-    itens: record.itens?.map((item: any) => {
+    itens: record.itens?.map((item) => {
       const qtd = Number(item.quantidade);
       const unit = Number(item.valorUnitarioCents);
       return {
@@ -162,7 +257,7 @@ function mapContractRecord(record: any) {
         atributos: item.atributos,
       };
     }),
-    alteracoes: record.alteracoes?.map((alt: any) => {
+    alteracoes: record.alteracoes?.map((alt) => {
       const valorAcrescidoCents = Number(alt.valorAcrescidoCents ?? 0);
       return {
         id: alt.id,
@@ -179,7 +274,7 @@ function mapContractRecord(record: any) {
       };
     }),
     // Alias legado
-    aditivos: record.alteracoes?.map((alt: any) => ({
+    aditivos: record.alteracoes?.map((alt) => ({
       id: alt.id,
       numAditivo: alt.numero,
       protocoloAdit: alt.eProtocolo,
@@ -193,19 +288,19 @@ function mapContractRecord(record: any) {
 async function loadMappedContract(id: string) {
   const record = await contratoRepository.findById(id);
   if (!record) throw notFound('Contract not found');
-  return mapContractRecord(record);
+  return mapContractRecord(record as ContractRecord);
 }
 
 export const contratoService = {
   async list(scope?: { orgaoId?: string | null }, query: Record<string, unknown> = {}) {
     const { data, meta } = await contratoRepository.findMany(scope, parseContratoListQuery(query));
-    return { data: data.map(mapContractRecord), meta };
+    return { data: data.map((row) => mapContractRecord(row as ContractRecord)), meta };
   },
 
   async listForExport(scope?: { orgaoId?: string | null }, query: Record<string, unknown> = {}) {
     const filters = parseContratoListQuery(query);
     const records = await contratoRepository.findManyForExport(scope, filters);
-    return records.map(mapContractRecord);
+    return records.map((row) => mapContractRecord(row as ContractRecord));
   },
 
   async getById(id: string, req: Request) {
@@ -230,8 +325,8 @@ export const contratoService = {
         { changedBy: getActorId(req) },
       );
       return loadMappedContract(createdId);
-    } catch (err: any) {
-      if (err?.status === 400) throw badRequest(err.message);
+    } catch (err) {
+      if (isHttpStatus(err, 400)) throw badRequest(err.message);
       throw err;
     }
   },
@@ -252,8 +347,8 @@ export const contratoService = {
       await contratoRepository.update(id, parsed as Record<string, unknown>, existing, {
         changedBy: getActorId(req),
       });
-    } catch (err: any) {
-      if (err?.status === 400) throw badRequest(err.message);
+    } catch (err) {
+      if (isHttpStatus(err, 400)) throw badRequest(err.message);
       throw err;
     }
     return loadMappedContract(id);

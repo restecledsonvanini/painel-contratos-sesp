@@ -34,17 +34,6 @@ export function parsePagination(query: Record<string, unknown>): PaginationQuery
   return { page, pageSize, sort, q };
 }
 
-export function paginate<T>(items: T[], page: number, pageSize: number): PaginatedResult<T> {
-  const total = items.length;
-  const totalPages = Math.max(1, Math.ceil(total / pageSize));
-  const safePage = Math.min(page, totalPages);
-  const start = (safePage - 1) * pageSize;
-  return {
-    data: items.slice(start, start + pageSize),
-    meta: { page: safePage, pageSize, total, totalPages },
-  };
-}
-
 export function paginationMeta(total: number, page: number, pageSize: number): PaginatedMeta {
   return {
     page,

@@ -10,6 +10,7 @@ import type {
 import type { Request } from 'express';
 import { badRequest, notFound } from '../lib/errors';
 import { assertContratoInScope } from '../lib/scope';
+import { orcamentoRepository } from '../repositories/orcamentoRepository';
 import {
   mapContratoDotacao,
   mapDocumento,
@@ -17,8 +18,7 @@ import {
   mapEmpenho,
   mapPublicacao,
   mapReserva,
-  orcamentoRepository,
-} from '../repositories/orcamentoRepository';
+} from './orcamentoMappers';
 
 const ensureContrato = assertContratoInScope;
 
@@ -27,12 +27,25 @@ async function ensureOwnerContrato(contratoId: string | null, req: Request) {
   if (contratoId) await assertContratoInScope(contratoId, req);
 }
 
-function wrapPg(err: any): never {
-  if (err?.status === 400) throw badRequest(err.message);
-  if (err?.code === 'P2002') throw badRequest('Registro duplicado');
-  if (err?.code === 'P2003') throw badRequest('Referência inválida');
-  if (err?.code === '23514' || String(err?.message || '').includes('check_violation')) {
-    throw badRequest(err.meta?.message || err.message || 'Violação de regra');
+type PgLike = {
+  status?: number;
+  code?: string;
+  message?: string;
+  meta?: { code?: string; message?: string };
+};
+
+function asPg(err: unknown): PgLike {
+  return typeof err === 'object' && err ? (err as PgLike) : {};
+}
+
+function wrapPg(err: unknown, notFoundLabel?: string): never {
+  const e = asPg(err);
+  if (notFoundLabel && e.code === 'P2025') throw notFound(notFoundLabel);
+  if (e.status === 400) throw badRequest(e.message || 'Bad request');
+  if (e.code === 'P2002') throw badRequest('Registro duplicado');
+  if (e.code === 'P2003') throw badRequest('Referência inválida');
+  if (e.code === '23514' || String(e.message || '').includes('check_violation')) {
+    throw badRequest(e.meta?.message || e.message || 'Violação de regra');
   }
   throw err;
 }
@@ -61,18 +74,16 @@ export const orcamentoService = {
   async updateDotacao(id: string, body: Record<string, unknown>) {
     try {
       return mapDotacao(await orcamentoRepository.updateDotacao(id, body));
-    } catch (err: any) {
-      if (err?.code === 'P2025') throw notFound('Dotação not found');
-      wrapPg(err);
+    } catch (err) {
+      wrapPg(err, 'Dotação not found');
     }
   },
 
   async deleteDotacao(id: string) {
     try {
       return await orcamentoRepository.deleteDotacao(id);
-    } catch (err: any) {
-      if (err?.code === 'P2025') throw notFound('Dotação not found');
-      wrapPg(err);
+    } catch (err) {
+      wrapPg(err, 'Dotação not found');
     }
   },
 
@@ -147,9 +158,8 @@ export const orcamentoService = {
     await ensureOwnerContrato(await orcamentoRepository.contratoIdOfReserva(id), req);
     try {
       return await orcamentoRepository.deleteReserva(id);
-    } catch (err: any) {
-      if (err?.code === 'P2025') throw notFound('Reserva not found');
-      wrapPg(err);
+    } catch (err) {
+      wrapPg(err, 'Reserva not found');
     }
   },
 
@@ -174,9 +184,8 @@ export const orcamentoService = {
     await ensureOwnerContrato(await orcamentoRepository.contratoIdOfPublicacao(id), req);
     try {
       return await orcamentoRepository.deletePublicacao(id);
-    } catch (err: any) {
-      if (err?.code === 'P2025') throw notFound('Publicação not found');
-      wrapPg(err);
+    } catch (err) {
+      wrapPg(err, 'Publicação not found');
     }
   },
 
@@ -205,9 +214,8 @@ export const orcamentoService = {
     await ensureOwnerContrato(await orcamentoRepository.contratoIdOfDocumento(id), req);
     try {
       return await orcamentoRepository.deleteDocumento(id);
-    } catch (err: any) {
-      if (err?.code === 'P2025') throw notFound('Documento not found');
-      wrapPg(err);
+    } catch (err) {
+      wrapPg(err, 'Documento not found');
     }
   },
 };

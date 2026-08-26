@@ -25,5 +25,3 @@ contratoAlteracoesRouter.delete('/:alteracaoId', writeRoles, asyncHandler(delete
 /** Alias plano: POST /alteracoes/:id/simular (id = contratoId) */
 export const alteracoesAliasRouter = Router();
 alteracoesAliasRouter.post('/:id/simular', writeRoles, asyncHandler(simularAlteracaoAlias));
-
-export default contratoAlteracoesRouter;

@@ -13,7 +13,42 @@ import { badRequest, legalRuleViolation, notFound } from '../lib/errors';
 import { alteracaoRepository } from '../repositories/alteracaoRepository';
 import { assertContratoInScope, loadContratoInScope } from '../lib/scope';
 
-function mapAlteracao(record: any) {
+type AlteracaoItemRow = {
+  id: string;
+  itemContratoId?: string | null;
+  itemContrato?: { sequencia?: number | null } | null;
+  catalogoItemId?: string | null;
+  catalogoItem?: { nome?: string | null } | null;
+  quantidadeDelta: unknown;
+  valorUnitarioNovoCents?: bigint | number | null;
+  observacao?: string | null;
+};
+
+type AlteracaoRecord = {
+  id: string;
+  contratoId: string;
+  tipo: string;
+  numero: number;
+  eProtocolo?: string | null;
+  objetoDescricao: string;
+  fundamentoLegalId?: string | null;
+  fundamentoLegal?: unknown;
+  justificativa?: string | null;
+  justificativaExcepcional?: string | null;
+  dataAssinatura: Date;
+  dataInicioEfeito?: Date | null;
+  prazoAcrescidoValor?: number | null;
+  prazoAcrescidoUnidade?: string | null;
+  novaDataFimVigencia?: Date | null;
+  valorAcrescidoCents?: bigint | number | null;
+  valorSuprimidoCents?: bigint | number | null;
+  percentualReajuste?: unknown;
+  situacao: string;
+  codigoLegado?: string | null;
+  itens?: AlteracaoItemRow[];
+};
+
+function mapAlteracao(record: AlteracaoRecord) {
   const valorAcrescidoCents = Number(record.valorAcrescidoCents ?? 0);
   const valorSuprimidoCents = Number(record.valorSuprimidoCents ?? 0);
   return {
@@ -40,7 +75,7 @@ function mapAlteracao(record: any) {
       record.percentualReajuste != null ? Number(record.percentualReajuste) : null,
     situacao: record.situacao,
     codigoLegado: record.codigoLegado,
-    itens: record.itens?.map((item: any) => ({
+    itens: record.itens?.map((item) => ({
       id: item.id,
       itemContratoId: item.itemContratoId,
       itemSequencia: item.itemContrato?.sequencia,
@@ -61,12 +96,18 @@ function mapAlteracao(record: any) {
   };
 }
 
-function isPgCheck(err: any) {
-  const msg = String(err?.message || err?.meta?.message || '');
+type PgLike = { code?: string; message?: string; meta?: { code?: string; message?: string } };
+function asPg(err: unknown): PgLike {
+  return typeof err === 'object' && err ? (err as PgLike) : {};
+}
+
+function isPgCheck(err: unknown) {
+  const e = asPg(err);
+  const msg = String(e.message || e.meta?.message || '');
   return (
-    err?.code === 'P2010' ||
-    err?.meta?.code === '23514' ||
-    err?.code === '23514' ||
+    e.code === 'P2010' ||
+    e.meta?.code === '23514' ||
+    e.code === '23514' ||
     msg.includes('check_violation') ||
     msg.includes('SqlState(E23514)') ||
     msg.includes('novaDataFimVigencia') ||
@@ -80,14 +121,14 @@ export const alteracaoService = {
   async list(contratoId: string, req: Request) {
     await assertContratoInScope(contratoId, req);
     const rows = await alteracaoRepository.listByContrato(contratoId);
-    return rows.map(mapAlteracao);
+    return rows.map((row) => mapAlteracao(row as AlteracaoRecord));
   },
 
   async get(contratoId: string, alteracaoId: string, req: Request) {
     await assertContratoInScope(contratoId, req);
     const row = await alteracaoRepository.findById(contratoId, alteracaoId);
     if (!row) throw notFound('Alteração not found');
-    return mapAlteracao(row);
+    return mapAlteracao(row as AlteracaoRecord);
   },
 
   async simular(contratoId: string, body: AlteracaoSimularInput, req: Request) {
@@ -119,12 +160,13 @@ export const alteracaoService = {
     }
     try {
       const created = await alteracaoRepository.create(contratoId, body);
-      return mapAlteracao(created);
-    } catch (err: any) {
+      return mapAlteracao(created as AlteracaoRecord);
+    } catch (err) {
       if (isPgCheck(err)) {
-        throw legalRuleViolation(err.meta?.message || err.message || 'Regra legal violada');
+        const e = asPg(err);
+        throw legalRuleViolation(e.meta?.message || e.message || 'Regra legal violada');
       }
-      if (err?.code === 'P2002') throw badRequest('Número de alteração já existe para este tipo');
+      if (asPg(err).code === 'P2002') throw badRequest('Número de alteração já existe para este tipo');
       throw err;
     }
   },
@@ -141,10 +183,11 @@ export const alteracaoService = {
     try {
       const updated = await alteracaoRepository.update(contratoId, alteracaoId, body);
       if (!updated) throw notFound('Alteração not found');
-      return mapAlteracao(updated);
-    } catch (err: any) {
+      return mapAlteracao(updated as AlteracaoRecord);
+    } catch (err) {
       if (isPgCheck(err)) {
-        throw legalRuleViolation(err.meta?.message || err.message || 'Regra legal violada');
+        const e = asPg(err);
+        throw legalRuleViolation(e.meta?.message || e.message || 'Regra legal violada');
       }
       throw err;
     }

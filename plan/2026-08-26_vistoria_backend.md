@@ -223,13 +223,13 @@ Não há índices redundantes no estado final do schema.
 
 | Local | Problema | Severidade |
 |---|---|---|
-| `routes/exports.ts:35-104` | busca global inteira (Prisma + queries `OR` + formatação) dentro do arquivo de rota | Alta |
-| `repositories/contratoRepository.ts` | 554 linhas: resolução de FK, regras de negócio, compat legado FSP, conversão de aditivos | Alta |
-| `repositories/orcamentoRepository.ts:321-408` | 6 mapeadores de DTO exportados, com o service apenas repassando | Alta |
-| `routes/exports.ts:16-135` | handlers HTTP definidos no router, sem controller | Média |
-| `services/{alteracao,orcamento,dashboard}Service.ts` | `getPrisma()` direto em `ensureContrato` | Média |
-| 10+ repositories | lançam `notFound`/`badRequest` (semântica HTTP na persistência) | Média |
-| `controllers/lookupsController.ts:66-106` | handlers de **organização** morando no controller de lookups | Média |
+| `routes/exports.ts:35-104` | busca global inteira (Prisma + queries `OR` + formatação) dentro do arquivo de rota | Alta. **Onda 5:** extraída para `searchRepository` + `searchService`; rota só despacha. |
+| `repositories/contratoRepository.ts` | 554 linhas: resolução de FK, regras de negócio, compat legado FSP, conversão de aditivos | Alta. **Onda 5:** resolvers de FK em `contratoResolve.ts`; persistência ficou no repository. |
+| `repositories/orcamentoRepository.ts:321-408` | 6 mapeadores de DTO exportados, com o service apenas repassando | Alta. **Onda 5:** mappers tipados em `orcamentoMappers.ts`. |
+| `routes/exports.ts:16-135` | handlers HTTP definidos no router, sem controller | Média. **Onda 5:** `exportsController.ts`. |
+| `services/{alteracao,orcamento,dashboard}Service.ts` | `getPrisma()` direto em `ensureContrato` | Média. **Já resolvido na onda 2** (`assertContratoInScope`). |
+| 10+ repositories | lançam `notFound`/`badRequest` (semântica HTTP na persistência) | Média. **Em aberto** — mudança ampla, fora desta onda. |
+| `controllers/lookupsController.ts:66-106` | handlers de **organização** morando no controller de lookups | Média. **Onda 5:** `organizacaoController.ts`. |
 
 `getPrisma()` aparece fora de repositories em 8 pontos: `middleware/auth.ts:22`, `index.ts:67`, `routes/exports.ts:39`, `lib/audit.ts:28`, `lib/emailDomain.ts:38`, `services/dashboardService.ts:6`, `services/alteracaoService.ts:79`, `services/orcamentoService.ts:23`.
 
@@ -237,7 +237,9 @@ Nenhum import circular. Nenhum service faz `res.json`.
 
 ### 4.2 Tipagem
 
-**30 usos explícitos de `any`**, concentrados em mapeadores:
+**30 usos explícitos de `any`**, concentrados em mapeadores.
+
+> **Onda 5:** restam 2 `any` em `lib/zodToJsonSchema.ts` (introspeção Zod). Mappers de contrato, alteração, orçamento e catálogo foram tipados.
 
 | Arquivo | Ocorrências |
 |---|---|
@@ -251,8 +253,8 @@ Nenhum import circular. Nenhum service faz `res.json`.
 ### 4.3 Redundâncias
 
 - **Endpoint duplicado:** `/references/fornecedores` (`routes/references.ts:26-30`) e `/fornecedores` (`routes/partes.ts:26-30`) servem o mesmo repository; a versão legada **perde o audit wrapper** (`referenciaRepository.ts:72-84`).
-- **`ensureContrato` triplicado:** `orcamentoService.ts:22-25`, `dashboardService.ts:5-8`, `alteracaoService.ts:78-82`.
-- **Conversão centavos→reais em 4 arquivos:** `contratoService`, `alteracaoService`, `orcamentoRepository`, `catalogoRepository`.
+- **`ensureContrato` triplicado:** `orcamentoService.ts:22-25`, `dashboardService.ts:5-8`, `alteracaoService.ts:78-82`. **Onda 2+5:** um só `assertContratoInScope`.
+- **Conversão centavos→reais em 4 arquivos:** `contratoService`, `alteracaoService`, `orcamentoRepository`, `catalogoRepository`. **Onda 5:** `lib/money.ts` (`centsToNumber` / `centsToReais`).
 - **Aliases legados de aditivo em 3 lugares:** `contratoService.ts:175-183`, `alteracaoService.ts:55-59`, `contratoRepository.ts:447-471`.
 - **`resolveDominioValorId` em 2 implementações:** `orcamentoRepository.ts:12-24`, `importacaoRepository.ts:15-28`.
 - **Filtro de busca fornecedor/servidor** replicado em `fornecedorRepository`, `servidorRepository` e `routes/exports.ts:61-80`.
@@ -262,10 +264,10 @@ Nenhum import circular. Nenhum service faz `res.json`.
 
 | Local | Item |
 |---|---|
-| `middleware/rbac.ts:6-14` | `requireRole` exportado, nunca usado |
-| `routes/alteracoes.ts:29` | `export default` não importado |
-| `repositories/fornecedorRepository.ts:19-21` | `mapFornecedor` é função identidade |
-| `lib/pagination.ts:37-46` | `paginate()` nunca chamada |
+| `middleware/rbac.ts:6-14` | `requireRole` exportado, nunca usado. **Onda 5: removido.** |
+| `routes/alteracoes.ts:29` | `export default` não importado. **Onda 5: removido.** |
+| `repositories/fornecedorRepository.ts:19-21` | `mapFornecedor` é função identidade. **Onda 5: removida.** |
+| `lib/pagination.ts:37-46` | `paginate()` nunca chamada. **Onda 5: removida.** |
 
 Não há `TODO`, `FIXME` nem `@deprecated` em `apps/api/src`. Os comentários "legado" são todos de compatibilidade intencional.
 
@@ -298,7 +300,7 @@ Papel mínimo para escrita varia sem critério documentado em recursos equivalen
 | ~~**2**~~ | ~~`assertContratoInScope` em `lib/`; escopo em todos os acessos por ID; `getOrgaoScope` fail-closed; amarrar `unidadeGestoraId` na criação~~ | **Concluída**, menos importações e KPIs agregados (decisão de produto). |
 | ~~**3**~~ | ~~helmet, CORS, rate limit no login, `trust proxy`, compression; fechar `/metrics` e `/docs`; sanitizar `/health/db`; anti-injection no CSV~~ | **Concluída.** `requireMinRole` em `/alertas` descartado por incoerência com as demais leituras. |
 | ~~**4**~~ | ~~`listInclude` vs `detailInclude`; paginar `/contracts`; export com projeção dedicada; GUC por transação; índices faltantes~~ | **Concluída** no gargalo da listagem/export/índices. GUC só foi desligado em leitura (não há sessão por request). Lookups, refresh de MVs e `?flat=true` continuam em aberto. |
-| **5** | Extrair busca global para service; quebrar `contratoRepository`; mover mappers para service e tipar (eliminar `any`); unificar `ensureContrato` e conversão de centavos; remover código morto | Dívida técnica; sem urgência, alto ganho de manutenção. |
+| ~~**5**~~ | ~~Extrair busca global para service; quebrar `contratoRepository`; mover mappers para service e tipar (eliminar `any`); unificar `ensureContrato` e conversão de centavos; remover código morto~~ | **Concluída** no recorte de qualidade. `any` restou só na introspecção Zod. HTTP na persistência e `/references/fornecedores` duplicado continuam em aberto. |
 | **6** | Upgrade Prisma 4 → versão atual | Precisa de janela e regressão completa. |
 
 **Regra herdada dos planos anteriores:** nenhuma onda fecha com `npm run api:test` ou `npm run web:e2e` vermelho.

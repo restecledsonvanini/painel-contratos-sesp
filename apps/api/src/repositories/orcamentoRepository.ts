@@ -24,8 +24,6 @@ async function resolveDominioValorId(slug: string, id: string | null, codigo: st
   return valor?.id ?? null;
 }
 
-const cents = (v: bigint | number | null | undefined) => (v == null ? null : Number(v));
-
 export const orcamentoRepository = {
   async listDotacoes(filters?: { exercicio?: number; q?: string }) {
     const db = getPrisma();
@@ -342,92 +340,3 @@ export const orcamentoRepository = {
     return row?.contratoId ?? null;
   },
 };
-
-export function mapDotacao(r: any) {
-  return {
-    ...r,
-    naturezaDespesa: r.naturezaDespesa,
-    fonteRecurso: r.fonteRecurso,
-  };
-}
-
-export function mapContratoDotacao(r: any) {
-  return {
-    id: r.id,
-    contratoId: r.contratoId,
-    dotacaoId: r.dotacaoId,
-    exercicio: r.exercicio,
-    valorPrevistoCents: cents(r.valorPrevistoCents),
-    valorPrevisto: Number(r.valorPrevistoCents) / 100,
-    dotacao: r.dotacao
-      ? {
-          id: r.dotacao.id,
-          codigo: r.dotacao.codigo,
-          exercicio: r.dotacao.exercicio,
-          naturezaDespesa: r.dotacao.naturezaDespesa,
-          fonteRecurso: r.dotacao.fonteRecurso,
-          descricao: r.dotacao.descricao,
-        }
-      : undefined,
-  };
-}
-
-export function mapEmpenho(r: any) {
-  return {
-    id: r.id,
-    contratoId: r.contratoId,
-    dotacaoId: r.dotacaoId,
-    dotacao: r.dotacao,
-    numero: r.numero,
-    exercicio: r.exercicio,
-    tipo: r.tipo,
-    data: r.data,
-    valorCents: cents(r.valorCents),
-    valor: Number(r.valorCents) / 100,
-    valorLiquidadoCents: cents(r.valorLiquidadoCents),
-    valorLiquidado: Number(r.valorLiquidadoCents) / 100,
-    valorPagoCents: cents(r.valorPagoCents),
-    valorPago: Number(r.valorPagoCents) / 100,
-    situacao: r.situacao,
-  };
-}
-
-export function mapReserva(r: any) {
-  return {
-    ...r,
-    valorCents: cents(r.valorCents),
-    valor: Number(r.valorCents) / 100,
-  };
-}
-
-export function mapPublicacao(r: any) {
-  return {
-    id: r.id,
-    contratoId: r.contratoId,
-    alteracaoId: r.alteracaoId,
-    veiculoId: r.veiculoId,
-    veiculo: r.veiculo,
-    dataPublicacao: r.dataPublicacao,
-    numeroEdicao: r.numeroEdicao,
-    idPncp: r.idPncp,
-    url: r.url,
-  };
-}
-
-export function mapDocumento(r: any) {
-  return {
-    id: r.id,
-    contratoId: r.contratoId,
-    alteracaoId: r.alteracaoId,
-    processoId: r.processoId,
-    tipoDocumentoId: r.tipoDocumentoId,
-    tipoDocumento: r.tipoDocumento,
-    nome: r.nome,
-    storageKey: r.storageKey,
-    urlExterna: r.urlExterna,
-    mimeType: r.mimeType,
-    tamanhoBytes: r.tamanhoBytes,
-    uploadedById: r.uploadedById,
-    createdAt: r.createdAt,
-  };
-}
