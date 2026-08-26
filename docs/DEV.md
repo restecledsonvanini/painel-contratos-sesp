@@ -154,6 +154,7 @@ npm run web:e2e      # Playwright (AUTH ligada; sobe servidores sozinho)
 npm run db:up
 npm run api:test
 npm run domain:test
+npm run web:test
 
 # e2e (pare `npm run dev` — o Playwright sobe API+web com AUTH ligada.
 # Para reusar servidores locais: PW_REUSE=1)

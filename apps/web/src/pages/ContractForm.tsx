@@ -34,6 +34,7 @@ import {
 import { useOrgaos } from '../hooks/useOrganizacao';
 import { LookupSelect } from '../components/LookupSelect';
 import { getErrorMessage, http } from '../lib/http';
+import { parseListResponse } from '../lib/listResponse';
 import { formatCurrencyFromReais } from '../lib/format';
 import { sugerirDataFim } from '../lib/prazo';
 
@@ -127,11 +128,22 @@ export default function ContractForm() {
   const { data: existingContract, isLoading: isContractLoading, error: contractError } = useContract(id);
   const { data: orgaos, isLoading: orgaosLoading } = useOrgaos();
   const { data: unidades, isLoading: unidadesLoading } = useUnidadesOrganizacionais();
-  const { data: fornecedores, isLoading: fornecedoresLoading } = useFornecedores();
-  const { data: servidores, isLoading: servidoresLoading } = useServidores();
+  const { data: fornecedoresPage, isLoading: fornecedoresLoading } = useFornecedores({
+    pageSize: 100,
+  });
+  const { data: servidoresPage, isLoading: servidoresLoading } = useServidores({
+    pageSize: 100,
+  });
+  const fornecedores = fornecedoresPage?.data;
+  const servidores = servidoresPage?.data;
   const { data: catalogo } = useQuery({
     queryKey: ['catalogo-itens', 'form'],
-    queryFn: async () => (await http.get<CatalogoOption[]>('/catalogo-itens?flat=true')).data,
+    queryFn: async () => {
+      const raw = (
+        await http.get<unknown>('/catalogo-itens', { params: { page: 1, pageSize: 100 } })
+      ).data;
+      return parseListResponse<CatalogoOption>(raw, 1, 100).data;
+    },
   });
 
   const stepParam = searchParams.get('step');

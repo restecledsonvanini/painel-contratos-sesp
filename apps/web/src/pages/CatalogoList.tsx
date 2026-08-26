@@ -2,17 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Button,
-  Card,
   ConfirmDialog,
+  DataTable,
   ErrorState,
   Page,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  type ColumnDef,
   useToast,
 } from '@painel/ui';
 import { Plus } from 'lucide-react';
@@ -20,6 +14,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { http, getErrorMessage } from '../lib/http';
 import { useCanWrite } from '../lib/access';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
+import { parseListResponse } from '../lib/listResponse';
+import { useListParams } from '../lib/useListParams';
+import { qk } from '../lib/queryKeys';
+import { ListSearch } from '../components/ListSearch';
 import type { CatalogoItemDTO } from '@painel/schema';
 
 export default function CatalogoList() {
@@ -27,14 +25,22 @@ export default function CatalogoList() {
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
   const canWrite = useCanWrite();
+  const { page, pageSize, q, setQ, pagination, onPaginationChange } = useListParams();
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['catalogo-itens'],
-    queryFn: async () => (await http.get<CatalogoItemDTO[]>('/catalogo-itens?flat=true')).data,
+    queryKey: [...qk.catalogoItens, { page, pageSize, q }],
+    queryFn: async () => {
+      const raw = (
+        await http.get<unknown>('/catalogo-itens', {
+          params: { page, pageSize, q: q || undefined },
+        })
+      ).data;
+      return parseListResponse<CatalogoItemDTO>(raw, page, pageSize);
+    },
   });
   const del = useMutation({
     mutationFn: async (id: string) => (await http.delete(`/catalogo-itens/${id}`)).data,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['catalogo-itens'] });
+      qc.invalidateQueries({ queryKey: qk.catalogoItens });
       qc.invalidateQueries({ queryKey: ['lookups'] });
     },
   });
@@ -49,13 +55,52 @@ export default function CatalogoList() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Page title="Catálogo de itens" description="Carregando...">
-        <Skeleton variant="table" lines={6} />
-      </Page>
-    );
-  }
+  const columns: ColumnDef<CatalogoItemDTO>[] = [
+    {
+      accessorKey: 'nome',
+      header: 'Nome',
+      enableSorting: false,
+      cell: ({ row }) => <span className="font-semibold">{row.original.nome}</span>,
+    },
+    {
+      id: 'categoria',
+      header: 'Categoria',
+      enableSorting: false,
+      cell: ({ row }) => row.original.categoriaItem?.label || '—',
+    },
+    {
+      id: 'unidade',
+      header: 'Unidade',
+      enableSorting: false,
+      cell: ({ row }) => row.original.unidadeMedidaPadrao?.codigo || '—',
+    },
+    {
+      id: 'acoes',
+      header: 'Ações',
+      enableSorting: false,
+      cell: ({ row }) =>
+        canWrite ? (
+          <div className="flex gap-2">
+            <Link to={`/catalogo-itens/${row.original.id}/edit`}>
+              <Button size="sm" variant="secondary">
+                Editar
+              </Button>
+            </Link>
+            <Button
+              size="sm"
+              variant="danger"
+              onClick={() =>
+                confirm.ask(row.original.id, 'Desativar item?', 'O item deixa de aparecer nas listas.')
+              }
+            >
+              Desativar
+            </Button>
+          </div>
+        ) : (
+          '—'
+        ),
+    },
+  ];
 
   if (error) {
     return (
@@ -68,6 +113,9 @@ export default function CatalogoList() {
       </Page>
     );
   }
+
+  const rows = data?.data ?? [];
+  const meta = data?.meta;
 
   return (
     <Page
@@ -83,59 +131,17 @@ export default function CatalogoList() {
         ) : undefined
       }
     >
-      <Card variant="bordered" className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeader>Nome</TableHeader>
-                <TableHeader>Categoria</TableHeader>
-                <TableHeader>Unidade</TableHeader>
-                <TableHeader>Ações</TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data?.length ? (
-                data.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="font-semibold">{item.nome}</TableCell>
-                    <TableCell>{item.categoriaItem?.label || '—'}</TableCell>
-                    <TableCell>{item.unidadeMedidaPadrao?.codigo || '—'}</TableCell>
-                    <TableCell>
-                      {canWrite ? (
-                      <div className="flex gap-2">
-                        <Link to={`/catalogo-itens/${item.id}/edit`}>
-                          <Button size="sm" variant="secondary">
-                            Editar
-                          </Button>
-                        </Link>
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          onClick={() =>
-                            confirm.ask(item.id, 'Desativar item?', 'O item deixa de aparecer nas listas.')
-                          }
-                        >
-                          Desativar
-                        </Button>
-                      </div>
-                      ) : (
-                        '—'
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-[var(--text-muted)]">
-                    Nenhum item no catálogo.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </Card>
+      <ListSearch key={q} q={q} onSearch={setQ} placeholder="Nome do item" />
+      <DataTable
+        columns={columns}
+        data={rows}
+        pageCount={meta?.totalPages ?? 1}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        totalRows={meta?.total}
+        loading={isLoading}
+        emptyMessage="Nenhum item no catálogo."
+      />
 
       <ConfirmDialog
         open={confirm.open}

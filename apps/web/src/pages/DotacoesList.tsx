@@ -3,17 +3,11 @@ import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Button,
-  Card,
   ConfirmDialog,
+  DataTable,
   ErrorState,
   Page,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  type ColumnDef,
   useToast,
 } from '@painel/ui';
 import { Plus } from 'lucide-react';
@@ -21,6 +15,10 @@ import { http, getErrorMessage } from '../lib/http';
 import { useCanWrite } from '../lib/access';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 import { invalidateDotacoes } from '../lib/invalidate';
+import { parseListResponse } from '../lib/listResponse';
+import { useListParams } from '../lib/useListParams';
+import { qk } from '../lib/queryKeys';
+import { ListSearch } from '../components/ListSearch';
 import type { DotacaoDTO } from '@painel/schema';
 
 export default function DotacoesList() {
@@ -28,9 +26,17 @@ export default function DotacoesList() {
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
   const canWrite = useCanWrite();
+  const { page, pageSize, q, setQ, pagination, onPaginationChange } = useListParams();
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['dotacoes'],
-    queryFn: async () => (await http.get<DotacaoDTO[]>('/dotacoes')).data,
+    queryKey: [...qk.dotacoes, { page, pageSize, q }],
+    queryFn: async () => {
+      const raw = (
+        await http.get<unknown>('/dotacoes', {
+          params: { page, pageSize, q: q || undefined },
+        })
+      ).data;
+      return parseListResponse<DotacaoDTO>(raw, page, pageSize);
+    },
   });
   const del = useMutation({
     mutationFn: async (id: string) => (await http.delete(`/dotacoes/${id}`)).data,
@@ -47,13 +53,68 @@ export default function DotacoesList() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Page title="Dotações orçamentárias" description="Carregando...">
-        <Skeleton variant="card" />
-      </Page>
-    );
-  }
+  const columns: ColumnDef<DotacaoDTO>[] = [
+    {
+      accessorKey: 'exercicio',
+      header: 'Exercício',
+      enableSorting: false,
+    },
+    {
+      accessorKey: 'codigo',
+      header: 'Código',
+      enableSorting: false,
+      cell: ({ row }) => <span className="font-semibold">{row.original.codigo}</span>,
+    },
+    {
+      id: 'natureza',
+      header: 'Natureza',
+      enableSorting: false,
+      cell: ({ row }) =>
+        row.original.naturezaDespesa?.label || row.original.naturezaDespesa?.codigo || '—',
+    },
+    {
+      id: 'fonte',
+      header: 'Fonte',
+      enableSorting: false,
+      cell: ({ row }) => row.original.fonteRecurso?.label || row.original.fonteRecurso?.codigo || '—',
+    },
+    {
+      accessorKey: 'descricao',
+      header: 'Descrição',
+      enableSorting: false,
+      cell: ({ row }) => row.original.descricao || '—',
+    },
+    {
+      id: 'acoes',
+      header: 'Ações',
+      enableSorting: false,
+      cell: ({ row }) =>
+        canWrite ? (
+          <div className="flex gap-2">
+            <Link to={`/dotacoes/${row.original.id}/edit`}>
+              <Button size="sm" variant="secondary">
+                Editar
+              </Button>
+            </Link>
+            <Button
+              size="sm"
+              variant="danger"
+              onClick={() =>
+                confirm.ask(
+                  row.original.id,
+                  'Excluir dotação?',
+                  `Remover ${row.original.codigo}/${row.original.exercicio}. Vínculos com contratos podem impedir a exclusão.`,
+                )
+              }
+            >
+              Excluir
+            </Button>
+          </div>
+        ) : (
+          '—'
+        ),
+    },
+  ];
 
   if (error) {
     return (
@@ -66,6 +127,9 @@ export default function DotacoesList() {
       </Page>
     );
   }
+
+  const rows = data?.data ?? [];
+  const meta = data?.meta;
 
   return (
     <Page
@@ -81,63 +145,17 @@ export default function DotacoesList() {
         ) : undefined
       }
     >
-      <Card variant="bordered" className="overflow-hidden p-0">
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeader>Exercício</TableHeader>
-              <TableHeader>Código</TableHeader>
-              <TableHeader>Natureza</TableHeader>
-              <TableHeader>Fonte</TableHeader>
-              <TableHeader>Descrição</TableHeader>
-              <TableHeader>Ações</TableHeader>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {data?.length ? (
-              data.map((d) => (
-                <TableRow key={d.id}>
-                  <TableCell>{d.exercicio}</TableCell>
-                  <TableCell className="font-semibold">{d.codigo}</TableCell>
-                  <TableCell>{d.naturezaDespesa?.label || d.naturezaDespesa?.codigo || '—'}</TableCell>
-                  <TableCell>{d.fonteRecurso?.label || d.fonteRecurso?.codigo || '—'}</TableCell>
-                  <TableCell>{d.descricao || '—'}</TableCell>
-                  <TableCell>
-                    {canWrite ? (
-                    <div className="flex gap-2">
-                      <Link to={`/dotacoes/${d.id}/edit`}>
-                        <Button size="sm" variant="secondary">
-                          Editar
-                        </Button>
-                      </Link>
-                      <Button
-                        size="sm"
-                        variant="danger"
-                        onClick={() =>
-                          confirm.ask(
-                            d.id,
-                            'Excluir dotação?',
-                            `Remover ${d.codigo}/${d.exercicio}. Vínculos com contratos podem impedir a exclusão.`,
-                          )
-                        }
-                      >
-                        Excluir
-                      </Button>
-                    </div>
-                    ) : (
-                      '—'
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6}>Nenhuma dotação cadastrada.</TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+      <ListSearch key={q} q={q} onSearch={setQ} placeholder="Código ou descrição" />
+      <DataTable
+        columns={columns}
+        data={rows}
+        pageCount={meta?.totalPages ?? 1}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        totalRows={meta?.total}
+        loading={isLoading}
+        emptyMessage="Nenhuma dotação cadastrada."
+      />
 
       <ConfirmDialog
         open={confirm.open}

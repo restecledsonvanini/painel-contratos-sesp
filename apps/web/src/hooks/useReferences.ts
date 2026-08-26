@@ -42,7 +42,7 @@ const fornecedorCrud = createCrudHooks<
   listKey: qk.fornecedores,
   detailKey: qk.fornecedor,
   paths: {
-    list: '/fornecedores?flat=true',
+    list: '/fornecedores',
     detail: (id) => `/fornecedores/${id}`,
   },
 });
@@ -124,7 +124,7 @@ const servidorCrud = createCrudHooks<ServidorDTO, ServidorCreateInput, ServidorU
   listKey: qk.servidores,
   detailKey: qk.servidor,
   paths: {
-    list: '/servidores?flat=true',
+    list: '/servidores',
     detail: (id) => `/servidores/${id}`,
   },
 });

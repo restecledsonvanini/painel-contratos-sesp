@@ -22,6 +22,7 @@ export const qk = {
   fornecedor: (id: string) => ['fornecedores', id] as const,
   servidores: ['servidores'] as const,
   servidor: (id: string) => ['servidores', id] as const,
+  catalogoItens: ['catalogo-itens'] as const,
   unidadesFsp: ['unidadesFsp'] as const,
   unidadeFsp: (id: string) => ['unidadesFsp', id] as const,
   dotacoes: ['dotacoes'] as const,

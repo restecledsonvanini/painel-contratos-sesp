@@ -29,7 +29,8 @@ export default function UsuariosPage() {
   const toast = useToast();
   const qc = useQueryClient();
   const { data: orgaos = [] } = useOrgaos();
-  const { data: servidores = [] } = useServidores();
+  const { data: servidoresPage } = useServidores({ pageSize: 100 });
+  const servidores = servidoresPage?.data ?? [];
   const [email, setEmail] = useState('');
   const [nome, setNome] = useState('');
   const [password, setPassword] = useState('');

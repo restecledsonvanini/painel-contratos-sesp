@@ -7,6 +7,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:a11y": "playwright test --project=chromium e2e/smoke.spec.ts"
@@ -36,7 +38,8 @@
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.3",
-    "vite": "^8.1.5"
+    "vite": "^8.1.5",
+    "vitest": "^2.1.8"
   },
   "engines": {
     "node": ">=20 <25"

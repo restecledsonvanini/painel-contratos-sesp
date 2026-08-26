@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-query';
 import { http } from './http';
 import { invalidateKeys, invalidateLookups } from './invalidate';
+import { parseListResponse, type ListParams, type PaginatedResult } from './listResponse';
 
 type CrudPaths = {
   list: string;
@@ -19,7 +20,6 @@ type CreateCrudHooksOptions<TEntity, TCreate, TUpdate> = {
   listKey: QueryKey;
   detailKey: (id: string) => QueryKey;
   paths: CrudPaths;
-  /** Extra query keys invalidated after any write (besides list/detail/lookups). */
   alsoInvalidate?: QueryKey[];
   withLookups?: boolean;
   staleTime?: number;
@@ -29,6 +29,7 @@ type CreateCrudHooksOptions<TEntity, TCreate, TUpdate> = {
 
 /**
  * Factory de hooks list/get/create/update/delete com invalidação padronizada.
+ * `useList` devolve `{ data, meta }` (array legado da API também é aceito).
  */
 export function createCrudHooks<
   TEntity,
@@ -51,10 +52,23 @@ export function createCrudHooks<
     if (withLookups) invalidateLookups(qc);
   }
 
-  function useList(queryOptions?: Partial<UseQueryOptions<TEntity[]>>) {
+  function useList(
+    params: ListParams = {},
+    queryOptions?: Partial<UseQueryOptions<PaginatedResult<TEntity>>>,
+  ) {
+    const page = params.page ?? 1;
+    const pageSize = params.pageSize ?? 25;
+    const q = params.q ?? '';
     return useQuery({
-      queryKey: listKey,
-      queryFn: async () => (await http.get<TEntity[]>(paths.list)).data,
+      queryKey: [...listKey, { page, pageSize, q }],
+      queryFn: async () => {
+        const raw = (
+          await http.get<unknown>(paths.list, {
+            params: { page, pageSize, q: q || undefined },
+          })
+        ).data;
+        return parseListResponse<TEntity>(raw, page, pageSize);
+      },
       staleTime,
       ...queryOptions,
     });
@@ -71,29 +85,6 @@ export function createCrudHooks<
   }
 
   function useCreate(
-    mutationOptions?: UseMutationOptions<TEntity, Error, TCreate>,
-  ) {
-    const qc = useQueryClient();
-    return useMutation({
-      mutationFn: async (payload: TCreate) =>
-        (
-          await http.post<TEntity>(
-            paths.list.replace(/\?.*$/, ''),
-            opts.createBody ? opts.createBody(payload) : payload,
-          )
-        ).data,
-      onSuccess: (...args) => {
-        invalidateAll(qc);
-        mutationOptions?.onSuccess?.(...args);
-      },
-      ...mutationOptions,
-      // keep our onSuccess after spread override
-      onSettled: mutationOptions?.onSettled,
-    });
-  }
-
-  // Fix create to properly compose onSuccess
-  function useCreateFixed(
     mutationOptions?: Omit<UseMutationOptions<TEntity, Error, TCreate>, 'mutationFn'>,
   ) {
     const qc = useQueryClient();
@@ -107,9 +98,9 @@ export function createCrudHooks<
           )
         ).data,
       ...rest,
-      onSuccess: (data, vars, ctx) => {
+      onSuccess: (data, vars, ctx, mutationCtx) => {
         invalidateAll(qc);
-        onSuccess?.(data, vars, ctx);
+        onSuccess?.(data, vars, ctx, mutationCtx);
       },
     });
   }
@@ -131,9 +122,9 @@ export function createCrudHooks<
           )
         ).data,
       ...rest,
-      onSuccess: (data, vars, ctx) => {
+      onSuccess: (data, vars, ctx, mutationCtx) => {
         invalidateAll(qc, vars.id);
-        onSuccess?.(data, vars, ctx);
+        onSuccess?.(data, vars, ctx, mutationCtx);
       },
     });
   }
@@ -146,9 +137,9 @@ export function createCrudHooks<
     return useMutation({
       mutationFn: async (id: string) => (await http.delete(paths.detail(id))).data,
       ...rest,
-      onSuccess: (data, id, ctx) => {
+      onSuccess: (data, id, ctx, mutationCtx) => {
         invalidateAll(qc, id);
-        onSuccess?.(data, id, ctx);
+        onSuccess?.(data, id, ctx, mutationCtx);
       },
     });
   }
@@ -156,7 +147,7 @@ export function createCrudHooks<
   return {
     useList,
     useOne,
-    useCreate: useCreateFixed,
+    useCreate,
     useUpdate,
     useRemove,
     invalidateAll,

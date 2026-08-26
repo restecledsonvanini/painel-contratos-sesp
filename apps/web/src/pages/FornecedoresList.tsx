@@ -2,25 +2,21 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import {
   Button,
-  Card,
   ConfirmDialog,
+  DataTable,
   ErrorState,
   Page,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  type ColumnDef,
   useToast,
 } from '@painel/ui';
 import { Plus } from 'lucide-react';
-import { useFornecedores, useDeleteFornecedor } from '../hooks/useReferences';
+import { useFornecedores, useDeleteFornecedor, type Fornecedor } from '../hooks/useReferences';
 import { getErrorMessage } from '../lib/http';
 import { useCanWrite } from '../lib/access';
 import { useConfirmDialog } from '../lib/useConfirmDialog';
 import { maskCnpj, maskCpf } from '../lib/masks';
+import { useListParams } from '../lib/useListParams';
+import { ListSearch } from '../components/ListSearch';
 
 function formatDoc(documento: string, tipo?: string) {
   if (!documento) return '—';
@@ -28,7 +24,8 @@ function formatDoc(documento: string, tipo?: string) {
 }
 
 export default function FornecedoresList() {
-  const { data: fornecedores, isLoading, error, refetch } = useFornecedores();
+  const { page, pageSize, q, setQ, pagination, onPaginationChange } = useListParams();
+  const { data, isLoading, error, refetch } = useFornecedores({ page, pageSize, q });
   const del = useDeleteFornecedor();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
@@ -44,13 +41,73 @@ export default function FornecedoresList() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <Page title="Fornecedores" description="Carregando cadastros...">
-        <Skeleton variant="table" lines={6} />
-      </Page>
-    );
-  }
+  const columns: ColumnDef<Fornecedor>[] = [
+    {
+      id: 'razao',
+      header: 'Razão social',
+      enableSorting: false,
+      cell: ({ row }) => (
+        <span className="font-semibold">{row.original.razaoSocial || row.original.nomeFantasia}</span>
+      ),
+    },
+    {
+      id: 'documento',
+      header: 'Documento',
+      enableSorting: false,
+      cell: ({ row }) => formatDoc(row.original.documento || '', row.original.tipoPessoa),
+    },
+    {
+      accessorKey: 'situacao',
+      header: 'Situação',
+      enableSorting: false,
+      cell: ({ row }) => row.original.situacao || 'ATIVO',
+    },
+    {
+      id: 'contatos',
+      header: 'Contatos',
+      enableSorting: false,
+      cell: ({ row }) => row.original._count?.contatos ?? row.original.contatos?.length ?? 0,
+    },
+    {
+      id: 'sancoes',
+      header: 'Sanções',
+      enableSorting: false,
+      cell: ({ row }) => {
+        const n = row.original._count?.sancoes ?? row.original.sancoes?.length ?? 0;
+        return n > 0 ? (
+          <span className="font-medium text-[var(--danger, #b91c1c)]">{n}</span>
+        ) : (
+          0
+        );
+      },
+    },
+    {
+      id: 'acoes',
+      header: 'Ações',
+      enableSorting: false,
+      cell: ({ row }) =>
+        canWrite ? (
+          <div className="flex gap-2">
+            <Link to={`/fornecedores/${row.original.id}/edit`}>
+              <Button size="sm" variant="secondary">
+                Editar
+              </Button>
+            </Link>
+            <Button
+              size="sm"
+              variant="danger"
+              onClick={() =>
+                confirm.ask(row.original.id, 'Desativar fornecedor?', 'O registro será marcado como inativo.')
+              }
+            >
+              Desativar
+            </Button>
+          </div>
+        ) : (
+          '—'
+        ),
+    },
+  ];
 
   if (error) {
     return (
@@ -64,6 +121,9 @@ export default function FornecedoresList() {
       </Page>
     );
   }
+
+  const rows = data?.data ?? [];
+  const meta = data?.meta;
 
   return (
     <Page
@@ -79,71 +139,22 @@ export default function FornecedoresList() {
         ) : undefined
       }
     >
-      <Card variant="bordered" className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeader>Razão social</TableHeader>
-                <TableHeader>Documento</TableHeader>
-                <TableHeader>Situação</TableHeader>
-                <TableHeader>Contatos</TableHeader>
-                <TableHeader>Sanções</TableHeader>
-                <TableHeader>Ações</TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {fornecedores?.length ? (
-                fornecedores.map((f) => (
-                  <TableRow key={f.id}>
-                    <TableCell className="font-semibold">{f.razaoSocial || f.nome}</TableCell>
-                    <TableCell>{formatDoc(f.documento || '', f.tipoPessoa)}</TableCell>
-                    <TableCell>{f.situacao || 'ATIVO'}</TableCell>
-                    <TableCell>{f._count?.contatos ?? f.contatos?.length ?? 0}</TableCell>
-                    <TableCell>
-                      {(f._count?.sancoes ?? f.sancoes?.length ?? 0) > 0 ? (
-                        <span className="text-[var(--danger, #b91c1c)] font-medium">
-                          {f._count?.sancoes ?? f.sancoes?.length}
-                        </span>
-                      ) : (
-                        0
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      {canWrite ? (
-                      <div className="flex gap-2">
-                        <Link to={`/fornecedores/${f.id}/edit`}>
-                          <Button size="sm" variant="secondary">
-                            Editar
-                          </Button>
-                        </Link>
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          onClick={() =>
-                            confirm.ask(f.id, 'Desativar fornecedor?', 'O registro será marcado como inativo.')
-                          }
-                        >
-                          Desativar
-                        </Button>
-                      </div>
-                      ) : (
-                        '—'
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={4} className="text-[var(--text-muted)]">
-                    Nenhum fornecedor.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </Card>
+      <ListSearch
+        key={q}
+        q={q}
+        onSearch={setQ}
+        placeholder="Razão social ou documento"
+      />
+      <DataTable
+        columns={columns}
+        data={rows}
+        pageCount={meta?.totalPages ?? 1}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        totalRows={meta?.total}
+        loading={isLoading}
+        emptyMessage="Nenhum fornecedor."
+      />
 
       <ConfirmDialog
         open={confirm.open}

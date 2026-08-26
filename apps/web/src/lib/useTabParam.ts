@@ -19,6 +19,8 @@ export function useTabParam<T extends string>(
         (prev) => {
           const p = new URLSearchParams(prev);
           p.set('tab', next);
+          p.delete('page');
+          p.delete('q');
           return p;
         },
         { replace: true },

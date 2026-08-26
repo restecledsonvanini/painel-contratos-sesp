@@ -1,0 +1,18 @@
+---
+description: Ao terminar uma onda ou tarefa, sugerir mensagem de commit (sem commitar).
+alwaysApply: true
+---
+
+# Sugestão de commit ao terminar
+
+Quando uma onda/tarefa estiver **concluída e testada**, a última seção da resposta deve ser uma **sugestão de mensagem de commit**. Não crie o commit a menos que o usuário peça.
+
+Formato (alinhar ao `git log` do repo):
+
+- Uma linha de assunto em conventional commit: `tipo(escopo): descrição`
+- Tipos comuns aqui: `fix`, `feat`, `perf`, `refactor`, `chore`, `test`
+- Escopos comuns: `web`, `api`, `db`
+- Foco no **porquê**, em português, como o restante do histórico
+- Opcional: 1–2 frases de corpo se o diff não se explica sozinho
+
+Não commitar, não `git add`, só sugerir o texto (pronto para copiar).
