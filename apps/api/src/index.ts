@@ -24,11 +24,15 @@ import { buildOpenApiDocument } from './lib/openapi';
 import { getMetricsSnapshot } from './lib/metrics';
 import { getPrisma } from './lib/prisma';
 import { assertProductionConfig } from './lib/env';
+import { applyHardening } from './middleware/security';
+import { requireMinRole } from './middleware/rbac';
+import { API_BASES } from './lib/apiBases';
 
 assertProductionConfig();
 registerBigIntJson();
 
 const app = express();
+applyHardening(app);
 app.use(bodyParser.json({ limit: '5mb' }));
 
 app.get('/.well-known/appspecific/com.chrome.devtools.json', (_req, res) => {
@@ -39,9 +43,12 @@ app.get('/', (_req, res) => {
   res.type('json').json(publicApiCatalog);
 });
 
-app.use(authenticate);
+// Contexto e observabilidade antes da autenticação: do contrário as respostas
+// 401 ficam fora das métricas e do log de acesso, escondendo justamente o
+// tráfego de quem está tentando entrar.
 app.use(requestContextMiddleware);
 app.use(observabilityMiddleware);
+app.use(authenticate);
 
 function mountApi(base: string) {
   app.get(base, (_req, res) => {
@@ -71,18 +78,26 @@ function mountApi(base: string) {
       await db.$queryRaw`SELECT 1`;
       return res.json({ ok: true, latencyMs: Date.now() - started });
     } catch (err) {
-      return res.status(503).json({
-        ok: false,
-        error: err instanceof Error ? err.message : 'db unavailable',
-      });
+      // Sem detalhe do Prisma: a mensagem crua expõe host, base e credencial.
+      console.error(
+        JSON.stringify({
+          code: 'HEALTH_DB_FAILED',
+          message: err instanceof Error ? err.message : String(err),
+        }),
+      );
+      return res.status(503).json({ ok: false, error: 'db unavailable' });
     }
   });
-  app.get(`${base}/metrics`, (_req, res) => res.json(getMetricsSnapshot()));
-  app.get(`${base}/docs`, (_req, res) => res.type('json').json(buildOpenApiDocument()));
+  // Latência por rota e superfície OpenAPI completa não são dados públicos.
+  app.get(`${base}/metrics`, requireMinRole('ADMIN'), (_req, res) =>
+    res.json(getMetricsSnapshot()),
+  );
+  app.get(`${base}/docs`, requireMinRole('ADMIN'), (_req, res) =>
+    res.type('json').json(buildOpenApiDocument()),
+  );
 }
 
-mountApi('/api/v1');
-mountApi('/.netlify/functions/api');
+for (const base of API_BASES) mountApi(base);
 
 app.use(errorHandler);
 

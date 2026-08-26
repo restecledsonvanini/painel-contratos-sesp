@@ -34,8 +34,17 @@ const ACERVO_HEADERS = [
 
 type MappedContract = Awaited<ReturnType<typeof contratoService.getById>>;
 
+/**
+ * Excel e LibreOffice interpretam células iniciadas por `=`, `+`, `-`, `@`
+ * (e por tab/CR) como fórmula. Prefixar com aspa simples neutraliza sem
+ * alterar o texto exibido.
+ */
+function neutralizeFormula(s: string): string {
+  return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+}
+
 function csvEscape(value: unknown): string {
-  const s = value == null ? '' : String(value);
+  const s = neutralizeFormula(value == null ? '' : String(value));
   if (/[",\n\r]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
   return s;
 }

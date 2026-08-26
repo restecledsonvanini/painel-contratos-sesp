@@ -1,6 +1,21 @@
 import { getPrisma } from './prisma';
 import { badRequest } from './errors';
+import { isProduction } from './env';
 import { EMAIL_DOMAINS_SLUG } from '@painel/domain';
+
+let allowlistWarned = false;
+
+function warnAllowlistMissing() {
+  if (allowlistWarned || !isProduction()) return;
+  allowlistWarned = true;
+  console.warn(
+    JSON.stringify({
+      code: 'EMAIL_ALLOWLIST_EMPTY',
+      message:
+        'Nenhum domínio de e-mail permitido configurado: qualquer domínio consegue autenticar. Defina AUTH_EMAIL_DOMAINS ou popule o domínio no banco.',
+    }),
+  );
+}
 
 /** Extrai o domínio do e-mail (parte após @), em minúsculas. */
 export function emailDomainOf(email: string): string | null {
@@ -40,7 +55,13 @@ export async function assertEmailDomainAllowed(email: string) {
     where: { slug: EMAIL_DOMAINS_SLUG },
     include: { valores: { where: { ativo: true }, select: { codigo: true, label: true } } },
   });
-  if (!row || row.valores.length === 0) return;
+  // Sem allowlist configurada não há o que aplicar. Travar aqui deixaria uma
+  // implantação nova sem nenhum login possível, então libera — mas em produção
+  // avisa, para não passar a impressão de que a restrição está ativa.
+  if (!row || row.valores.length === 0) {
+    warnAllowlistMissing();
+    return;
+  }
 
   const ok = row.valores.some((v) => {
     const code = v.codigo.trim().toLowerCase();

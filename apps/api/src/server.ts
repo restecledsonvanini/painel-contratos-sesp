@@ -16,7 +16,11 @@ if (!process.env.DATABASE_URL) {
 import { app } from './index';
 
 const port = process.env.PORT || 8888;
-app.listen(port, () => {
+const server = app.listen(port, () => {
   console.log(`API listening on http://localhost:${port}`);
   console.log(`DATABASE_URL host configured`);
 });
+
+// Sem isto uma requisição pendurada segura o socket indefinidamente.
+server.requestTimeout = Number(process.env.REQUEST_TIMEOUT_MS || 60_000);
+server.headersTimeout = server.requestTimeout + 5_000;

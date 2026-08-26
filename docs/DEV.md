@@ -94,6 +94,9 @@ AUTH_EMAIL_DOMAINS=sesp.pr.gov.br
 | `VITE_AUTH_REQUIRED` | Web | Sidebar/guards exigem login |
 | `VITE_API_URL` | Web | Default `/api/v1` (proxy Vite); só mude se API estiver em outro host |
 | `JWT_SECRET` | API | **Obrigatório em produção** (32+ caracteres); a API não sobe sem ele |
+| `CORS_ORIGINS` | API | Origens liberadas no CORS. Vazio = nenhum header (padrão) |
+| `TRUST_PROXY` | API | Nº de proxies à frente. Default: desligado em dev, `1` em produção |
+| `AUTH_LOGIN_RATE_MAX` | API | Logins falhos por IP+e-mail a cada 15 min (default 10) |
 
 Com `AUTH_DEV_BYPASS=1` a API responde como **ADMIN** sem header e a UI libera ações — ideal para estudar o código. Sem a flag e sem token, toda rota protegida devolve 401.
 
@@ -106,6 +109,14 @@ ADMIN enxerga todos os órgãos. Os demais papéis ficam restritos ao órgão do
 Um usuário não-ADMIN **sem órgão vinculado** é negado, não liberado. Se um login demo passar a responder 403 em tudo, é isso: rode `npx tsx scripts/ensure-demo-users.ts` para revincular. A migration `20260826100000_usuario_orgao_backfill` já faz esse ajuste em bancos existentes.
 
 O usuário do `AUTH_DEV_BYPASS` é ADMIN, então o bypass local continua vendo tudo.
+
+## Endurecimento HTTP
+
+A API aplica `helmet`, `compression` e rate limit de login. Rotas públicas são exatamente três: `/auth/login`, `/health` e `/health/db` — qualquer outra exige token.
+
+`/metrics` e `/docs` passaram a exigir **ADMIN** (expunham latência por rota e a superfície OpenAPI inteira). Com `AUTH_DEV_BYPASS=1` você continua abrindo os dois normalmente.
+
+O rate limit de login conta por **IP + e-mail** e só registra tentativa **falha**. Contar só por IP tiraria do ar uma rede com NAT inteira, e contar acerto atrapalharia uso legítimo.
 
 ## Login demo (após seed)
 
@@ -126,7 +137,7 @@ npm run setup        # install + docker + migrate + seed
 npm run db:up        # só Postgres
 npm run db:down      # para Postgres
 npm run db:seed      # reaplica seed
-npm run api:test     # Vitest API (67 testes)
+npm run api:test     # Vitest API (76 testes)
 npm run domain:test  # Vitest domain
 npm run web:e2e      # Playwright (AUTH ligada; sobe servidores sozinho)
 ```
@@ -163,6 +174,9 @@ Mapas detalhados: [`plan/flow-maps/`](../plan/flow-maps/README.md)
 | `Bearer admin` devolve 401 | Esperado: tokens sintéticos só valem em teste. Use `POST /auth/login` |
 | 403 em contrato que existe | Contrato é de outro órgão; só ADMIN atravessa o escopo |
 | 403 em tudo após login | Usuário sem `orgaoId`: `npx tsx scripts/ensure-demo-users.ts` |
+| 403 em `/docs` ou `/metrics` | Passaram a exigir ADMIN; use `AUTH_DEV_BYPASS=1` ou logue como admin |
+| 429 no login | Rate limit após 10 senhas erradas para o mesmo e-mail; espere 15 min |
+| E2E: `Executable doesn't exist` | Falta o browser do Playwright: `npx playwright install chromium` |
 | API não sobe: "JWT_SECRET é obrigatório" | `NODE_ENV=production` sem `JWT_SECRET` de 32+ caracteres |
 | Codespaces: `Blocked request` no 5173 | Container antigo, sem o `allowedHosts`; rebuild para pegar o `vite.config.ts` atual |
 | Codespaces: HMR não recarrega | Confirme que a porta 5173 está encaminhada e que `CODESPACES=true` no terminal |

@@ -4,6 +4,7 @@ import { verifyJwt } from '../lib/jwt';
 import { AuthUser, normalizeRole } from '../lib/authTypes';
 import { unauthorized } from '../lib/errors';
 import { devBypassEnabled, syntheticTokensAllowed } from '../lib/env';
+import { API_BASES } from '../lib/apiBases';
 
 /** Bypass local: ADMIN para espelhar o front (useCanAct liberado sem AUTH). */
 const SYSTEM_USER: AuthUser = {
@@ -55,21 +56,32 @@ const SYNTHETIC_USERS = new Map<string, AuthUser>([
 ]);
 
 /**
+ * Allowlist exata em vez de regex de sufixo. Com o padrão anterior
+ * (`/\/health(\/|$)/`) qualquer caminho que contivesse um segmento `health`
+ * dispensava autenticação.
+ */
+const PUBLIC_PATHS = new Set(
+  API_BASES.flatMap((base) =>
+    ['/auth/login', '/health', '/health/db'].map((suffix) => `${base}${suffix}`),
+  ),
+);
+
+function isPublicPath(path: string): boolean {
+  const normalized = path.length > 1 ? path.replace(/\/+$/, '') : path;
+  return PUBLIC_PATHS.has(normalized.toLowerCase());
+}
+
+/**
  * Auth real (JWT) + tokens de teste + bypass de desenvolvimento.
  *
  * - Authorization: Bearer <jwt> → Usuario do banco
  * - Bearer admin|analista|gestor|visitante → papel sintético, só em ambiente de teste
  * - Sem header → ADMIN system só quando o bypass de dev está habilitado; senão 401
- * - /auth/login, /health*, /docs, /metrics são públicos
+ * - Públicas: apenas /auth/login, /health e /health/db
  */
 export async function authenticate(req: Request, _res: Response, next: NextFunction) {
   try {
-    const path = req.path || '';
-    const isPublic =
-      /\/auth\/login\/?$/.test(path) ||
-      /\/health(\/|$)/.test(path) ||
-      /\/docs\/?$/.test(path) ||
-      /\/metrics\/?$/.test(path);
+    const isPublic = isPublicPath(req.path || '');
 
     const auth = req.headers.authorization;
     if (!auth) {

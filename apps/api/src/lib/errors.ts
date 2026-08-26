@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
+import { isProduction } from './env';
 
 export type ApiErrorBody = {
   error: {
@@ -41,6 +42,10 @@ export function unauthorized(message = 'Unauthorized') {
 
 export function legalRuleViolation(message: string, details?: unknown) {
   return new AppError(422, 'LEGAL_RULE_VIOLATION', message, details);
+}
+
+export function tooManyRequests(message = 'Too many requests') {
+  return new AppError(429, 'TOO_MANY_REQUESTS', message);
 }
 
 export function asyncHandler(
@@ -108,7 +113,16 @@ export function errorHandler(err: unknown, _req: Request, res: Response, _next: 
     return res.status(422).json(body);
   }
 
-  console.error(JSON.stringify({ code: 'INTERNAL_ERROR', name, message, err: full }));
+  // `full` de um erro do Prisma carrega a query e seus parâmetros; fora de
+  // desenvolvimento isso despejaria dado de contrato no log.
+  console.error(
+    JSON.stringify({
+      code: 'INTERNAL_ERROR',
+      name,
+      message,
+      ...(isProduction() ? {} : { err: full }),
+    }),
+  );
 
   const dbDown =
     name === 'PrismaClientInitializationError' ||

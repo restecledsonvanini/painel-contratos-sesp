@@ -9,10 +9,11 @@ import {
 } from '../controllers/authController';
 import { asyncHandler } from '../lib/errors';
 import { requireMinRole } from '../middleware/rbac';
+import { loginRateLimiter } from '../middleware/security';
 
 const router = Router();
 
-router.post('/auth/login', asyncHandler(login));
+router.post('/auth/login', loginRateLimiter, asyncHandler(login));
 router.get('/auth/me', asyncHandler(me));
 
 router.get('/usuarios', requireMinRole('ADMIN'), asyncHandler(listUsuarios));

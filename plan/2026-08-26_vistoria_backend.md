@@ -116,6 +116,8 @@ Como os tokens sintéticos têm `orgaoId: null`, mesmo os endpoints que chamam o
 
 ## 2. P1 — Endurecimento HTTP
 
+> **Resolvido na onda 3** (`middleware/security.ts`). Detalhes de decisão ao final da seção.
+
 Nenhum destes middlewares existe em `apps/api/src/index.ts`:
 
 | Faltante | Risco |
@@ -140,6 +142,17 @@ Nenhum destes middlewares existe em `apps/api/src/index.ts`:
 - `controllers/catalogoController.ts:44-46` — spread de `req.body` antes do Zod permite sobrescrever `categoriaItemId` da rota.
 - `lib/jwt.ts:25-28,56-76` — `scryptSync` sem parâmetros explícitos e **síncrono** (bloqueia o event loop no login); `alg` do header não é validado; TTL de 12h sem revogação. Mitigado por `auth.ts:93-94` recarregar o usuário do banco, ignorando `role`/`orgaoId` do payload.
 - `packages/db/package.json` — Prisma travado em **4.16.2** (2023).
+
+### Resultado da onda 3
+
+Aplicado: helmet, compression, CORS por allowlist (`CORS_ORIGINS`; vazio mantém o comportamento atual de não emitir header), `trust proxy` opt-in, rate limit de login, timeout de requisição, allowlist exata de rotas públicas, `/metrics` e `/docs` sob ADMIN, `/health/db` sem detalhe do Prisma, log de 500 sem `String(err)` em produção, CSV com neutralização de fórmula, e observabilidade antes da autenticação (401 agora entra em métrica e log).
+
+Duas decisões que divergem do texto original da vistoria:
+
+- **Rate limit não é global.** Um teto por IP derrubaria uma rede com NAT — cenário comum em órgão público. Ficou só no login, com chave IP+e-mail e contando apenas tentativa falha.
+- **`requireMinRole` em `/alertas` não foi aplicado.** `GET /contracts` e `GET /contracts/:id` também não têm gate de papel: leitura é liberada a qualquer autenticado e restringida por órgão. Colocar gate só em alertas seria incoerente; se leitura deve exigir papel mínimo, é uma mudança de produto para toda a API.
+
+Continua **em aberto** nesta seção: `emailDomain` segue fail-open quando não há allowlist configurada (travar deixaria implantação nova sem login; agora emite aviso em produção), `scryptSync` síncrono no login, `alg` do JWT não validado, TTL de 12h sem revogação, spread de `req.body` em `catalogoController`, e o upgrade do Prisma.
 
 ---
 
@@ -277,7 +290,7 @@ Papel mínimo para escrita varia sem critério documentado em recursos equivalen
 |---|---|---|
 | ~~**1**~~ | ~~Guarda `VITEST` nos tokens sintéticos; `DEV_BYPASS` fail-closed; fail-fast de `JWT_SECRET`/`DATABASE_URL`~~ | **Concluída.** |
 | ~~**2**~~ | ~~`assertContratoInScope` em `lib/`; escopo em todos os acessos por ID; `getOrgaoScope` fail-closed; amarrar `unidadeGestoraId` na criação~~ | **Concluída**, menos importações e KPIs agregados (decisão de produto). |
-| **3** | helmet, CORS, rate limit no login, `trust proxy`, compression; fechar `/metrics` e `/docs`; sanitizar `/health/db`; anti-injection no CSV; `requireMinRole` em `/alertas` | Endurecimento; baixo risco de regressão. |
+| ~~**3**~~ | ~~helmet, CORS, rate limit no login, `trust proxy`, compression; fechar `/metrics` e `/docs`; sanitizar `/health/db`; anti-injection no CSV~~ | **Concluída.** `requireMinRole` em `/alertas` descartado por incoerência com as demais leituras. |
 | **4** | `listInclude` vs `detailInclude`; paginar `/contracts`; export com projeção dedicada; GUC por transação; índices faltantes | Performance; exige atenção ao contrato de resposta consumido pelo front. |
 | **5** | Extrair busca global para service; quebrar `contratoRepository`; mover mappers para service e tipar (eliminar `any`); unificar `ensureContrato` e conversão de centavos; remover código morto | Dívida técnica; sem urgência, alto ganho de manutenção. |
 | **6** | Upgrade Prisma 4 → versão atual | Precisa de janela e regressão completa. |
