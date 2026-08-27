@@ -16,9 +16,11 @@ import {
   Button,
   DescriptionList,
   FieldArrayList,
+  FormField,
   Input,
   Meter,
   Page,
+  Select,
   Stepper,
   Textarea,
   useToast,
@@ -76,6 +78,36 @@ type FormValues = {
     valorCents?: number | null;
   }>;
 };
+
+const PILAR_OPTIONS = [
+  { id: 'CUSTEIO', label: 'Custeio' },
+  { id: 'INVESTIMENTO', label: 'Investimento' },
+  { id: 'SERVICOS', label: 'Serviços' },
+];
+
+const NATUREZA_OPTIONS = [
+  { id: 'SERVICO_CONTINUADO', label: 'Serviço continuado' },
+  { id: 'SERVICO_NAO_CONTINUADO', label: 'Serviço não continuado' },
+  { id: 'COMPRA', label: 'Compra' },
+  { id: 'LOCACAO_BEM_MOVEL', label: 'Locação de bem móvel' },
+  { id: 'LOCACAO_IMOVEL', label: 'Locação de imóvel' },
+  { id: 'SOLUCAO_TIC', label: 'Solução de TIC' },
+  { id: 'OBRA', label: 'Obra' },
+  { id: 'SERVICO_ENGENHARIA', label: 'Serviço de engenharia' },
+];
+
+const PRAZO_UNIDADE_OPTIONS = [
+  { id: 'DIAS', label: 'Dias' },
+  { id: 'MESES', label: 'Meses' },
+  { id: 'ANOS', label: 'Anos' },
+];
+
+const PERIODICIDADE_OPTIONS = [
+  { id: 'UNICA', label: 'Única' },
+  { id: 'DIARIA', label: 'Diária' },
+  { id: 'MENSAL', label: 'Mensal' },
+  { id: 'ANUAL', label: 'Anual' },
+];
 
 const STEP_IDS = CONTRACT_WIZARD_STEPS.map((s) => s.id);
 
@@ -438,189 +470,194 @@ export default function ContractForm() {
 
         <div className="app-form__panel" aria-live="polite">
           {currentStep === 'identificacao' && (
-            <div className="app-form__grid is-dense">
-              <div className="app-form__span-3">
-                <Input label="e-Protocolo" {...register('protocoloCabeca')} />
-              </div>
-              <Input label="Nº do contrato" {...register('numeroContrato')} />
-              <Input label="Número GMS" type="number" {...register('numGms', { valueAsNumber: true })} />
-              <Input label="Ano GMS" type="number" {...register('anoGms', { valueAsNumber: true })} />
-              <div>
-                <Controller
-                  name="modalidade"
-                  control={control}
-                  render={({ field }) => (
+            <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
+              <legend className="sr-only">Identificação</legend>
+              <FormField label="Protocolo" hint="e-Protocolo, se houver" className="app-form__span-2">
+                <Input {...register('protocoloCabeca')} />
+              </FormField>
+              <FormField label="Nº do contrato">
+                <Input {...register('numeroContrato')} />
+              </FormField>
+              <FormField label="GMS">
+                <Input type="number" {...register('numGms', { valueAsNumber: true })} />
+              </FormField>
+              <FormField label="Ano">
+                <Input type="number" {...register('anoGms', { valueAsNumber: true })} />
+              </FormField>
+              <Controller
+                name="modalidade"
+                control={control}
+                render={({ field }) => (
+                  <FormField label="Modalidade" error={errors.modalidade ? String(errors.modalidade.message) : undefined}>
                     <LookupSelect
+                      hideLabel
                       slug="modalidade-licitacao"
-                      label="Modalidade"
                       valueMode="codigo"
                       value={field.value || ''}
                       onChange={field.onChange}
-                      error={errors.modalidade ? String(errors.modalidade.message) : undefined}
                     />
-                  )}
-                />
-              </div>
-              <div>
-                <Controller
-                  name="fundamentoLegalId"
-                  control={control}
-                  render={({ field }) => (
+                  </FormField>
+                )}
+              />
+              <Controller
+                name="fundamentoLegalId"
+                control={control}
+                render={({ field }) => (
+                  <FormField label="Fundamento">
                     <LookupSelect
+                      hideLabel
                       slug="fundamento-legal"
-                      label="Fundamento legal"
                       valueMode="id"
                       value={field.value || ''}
                       onChange={field.onChange}
                     />
-                  )}
-                />
-              </div>
-              <div>
-                <span className="field-label" id="label-pilar">
-                  Pilar
-                </span>
-                <select className="select-field" aria-labelledby="label-pilar" {...register('pilar')}>
-                  <option value="CUSTEIO">Custeio</option>
-                  <option value="INVESTIMENTO">Investimento</option>
-                  <option value="SERVICOS">Serviços</option>
-                </select>
-              </div>
-              <div>
-                <span className="field-label" id="label-natureza">
-                  Natureza do objeto
-                </span>
-                <select
-                  className="select-field"
-                  aria-labelledby="label-natureza"
-                  {...register('naturezaObjeto')}
-                >
-                  <option value="SERVICO_CONTINUADO">Serviço continuado</option>
-                  <option value="SERVICO_NAO_CONTINUADO">Serviço não continuado</option>
-                  <option value="COMPRA">Compra</option>
-                  <option value="LOCACAO_BEM_MOVEL">Locação de bem móvel</option>
-                  <option value="LOCACAO_IMOVEL">Locação de imóvel</option>
-                  <option value="SOLUCAO_TIC">Solução de TIC</option>
-                  <option value="OBRA">Obra</option>
-                  <option value="SERVICO_ENGENHARIA">Serviço de engenharia</option>
-                </select>
-              </div>
-              <div className="app-form__span-3">
-                <Textarea label="Objeto" rows={4} {...register('objeto')} />
-                {errors.objeto && <p className="field-error">{String(errors.objeto.message)}</p>}
-              </div>
-            </div>
+                  </FormField>
+                )}
+              />
+              <Controller
+                name="pilar"
+                control={control}
+                render={({ field }) => (
+                  <FormField label="Pilar">
+                    <Select
+                      options={PILAR_OPTIONS}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormField>
+                )}
+              />
+              <Controller
+                name="naturezaObjeto"
+                control={control}
+                render={({ field }) => (
+                  <FormField label="Natureza" className="app-form__span-2">
+                    <Select
+                      options={NATUREZA_OPTIONS}
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormField>
+                )}
+              />
+              <FormField
+                label="Objeto"
+                error={errors.objeto ? String(errors.objeto.message) : undefined}
+                className="app-form__span-3"
+              >
+                <Textarea rows={4} {...register('objeto')} />
+              </FormField>
+            </fieldset>
           )}
 
           {currentStep === 'partes' && (
-            <div className="app-form__grid is-dense">
-              <div className="app-form__span-3">
-                <span className="field-label" id="label-unidade-gestora">
-                  Unidade gestora (força / SESP)
-                </span>
-                <select
-                  className="select-field"
-                  aria-labelledby="label-unidade-gestora"
-                  {...register('unidadeGestoraId')}
-                  disabled={orgaosLoading}
-                  onChange={(e) => {
-                    setValue('unidadeGestoraId', e.target.value, { shouldDirty: true });
-                    setValue('subunidadeId', '');
-                  }}
-                >
-                  <option value="">Selecione a força</option>
-                  {orgaos?.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.sigla} — {item.nome}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="app-form__span-3">
-                <span className="field-label" id="label-subunidade">
-                  Subunidade (opcional)
-                </span>
-                <select
-                  className="select-field"
-                  aria-labelledby="label-subunidade"
-                  {...register('subunidadeId')}
-                  disabled={unidadesLoading || !unidadeGestoraId}
-                >
-                  <option value="">Sem subunidade</option>
-                  {unidades
-                    ?.filter((u) => (u.orgaoId || u.orgao?.id) === unidadeGestoraId)
-                    .map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.sigla} — {item.nome}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              <div className="app-form__span-3">
-                <span className="field-label" id="label-fornecedor">
-                  Fornecedor
-                </span>
-                <select
-                  className="select-field"
-                  aria-labelledby="label-fornecedor"
-                  {...register('fornecedorId')}
-                  disabled={fornecedoresLoading}
-                >
-                  <option value="">Selecione o fornecedor</option>
-                  {fornecedores?.map((item) => (
-                    <option key={item.id} value={item.id}>
-                      {item.razaoSocial} — {item.documento}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <span className="field-label" id="label-gestor">
-                  Gestor
-                </span>
-                <select
-                  className="select-field"
-                  aria-labelledby="label-gestor"
-                  {...register('gestorId')}
-                  disabled={servidoresLoading}
-                >
-                  <option value="">Selecione o gestor</option>
-                  {servidores
-                    ?.filter((item) => /gestor/i.test(item.cargo || item.nome || ''))
-                    .map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.nome}
-                        {item.cargo ? ` — ${item.cargo}` : ''}
-                      </option>
-                    ))}
-                </select>
-              </div>
-              <div>
-                <span className="field-label" id="label-fiscal">
-                  Fiscal
-                </span>
-                <select
-                  className="select-field"
-                  aria-labelledby="label-fiscal"
-                  {...register('fiscalId')}
-                  disabled={servidoresLoading}
-                >
-                  <option value="">Selecione o fiscal</option>
-                  {servidores
-                    ?.filter((item) => /fiscal/i.test(item.cargo || item.nome || ''))
-                    .map((item) => (
-                      <option key={item.id} value={item.id}>
-                        {item.nome}
-                        {item.cargo ? ` — ${item.cargo}` : ''}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            </div>
+            <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
+              <legend className="sr-only">Partes</legend>
+              <Controller
+                name="unidadeGestoraId"
+                control={control}
+                render={({ field }) => (
+                  <FormField label="Unidade" hint="Força / SESP">
+                    <Select
+                      options={(orgaos ?? []).map((item) => ({
+                        id: item.id,
+                        label: `${item.sigla} — ${item.nome}`,
+                      }))}
+                      value={field.value}
+                      onChange={(v) => {
+                        field.onChange(v);
+                        setValue('subunidadeId', '');
+                      }}
+                      disabled={orgaosLoading}
+                      placeholder="Selecione"
+                    />
+                  </FormField>
+                )}
+              />
+              <Controller
+                name="subunidadeId"
+                control={control}
+                render={({ field }) => (
+                  <FormField label="Subunidade" hint="Opcional">
+                    <Select
+                      options={(unidades ?? [])
+                        .filter((u) => (u.orgaoId || u.orgao?.id) === unidadeGestoraId)
+                        .map((item) => ({
+                          id: item.id,
+                          label: `${item.sigla} — ${item.nome}`,
+                        }))}
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={unidadesLoading || !unidadeGestoraId}
+                      placeholder="Nenhuma"
+                    />
+                  </FormField>
+                )}
+              />
+              <Controller
+                name="fornecedorId"
+                control={control}
+                render={({ field }) => (
+                  <FormField label="Fornecedor" className="app-form__span-3">
+                    <Select
+                      options={(fornecedores ?? []).map((item) => ({
+                        id: item.id,
+                        label: `${item.razaoSocial} — ${item.documento}`,
+                      }))}
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={fornecedoresLoading}
+                      placeholder="Selecione"
+                    />
+                  </FormField>
+                )}
+              />
+              <Controller
+                name="gestorId"
+                control={control}
+                render={({ field }) => (
+                  <FormField label="Gestor">
+                    <Select
+                      options={(servidores ?? [])
+                        .filter((item) => /gestor/i.test(item.cargo || item.nome || ''))
+                        .map((item) => ({
+                          id: item.id,
+                          label: item.cargo ? `${item.nome} — ${item.cargo}` : item.nome,
+                        }))}
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={servidoresLoading}
+                      placeholder="Selecione"
+                    />
+                  </FormField>
+                )}
+              />
+              <Controller
+                name="fiscalId"
+                control={control}
+                render={({ field }) => (
+                  <FormField label="Fiscal">
+                    <Select
+                      options={(servidores ?? [])
+                        .filter((item) => /fiscal/i.test(item.cargo || item.nome || ''))
+                        .map((item) => ({
+                          id: item.id,
+                          label: item.cargo ? `${item.nome} — ${item.cargo}` : item.nome,
+                        }))}
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={servidoresLoading}
+                      placeholder="Selecione"
+                    />
+                  </FormField>
+                )}
+              />
+            </fieldset>
           )}
 
           {currentStep === 'itens' && (
-            <div className="app-form__span-3">
+            <fieldset className="m-0 min-w-0 border-0 p-0">
+              <legend className="sr-only">Itens</legend>
               {id ? (
                 <div className="space-y-2">
                   {existingContract?.itens?.length ? (
@@ -658,108 +695,109 @@ export default function ContractForm() {
                   emptyLabel="Nenhum item — opcional no rascunho."
                   renderItem={(_item, index) => (
                     <div className="app-form__grid is-dense">
-                      <div className="app-form__span-3">
-                        <span className="field-label">Item do catálogo</span>
-                        <select
-                          className="select-field"
-                          {...register(`itens.${index}.catalogoItemId` as const)}
-                        >
-                          <option value="">Selecione…</option>
-                          {catalogo?.map((c) => (
-                            <option key={c.id} value={c.id}>
-                              {c.categoriaItem?.codigo ? `${c.categoriaItem.codigo} · ` : ''}
-                              {c.nome}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <Input
-                        label="Quantidade"
-                        type="number"
-                        step="0.0001"
-                        {...register(`itens.${index}.quantidade` as const, { valueAsNumber: true })}
+                      <Controller
+                        name={`itens.${index}.catalogoItemId`}
+                        control={control}
+                        render={({ field }) => (
+                          <FormField label="Item" className="app-form__span-2">
+                            <Select
+                              options={(catalogo ?? []).map((c) => ({
+                                id: c.id,
+                                label: `${c.categoriaItem?.codigo ? `${c.categoriaItem.codigo} · ` : ''}${c.nome}`,
+                              }))}
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Selecione"
+                            />
+                          </FormField>
+                        )}
                       />
-                      <Input
-                        label="Valor unitário (R$)"
-                        type="number"
-                        step="0.01"
-                        {...register(`itens.${index}.valorUnitario` as const, { valueAsNumber: true })}
+                      <FormField label="Qtd.">
+                        <Input
+                          type="number"
+                          step="0.0001"
+                          {...register(`itens.${index}.quantidade` as const, { valueAsNumber: true })}
+                        />
+                      </FormField>
+                      <FormField label="Valor un. (R$)">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...register(`itens.${index}.valorUnitario` as const, { valueAsNumber: true })}
+                        />
+                      </FormField>
+                      <Controller
+                        name={`itens.${index}.periodicidade`}
+                        control={control}
+                        render={({ field }) => (
+                          <FormField label="Periodicidade">
+                            <Select
+                              options={PERIODICIDADE_OPTIONS}
+                              value={field.value}
+                              onChange={field.onChange}
+                            />
+                          </FormField>
+                        )}
                       />
-                      <div>
-                        <span className="field-label">Periodicidade</span>
-                        <select
-                          className="select-field"
-                          {...register(`itens.${index}.periodicidade` as const)}
-                        >
-                          <option value="UNICA">Única</option>
-                          <option value="DIARIA">Diária</option>
-                          <option value="MENSAL">Mensal</option>
-                          <option value="ANUAL">Anual</option>
-                        </select>
-                      </div>
                     </div>
                   )}
                 />
               )}
-            </div>
+            </fieldset>
           )}
 
           {currentStep === 'vigencia' && (
-            <div className="app-form__grid is-dense">
-              <Input label="Início da vigência" type="date" {...register('dataInicio')} />
-              <Input
-                label="Prazo inicial"
-                type="number"
-                {...register('prazoInicialValor', { valueAsNumber: true })}
+            <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
+              <legend className="sr-only">Vigência</legend>
+              <FormField label="Início">
+                <Input type="date" {...register('dataInicio')} />
+              </FormField>
+              <FormField label="Prazo">
+                <Input type="number" {...register('prazoInicialValor', { valueAsNumber: true })} />
+              </FormField>
+              <Controller
+                name="prazoInicialUnidade"
+                control={control}
+                render={({ field }) => (
+                  <FormField label="Unidade">
+                    <Select options={PRAZO_UNIDADE_OPTIONS} value={field.value} onChange={field.onChange} />
+                  </FormField>
+                )}
               />
-              <div>
-                <span className="field-label" id="label-prazo-unidade">
-                  Unidade do prazo
-                </span>
-                <select
-                  className="select-field"
-                  aria-labelledby="label-prazo-unidade"
-                  {...register('prazoInicialUnidade')}
-                >
-                  <option value="DIAS">Dias</option>
-                  <option value="MESES">Meses</option>
-                  <option value="ANOS">Anos</option>
-                </select>
-              </div>
-              <Input label="Fim original (sugerido)" type="date" {...register('dataFimOrig')} />
-              <Input
-                label="Limite de prorrogação (meses)"
-                type="number"
-                {...register('limiteProrrogacaoMeses', { valueAsNumber: true })}
-              />
-              <Input label="Índice de reajuste" {...register('indiceReajuste')} />
-              <Input
-                label="Mês aniversário reajuste"
-                type="number"
-                min={1}
-                max={12}
-                {...register('mesAniversarioReajuste', { valueAsNumber: true })}
-              />
-              <label className="flex items-center gap-2 text-[var(--font-size-sm)]">
+              <FormField label="Fim" hint="Sugerido pelo prazo">
+                <Input type="date" {...register('dataFimOrig')} />
+              </FormField>
+              <FormField label="Limite (meses)">
+                <Input type="number" {...register('limiteProrrogacaoMeses', { valueAsNumber: true })} />
+              </FormField>
+              <FormField label="Índice">
+                <Input {...register('indiceReajuste')} />
+              </FormField>
+              <FormField label="Mês reajuste">
+                <Input
+                  type="number"
+                  min={1}
+                  max={12}
+                  {...register('mesAniversarioReajuste', { valueAsNumber: true })}
+                />
+              </FormField>
+              <label className="flex items-center gap-2 self-end pb-2 text-[var(--font-size-sm)]">
                 <input type="checkbox" {...register('prorrogavel')} />
-                Contrato prorrogável
+                Prorrogável
               </label>
-            </div>
+            </fieldset>
           )}
 
           {currentStep === 'orcamento' && (
-            <div className="app-form__grid is-dense">
-              <Input
-                label="Valor global (R$)"
-                type="number"
-                step="0.01"
-                {...register('valorAnual', { valueAsNumber: true })}
-              />
-              <div className="app-form__span-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-muted)] p-3 text-[var(--font-size-sm)] text-[var(--text-muted)]">
-                Dotações, reservas e empenhos detalhados ficam na ficha do contrato (aba Financeiro)
-                após salvar o rascunho. Aqui basta o valor global.
-              </div>
-            </div>
+            <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
+              <legend className="sr-only">Orçamento</legend>
+              <FormField label="Valor global (R$)">
+                <Input type="number" step="0.01" {...register('valorAnual', { valueAsNumber: true })} />
+              </FormField>
+              <p className="app-form__span-3 m-0 text-[var(--font-size-sm)] text-[var(--text-muted)]">
+                Dotações e empenhos detalhados ficam na ficha, após o rascunho.
+              </p>
+            </fieldset>
           )}
 
           {currentStep === 'rateio' && (
@@ -783,27 +821,30 @@ export default function ContractForm() {
                   emptyLabel="Sem rateio — opcional no rascunho."
                   renderItem={(_item, index) => (
                     <div className="app-form__grid is-dense">
-                      <div className="app-form__span-3">
-                        <span className="field-label">Unidade</span>
-                        <select
-                          className="select-field"
-                          {...register(`rateios.${index}.unidadeId` as const)}
-                        >
-                          <option value="">Selecione…</option>
-                          {unidades?.map((u) => (
-                            <option key={u.id} value={u.id}>
-                              {u.orgao?.sigla ? `${u.orgao.sigla} / ` : ''}
-                              {u.sigla}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <Input
-                        label="Percentual %"
-                        type="number"
-                        step="0.01"
-                        {...register(`rateios.${index}.percentual` as const, { valueAsNumber: true })}
+                      <Controller
+                        name={`rateios.${index}.unidadeId`}
+                        control={control}
+                        render={({ field }) => (
+                          <FormField label="Unidade" className="app-form__span-2">
+                            <Select
+                              options={(unidades ?? []).map((u) => ({
+                                id: u.id,
+                                label: `${u.orgao?.sigla ? `${u.orgao.sigla} / ` : ''}${u.sigla}`,
+                              }))}
+                              value={field.value}
+                              onChange={field.onChange}
+                              placeholder="Selecione"
+                            />
+                          </FormField>
+                        )}
                       />
+                      <FormField label="%">
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...register(`rateios.${index}.percentual` as const, { valueAsNumber: true })}
+                        />
+                      </FormField>
                     </div>
                   )}
                 />
@@ -815,15 +856,15 @@ export default function ContractForm() {
           )}
 
           {currentStep === 'publicidade' && (
-            <div className="app-form__grid is-dense">
-              <div className="app-form__span-3">
-                <Textarea label="Observações" rows={4} {...register('observacoes')} />
-              </div>
-              <div className="app-form__span-3 rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-muted)] p-3 text-[var(--font-size-sm)] text-[var(--text-muted)]">
-                Publicações (PNCP/DOE) e anexos são registrados na ficha do contrato após salvar o
-                rascunho. Sem publicação no PNCP o contrato permanece em elaboração até a revisão.
-              </div>
-            </div>
+            <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
+              <legend className="sr-only">Publicidade</legend>
+              <FormField label="Observações" className="app-form__span-3">
+                <Textarea rows={4} {...register('observacoes')} />
+              </FormField>
+              <p className="app-form__span-3 m-0 text-[var(--font-size-sm)] text-[var(--text-muted)]">
+                PNCP/DOE e anexos ficam na ficha depois do rascunho.
+              </p>
+            </fieldset>
           )}
 
           {currentStep === 'revisao' && (

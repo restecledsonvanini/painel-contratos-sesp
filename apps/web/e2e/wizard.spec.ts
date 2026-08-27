@@ -18,7 +18,7 @@ test.describe('wizard — lookups preguiçosos', () => {
     await expect(page.getByRole('heading', { name: /Novo contrato/i })).toBeVisible({
       timeout: 15_000,
     });
-    await expect(page.getByLabel(/e-Protocolo/i)).toBeVisible();
+    await expect(page.getByLabel(/^Protocolo$/i)).toBeVisible();
     await page.waitForTimeout(400);
 
     expect(fornecedorGets, fornecedorGets.join('\n')).toEqual([]);

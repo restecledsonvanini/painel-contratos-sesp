@@ -22,6 +22,8 @@ interface SelectProps {
   id?: string;
   className?: string;
   name?: string;
+  'aria-describedby'?: string;
+  'aria-invalid'?: boolean;
 }
 
 export function Select({
@@ -36,6 +38,8 @@ export function Select({
   id,
   className,
   name,
+  'aria-describedby': ariaDescribedBy,
+  'aria-invalid': ariaInvalid,
 }: SelectProps) {
   const selectId = id || (label ? `select-${label.replace(/\s+/g, '-').toLowerCase()}` : undefined);
 
@@ -67,7 +71,8 @@ export function Select({
       >
         <RadixSelect.Trigger
           id={selectId}
-          aria-invalid={error ? true : undefined}
+          aria-invalid={error || ariaInvalid ? true : undefined}
+          aria-describedby={ariaDescribedBy}
           className={cn(
             inputBaseClass,
             'inline-flex items-center justify-between gap-2 text-left',

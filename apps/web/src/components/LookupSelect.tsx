@@ -14,6 +14,10 @@ type Props = {
   error?: string;
   parentId?: string | null;
   className?: string;
+  hideLabel?: boolean;
+  id?: string;
+  'aria-describedby'?: string;
+  'aria-invalid'?: boolean;
 };
 
 export function LookupSelect({
@@ -27,6 +31,10 @@ export function LookupSelect({
   error,
   parentId,
   className,
+  hideLabel,
+  id,
+  'aria-describedby': ariaDescribedBy,
+  'aria-invalid': ariaInvalid,
 }: Props) {
   const { options, isLoading, meta } = useDominio(slug);
 
@@ -43,7 +51,8 @@ export function LookupSelect({
 
   return (
     <Select
-      label={label ?? meta?.nome}
+      id={id}
+      label={hideLabel ? undefined : (label ?? meta?.nome)}
       options={selectOptions}
       value={value?.trim() ? value : ''}
       onChange={onChange}
@@ -51,6 +60,8 @@ export function LookupSelect({
       disabled={disabled || isLoading}
       error={error}
       className={className}
+      aria-describedby={ariaDescribedBy}
+      aria-invalid={ariaInvalid}
     />
   );
 }
