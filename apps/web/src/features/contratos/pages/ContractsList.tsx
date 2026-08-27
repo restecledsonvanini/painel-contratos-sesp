@@ -1,35 +1,30 @@
 import React, { useMemo } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Button,
-  Card,
   ConfirmDialog,
+  DataTable,
   ErrorState,
   IconButton,
   Page,
-  Pagination,
   Skeleton,
   StatusBadge,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
   useToast,
+  type ColumnDef,
 } from '@painel/ui';
 import { Download, Eye, Pencil, Plus, Trash2, X } from 'lucide-react';
-import { useContracts, useDeleteContract } from '../../../hooks/useContracts';
+import { useContracts, useDeleteContract, type Contract } from '../../../hooks/useContracts';
 import { downloadApiFile } from '../../../lib/download';
 import { formatCurrencyFromReais } from '../../../lib/format';
 import { getErrorMessage } from '../../../lib/http';
 import { authorLabel, formatRelativePast } from '../../../lib/formatRelative';
 import { useConfirmDialog } from '../../../lib/useConfirmDialog';
 import { useCanAct } from '../../../lib/access';
+import { useListParams } from '../../../lib/useListParams';
 
 export default function ContractsList() {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { page, pageSize, pagination, onPaginationChange } = useListParams();
   const deleteContract = useDeleteContract();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
@@ -50,8 +45,6 @@ export default function ContractsList() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- filterKey captura searchParams
     [filterKey],
   );
-  const page = Math.max(1, Number(searchParams.get('page') || 1) || 1);
-  const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize') || 25) || 25));
   const { data, isLoading, error, refetch } = useContracts({ ...filters, page, pageSize });
   const contracts = data?.data ?? [];
   const meta = data?.meta;
@@ -69,19 +62,6 @@ export default function ContractsList() {
   }, [filters]);
 
   const activeFilters = Object.entries(filters).filter(([, v]) => Boolean(v));
-
-  const setPage = (nextPage: number) => {
-    const next = new URLSearchParams(searchParams);
-    next.set('page', String(nextPage));
-    setSearchParams(next);
-  };
-
-  const setPageSize = (nextSize: number) => {
-    const next = new URLSearchParams(searchParams);
-    next.set('pageSize', String(nextSize));
-    next.set('page', '1');
-    setSearchParams(next);
-  };
 
   const clearFilter = (key: string) => {
     const next = new URLSearchParams(searchParams);
@@ -119,15 +99,110 @@ export default function ContractsList() {
     }
   }
 
-  if (isLoading) {
-    return (
-      <Page title="Contratos" description="Carregando cadastros...">
-        <Skeleton variant="table" lines={6} />
-      </Page>
-    );
-  }
+  const columns: ColumnDef<Contract>[] = useMemo(
+    () => [
+      {
+        id: 'protocolo',
+        header: 'Protocolo',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const c = row.original;
+          const label = c.protocoloCabeca || `${c.numGms}/${c.anoGms}`;
+          return (
+            <Link
+              className="font-semibold text-[var(--primary)] hover:underline"
+              to={`/contracts/${c.id}`}
+              aria-label={`Abrir contrato ${label}`}
+            >
+              {c.protocoloCabeca || '—'}
+            </Link>
+          );
+        },
+      },
+      {
+        id: 'gms',
+        header: 'GMS/Ano',
+        enableSorting: false,
+        cell: ({ row }) => `${row.original.numGms}/${row.original.anoGms}`,
+      },
+      {
+        id: 'unidade',
+        header: 'Unidade',
+        enableSorting: false,
+        cell: ({ row }) =>
+          [row.original.unidadeGestora?.sigla, row.original.subunidade?.sigla]
+            .filter(Boolean)
+            .join(' / ') ||
+          row.original.unidadeGestoraId ||
+          '—',
+      },
+      {
+        id: 'fornecedor',
+        header: 'Fornecedor',
+        enableSorting: false,
+        cell: ({ row }) => row.original.fornecedorName || row.original.fornecedorId || '—',
+      },
+      {
+        id: 'status',
+        header: 'Status',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <StatusBadge status={row.original.status || row.original.situacao?.toLowerCase()} />
+        ),
+      },
+      {
+        id: 'valor',
+        header: 'Valor anual',
+        enableSorting: false,
+        cell: ({ row }) => formatCurrencyFromReais(row.original.valorAnual),
+      },
+      {
+        id: 'atualizado',
+        header: 'Última alteração',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <span className="text-[var(--font-size-xs)] text-[var(--text-muted)]">
+            {authorLabel(row.original.atualizadoPor)} · {formatRelativePast(row.original.updatedAt)}
+          </span>
+        ),
+      },
+      {
+        id: 'acoes',
+        header: 'Ações',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <div className="flex flex-wrap justify-end gap-1">
+            <IconButton label="Ver" to={`/contracts/${row.original.id}`}>
+              <Eye size={16} />
+            </IconButton>
+            {canWrite ? (
+              <>
+                <IconButton label="Editar" to={`/contracts/${row.original.id}/edit`}>
+                  <Pencil size={16} />
+                </IconButton>
+                <IconButton
+                  label="Excluir"
+                  variant="danger"
+                  onClick={() =>
+                    confirm.ask(
+                      row.original.id,
+                      'Excluir contrato?',
+                      'Esta ação não pode ser desfeita.',
+                    )
+                  }
+                >
+                  <Trash2 size={16} />
+                </IconButton>
+              </>
+            ) : null}
+          </div>
+        ),
+      },
+    ],
+    [canWrite, confirm],
+  );
 
-  if (error) {
+  if (error && !data) {
     return (
       <Page title="Contratos">
         <ErrorState
@@ -188,135 +263,23 @@ export default function ContractsList() {
         </div>
       )}
 
-      <Card variant="bordered" className="overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table className="table-as-cards">
-            <TableHead>
-              <TableRow>
-                <TableHeader>Protocolo</TableHeader>
-                <TableHeader>GMS/Ano</TableHeader>
-                <TableHeader>Unidade</TableHeader>
-                <TableHeader>Fornecedor</TableHeader>
-                <TableHeader>Status</TableHeader>
-                <TableHeader>Valor anual</TableHeader>
-                <TableHeader>Última alteração</TableHeader>
-                <TableHeader>Ações</TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {contracts.length > 0 ? (
-                contracts.map((contract) => {
-                  const detailTo = `/contracts/${contract.id}`;
-                  return (
-                  <TableRow
-                    key={contract.id}
-                    className="cursor-pointer"
-                    role="link"
-                    tabIndex={0}
-                    aria-label={`Abrir contrato ${contract.protocoloCabeca || `${contract.numGms}/${contract.anoGms}`}`}
-                    onClick={() => navigate(detailTo)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        navigate(detailTo);
-                      }
-                    }}
-                  >
-                    <TableCell className="font-semibold" data-label="Protocolo">
-                      <Link
-                        className="text-[var(--primary)] hover:underline"
-                        to={detailTo}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {contract.protocoloCabeca || '—'}
-                      </Link>
-                    </TableCell>
-                    <TableCell data-label="GMS/Ano">
-                      {contract.numGms}/{contract.anoGms}
-                    </TableCell>
-                    <TableCell data-label="Unidade">
-                      {[
-                        contract.unidadeGestora?.sigla,
-                        contract.subunidade?.sigla,
-                      ]
-                        .filter(Boolean)
-                        .join(' / ') ||
-                        contract.unidadeGestoraId ||
-                        '—'}
-                    </TableCell>
-                    <TableCell data-label="Fornecedor">
-                      {contract.fornecedorName || contract.fornecedorId || '—'}
-                    </TableCell>
-                    <TableCell data-label="Status">
-                      <StatusBadge status={contract.status || contract.situacao?.toLowerCase()} />
-                    </TableCell>
-                    <TableCell data-label="Valor anual">
-                      {formatCurrencyFromReais(contract.valorAnual)}
-                    </TableCell>
-                    <TableCell data-label="Última alteração">
-                      <span className="text-[var(--font-size-xs)] text-[var(--text-muted)]">
-                        {authorLabel(contract.atualizadoPor)} ·{' '}
-                        {formatRelativePast(contract.updatedAt)}
-                      </span>
-                    </TableCell>
-                    <TableCell
-                      data-label="Ações"
-                      onClick={(e) => e.stopPropagation()}
-                      onKeyDown={(e) => e.stopPropagation()}
-                    >
-                      <div className="flex flex-wrap justify-end gap-1">
-                        <IconButton label="Ver" to={detailTo}>
-                          <Eye size={16} />
-                        </IconButton>
-                        {canWrite ? (
-                          <>
-                            <IconButton label="Editar" to={`/contracts/${contract.id}/edit`}>
-                              <Pencil size={16} />
-                            </IconButton>
-                            <IconButton
-                              label="Excluir"
-                              variant="danger"
-                              onClick={() =>
-                                confirm.ask(
-                                  contract.id,
-                                  'Excluir contrato?',
-                                  'Esta ação não pode ser desfeita.',
-                                )
-                              }
-                            >
-                              <Trash2 size={16} />
-                            </IconButton>
-                          </>
-                        ) : null}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                  );
-                })
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-[var(--text-muted)]">
-                    Nenhum contrato {activeFilters.length ? 'com esses filtros' : 'cadastrado'}.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </Card>
-
-      {meta && meta.totalPages > 1 ? (
-        <Pagination
-          pageIndex={page - 1}
-          pageSize={pageSize}
-          pageCount={meta.totalPages}
-          totalRows={meta.total}
-          onPageChange={(pageIndex) => setPage(pageIndex + 1)}
-          onPageSizeChange={setPageSize}
+      {isLoading && !data ? (
+        <Skeleton variant="table" lines={6} />
+      ) : (
+        <DataTable
+          columns={columns}
+          data={contracts}
+          pageCount={meta?.totalPages ?? 1}
+          pagination={pagination}
+          onPaginationChange={onPaginationChange}
+          totalRows={meta?.total}
+          loading={isLoading}
+          emptyMessage={
+            activeFilters.length ? 'Nenhum contrato com esses filtros.' : 'Nenhum contrato cadastrado.'
+          }
           pageSizeOptions={[10, 25, 50, 100]}
-          className="mt-[var(--space-md)]"
         />
-      ) : null}
+      )}
 
       <ConfirmDialog
         open={confirm.open}

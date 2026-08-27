@@ -99,7 +99,7 @@ export default function AlertasList() {
       }
     >
       <Card variant="bordered" className="overflow-hidden p-0">
-        <Table>
+        <Table className="table-as-cards">
           <TableHead>
             <TableRow>
               <TableHeader>Severidade</TableHeader>
@@ -113,13 +113,13 @@ export default function AlertasList() {
             {rows.length ? (
               rows.map((a) => (
                 <TableRow key={a.id}>
-                  <TableCell>
+                  <TableCell data-label="Severidade">
                     <Badge variant={sevVariant[a.severidade] ?? 'default'}>
                       {formatStatusLabel(a.severidade)}
                     </Badge>
                   </TableCell>
-                  <TableCell>{a.tipo}</TableCell>
-                  <TableCell>
+                  <TableCell data-label="Tipo">{a.tipo}</TableCell>
+                  <TableCell data-label="Contrato">
                     <Link
                       to={contractHref(a.contrato.id, alertaTipoToTab(a.tipo))}
                       className="font-semibold underline"
@@ -127,8 +127,8 @@ export default function AlertasList() {
                       GMS {a.contrato.numeroGms}/{a.contrato.anoGms}
                     </Link>
                   </TableCell>
-                  <TableCell>{a.mensagem}</TableCell>
-                  <TableCell>
+                  <TableCell data-label="Mensagem">{a.mensagem}</TableCell>
+                  <TableCell data-label="Ações">
                     {!a.reconhecidoEm && canAck ? (
                       <Button
                         size="sm"

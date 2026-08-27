@@ -24,6 +24,7 @@ interface DataTableProps<TData> {
   loading?: boolean;
   emptyMessage?: string;
   className?: string;
+  pageSizeOptions?: number[];
 }
 
 export function DataTable<TData>({
@@ -38,6 +39,7 @@ export function DataTable<TData>({
   loading,
   emptyMessage = 'Nenhum registro encontrado.',
   className,
+  pageSizeOptions,
 }: DataTableProps<TData>) {
   const table = useReactTable({
     data,
@@ -162,6 +164,7 @@ export function DataTable<TData>({
         totalRows={totalRows}
         onPageChange={(pageIndex) => table.setPageIndex(pageIndex)}
         onPageSizeChange={(pageSize) => table.setPageSize(pageSize)}
+        pageSizeOptions={pageSizeOptions}
       />
     </div>
   );
