@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { TooltipProvider } from './components/Tooltip';
 
 export type ThemeMode = 'light' | 'dark';
 
@@ -32,7 +33,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     [mode],
   );
 
-  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
+  return (
+    <ThemeContext.Provider value={value}>
+      <TooltipProvider>{children}</TooltipProvider>
+    </ThemeContext.Provider>
+  );
 }
 
 export function useTheme() {

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Input, Meter, Page, Textarea, useToast } from '@painel/ui';
+import { Button, FormField, Input, Meter, Page, Select, Textarea, useToast } from '@painel/ui';
 import {
   TIPO_ALTERACAO_LABELS,
   isAditivoPrazo,
@@ -165,100 +165,103 @@ export default function AlteracaoForm() {
       >
         <div className="app-form__panel">
           <div className="app-form__grid is-dense">
-            <div className="app-form__span-3">
-              <span className="field-label">Tipo</span>
-              <select
-                className="select-field"
+            <FormField
+              label="Tipo"
+              hint="Aditivo altera prazo/valor; apostilamento não pode alterar valor global nem prazo."
+              className="app-form__span-3"
+            >
+              <Select
+                options={TIPOS_FORM.map((value) => ({
+                  id: value,
+                  label: TIPO_ALTERACAO_LABELS[value],
+                }))}
                 value={tipo}
-                onChange={(e) => {
-                  setTipo(e.target.value as TipoAlteracao);
+                onChange={(v) => {
+                  setTipo(v as TipoAlteracao);
                   setSimulacao(null);
                 }}
-              >
-                {TIPOS_FORM.map((value) => (
-                  <option key={value} value={value}>
-                    {TIPO_ALTERACAO_LABELS[value]}
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1 text-[var(--font-size-xs)] text-[var(--text-muted)]">
-                Aditivo altera prazo/valor; apostilamento não pode alterar valor global nem prazo.
-              </p>
-            </div>
+              />
+            </FormField>
 
-            <Input label="e-Protocolo" value={eProtocolo} onChange={(e) => setEProtocolo(e.target.value)} />
-            <Input
-              label="Data de assinatura"
-              type="date"
-              value={dataAssinatura}
-              onChange={(e) => setDataAssinatura(e.target.value)}
-            />
-            <div>
-              <span className="field-label">Situação</span>
-              <select
-                className="select-field"
+            <FormField label="e-Protocolo">
+              <Input value={eProtocolo} onChange={(e) => setEProtocolo(e.target.value)} />
+            </FormField>
+            <FormField label="Data de assinatura">
+              <Input
+                type="date"
+                value={dataAssinatura}
+                onChange={(e) => setDataAssinatura(e.target.value)}
+              />
+            </FormField>
+            <FormField label="Situação">
+              <Select
+                options={[
+                  { id: 'MINUTA', label: 'Minuta' },
+                  { id: 'ASSINADO', label: 'Assinado' },
+                  { id: 'PUBLICADO', label: 'Publicado' },
+                ]}
                 value={situacao}
-                onChange={(e) => setSituacao(e.target.value)}
-              >
-                <option value="MINUTA">Minuta</option>
-                <option value="ASSINADO">Assinado</option>
-                <option value="PUBLICADO">Publicado</option>
-              </select>
-            </div>
+                onChange={setSituacao}
+              />
+            </FormField>
 
             {precisaPrazo && (
-              <Input
+              <FormField
                 label="Nova data fim vigência"
-                type="date"
                 required
-                min={fimVigenciaAtual ? dayAfter(fimVigenciaAtual) : undefined}
-                value={novaDataFimVigencia}
-                onChange={(e) => setNovaDataFim(e.target.value)}
                 hint={
                   fimVigenciaAtual
                     ? `Vigência atual: ${fimVigenciaAtual} — escolha uma data posterior.`
                     : 'Obrigatória para aditivo de prazo.'
                 }
-              />
+              >
+                <Input
+                  type="date"
+                  min={fimVigenciaAtual ? dayAfter(fimVigenciaAtual) : undefined}
+                  value={novaDataFimVigencia}
+                  onChange={(e) => setNovaDataFim(e.target.value)}
+                />
+              </FormField>
             )}
             {precisaValor && (
               <>
-                <Input
-                  label="Valor acrescido (R$)"
-                  type="number"
-                  step="0.01"
-                  value={valorAcrescido}
-                  onChange={(e) => setValorAcrescido(Number(e.target.value))}
-                />
-                <Input
-                  label="Valor suprimido (R$)"
-                  type="number"
-                  step="0.01"
-                  value={valorSuprimido}
-                  onChange={(e) => setValorSuprimido(Number(e.target.value))}
-                />
+                <FormField label="Valor acrescido (R$)">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={valorAcrescido}
+                    onChange={(e) => setValorAcrescido(Number(e.target.value))}
+                  />
+                </FormField>
+                <FormField label="Valor suprimido (R$)">
+                  <Input
+                    type="number"
+                    step="0.01"
+                    value={valorSuprimido}
+                    onChange={(e) => setValorSuprimido(Number(e.target.value))}
+                  />
+                </FormField>
               </>
             )}
 
-            <div className="app-form__span-3">
+            <FormField label="Descrição do objeto" className="app-form__span-3">
               <Textarea
-                label="Descrição do objeto"
                 rows={3}
                 value={objetoDescricao}
                 onChange={(e) => setObjetoDescricao(e.target.value)}
               />
-            </div>
-            <div className="app-form__span-3">
+            </FormField>
+            <FormField
+              label="Justificativa excepcional"
+              hint="Obrigatória se exceder 25%/50% ou prazo máximo."
+              className="app-form__span-3"
+            >
               <Textarea
-                label="Justificativa excepcional"
                 rows={2}
                 value={justificativaExcepcional}
                 onChange={(e) => setJustificativaExcepcional(e.target.value)}
               />
-              <p className="mt-1 text-[var(--font-size-xs)] text-[var(--text-muted)]">
-                Obrigatória se exceder 25%/50% ou prazo máximo.
-              </p>
-            </div>
+            </FormField>
           </div>
 
           {simulacao && (

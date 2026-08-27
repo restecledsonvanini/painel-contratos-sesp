@@ -5,6 +5,7 @@ export * from './lib/cn';
 export * from './lib/masks';
 
 export * from './components/Button';
+export * from './components/IconButton';
 export * from './components/Card';
 export * from './components/Input';
 export * from './components/Textarea';

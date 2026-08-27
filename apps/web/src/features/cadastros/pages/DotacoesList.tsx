@@ -6,11 +6,12 @@ import {
   ConfirmDialog,
   DataTable,
   ErrorState,
+  IconButton,
   Page,
   type ColumnDef,
   useToast,
 } from '@painel/ui';
-import { Plus } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { http, getErrorMessage } from '../../../lib/http';
 import { useCanWrite } from '../../../lib/access';
 import { useConfirmDialog } from '../../../lib/useConfirmDialog';
@@ -90,14 +91,14 @@ export default function DotacoesList() {
       enableSorting: false,
       cell: ({ row }) =>
         canWrite ? (
-          <div className="flex gap-2">
+          <div className="flex justify-end gap-1">
             <Link to={`/dotacoes/${row.original.id}/edit`}>
-              <Button size="sm" variant="secondary">
-                Editar
-              </Button>
+              <IconButton label="Editar">
+                <Pencil size={16} />
+              </IconButton>
             </Link>
-            <Button
-              size="sm"
+            <IconButton
+              label="Excluir"
               variant="danger"
               onClick={() =>
                 confirm.ask(
@@ -107,8 +108,8 @@ export default function DotacoesList() {
                 )
               }
             >
-              Excluir
-            </Button>
+              <Trash2 size={16} />
+            </IconButton>
           </div>
         ) : (
           '—'

@@ -3,7 +3,7 @@ import React from 'react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
-  size?: 'sm' | 'md';
+  size?: 'sm' | 'md' | 'icon';
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -20,6 +20,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function 
         'disabled:cursor-not-allowed disabled:opacity-55',
         size === 'sm' && 'px-3 py-1.5 text-[var(--font-size-sm)]',
         size === 'md' && 'px-4 py-2 text-[var(--font-size-sm)]',
+        size === 'icon' && 'h-8 w-8 shrink-0 p-0',
         variant === 'primary' &&
           'bg-[var(--primary)] text-[var(--text-inverse)] shadow-[var(--shadow-sm)] hover:bg-[var(--primary-dark)]',
         variant === 'secondary' &&

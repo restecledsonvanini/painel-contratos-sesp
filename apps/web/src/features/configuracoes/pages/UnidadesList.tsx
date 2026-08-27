@@ -6,11 +6,12 @@ import {
   ConfirmDialog,
   EmptyState,
   ErrorState,
+  IconButton,
   Page,
   Skeleton,
   useToast,
 } from '@painel/ui';
-import { ChevronDown, ChevronRight, Plus } from 'lucide-react';
+import { ChevronDown, ChevronRight, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useCanManage } from '../../../lib/access';
 import { useDeleteUnidade, useOrgaos, useUnidadesArvore, useUnidadesList } from '../../../hooks/useOrganizacao';
 import { getErrorMessage } from '../../../lib/http';
@@ -69,20 +70,20 @@ function UnitNode({
           </p>
         </div>
         {unidade && canWrite && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-1">
             <Link to={`/unidades/new?parentId=${node.id}`}>
               <Button size="sm" variant="ghost">
                 Subunidade
               </Button>
             </Link>
             <Link to={`/unidades/${node.id}/edit`}>
-              <Button size="sm" variant="secondary">
-                Editar
-              </Button>
+              <IconButton label="Editar">
+                <Pencil size={16} />
+              </IconButton>
             </Link>
-            <Button size="sm" variant="danger" onClick={() => onDelete(node.id, node.label)}>
-              Excluir
-            </Button>
+            <IconButton label="Excluir" variant="danger" onClick={() => onDelete(node.id, node.label)}>
+              <Trash2 size={16} />
+            </IconButton>
           </div>
         )}
         {!unidade && canWrite && (

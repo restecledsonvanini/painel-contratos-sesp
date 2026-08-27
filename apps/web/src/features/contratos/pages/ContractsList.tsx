@@ -5,6 +5,7 @@ import {
   Card,
   ConfirmDialog,
   ErrorState,
+  IconButton,
   Page,
   Pagination,
   Skeleton,
@@ -17,7 +18,7 @@ import {
   TableRow,
   useToast,
 } from '@painel/ui';
-import { Download, Plus, X } from 'lucide-react';
+import { Download, Eye, Pencil, Plus, Trash2, X } from 'lucide-react';
 import { useContracts, useDeleteContract } from '../../../hooks/useContracts';
 import { downloadApiFile } from '../../../lib/download';
 import { formatCurrencyFromReais } from '../../../lib/format';
@@ -265,21 +266,21 @@ export default function ContractsList() {
                       onClick={(e) => e.stopPropagation()}
                       onKeyDown={(e) => e.stopPropagation()}
                     >
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-wrap justify-end gap-1">
                         <Link to={detailTo}>
-                          <Button size="sm" variant="secondary">
-                            Ver
-                          </Button>
+                          <IconButton label="Ver">
+                            <Eye size={16} />
+                          </IconButton>
                         </Link>
                         {canWrite ? (
                           <>
                             <Link to={`/contracts/${contract.id}/edit`}>
-                              <Button size="sm" variant="ghost">
-                                Editar
-                              </Button>
+                              <IconButton label="Editar">
+                                <Pencil size={16} />
+                              </IconButton>
                             </Link>
-                            <Button
-                              size="sm"
+                            <IconButton
+                              label="Excluir"
                               variant="danger"
                               onClick={() =>
                                 confirm.ask(
@@ -289,8 +290,8 @@ export default function ContractsList() {
                                 )
                               }
                             >
-                              Excluir
-                            </Button>
+                              <Trash2 size={16} />
+                            </IconButton>
                           </>
                         ) : null}
                       </div>

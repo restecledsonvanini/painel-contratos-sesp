@@ -5,11 +5,12 @@ import {
   ConfirmDialog,
   DataTable,
   ErrorState,
+  IconButton,
   Page,
   type ColumnDef,
   useToast,
 } from '@painel/ui';
-import { Plus } from 'lucide-react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 import { useServidores, useDeleteServidor, type Servidor } from '../../../hooks/useReferences';
 import { getErrorMessage } from '../../../lib/http';
 import { useCanWrite } from '../../../lib/access';
@@ -61,21 +62,21 @@ export default function ServidoresList() {
       enableSorting: false,
       cell: ({ row }) =>
         canWrite ? (
-          <div className="flex gap-2">
+          <div className="flex justify-end gap-1">
             <Link to={`/servidores/${row.original.id}/edit`}>
-              <Button size="sm" variant="secondary">
-                Editar
-              </Button>
+              <IconButton label="Editar">
+                <Pencil size={16} />
+              </IconButton>
             </Link>
-            <Button
-              size="sm"
+            <IconButton
+              label="Desativar"
               variant="danger"
               onClick={() =>
                 confirm.ask(row.original.id, 'Desativar servidor?', 'O registro será marcado como inativo.')
               }
             >
-              Desativar
-            </Button>
+              <Trash2 size={16} />
+            </IconButton>
           </div>
         ) : (
           '—'
