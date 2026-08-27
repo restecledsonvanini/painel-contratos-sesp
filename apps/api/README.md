@@ -52,7 +52,7 @@ O Vite (`apps/web`) faz proxy de `/.netlify/functions/api` → `:8888`.
 
 ## Auth
 
-JWT via `POST /auth/login`. Em desenvolvimento/testes, tokens sintéticos:
+JWT via `POST /auth/login` (grava cookie HttpOnly `painel_session`; o JSON ainda devolve `token` para clientes de API). `POST /auth/logout` apaga o cookie. Em desenvolvimento/testes, tokens sintéticos:
 
 | Header | Papel |
 |---|---|

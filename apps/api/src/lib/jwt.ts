@@ -1,7 +1,7 @@
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { getJwtSecret } from './env';
 
-const TOKEN_TTL_SEC = Number(process.env.JWT_TTL_SEC || 60 * 60 * 12);
+export const TOKEN_TTL_SEC = Number(process.env.JWT_TTL_SEC || 60 * 60 * 12);
 
 function b64url(input: Buffer | string) {
   const buf = Buffer.isBuffer(input) ? input : Buffer.from(input);

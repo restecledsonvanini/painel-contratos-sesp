@@ -117,7 +117,9 @@ O usuário do `AUTH_DEV_BYPASS` é ADMIN, então o bypass local continua vendo t
 
 ## Endurecimento HTTP
 
-A API aplica `helmet`, `compression` e rate limit de login. Rotas públicas são exatamente três: `/auth/login`, `/health` e `/health/db` — qualquer outra exige token.
+A API aplica `helmet`, `compression` e rate limit de login. Rotas públicas: `/auth/login`, `/auth/logout`, `/health` e `/health/db` — qualquer outra exige token (Bearer ou cookie HttpOnly `painel_session`).
+
+O login grava o JWT em cookie `HttpOnly; SameSite=Lax` (e `Secure` em produção). O front não persiste o token no `localStorage`. Clientes de API e testes continuam podendo mandar `Authorization: Bearer`.
 
 `/metrics` e `/docs` passaram a exigir **ADMIN** (expunham latência por rota e a superfície OpenAPI inteira). Com `AUTH_DEV_BYPASS=1` você continua abrindo os dois normalmente.
 

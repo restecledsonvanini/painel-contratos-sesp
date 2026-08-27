@@ -1,6 +1,6 @@
 import axios, { AxiosError, type AxiosInstance } from 'axios';
 import { toast } from '@painel/ui';
-import { emitUnauthorized, getAuthToken } from './authSession';
+import { emitUnauthorized } from './authSession';
 
 export type ApiErrorBody = {
   error: {
@@ -31,20 +31,19 @@ function newRequestId() {
   return `req-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-function isAuthLoginRequest(url?: string) {
-  return Boolean(url && /\/auth\/login\/?$/.test(url));
+function isAuthSessionRequest(url?: string) {
+  return Boolean(url && /\/auth\/(login|logout|me)\/?$/.test(url));
 }
 
 export const http: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? '/api/v1',
   timeout: 15_000,
+  withCredentials: true,
   headers: { 'Content-Type': 'application/json' },
 });
 
 http.interceptors.request.use((config) => {
   config.headers.set('x-request-id', newRequestId());
-  const token = getAuthToken();
-  if (token) config.headers.set('Authorization', `Bearer ${token}`);
   return config;
 });
 
@@ -61,7 +60,7 @@ http.interceptors.response.use(
     const body = error.response.data?.error;
     const url = error.config?.url ?? '';
 
-    if (status === 401 && !isAuthLoginRequest(url)) {
+    if (status === 401 && !isAuthSessionRequest(url)) {
       emitUnauthorized();
     }
     if (status === 403) {

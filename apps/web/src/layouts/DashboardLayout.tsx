@@ -6,8 +6,8 @@ import { CommandPalette } from '../components/CommandPalette';
 import { canSeeNav } from '../lib/access';
 
 function AuthTrailing() {
-  const { user, token, logout } = useAuth();
-  if (!token || !user) {
+  const { user, logout } = useAuth();
+  if (!user) {
     return (
       <Link to="/login" className="text-sm font-semibold text-[var(--primary)] px-2">
         Entrar
@@ -33,13 +33,13 @@ function AuthTrailing() {
 
 function ShellFrame({ children }: { children: React.ReactNode }) {
   const { collapsed } = useSidebar();
-  const { hasMinRole, token } = useAuth();
+  const { hasMinRole, user } = useAuth();
   return (
     <div className={`app-shell Página-Shell${collapsed ? ' is-rail-collapsed' : ''}`}>
       <a href="#conteudo-principal" className="skip-link">
         Ir para o conteúdo principal
       </a>
-      <Sidebar canSee={(min) => canSeeNav(min, { token, hasMinRole })} />
+      <Sidebar canSee={(min) => canSeeNav(min, { user, hasMinRole })} />
       <div className="app-content">
         <Header trailing={<AuthTrailing />} />
         <main id="conteudo-principal" className="app-main Seção-Main" tabIndex={-1}>

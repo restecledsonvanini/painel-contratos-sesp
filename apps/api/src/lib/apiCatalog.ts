@@ -34,6 +34,7 @@ export const publicApiCatalog = {
     },
     auth: {
       login: { method: 'POST', path: `${API_BASE}/auth/login` },
+      logout: { method: 'POST', path: `${API_BASE}/auth/logout` },
       me: { method: 'GET', path: `${API_BASE}/auth/me` },
       usuarios: { method: 'GET', path: `${API_BASE}/usuarios` },
     },

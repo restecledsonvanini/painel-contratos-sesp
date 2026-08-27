@@ -4,6 +4,7 @@ import {
   getUsuario,
   listUsuarios,
   login,
+  logout,
   me,
   updateUsuario,
 } from '../controllers/authController';
@@ -14,6 +15,7 @@ import { loginRateLimiter } from '../middleware/security';
 const router = Router();
 
 router.post('/auth/login', loginRateLimiter, asyncHandler(login));
+router.post('/auth/logout', asyncHandler(logout));
 router.get('/auth/me', asyncHandler(me));
 
 router.get('/usuarios', requireMinRole('ADMIN'), asyncHandler(listUsuarios));

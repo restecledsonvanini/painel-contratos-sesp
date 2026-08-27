@@ -81,9 +81,12 @@ export function buildOpenApiDocument() {
     [`${API_BASE}/contracts/{id}/export.pdf`]: pathItem('get', 'Ficha PDF de um contrato (pdfkit)', {
       tags: ['exports'],
     }),
-    [`${API_BASE}/auth/login`]: pathItem('post', 'Login JWT', {
+    [`${API_BASE}/auth/login`]: pathItem('post', 'Login JWT (também grava cookie HttpOnly)', {
       tags: ['auth'],
       bodySchema: { $ref: '#/components/schemas/Login' },
+    }),
+    [`${API_BASE}/auth/logout`]: pathItem('post', 'Encerra a sessão (apaga o cookie)', {
+      tags: ['auth'],
     }),
     [`${API_BASE}/auth/me`]: pathItem('get', 'Usuário autenticado', { tags: ['auth'] }),
     [`${API_BASE}/usuarios`]: {
@@ -200,7 +203,7 @@ export function buildOpenApiDocument() {
           type: 'http',
           scheme: 'bearer',
           description:
-            'JWT (POST /auth/login) ou tokens sintéticos de teste: admin | analista | gestor | visitante. Papéis canônicos: VISITANTE, ANALISTA, GESTOR, ADMIN.',
+            'Cookie HttpOnly `painel_session`, Bearer JWT (POST /auth/login) ou tokens sintéticos de teste: admin | analista | gestor | visitante. Papéis canônicos: VISITANTE, ANALISTA, GESTOR, ADMIN.',
         },
       },
       schemas: {

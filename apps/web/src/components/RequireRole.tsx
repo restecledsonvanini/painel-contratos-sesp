@@ -19,11 +19,11 @@ type RequireRoleProps = {
  * (mesmo bypass da API). Com auth obrigatória, exige login e papel mínimo.
  */
 export function RequireRole({ min, children }: RequireRoleProps) {
-  const { token, hasMinRole, isLoading } = useAuth();
+  const { user, hasMinRole, isLoading } = useAuth();
   const location = useLocation();
   const required = isAuthRequired();
 
-  if (isLoading && token) {
+  if (isLoading) {
     return (
       <Page title="Autenticando">
         <Card variant="bordered" className="p-4 text-sm text-[var(--text-muted)]">
@@ -33,11 +33,11 @@ export function RequireRole({ min, children }: RequireRoleProps) {
     );
   }
 
-  if (!required && !token) {
+  if (!required && !user) {
     return <>{children}</>;
   }
 
-  if (!token) {
+  if (!user) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 

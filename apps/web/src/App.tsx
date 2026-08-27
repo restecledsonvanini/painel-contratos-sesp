@@ -39,7 +39,13 @@ function AuthenticatedShell() {
 
 export default function App() {
   return (
-    <Suspense fallback={<div>Carregando…</div>}>
+    <Suspense
+      fallback={
+        <div role="status" aria-busy="true" className="p-6 text-sm text-[var(--text-muted)]">
+          Carregando…
+        </div>
+      }
+    >
       <Routes>
         <Route path="/login" element={<LoginPage />} />
 

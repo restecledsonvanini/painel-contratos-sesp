@@ -1,5 +1,5 @@
 import * as RadixTabs from '@radix-ui/react-tabs';
-import React from 'react';
+import React, { useCallback, useRef } from 'react';
 import { cn } from '../lib/cn';
 
 interface TabItem {
@@ -19,12 +19,25 @@ interface TabsProps {
 
 export function Tabs({ items, value, defaultValue, onValueChange, className }: TabsProps) {
   const initial = defaultValue ?? items[0]?.id;
+  const panelRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  const handleValueChange = useCallback(
+    (next: string) => {
+      onValueChange?.(next);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          panelRefs.current[next]?.focus();
+        });
+      });
+    },
+    [onValueChange],
+  );
 
   return (
     <RadixTabs.Root
       value={value}
       defaultValue={value === undefined ? initial : undefined}
-      onValueChange={onValueChange}
+      onValueChange={handleValueChange}
       className={cn('w-full', className)}
     >
       <RadixTabs.List
@@ -55,9 +68,17 @@ export function Tabs({ items, value, defaultValue, onValueChange, className }: T
         <RadixTabs.Content
           key={item.id}
           value={item.id}
-          className="pt-[var(--space-md)] focus-visible:outline-none"
+          className="pt-[var(--space-md)]"
         >
-          {item.content}
+          <div
+            ref={(node) => {
+              panelRefs.current[item.id] = node;
+            }}
+            tabIndex={-1}
+            className="outline-none focus-visible:shadow-[var(--focus-ring)]"
+          >
+            {item.content}
+          </div>
         </RadixTabs.Content>
       ))}
     </RadixTabs.Root>

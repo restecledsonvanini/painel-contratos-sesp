@@ -1,20 +1,10 @@
-/** Sessão JWT no `localStorage`. Única fonte para HTTP e AuthProvider. */
-
-export const AUTH_TOKEN_KEY = 'auth_token';
+/**
+ * Eventos de sessão. A credencial vive no cookie HttpOnly `painel_session`;
+ * o front não persiste JWT.
+ */
 
 type UnauthorizedListener = () => void;
 const unauthorizedListeners = new Set<UnauthorizedListener>();
-
-export function getAuthToken(): string | null {
-  if (typeof localStorage === 'undefined') return null;
-  return localStorage.getItem(AUTH_TOKEN_KEY);
-}
-
-export function setAuthToken(token: string | null) {
-  if (typeof localStorage === 'undefined') return;
-  if (token) localStorage.setItem(AUTH_TOKEN_KEY, token);
-  else localStorage.removeItem(AUTH_TOKEN_KEY);
-}
 
 export function onUnauthorized(listener: UnauthorizedListener) {
   unauthorizedListeners.add(listener);
@@ -23,8 +13,7 @@ export function onUnauthorized(listener: UnauthorizedListener) {
   };
 }
 
-/** JWT recusado. Limpa o token e avisa o AuthProvider (RequireAuth redireciona). */
+/** 401: avisa o AuthProvider (RequireAuth redireciona). */
 export function emitUnauthorized() {
-  setAuthToken(null);
   unauthorizedListeners.forEach((fn) => fn());
 }

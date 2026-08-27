@@ -5,6 +5,7 @@ import { AuthUser, normalizeRole } from '../lib/authTypes';
 import { unauthorized } from '../lib/errors';
 import { devBypassEnabled, syntheticTokensAllowed } from '../lib/env';
 import { API_BASES } from '../lib/apiBases';
+import { extractAccessToken } from '../lib/sessionCookie';
 
 /** Bypass local: ADMIN para espelhar o front (useCanAct liberado sem AUTH). */
 const SYSTEM_USER: AuthUser = {
@@ -62,7 +63,7 @@ const SYNTHETIC_USERS = new Map<string, AuthUser>([
  */
 const PUBLIC_PATHS = new Set(
   API_BASES.flatMap((base) =>
-    ['/auth/login', '/health', '/health/db'].map((suffix) => `${base}${suffix}`),
+    ['/auth/login', '/auth/logout', '/health', '/health/db'].map((suffix) => `${base}${suffix}`),
   ),
 );
 
@@ -75,26 +76,23 @@ function isPublicPath(path: string): boolean {
  * Auth real (JWT) + tokens de teste + bypass de desenvolvimento.
  *
  * - Authorization: Bearer <jwt> → Usuario do banco
+ * - Cookie HttpOnly `painel_session` (browser)
  * - Bearer admin|analista|gestor|visitante → papel sintético, só em ambiente de teste
- * - Sem header → ADMIN system só quando o bypass de dev está habilitado; senão 401
- * - Públicas: apenas /auth/login, /health e /health/db
+ * - Sem credencial → ADMIN system só quando o bypass de dev está habilitado; senão 401
+ * - Públicas: /auth/login, /auth/logout, /health e /health/db
  */
 export async function authenticate(req: Request, _res: Response, next: NextFunction) {
   try {
     const isPublic = isPublicPath(req.path || '');
 
-    const auth = req.headers.authorization;
-    if (!auth) {
+    const token = extractAccessToken(req);
+    if (!token) {
       if (isPublic || devBypassEnabled()) {
         req.user = SYSTEM_USER;
         return next();
       }
       return next(unauthorized());
     }
-
-    const parts = auth.split(' ');
-    const token = parts[1];
-    if (!token) return next(unauthorized('Token ausente'));
 
     if (syntheticTokensAllowed()) {
       const syntheticUser = SYNTHETIC_USERS.get(token);

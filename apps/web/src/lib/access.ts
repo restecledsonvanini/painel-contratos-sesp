@@ -7,9 +7,9 @@ import { useAuth } from '../providers/AuthProvider';
  * Com AUTH ligada, exige sessão + papel mínimo (deny-by-default).
  */
 export function useCanAct(min: Role | string = 'ANALISTA') {
-  const { token, hasMinRole } = useAuth();
+  const { user, hasMinRole } = useAuth();
   if (!isAuthRequired()) return true;
-  return Boolean(token) && hasMinRole(min);
+  return Boolean(user) && hasMinRole(min);
 }
 
 /** Atalho tipado para escrita de cadastros (ANALISTA+). */
@@ -30,10 +30,10 @@ export function useIsAdmin() {
 /** Para Sidebar / callbacks fora de hook de página. */
 export function canSeeNav(
   min: string | undefined,
-  opts: { token: string | null; hasMinRole: (m: string) => boolean },
+  opts: { token?: string | null; user?: unknown; hasMinRole: (m: string) => boolean },
   required = isAuthRequired(),
 ): boolean {
   if (!min) return true;
   if (!required) return true;
-  return Boolean(opts.token) && opts.hasMinRole(min);
+  return Boolean(opts.user ?? opts.token) && opts.hasMinRole(min);
 }

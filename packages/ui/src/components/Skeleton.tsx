@@ -7,27 +7,33 @@ interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function Skeleton({ variant = 'text', lines = 3, className, ...props }: SkeletonProps) {
+  const status = {
+    role: 'status' as const,
+    'aria-busy': true,
+    'aria-live': 'polite' as const,
+  };
+
   if (variant === 'card') {
     return (
-      <div
-        className={cn(
-          'animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]',
-          'h-24 w-full',
-          className,
-        )}
-        aria-hidden
-        {...props}
-      />
+      <div className={cn('space-y-2', className)} {...status} {...props}>
+        <span className="sr-only">Carregando</span>
+        <div
+          className="h-24 w-full animate-pulse rounded-[var(--radius-md)] bg-[var(--surface-muted)]"
+          aria-hidden
+        />
+      </div>
     );
   }
 
   if (variant === 'table') {
     return (
-      <div className={cn('space-y-2', className)} aria-hidden {...props}>
+      <div className={cn('space-y-2', className)} {...status} {...props}>
+        <span className="sr-only">Carregando</span>
         {Array.from({ length: lines }).map((_, i) => (
           <div
             key={i}
             className="h-8 w-full animate-pulse rounded-[var(--radius-sm)] bg-[var(--surface-muted)]"
+            aria-hidden
           />
         ))}
       </div>
@@ -35,10 +41,12 @@ export function Skeleton({ variant = 'text', lines = 3, className, ...props }: S
   }
 
   return (
-    <div
-      className={cn('h-4 w-full max-w-xs animate-pulse rounded-[var(--radius-sm)] bg-[var(--surface-muted)]', className)}
-      aria-hidden
-      {...props}
-    />
+    <div className={cn('max-w-xs', className)} {...status} {...props}>
+      <span className="sr-only">Carregando</span>
+      <div
+        className="h-4 w-full animate-pulse rounded-[var(--radius-sm)] bg-[var(--surface-muted)]"
+        aria-hidden
+      />
+    </div>
   );
 }

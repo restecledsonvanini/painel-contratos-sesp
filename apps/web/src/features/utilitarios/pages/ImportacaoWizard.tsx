@@ -63,7 +63,7 @@ function formatErros(erros: unknown): string {
 }
 
 export default function ImportacaoWizard() {
-  const { user, token } = useAuth();
+  const { user } = useAuth();
   const canImport = useCanAct('ANALISTA');
   const fileRef = useRef<HTMLInputElement>(null);
   const [tipoEntidade, setTipoEntidade] = useState<TipoEntidade>('fornecedor');
@@ -138,7 +138,7 @@ export default function ImportacaoWizard() {
           <p className="text-sm text-red-700">
             Importação exige papel <strong>ANALISTA</strong> ou superior
             {user?.role ? ` (seu papel: ${user.role})` : ''}.{' '}
-            {!token ? (
+            {!user ? (
               <Link to="/login" className="underline">
                 Fazer login
               </Link>

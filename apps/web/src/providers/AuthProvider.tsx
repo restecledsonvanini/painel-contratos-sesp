@@ -2,12 +2,13 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { hasMinRole as rankHasMinRole } from '@painel/domain';
 import type { AuthUserDTO } from '@painel/schema';
 import { http } from '../lib/http';
-import { getAuthToken, onUnauthorized, setAuthToken } from '../lib/authSession';
+import { onUnauthorized } from '../lib/authSession';
 
 export type AuthUser = AuthUserDTO;
 
 type AuthContextValue = {
   user: AuthUser | null;
+  /** Compat: true quando há sessão (cookie), sem expor o JWT. */
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -19,13 +20,10 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(() => getAuthToken());
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [isLoading, setIsLoading] = useState(Boolean(token));
+  const [isLoading, setIsLoading] = useState(true);
 
   const clearSession = useCallback(() => {
-    setAuthToken(null);
-    setToken(null);
     setUser(null);
     setIsLoading(false);
   }, []);
@@ -33,20 +31,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => onUnauthorized(clearSession), [clearSession]);
 
   const refreshMe = useCallback(async () => {
-    if (!token) {
-      setUser(null);
-      setIsLoading(false);
-      return;
-    }
     try {
       const res = await http.get<AuthUser>('/auth/me');
-      setUser(res.data);
+      const id = res.data?.id;
+      // Bypass/sintéticos da API não são sessão de browser.
+      if (!id || id === 'system' || id.startsWith('user-')) {
+        setUser(null);
+      } else {
+        setUser(res.data);
+      }
     } catch {
-      clearSession();
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
-  }, [token, clearSession]);
+  }, []);
 
   useEffect(() => {
     void refreshMe();
@@ -57,26 +56,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
     });
-    setAuthToken(res.data.token);
-    setToken(res.data.token);
     setUser(res.data.user);
+    setIsLoading(false);
   }, []);
 
   const logout = useCallback(() => {
+    void http.post('/auth/logout').catch(() => undefined);
     clearSession();
   }, [clearSession]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
-      token,
+      token: user ? 'session' : null,
       isLoading,
       login,
       logout,
       refreshMe,
       hasMinRole: (min: string) => rankHasMinRole(user?.role, min),
     }),
-    [user, token, isLoading, login, logout, refreshMe],
+    [user, isLoading, login, logout, refreshMe],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

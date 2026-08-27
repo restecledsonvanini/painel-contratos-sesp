@@ -54,6 +54,30 @@ describe('auth e RBAC', () => {
       .set('Authorization', `Bearer ${login.body.token}`);
     expect(me.status).toBe(200);
     expect(me.body.email).toBe('admin@sesp.pr.gov.br');
+
+    const setCookie = login.headers['set-cookie'];
+    expect(setCookie?.some((c: string) => c.startsWith('painel_session='))).toBe(true);
+  });
+
+  it('sessão por cookie HttpOnly, sem Authorization', async () => {
+    if (!ready) return;
+    const login = await request(app).post('/api/v1/auth/login').send({
+      email: 'admin@sesp.pr.gov.br',
+      password: 'admin123',
+    });
+    expect(login.status).toBe(200);
+    const cookie = (login.headers['set-cookie'] as string[] | undefined)?.find((c) =>
+      c.startsWith('painel_session='),
+    );
+    expect(cookie).toBeTruthy();
+    expect(cookie).toMatch(/HttpOnly/i);
+
+    const me = await request(app).get('/api/v1/auth/me').set('Cookie', cookie!.split(';')[0]);
+    expect(me.status).toBe(200);
+    expect(me.body.email).toBe('admin@sesp.pr.gov.br');
+
+    const out = await request(app).post('/api/v1/auth/logout').set('Cookie', cookie!.split(';')[0]);
+    expect(out.status).toBe(204);
   });
 
   it('VISITANTE não pode criar contrato nem fornecedor', async () => {

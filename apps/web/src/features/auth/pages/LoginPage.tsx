@@ -11,7 +11,7 @@ function safeReturnTo(from: unknown): string {
 }
 
 export default function LoginPage() {
-  const { login, token, isLoading } = useAuth();
+  const { login, user, isLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = safeReturnTo((location.state as { from?: string } | null)?.from);
@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  if (!isLoading && token) {
+  if (!isLoading && user) {
     return <Navigate to={from} replace />;
   }
 
@@ -41,7 +41,7 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center p-6">
-      <Page title="Entrar" description="Autenticação JWT do painel.">
+      <Page title="Entrar" description="Sessão do painel (cookie HttpOnly).">
         <Card variant="bordered" className="mx-auto max-w-md space-y-4 p-6">
           <form className="space-y-3" onSubmit={onSubmit}>
             <Input

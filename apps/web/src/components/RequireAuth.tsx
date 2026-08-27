@@ -9,10 +9,10 @@ import { isAuthRequired } from './RequireRole';
  * dev). Com a flag, exige token — senão manda para `/login`.
  */
 export function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { token, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
   const location = useLocation();
 
-  if (isLoading && token) {
+  if (isLoading) {
     return (
       <Page title="Autenticando">
         <Card variant="bordered" className="p-4 text-sm text-[var(--text-muted)]">
@@ -26,7 +26,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  if (!token) {
+  if (!user) {
     return (
       <Navigate
         to="/login"
