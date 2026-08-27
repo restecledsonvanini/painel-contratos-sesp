@@ -29,6 +29,12 @@ test.describe('smoke + a11y', () => {
     await page.goto('/contracts');
     await expect(page.getByRole('heading', { name: /Contratos/i })).toBeVisible({ timeout: 15_000 });
 
+    const search = page.getByRole('button', { name: /Buscar contratos/i });
+    await expect(search).toBeVisible();
+    await search.click();
+    await expect(page.getByRole('dialog', { name: /Busca global/i })).toBeVisible();
+    await page.keyboard.press('Escape');
+
     const skip = page.getByRole('link', { name: /Ir para o conteúdo principal/i });
     await skip.focus();
     await expect(skip).toBeFocused();

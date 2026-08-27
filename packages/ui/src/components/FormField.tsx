@@ -32,9 +32,12 @@ export function FormField({
         <label htmlFor={fieldId} className="mb-1.5 block font-semibold text-[var(--label-color)]">
           {label}
           {required && (
-            <span className="ml-1 text-[var(--danger)]" aria-hidden>
-              *
-            </span>
+            <>
+              <span className="ml-1 text-[var(--danger)]" aria-hidden>
+                *
+              </span>
+              <span className="sr-only"> obrigatório</span>
+            </>
           )}
         </label>
       )}
@@ -43,6 +46,7 @@ export function FormField({
             id: (children as React.ReactElement).props.id ?? fieldId,
             'aria-describedby': describedBy,
             'aria-invalid': error ? true : undefined,
+            'aria-required': required ? true : undefined,
             required,
           })
         : children}

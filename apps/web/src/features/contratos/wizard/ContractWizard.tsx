@@ -471,7 +471,7 @@ export default function ContractForm() {
         <div className="app-form__panel" aria-live="polite">
           {currentStep === 'identificacao' && (
             <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
-              <legend className="sr-only">Identificação</legend>
+              <legend className="app-form__legend">Identificação</legend>
               <FormField label="Protocolo" hint="e-Protocolo, se houver" className="app-form__span-2">
                 <Input {...register('protocoloCabeca')} />
               </FormField>
@@ -552,7 +552,7 @@ export default function ContractForm() {
 
           {currentStep === 'partes' && (
             <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
-              <legend className="sr-only">Partes</legend>
+              <legend className="app-form__legend">Partes</legend>
               <Controller
                 name="unidadeGestoraId"
                 control={control}
@@ -657,7 +657,7 @@ export default function ContractForm() {
 
           {currentStep === 'itens' && (
             <fieldset className="m-0 min-w-0 border-0 p-0">
-              <legend className="sr-only">Itens</legend>
+              <legend className="app-form__legend">Itens</legend>
               {id ? (
                 <div className="space-y-2">
                   {existingContract?.itens?.length ? (
@@ -748,7 +748,7 @@ export default function ContractForm() {
 
           {currentStep === 'vigencia' && (
             <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
-              <legend className="sr-only">Vigência</legend>
+              <legend className="app-form__legend">Vigência</legend>
               <FormField label="Início">
                 <Input type="date" {...register('dataInicio')} />
               </FormField>
@@ -790,7 +790,7 @@ export default function ContractForm() {
 
           {currentStep === 'orcamento' && (
             <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
-              <legend className="sr-only">Orçamento</legend>
+              <legend className="app-form__legend">Orçamento</legend>
               <FormField label="Valor global (R$)">
                 <Input type="number" step="0.01" {...register('valorAnual', { valueAsNumber: true })} />
               </FormField>
@@ -801,7 +801,8 @@ export default function ContractForm() {
           )}
 
           {currentStep === 'rateio' && (
-            <div className="space-y-4">
+            <fieldset className="m-0 min-w-0 space-y-4 border-0 p-0">
+              <legend className="app-form__legend">Rateio</legend>
               <Meter
                 label="Soma dos percentuais"
                 value={rateioPct}
@@ -852,12 +853,12 @@ export default function ContractForm() {
               {rateioPct > 100 && (
                 <p className="field-error">A soma dos percentuais não pode ultrapassar 100%.</p>
               )}
-            </div>
+            </fieldset>
           )}
 
           {currentStep === 'publicidade' && (
             <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
-              <legend className="sr-only">Publicidade</legend>
+              <legend className="app-form__legend">Publicidade</legend>
               <FormField label="Observações" className="app-form__span-3">
                 <Textarea rows={4} {...register('observacoes')} />
               </FormField>

@@ -26,20 +26,17 @@ export function Header({ trailing }: { trailing?: React.ReactNode }) {
         <strong>Hub de Inteligência Contratual</strong>
       </div>
 
-      <label className="app-header__search">
+      <button
+        type="button"
+        className="app-header__search"
+        onClick={() => window.dispatchEvent(new CustomEvent('painel:open-command-palette'))}
+        aria-label="Buscar contratos"
+        aria-keyshortcuts="Control+K"
+      >
         <Search size={16} aria-hidden />
-        <input
-          type="search"
-          placeholder="Buscar… (Ctrl+K)"
-          aria-label="Buscar contratos"
-          readOnly
-          onFocus={(e) => {
-            e.currentTarget.blur();
-            window.dispatchEvent(new CustomEvent('painel:open-command-palette'));
-          }}
-          onClick={() => window.dispatchEvent(new CustomEvent('painel:open-command-palette'))}
-        />
-      </label>
+        <span>Buscar…</span>
+        <kbd>Ctrl+K</kbd>
+      </button>
 
       {trailing}
 
