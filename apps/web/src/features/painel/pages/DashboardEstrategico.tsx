@@ -144,12 +144,10 @@ export default function DashboardEstrategico() {
               { id: 'SERVICOS', label: 'Serviços' },
             ]}
           />
-          <Link to="/">
-            <Button variant="secondary">
-              <LayoutDashboard size={16} />
-              Tático
-            </Button>
-          </Link>
+          <Button to="/" variant="secondary">
+            <LayoutDashboard size={16} />
+            Tático
+          </Button>
         </div>
       }
     >

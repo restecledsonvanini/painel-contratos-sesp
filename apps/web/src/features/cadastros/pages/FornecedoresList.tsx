@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   Button,
   ConfirmDialog,
@@ -7,6 +6,7 @@ import {
   ErrorState,
   IconButton,
   Page,
+  StatusBadge,
   type ColumnDef,
   useToast,
 } from '@painel/ui';
@@ -61,7 +61,7 @@ export default function FornecedoresList() {
       accessorKey: 'situacao',
       header: 'Situação',
       enableSorting: false,
-      cell: ({ row }) => row.original.situacao || 'ATIVO',
+      cell: ({ row }) => <StatusBadge status={row.original.situacao || 'ATIVO'} />,
     },
     {
       id: 'contatos',
@@ -89,11 +89,9 @@ export default function FornecedoresList() {
       cell: ({ row }) =>
         canWrite ? (
           <div className="flex justify-end gap-1">
-            <Link to={`/fornecedores/${row.original.id}/edit`}>
-              <IconButton label="Editar">
-                <Pencil size={16} />
-              </IconButton>
-            </Link>
+            <IconButton label="Editar" to={`/fornecedores/${row.original.id}/edit`}>
+              <Pencil size={16} />
+            </IconButton>
             <IconButton
               label="Desativar"
               variant="danger"
@@ -132,11 +130,9 @@ export default function FornecedoresList() {
       description="Cadastro unificado de contratadas (PJ/PF), com contatos e sanções."
       actions={
         canWrite ? (
-          <Link to="/fornecedores/new">
-            <Button>
-              <Plus size={16} /> Novo
-            </Button>
-          </Link>
+          <Button to="/fornecedores/new">
+            <Plus size={16} /> Novo
+          </Button>
         ) : undefined
       }
     >

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   Button,
   ConfirmDialog,
@@ -82,11 +81,9 @@ export default function CatalogoList() {
       cell: ({ row }) =>
         canWrite ? (
           <div className="flex justify-end gap-1">
-            <Link to={`/catalogo-itens/${row.original.id}/edit`}>
-              <IconButton label="Editar">
-                <Pencil size={16} />
-              </IconButton>
-            </Link>
+            <IconButton label="Editar" to={`/catalogo-itens/${row.original.id}/edit`}>
+              <Pencil size={16} />
+            </IconButton>
             <IconButton
               label="Desativar"
               variant="danger"
@@ -124,11 +121,9 @@ export default function CatalogoList() {
       description="Itens reutilizáveis nos contratos (viaturas, postos, alimentos…)."
       actions={
         canWrite ? (
-          <Link to="/catalogo-itens/new">
-            <Button>
-              <Plus size={16} /> Novo
-            </Button>
-          </Link>
+          <Button to="/catalogo-itens/new">
+            <Plus size={16} /> Novo
+          </Button>
         ) : undefined
       }
     >

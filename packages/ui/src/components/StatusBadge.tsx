@@ -1,5 +1,5 @@
 import React from 'react';
-import { Badge, badgeVariantFromStatus } from './Badge';
+import { Badge, badgeVariantFromStatus, formatStatusLabel } from './Badge';
 
 interface StatusBadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   status?: string | null;
@@ -10,7 +10,7 @@ export function StatusBadge({ status, className, ...props }: StatusBadgeProps) {
 
   return (
     <Badge variant={variant} className={className} {...props}>
-      {status || 'Sem status'}
+      {formatStatusLabel(status)}
     </Badge>
   );
 }

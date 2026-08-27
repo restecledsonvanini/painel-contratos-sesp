@@ -161,12 +161,10 @@ export default function ContractsList() {
             XLSX
           </Button>
           {canWrite ? (
-            <Link to="/contracts/new">
-              <Button>
-                <Plus size={16} />
-                Novo contrato
-              </Button>
-            </Link>
+            <Button to="/contracts/new">
+              <Plus size={16} />
+              Novo contrato
+            </Button>
           ) : null}
         </div>
       }
@@ -267,18 +265,14 @@ export default function ContractsList() {
                       onKeyDown={(e) => e.stopPropagation()}
                     >
                       <div className="flex flex-wrap justify-end gap-1">
-                        <Link to={detailTo}>
-                          <IconButton label="Ver">
-                            <Eye size={16} />
-                          </IconButton>
-                        </Link>
+                        <IconButton label="Ver" to={detailTo}>
+                          <Eye size={16} />
+                        </IconButton>
                         {canWrite ? (
                           <>
-                            <Link to={`/contracts/${contract.id}/edit`}>
-                              <IconButton label="Editar">
-                                <Pencil size={16} />
-                              </IconButton>
-                            </Link>
+                            <IconButton label="Editar" to={`/contracts/${contract.id}/edit`}>
+                              <Pencil size={16} />
+                            </IconButton>
                             <IconButton
                               label="Excluir"
                               variant="danger"

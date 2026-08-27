@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import { Button, FormField, Input, Meter, Page, Select, Textarea, useToast } from '@painel/ui';
 import {
@@ -151,9 +151,9 @@ export default function AlteracaoForm() {
           : 'Aditivos e apostilamentos com simulação legal.'
       }
       actions={
-        <Link to={contratoId ? `/contracts/${contratoId}` : '/contracts'}>
-          <Button variant="ghost">Voltar</Button>
-        </Link>
+        <Button to={contratoId ? `/contracts/${contratoId}` : '/contracts'} variant="ghost">
+          Voltar
+        </Button>
       }
     >
       <form

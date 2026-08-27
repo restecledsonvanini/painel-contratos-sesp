@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import {
   Button,
   ConfirmDialog,
@@ -63,11 +62,9 @@ export default function ServidoresList() {
       cell: ({ row }) =>
         canWrite ? (
           <div className="flex justify-end gap-1">
-            <Link to={`/servidores/${row.original.id}/edit`}>
-              <IconButton label="Editar">
-                <Pencil size={16} />
-              </IconButton>
-            </Link>
+            <IconButton label="Editar" to={`/servidores/${row.original.id}/edit`}>
+              <Pencil size={16} />
+            </IconButton>
             <IconButton
               label="Desativar"
               variant="danger"
@@ -106,11 +103,9 @@ export default function ServidoresList() {
       description="Gestores e fiscais de contrato (servidores públicos)."
       actions={
         canWrite ? (
-          <Link to="/servidores/new">
-            <Button>
-              <Plus size={16} /> Novo
-            </Button>
-          </Link>
+          <Button to="/servidores/new">
+            <Plus size={16} /> Novo
+          </Button>
         ) : undefined
       }
     >

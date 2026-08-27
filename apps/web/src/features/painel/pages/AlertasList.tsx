@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Badge,
   Button,
+  formatStatusLabel,
   Card,
   ErrorState,
   Page,
@@ -90,9 +91,9 @@ export default function AlertasList() {
             </Button>
           ) : null}
           {canImport ? (
-            <Link to="/utilitarios?tab=importacao">
-              <Button variant="ghost">Importação</Button>
-            </Link>
+            <Button to="/utilitarios?tab=importacao" variant="ghost">
+              Importação
+            </Button>
           ) : null}
         </div>
       }
@@ -113,7 +114,9 @@ export default function AlertasList() {
               rows.map((a) => (
                 <TableRow key={a.id}>
                   <TableCell>
-                    <Badge variant={sevVariant[a.severidade] ?? 'default'}>{a.severidade}</Badge>
+                    <Badge variant={sevVariant[a.severidade] ?? 'default'}>
+                      {formatStatusLabel(a.severidade)}
+                    </Badge>
                   </TableCell>
                   <TableCell>{a.tipo}</TableCell>
                   <TableCell>

@@ -95,19 +95,15 @@ export default function Dashboard() {
       }
       actions={
         <div className="flex flex-wrap gap-2">
-          <Link to="/painel?tab=estrategico">
-            <Button variant="secondary">
-              <LineChart size={16} />
-              Estratégico
-            </Button>
-          </Link>
+          <Button to="/painel?tab=estrategico" variant="secondary">
+            <LineChart size={16} />
+            Estratégico
+          </Button>
           {canWrite ? (
-            <Link to="/contracts/new">
-              <Button>
-                <FilePlus2 size={16} />
-                Novo contrato
-              </Button>
-            </Link>
+            <Button to="/contracts/new">
+              <FilePlus2 size={16} />
+              Novo contrato
+            </Button>
           ) : null}
         </div>
       }
@@ -206,12 +202,10 @@ export default function Dashboard() {
           title="Alertas prioritários"
           subtitle="Não reconhecidos"
           actions={
-            <Link to="/painel?tab=alertas">
-              <Button variant="ghost" size="sm">
-                <Bell size={14} />
-                Ver todos
-              </Button>
-            </Link>
+            <Button to="/painel?tab=alertas" variant="ghost" size="sm">
+              <Bell size={14} />
+              Ver todos
+            </Button>
           }
         >
           <div className="space-y-2">

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Card,
@@ -72,27 +72,21 @@ function UnitNode({
         </div>
         {unidade && canWrite && (
           <div className="flex flex-wrap items-center justify-end gap-1">
-            <Link to={`/unidades/new?parentId=${node.id}`}>
-              <Button size="sm" variant="ghost">
-                Subunidade
-              </Button>
-            </Link>
-            <Link to={`/unidades/${node.id}/edit`}>
-              <IconButton label="Editar">
-                <Pencil size={16} />
-              </IconButton>
-            </Link>
+            <Button to={`/unidades/new?parentId=${node.id}`} size="sm" variant="ghost">
+              Subunidade
+            </Button>
+            <IconButton label="Editar" to={`/unidades/${node.id}/edit`}>
+              <Pencil size={16} />
+            </IconButton>
             <IconButton label="Excluir" variant="danger" onClick={() => onDelete(node.id, node.label)}>
               <Trash2 size={16} />
             </IconButton>
           </div>
         )}
         {!unidade && canWrite && (
-          <Link to={`/unidades/new?orgaoId=${node.id}`}>
-            <Button size="sm" variant="secondary">
-              <Plus size={14} /> Unidade
-            </Button>
-          </Link>
+          <Button to={`/unidades/new?orgaoId=${node.id}`} size="sm" variant="secondary">
+            <Plus size={14} /> Unidade
+          </Button>
         )}
       </div>
       {hasChildren && open &&
@@ -188,11 +182,9 @@ export default function UnidadesList() {
             ]}
           />
           {canWrite && (
-            <Link to="/unidades/new">
-              <Button>
-                <Plus size={16} /> Nova unidade
-              </Button>
-            </Link>
+            <Button to="/unidades/new">
+              <Plus size={16} /> Nova unidade
+            </Button>
           )}
         </div>
       }

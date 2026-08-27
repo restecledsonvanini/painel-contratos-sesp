@@ -33,27 +33,47 @@ export function Badge({ variant = 'default', className, children, ...props }: Ba
   );
 }
 
-export function badgeVariantFromStatus(status?: string | null): BadgeVariant {
-  const normalized = String(status || '').toLowerCase();
+const STATUS_LABELS: Record<string, string> = {
+  ativo: 'Ativo',
+  inativo: 'Inativo',
+  vigente: 'Vigente',
+  vencendo: 'Vencendo',
+  vencido: 'Vencido',
+  suspenso: 'Suspenso',
+  encerrado: 'Encerrado',
+  cancelado: 'Cancelado',
+  impedido: 'Impedido',
+  inidoneo: 'Inidôneo',
+  inidôneo: 'Inidôneo',
+  pendente: 'Pendente',
+  minuta: 'Minuta',
+  assinado: 'Assinado',
+  publicado: 'Publicado',
+  alta: 'Alta',
+  media: 'Média',
+  média: 'Média',
+  baixa: 'Baixa',
+};
 
-  if (normalized.includes('vigente') || normalized.includes('ativo') || normalized.includes('conclu')) {
-    return 'success';
-  }
-  if (
-    normalized.includes('vencendo') ||
-    normalized.includes('próximo') ||
-    normalized.includes('aviso') ||
-    normalized.includes('pendente')
-  ) {
-    return 'warning';
-  }
-  if (
-    normalized.includes('suspenso') ||
-    normalized.includes('cancelado') ||
-    normalized.includes('vencido') ||
-    normalized.includes('encerrado')
-  ) {
-    return 'danger';
-  }
+export function formatStatusLabel(status?: string | null): string {
+  if (!status?.trim()) return 'Sem status';
+  const key = status.trim().toLowerCase();
+  if (STATUS_LABELS[key]) return STATUS_LABELS[key];
+  return status
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/(^|\s)\S/g, (ch) => ch.toUpperCase());
+}
+
+export function badgeVariantFromStatus(status?: string | null): BadgeVariant {
+  const n = String(status || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '');
+
+  if (/(inativ|rascunho|minuta)/.test(n)) return 'default';
+  if (/(imped|inidone|suspens|cancel|vencid|encerr)/.test(n)) return 'danger';
+  if (/(vencend|proximo|aviso|pendente)/.test(n)) return 'warning';
+  if (/(vigente|^ativo$| ativo|conclu|assinado|publicado)/.test(n)) return 'success';
   return 'default';
 }

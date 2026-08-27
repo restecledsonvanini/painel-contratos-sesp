@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Button,
@@ -92,11 +91,9 @@ export default function DotacoesList() {
       cell: ({ row }) =>
         canWrite ? (
           <div className="flex justify-end gap-1">
-            <Link to={`/dotacoes/${row.original.id}/edit`}>
-              <IconButton label="Editar">
-                <Pencil size={16} />
-              </IconButton>
-            </Link>
+            <IconButton label="Editar" to={`/dotacoes/${row.original.id}/edit`}>
+              <Pencil size={16} />
+            </IconButton>
             <IconButton
               label="Excluir"
               variant="danger"
@@ -138,11 +135,9 @@ export default function DotacoesList() {
       description="Natureza de despesa e fonte de recurso por exercício."
       actions={
         canWrite ? (
-          <Link to="/dotacoes/new">
-            <Button>
-              <Plus size={16} /> Nova dotação
-            </Button>
-          </Link>
+          <Button to="/dotacoes/new">
+            <Plus size={16} /> Nova dotação
+          </Button>
         ) : undefined
       }
     >

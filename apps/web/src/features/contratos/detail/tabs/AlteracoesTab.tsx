@@ -1,5 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { Button, Card, EmptyState, Meter } from '@painel/ui';
 import { formatCurrencyFromReais } from '../../../../lib/format';
 import type { Contract } from '../../../../hooks/useContracts';
@@ -63,9 +62,9 @@ export function AlteracoesTab({
           <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">Limites indisponíveis.</p>
         )}
         {id && canManage && (
-          <Link to={`/contracts/${id}/alteracoes/nova`}>
-            <Button className="w-full">Nova alteração</Button>
-          </Link>
+          <Button to={`/contracts/${id}/alteracoes/nova`} className="w-full">
+            Nova alteração
+          </Button>
         )}
       </Card>
     </div>

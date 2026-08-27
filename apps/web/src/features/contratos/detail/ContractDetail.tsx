@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTabParam } from '../../../lib/useTabParam';
 import { useContract, useDeleteContract } from '../../../hooks/useContracts';
 import {
@@ -213,9 +213,9 @@ export default function ContractDetail() {
       }
       actions={
         <>
-          <Link to="/contracts">
-            <Button variant="ghost">Voltar</Button>
-          </Link>
+          <Button to="/contracts" variant="ghost">
+            Voltar
+          </Button>
           {id && (
             <Popover
               align="end"
@@ -253,14 +253,14 @@ export default function ContractDetail() {
             </Popover>
           )}
           {id && canWrite && (
-            <Link to={`/contracts/${id}/edit`}>
-              <Button variant="secondary">Editar</Button>
-            </Link>
+            <Button to={`/contracts/${id}/edit`} variant="secondary">
+              Editar
+            </Button>
           )}
           {id && canManage && (
-            <Link to={`/contracts/${id}/alteracoes/nova`}>
-              <Button variant="secondary">Nova alteração</Button>
-            </Link>
+            <Button to={`/contracts/${id}/alteracoes/nova`} variant="secondary">
+              Nova alteração
+            </Button>
           )}
           {canWrite && (
             <Button

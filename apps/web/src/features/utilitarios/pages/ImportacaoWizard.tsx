@@ -128,9 +128,9 @@ export default function ImportacaoWizard() {
       title="Importação CSV"
       description="Dry-run linha a linha com Zod; aplique apenas lotes sem erro."
       actions={
-        <Link to="/painel?tab=alertas">
-          <Button variant="ghost">Alertas</Button>
-        </Link>
+        <Button to="/painel?tab=alertas" variant="ghost">
+          Alertas
+        </Button>
       }
     >
       <Card variant="bordered" className="space-y-4 p-4">
