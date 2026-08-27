@@ -5,16 +5,10 @@ import {
   Badge,
   Button,
   formatStatusLabel,
-  Card,
+  DataTable,
   ErrorState,
   Page,
-  Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  type ColumnDef,
 } from '@painel/ui';
 import { useCanAct } from '../../../lib/access';
 import { http, getErrorMessage } from '../../../lib/http';
@@ -56,13 +50,71 @@ export default function AlertasList() {
 
   const rows = useMemo(() => data ?? [], [data]);
 
-  if (isLoading) {
-    return (
-      <Page title="Alertas" description="Carregando...">
-        <Skeleton variant="card" />
-      </Page>
-    );
-  }
+  const columns: ColumnDef<AlertaDTO>[] = useMemo(
+    () => [
+      {
+        id: 'severidade',
+        header: 'Severidade',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <Badge variant={sevVariant[row.original.severidade] ?? 'default'}>
+            {formatStatusLabel(row.original.severidade)}
+          </Badge>
+        ),
+      },
+      {
+        accessorKey: 'tipo',
+        header: 'Tipo',
+        enableSorting: false,
+        cell: ({ row }) => row.original.tipo,
+      },
+      {
+        id: 'contrato',
+        header: 'Contrato',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const c = row.original.contrato;
+          return (
+            <Link
+              to={contractHref(c.id, alertaTipoToTab(row.original.tipo))}
+              className="font-semibold text-[var(--primary)] hover:underline"
+            >
+              GMS {c.numeroGms}/{c.anoGms}
+            </Link>
+          );
+        },
+      },
+      {
+        accessorKey: 'mensagem',
+        header: 'Mensagem',
+        enableSorting: false,
+      },
+      {
+        id: 'acoes',
+        header: 'Ações',
+        enableSorting: false,
+        cell: ({ row }) => {
+          const a = row.original;
+          if (!a.reconhecidoEm && canAck) {
+            return (
+              <Button
+                size="sm"
+                variant="ghost"
+                disabled={reconhecer.isPending}
+                onClick={() => reconhecer.mutate(a.id)}
+              >
+                Reconhecer
+              </Button>
+            );
+          }
+          return (
+            <span className="text-sm opacity-70">{a.reconhecidoEm ? 'Reconhecido' : '—'}</span>
+          );
+        },
+      },
+    ],
+    [canAck, reconhecer],
+  );
 
   if (error) {
     return (
@@ -98,64 +150,12 @@ export default function AlertasList() {
         </div>
       }
     >
-      <Card variant="bordered" className="overflow-hidden p-0">
-        <Table className="table-as-cards">
-          <TableHead>
-            <TableRow>
-              <TableHeader>Severidade</TableHeader>
-              <TableHeader>Tipo</TableHeader>
-              <TableHeader>Contrato</TableHeader>
-              <TableHeader>Mensagem</TableHeader>
-              <TableHeader></TableHeader>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.length ? (
-              rows.map((a) => (
-                <TableRow key={a.id}>
-                  <TableCell data-label="Severidade">
-                    <Badge variant={sevVariant[a.severidade] ?? 'default'}>
-                      {formatStatusLabel(a.severidade)}
-                    </Badge>
-                  </TableCell>
-                  <TableCell data-label="Tipo">{a.tipo}</TableCell>
-                  <TableCell data-label="Contrato">
-                    <Link
-                      to={contractHref(a.contrato.id, alertaTipoToTab(a.tipo))}
-                      className="font-semibold underline"
-                    >
-                      GMS {a.contrato.numeroGms}/{a.contrato.anoGms}
-                    </Link>
-                  </TableCell>
-                  <TableCell data-label="Mensagem">{a.mensagem}</TableCell>
-                  <TableCell data-label="Ações">
-                    {!a.reconhecidoEm && canAck ? (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        disabled={reconhecer.isPending}
-                        onClick={() => reconhecer.mutate(a.id)}
-                      >
-                        Reconhecer
-                      </Button>
-                    ) : a.reconhecidoEm ? (
-                      <span className="text-sm opacity-70">Reconhecido</span>
-                    ) : (
-                      <span className="text-sm opacity-70">—</span>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={5}>
-                  Nenhum alerta. Clique em “Atualizar alertas” para rodar o job.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </Card>
+      <DataTable
+        columns={columns}
+        data={rows}
+        loading={isLoading}
+        emptyMessage="Nenhum alerta. Clique em “Atualizar alertas” para rodar o job."
+      />
     </Page>
   );
 }

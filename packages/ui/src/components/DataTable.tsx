@@ -52,6 +52,7 @@ export function DataTable<TData>({
     getCoreRowModel: getCoreRowModel(),
     manualPagination: paged,
     manualSorting: true,
+    enableSorting: Boolean(onSortingChange),
   });
 
   return (
@@ -61,30 +62,47 @@ export function DataTable<TData>({
           <thead className="bg-[var(--surface-muted)]">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th
-                    key={header.id}
-                    className="border-b border-[var(--border)] px-[var(--space-md)] py-2 text-left font-semibold text-[var(--label-color)]"
-                  >
-                    {header.isPlaceholder ? null : (
-                      <button
-                        type="button"
-                        className={cn(
-                          'inline-flex items-center gap-1',
-                          header.column.getCanSort() && 'cursor-pointer hover:text-[var(--primary)]',
-                        )}
-                        onClick={header.column.getToggleSortingHandler()}
-                        disabled={!header.column.getCanSort()}
-                      >
-                        {flexRender(header.column.columnDef.header, header.getContext())}
-                        {{
-                          asc: ' ↑',
-                          desc: ' ↓',
-                        }[header.column.getIsSorted() as string] ?? null}
-                      </button>
-                    )}
-                  </th>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const sorted = header.column.getIsSorted();
+                  const canSort = header.column.getCanSort();
+                  const label =
+                    typeof header.column.columnDef.header === 'string'
+                      ? header.column.columnDef.header
+                      : header.column.id;
+                  return (
+                    <th
+                      key={header.id}
+                      className="border-b border-[var(--border)] px-[var(--space-md)] py-2 text-left font-semibold text-[var(--label-color)]"
+                      aria-sort={
+                        !canSort
+                          ? undefined
+                          : sorted === 'asc'
+                            ? 'ascending'
+                            : sorted === 'desc'
+                              ? 'descending'
+                              : 'none'
+                      }
+                    >
+                      {header.isPlaceholder ? null : canSort ? (
+                        <button
+                          type="button"
+                          className="inline-flex items-center gap-1 cursor-pointer hover:text-[var(--primary)]"
+                          onClick={header.column.getToggleSortingHandler()}
+                          aria-label={
+                            sorted === 'asc'
+                              ? `Ordenar ${label} decrescente`
+                              : `Ordenar ${label} crescente`
+                          }
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {sorted === 'asc' ? ' ↑' : sorted === 'desc' ? ' ↓' : null}
+                        </button>
+                      ) : (
+                        flexRender(header.column.columnDef.header, header.getContext())
+                      )}
+                    </th>
+                  );
+                })}
               </tr>
             ))}
           </thead>

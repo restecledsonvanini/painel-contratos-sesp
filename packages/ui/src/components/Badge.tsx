@@ -53,6 +53,11 @@ const STATUS_LABELS: Record<string, string> = {
   media: 'Média',
   média: 'Média',
   baixa: 'Baixa',
+  info: 'Info',
+  atencao: 'Atenção',
+  atenção: 'Atenção',
+  critico: 'Crítico',
+  crítico: 'Crítico',
 };
 
 export function formatStatusLabel(status?: string | null): string {

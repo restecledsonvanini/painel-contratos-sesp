@@ -48,6 +48,7 @@ export default function UsuariosPage() {
         role,
         orgaoId: orgaoId && orgaoId !== NONE ? orgaoId : null,
         servidorId: servidorId && servidorId !== NONE ? servidorId : null,
+        ativo: true,
       };
       return (await http.post<UsuarioDTO>('/usuarios', body)).data;
     },

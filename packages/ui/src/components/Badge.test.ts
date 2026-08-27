@@ -6,6 +6,8 @@ describe('formatStatusLabel', () => {
     expect(formatStatusLabel('ATIVO')).toBe('Ativo');
     expect(formatStatusLabel('INATIVO')).toBe('Inativo');
     expect(formatStatusLabel('INIDONEO')).toBe('Inidôneo');
+    expect(formatStatusLabel('CRITICO')).toBe('Crítico');
+    expect(formatStatusLabel('ATENCAO')).toBe('Atenção');
   });
 });
 
