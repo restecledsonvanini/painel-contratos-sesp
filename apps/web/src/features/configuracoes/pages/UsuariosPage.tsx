@@ -169,60 +169,43 @@ export default function UsuariosPage() {
                   <TableCell className="font-semibold">{u.email}</TableCell>
                   <TableCell>{u.nome || '—'}</TableCell>
                   <TableCell>
-                    <select
-                      className="rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-sm"
-                      value={u.role}
-                      onChange={(e) =>
-                        patch.mutate({ id: u.id, data: { role: e.target.value as Role } })
-                      }
+                    <Select
+                      className="min-w-[9rem]"
                       aria-label={`Papel de ${u.email}`}
-                    >
-                      {ROLES.map((r) => (
-                        <option key={r} value={r}>
-                          {ROLE_LABELS[r]}
-                        </option>
-                      ))}
-                    </select>
+                      value={u.role}
+                      onChange={(v) =>
+                        patch.mutate({ id: u.id, data: { role: v as Role } })
+                      }
+                      options={ROLES.map((r) => ({ id: r, label: ROLE_LABELS[r] }))}
+                    />
                   </TableCell>
                   <TableCell>
-                    <select
-                      className="max-w-[12rem] rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-sm"
+                    <Select
+                      className="min-w-[12rem]"
+                      aria-label={`Órgão de ${u.email}`}
                       value={u.orgaoId ?? NONE}
-                      onChange={(e) => {
-                        const v = e.target.value;
+                      onChange={(v) =>
                         patch.mutate({
                           id: u.id,
                           data: { orgaoId: v === NONE ? null : v },
-                        });
-                      }}
-                      aria-label={`Órgão de ${u.email}`}
-                    >
-                      {orgaoOptions.map((o) => (
-                        <option key={o.id} value={o.id}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
+                        })
+                      }
+                      options={orgaoOptions}
+                    />
                   </TableCell>
                   <TableCell>
-                    <select
-                      className="max-w-[14rem] rounded border border-[var(--border)] bg-[var(--surface)] px-2 py-1 text-sm"
+                    <Select
+                      className="min-w-[14rem]"
+                      aria-label={`Servidor de ${u.email}`}
                       value={u.servidorId ?? NONE}
-                      onChange={(e) => {
-                        const v = e.target.value;
+                      onChange={(v) =>
                         patch.mutate({
                           id: u.id,
                           data: { servidorId: v === NONE ? null : v },
-                        });
-                      }}
-                      aria-label={`Servidor de ${u.email}`}
-                    >
-                      {servidorOptions.map((o) => (
-                        <option key={o.id} value={o.id}>
-                          {o.label}
-                        </option>
-                      ))}
-                    </select>
+                        })
+                      }
+                      options={servidorOptions}
+                    />
                   </TableCell>
                   <TableCell>
                     <Badge variant={u.ativo ? 'success' : 'default'}>

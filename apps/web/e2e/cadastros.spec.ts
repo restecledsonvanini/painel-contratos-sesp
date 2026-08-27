@@ -72,3 +72,30 @@ test.describe('cadastros — formulários FormField', () => {
     await expect(page.locator('select.select-field')).toHaveCount(0);
   });
 });
+
+test.describe('filtros e telas auxiliares — Select do DS', () => {
+  test('órgão, pilar, entidade e usuários não usam select nativo', async ({ page }) => {
+    await loginAs(page, 'admin@sesp.pr.gov.br', 'admin123');
+
+    await page.goto('/configuracoes?tab=organizacao');
+    await expect(page.getByLabel(/Filtrar órgão/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('select.select-field')).toHaveCount(0);
+
+    await page.goto('/estrategico');
+    await expect(page.getByRole('heading', { name: /Painel estratégico/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByLabel(/Filtrar pilar/i)).toBeVisible();
+    await expect(page.locator('select.select-field')).toHaveCount(0);
+
+    await page.goto('/utilitarios?tab=importacao');
+    await expect(page.getByLabel(/^Entidade$/i)).toBeVisible({ timeout: 15_000 });
+    await expect(page.locator('select.select-field')).toHaveCount(0);
+
+    await page.goto('/configuracoes?tab=usuarios');
+    await expect(page.getByRole('heading', { name: /Usuários/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.locator('select.select-field')).toHaveCount(0);
+  });
+});

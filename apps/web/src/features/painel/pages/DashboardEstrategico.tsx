@@ -12,7 +12,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Button, ChartCard, KpiCard, Page, Skeleton } from '@painel/ui';
+import { Button, ChartCard, KpiCard, Page, Select, Skeleton } from '@painel/ui';
 import { LayoutDashboard } from 'lucide-react';
 import { formatCents } from '../../../lib/format';
 import { contractsListHref } from '../../../lib/dashboardLinks';
@@ -127,22 +127,23 @@ export default function DashboardEstrategico() {
       }
       actions={
         <div className="flex flex-wrap items-center gap-2">
-          <select
-            className="select-field"
-            value={pilar}
-            onChange={(e) => {
+          <Select
+            className="min-w-[14rem]"
+            aria-label="Filtrar pilar"
+            value={pilar || '__all__'}
+            onChange={(v) => {
               const next = new URLSearchParams(params);
-              if (e.target.value) next.set('pilar', e.target.value);
+              if (v && v !== '__all__') next.set('pilar', v);
               else next.delete('pilar');
               setParams(next);
             }}
-            aria-label="Filtrar pilar"
-          >
-            <option value="">Todos os pilares</option>
-            <option value="CUSTEIO">Custeio</option>
-            <option value="INVESTIMENTO">Investimento</option>
-            <option value="SERVICOS">Serviços</option>
-          </select>
+            options={[
+              { id: '__all__', label: 'Todos os pilares' },
+              { id: 'CUSTEIO', label: 'Custeio' },
+              { id: 'INVESTIMENTO', label: 'Investimento' },
+              { id: 'SERVICOS', label: 'Serviços' },
+            ]}
+          />
           <Link to="/">
             <Button variant="secondary">
               <LayoutDashboard size={16} />

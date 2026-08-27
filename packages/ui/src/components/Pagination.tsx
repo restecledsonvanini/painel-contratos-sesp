@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '../lib/cn';
 import { Button } from './Button';
+import { Select } from './Select';
 
 interface PaginationProps {
   pageIndex: number;
@@ -45,23 +46,16 @@ export function Pagination({
       </p>
       <div className="flex flex-wrap items-center gap-[var(--space-sm)]">
         {onPageSizeChange && (
-          <label className="flex items-center gap-2 text-[var(--font-size-sm)] text-[var(--text-muted)]">
-            Por página
-            <select
-              value={pageSize}
-              onChange={(e) => onPageSizeChange(Number(e.target.value))}
-              className={cn(
-                'rounded-[var(--radius-sm)] border border-[var(--input-border)] bg-[var(--input-bg)]',
-                'px-2 py-1 text-[var(--font-size-sm)] text-[var(--text)]',
-              )}
-            >
-              {pageSizeOptions.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select
+            className="min-w-[7rem]"
+            aria-label="Por página"
+            value={String(pageSize)}
+            onChange={(v) => onPageSizeChange(Number(v))}
+            options={pageSizeOptions.map((size) => ({
+              id: String(size),
+              label: `${size} / pág.`,
+            }))}
+          />
         )}
         <Button size="sm" variant="secondary" onClick={() => onPageChange(0)} disabled={!canPrev}>
           Primeira

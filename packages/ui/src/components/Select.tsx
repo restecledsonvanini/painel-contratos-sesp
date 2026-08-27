@@ -22,6 +22,7 @@ interface SelectProps {
   id?: string;
   className?: string;
   name?: string;
+  'aria-label'?: string;
   'aria-describedby'?: string;
   'aria-invalid'?: boolean;
 }
@@ -38,6 +39,7 @@ export function Select({
   id,
   className,
   name,
+  'aria-label': ariaLabel,
   'aria-describedby': ariaDescribedBy,
   'aria-invalid': ariaInvalid,
 }: SelectProps) {
@@ -71,6 +73,7 @@ export function Select({
       >
         <RadixSelect.Trigger
           id={selectId}
+          aria-label={ariaLabel}
           aria-invalid={error || ariaInvalid ? true : undefined}
           aria-describedby={ariaDescribedBy}
           className={cn(

@@ -8,6 +8,7 @@ import {
   ErrorState,
   IconButton,
   Page,
+  Select,
   Skeleton,
   useToast,
 } from '@painel/ui';
@@ -172,19 +173,20 @@ export default function UnidadesList() {
       description={`${flat?.length ?? 0} subunidades · SESP mantenedora → forças → unidades cadastráveis (opcionais).`}
       actions={
         <div className="flex flex-wrap items-center gap-2">
-          <select
-            className="select-field"
+          <Select
+            className="min-w-[16rem]"
             aria-label="Filtrar órgão"
-            value={orgaoFiltro}
-            onChange={(e) => setOrgaoFiltro(e.target.value)}
-          >
-            <option value="">Toda a hierarquia</option>
-            {(orgaos ?? []).map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.sigla} — {o.nome}
-              </option>
-            ))}
-          </select>
+            placeholder="Toda a hierarquia"
+            value={orgaoFiltro || '__all__'}
+            onChange={(v) => setOrgaoFiltro(v === '__all__' ? '' : v)}
+            options={[
+              { id: '__all__', label: 'Toda a hierarquia' },
+              ...(orgaos ?? []).map((o) => ({
+                id: o.id,
+                label: `${o.sigla} — ${o.nome}`,
+              })),
+            ]}
+          />
           {canWrite && (
             <Link to="/unidades/new">
               <Button>

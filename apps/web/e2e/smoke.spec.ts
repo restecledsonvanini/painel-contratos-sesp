@@ -62,6 +62,8 @@ test.describe('smoke + a11y', () => {
     await expect(page.getByRole('heading', { name: /Painel estratégico/i })).toBeVisible({
       timeout: 15_000,
     });
+    await expect(page.getByLabel(/Filtrar pilar/i)).toBeVisible();
+    await expect(page.locator('select.select-field')).toHaveCount(0);
     await assertNoCriticalAxe(page, 'estratégico');
 
     await page.goto('/contracts/new');

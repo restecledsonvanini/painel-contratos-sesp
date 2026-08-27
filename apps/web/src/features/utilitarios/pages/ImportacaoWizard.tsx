@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { Button, Card, Page, Textarea } from '@painel/ui';
+import { Button, Card, FormField, Page, Select, Textarea } from '@painel/ui';
 import { http, getErrorMessage } from '../../../lib/http';
 import { useCanAct } from '../../../lib/access';
 import { useAuth } from '../../../providers/AuthProvider';
@@ -148,20 +148,19 @@ export default function ImportacaoWizard() {
           </p>
         ) : null}
         <div className="flex flex-wrap gap-3 items-center">
-          <label className="text-sm font-medium">
-            Entidade{' '}
-            <select
-              className="ml-2 border rounded px-2 py-1"
-              value={tipoEntidade}
+          <FormField label="Entidade" className="min-w-[12rem]">
+            <Select
               disabled={!canImport}
-              onChange={(e) => onChangeTipo(e.target.value as TipoEntidade)}
-            >
-              <option value="fornecedor">Fornecedor</option>
-              <option value="servidor">Servidor</option>
-              <option value="dotacao">Dotação</option>
-              <option value="unidade">Unidade</option>
-            </select>
-          </label>
+              value={tipoEntidade}
+              onChange={(v) => onChangeTipo(v as TipoEntidade)}
+              options={[
+                { id: 'fornecedor', label: 'Fornecedor' },
+                { id: 'servidor', label: 'Servidor' },
+                { id: 'dotacao', label: 'Dotação' },
+                { id: 'unidade', label: 'Unidade' },
+              ]}
+            />
+          </FormField>
           <input
             ref={fileRef}
             type="file"
