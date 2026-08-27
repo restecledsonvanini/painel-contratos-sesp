@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { Button, ConfirmDialog, Input, Page, useToast } from '@painel/ui';
-import { TIPO_SANCAO_LABELS, enumOptions } from '@painel/domain';
+import { Controller, useForm } from 'react-hook-form';
+import { Button, ConfirmDialog, FormField, Input, Page, Select, useToast } from '@painel/ui';
+import { TIPO_SANCAO_LABELS, enumOptions, type TipoSancao } from '@painel/domain';
 import {
   useCreateFornecedor,
   useCreateFornecedorContato,
@@ -138,18 +138,18 @@ function ContatosSection({ fornecedorId, contatos }: { fornecedorId: string; con
         ))}
       </ul>
       <form onSubmit={onAdd} className="app-form__grid">
-        <div className="app-form__span-2">
-          <Input label="Nome" value={nome} onChange={(e) => setNome(e.target.value)} />
-        </div>
-        <div>
-          <Input label="Cargo" value={cargo} onChange={(e) => setCargo(e.target.value)} />
-        </div>
-        <div>
-          <Input label="Telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
-        </div>
-        <div className="app-form__span-2">
-          <Input label="E-mail" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
+        <FormField label="Nome" className="app-form__span-2">
+          <Input value={nome} onChange={(e) => setNome(e.target.value)} />
+        </FormField>
+        <FormField label="Cargo">
+          <Input value={cargo} onChange={(e) => setCargo(e.target.value)} />
+        </FormField>
+        <FormField label="Telefone">
+          <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} />
+        </FormField>
+        <FormField label="E-mail" className="app-form__span-2">
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </FormField>
         <label className="flex items-center gap-2 text-sm app-form__span-2">
           <input type="checkbox" checked={principal} onChange={(e) => setPrincipal(e.target.checked)} />
           Contato principal
@@ -177,7 +177,7 @@ function SancoesSection({ fornecedorId, sancoes }: { fornecedorId: string; sanco
   const create = useCreateFornecedorSancao(fornecedorId);
   const del = useDeleteFornecedorSancao(fornecedorId);
   const confirm = useConfirmDialog<string>();
-  const [tipo, setTipo] = useState<string>('ADVERTENCIA');
+  const [tipo, setTipo] = useState<TipoSancao>('ADVERTENCIA');
   const [processo, setProcesso] = useState('');
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
@@ -265,40 +265,28 @@ function SancoesSection({ fornecedorId, sancoes }: { fornecedorId: string; sanco
         ))}
       </ul>
       <form onSubmit={onAdd} className="app-form__grid">
-        <div>
-          <span className="field-label">Tipo</span>
-          <select className="select-field" value={tipo} onChange={(e) => setTipo(e.target.value)}>
-            {TIPOS_SANCAO.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <Input label="Processo" value={processo} onChange={(e) => setProcesso(e.target.value)} />
-        </div>
-        <div>
-          <Input
-            label="Início"
-            type="date"
-            value={dataInicio}
-            onChange={(e) => setDataInicio(e.target.value)}
+        <FormField label="Tipo">
+          <Select
+            options={TIPOS_SANCAO.map((t) => ({ id: t.value, label: t.label }))}
+            value={tipo}
+            onChange={(v) => setTipo(v as TipoSancao)}
           />
-        </div>
-        <div>
-          <Input label="Fim" type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} />
-        </div>
-        <div>
-          <Input
-            label="Abrangência"
-            value={abrangencia}
-            onChange={(e) => setAbrangencia(e.target.value)}
-          />
-        </div>
-        <div>
-          <Input label="Fonte" value={fonte} onChange={(e) => setFonte(e.target.value)} />
-        </div>
+        </FormField>
+        <FormField label="Processo">
+          <Input value={processo} onChange={(e) => setProcesso(e.target.value)} />
+        </FormField>
+        <FormField label="Início">
+          <Input type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} />
+        </FormField>
+        <FormField label="Fim">
+          <Input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} />
+        </FormField>
+        <FormField label="Abrangência">
+          <Input value={abrangencia} onChange={(e) => setAbrangencia(e.target.value)} />
+        </FormField>
+        <FormField label="Fonte">
+          <Input value={fonte} onChange={(e) => setFonte(e.target.value)} />
+        </FormField>
         <div className="app-form__actions app-form__span-2">
           <Button type="submit" size="sm" disabled={create.isPending}>
             Registrar sanção
@@ -388,61 +376,81 @@ export default function FornecedoresForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="app-form space-y-4">
         <div className="app-form__panel">
           <div className="app-form__grid">
-            <div>
-              <span className="field-label">Tipo de pessoa</span>
-              <select className="select-field" {...register('tipoPessoa', { required: true })}>
-                <option value="JURIDICA">Pessoa jurídica</option>
-                <option value="FISICA">Pessoa física</option>
-              </select>
-            </div>
-            <div>
-              <span className="field-label">Situação</span>
-              <select className="select-field" {...register('situacao')}>
-                <option value="ATIVO">Ativo</option>
-                <option value="INATIVO">Inativo</option>
-                <option value="IMPEDIDO">Impedido</option>
-                <option value="INIDONEO">Inidôneo</option>
-              </select>
-            </div>
-            <div className="app-form__span-2">
-              <Input label="Razão social / Nome" {...register('razaoSocial', { required: true })} />
-              {errors.razaoSocial && <p className="field-error">Obrigatório</p>}
-            </div>
-            <div className="app-form__span-2">
-              <Input label="Nome fantasia" {...register('nomeFantasia')} />
-            </div>
-            <div className="app-form__span-2">
+            <Controller
+              name="tipoPessoa"
+              control={form.control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <FormField label="Tipo">
+                  <Select
+                    options={[
+                      { id: 'JURIDICA', label: 'Pessoa jurídica' },
+                      { id: 'FISICA', label: 'Pessoa física' },
+                    ]}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormField>
+              )}
+            />
+            <Controller
+              name="situacao"
+              control={form.control}
+              render={({ field }) => (
+                <FormField label="Situação">
+                  <Select
+                    options={[
+                      { id: 'ATIVO', label: 'Ativo' },
+                      { id: 'INATIVO', label: 'Inativo' },
+                      { id: 'IMPEDIDO', label: 'Impedido' },
+                      { id: 'INIDONEO', label: 'Inidôneo' },
+                    ]}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                </FormField>
+              )}
+            />
+            <FormField
+              label="Razão social"
+              error={errors.razaoSocial ? 'Obrigatório' : undefined}
+              className="app-form__span-2"
+            >
+              <Input {...register('razaoSocial', { required: true })} />
+            </FormField>
+            <FormField label="Nome fantasia">
+              <Input {...register('nomeFantasia')} />
+            </FormField>
+            <FormField
+              label={tipoPessoa === 'FISICA' ? 'CPF' : 'CNPJ'}
+              error={errors.documento ? 'Obrigatório' : undefined}
+            >
               <Input
-                label={tipoPessoa === 'FISICA' ? 'CPF' : 'CNPJ'}
                 {...register('documento', { required: true })}
                 onBlur={() => {
                   const raw = getValues('documento') || '';
-                  setValue(
-                    'documento',
-                    tipoPessoa === 'FISICA' ? maskCpf(raw) : maskCnpj(raw),
-                  );
+                  setValue('documento', tipoPessoa === 'FISICA' ? maskCpf(raw) : maskCnpj(raw));
                 }}
               />
-              {errors.documento && <p className="field-error">Obrigatório</p>}
-            </div>
+            </FormField>
           </div>
 
           {!id && (
             <div className="mt-4 border-t border-[var(--border)] pt-4">
               <h2 className="text-base font-semibold mb-3">Contato principal (opcional)</h2>
               <div className="app-form__grid">
-                <div className="app-form__span-2">
-                  <Input label="Nome" {...register('contatoNome')} />
-                </div>
-                <div>
-                  <Input label="Cargo" {...register('contatoCargo')} />
-                </div>
-                <div>
-                  <Input label="Telefone" {...register('contatoTelefone')} />
-                </div>
-                <div className="app-form__span-2">
-                  <Input label="E-mail" type="email" {...register('contatoEmail')} />
-                </div>
+                <FormField label="Nome" className="app-form__span-2">
+                  <Input {...register('contatoNome')} />
+                </FormField>
+                <FormField label="Cargo">
+                  <Input {...register('contatoCargo')} />
+                </FormField>
+                <FormField label="Telefone">
+                  <Input {...register('contatoTelefone')} />
+                </FormField>
+                <FormField label="E-mail" className="app-form__span-2">
+                  <Input type="email" {...register('contatoEmail')} />
+                </FormField>
               </div>
             </div>
           )}

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { Button, Input, Page, useToast } from '@painel/ui';
+import { Controller, useForm } from 'react-hook-form';
+import { Button, FormField, Input, Page, Select, useToast } from '@painel/ui';
 import {
   NIVEL_UNIDADE_LABELS,
   enumOptions,
@@ -76,7 +76,6 @@ export default function UnidadeForm() {
   });
   const { register, handleSubmit, setValue, watch, formState: { errors } } = form;
   const orgaoId = watch('orgaoId');
-  const parentId = watch('parentId');
   const municipioId = watch('municipioId');
 
   useEffect(() => {
@@ -147,73 +146,76 @@ export default function UnidadeForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="app-form">
         <div className="app-form__panel">
           <div className="app-form__grid is-dense">
-            <div className="app-form__span-3">
-              <span className="field-label" id="label-orgao">
-                Órgão / força
-              </span>
-              <select
-                className="select-field"
-                aria-labelledby="label-orgao"
-                {...register('orgaoId', { required: true })}
-              >
-                <option value="">Selecione…</option>
-                {(orgaos ?? []).map((o) => (
-                  <option key={o.id} value={o.id}>
-                    {o.sigla} — {o.nome}
-                  </option>
-                ))}
-              </select>
-              {errors.orgaoId && <p className="field-error">Obrigatório</p>}
-            </div>
-
-            <div className="app-form__span-3">
-              <span className="field-label" id="label-parent">
-                Unidade superior (opcional)
-              </span>
-              <select
-                className="select-field"
-                aria-labelledby="label-parent"
-                {...register('parentId')}
-                disabled={!orgaoId}
-              >
-                <option value="">— Sede / sem superior —</option>
-                {parentsDoOrgao.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.sigla} — {u.nome}
-                    {u.id === parentId ? '' : ''}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <Input label="Sigla" {...register('sigla', { required: true })} />
-            {errors.sigla && <p className="field-error">Obrigatório</p>}
-            <div className="app-form__span-2">
-              <Input label="Nome" {...register('nome', { required: true })} />
-              {errors.nome && <p className="field-error">Obrigatório</p>}
-            </div>
-
-            <div>
-              <span className="field-label" id="label-nivel">
-                Nível (opcional)
-              </span>
-              <select className="select-field" aria-labelledby="label-nivel" {...register('nivel')}>
-                <option value="">Não informado</option>
-                {NIVEIS.map((n) => (
-                  <option key={n.value} value={n.value}>
-                    {n.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="app-form__span-2">
+            <Controller
+              name="orgaoId"
+              control={form.control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <FormField label="Órgão" hint="Força" error={errors.orgaoId ? 'Obrigatório' : undefined}>
+                  <Select
+                    options={(orgaos ?? []).map((o) => ({
+                      id: o.id,
+                      label: `${o.sigla} — ${o.nome}`,
+                    }))}
+                    value={field.value}
+                    onChange={field.onChange}
+                    placeholder="Selecione"
+                  />
+                </FormField>
+              )}
+            />
+            <Controller
+              name="parentId"
+              control={form.control}
+              render={({ field }) => (
+                <FormField label="Superior" hint="Sede se vazio">
+                  <Select
+                    options={[
+                      { id: '__none__', label: 'Nenhuma (sede)' },
+                      ...parentsDoOrgao.map((u) => ({
+                        id: u.id,
+                        label: `${u.sigla} — ${u.nome}`,
+                      })),
+                    ]}
+                    value={field.value || '__none__'}
+                    onChange={(v) => field.onChange(v === '__none__' ? '' : v)}
+                    disabled={!orgaoId}
+                    placeholder="Nenhuma"
+                  />
+                </FormField>
+              )}
+            />
+            <FormField label="Sigla" error={errors.sigla ? 'Obrigatório' : undefined}>
+              <Input {...register('sigla', { required: true })} />
+            </FormField>
+            <FormField label="Nome" error={errors.nome ? 'Obrigatório' : undefined} className="app-form__span-2">
+              <Input {...register('nome', { required: true })} />
+            </FormField>
+            <Controller
+              name="nivel"
+              control={form.control}
+              render={({ field }) => (
+                <FormField label="Nível">
+                  <Select
+                    options={[
+                      { id: '__none__', label: 'Não informado' },
+                      ...NIVEIS.map((n) => ({ id: n.value, label: n.label })),
+                    ]}
+                    value={field.value || '__none__'}
+                    onChange={(v) => field.onChange(v === '__none__' ? '' : v)}
+                    placeholder="Não informado"
+                  />
+                </FormField>
+              )}
+            />
+            <FormField label="Município" hint="Busca, opcional" className="app-form__span-2">
               <Input
-                label="Município (busca, opcional)"
                 value={municipioQ}
                 onChange={(e) => setMunicipioQ(e.target.value)}
                 placeholder="Digite ao menos 2 letras…"
               />
+            </FormField>
+            <div className="app-form__span-2">
               <input type="hidden" {...register('municipioId')} />
               {municipioLabel && municipioId && (
                 <p className="mt-1 text-[var(--font-size-sm)] text-[var(--text-muted)]">

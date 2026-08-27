@@ -26,3 +26,49 @@ test.describe('cadastros — busca paginada', () => {
     }
   });
 });
+
+test.describe('cadastros — formulários FormField', () => {
+  test('fornecedor, servidor, catálogo, dotação e unidade usam rótulos curtos', async ({
+    page,
+  }) => {
+    await loginAs(page, 'admin@sesp.pr.gov.br', 'admin123');
+
+    await page.goto('/fornecedores/new');
+    await expect(page.getByRole('heading', { name: /Novo fornecedor/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByText('Tipo', { exact: true }).first()).toBeVisible();
+    await expect(page.getByText('Situação', { exact: true })).toBeVisible();
+    await expect(page.getByLabel(/^Razão social$/i)).toBeVisible();
+    await expect(page.locator('select.select-field')).toHaveCount(0);
+
+    await page.goto('/servidores/new');
+    await expect(page.getByRole('heading', { name: /Novo servidor/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByLabel(/^Nome$/i)).toBeVisible();
+    await expect(page.getByLabel(/^CPF$/i)).toBeVisible();
+
+    await page.goto('/catalogo-itens/new');
+    await expect(page.getByRole('heading', { name: /Novo item do catálogo/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByLabel(/^Nome$/i)).toBeVisible();
+    await expect(page.getByText('Categoria', { exact: true })).toBeVisible();
+
+    await page.goto('/dotacoes/new');
+    await expect(page.getByRole('heading', { name: /Nova dotação/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByLabel(/^Exercício$/i)).toBeVisible();
+    await expect(page.getByText('Natureza', { exact: true })).toBeVisible();
+
+    await page.goto('/unidades/new');
+    await expect(page.getByRole('heading', { name: /Nova unidade/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByText('Órgão', { exact: true })).toBeVisible();
+    await expect(page.getByLabel(/^Sigla$/i)).toBeVisible();
+    await expect(page.locator('select.select-field')).toHaveCount(0);
+  });
+});

@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Button, Input, Page, useToast } from '@painel/ui';
+import { Button, FormField, Input, Page, useToast } from '@painel/ui';
 import type { ServidorCreateInput, ServidorUpdateInput } from '@painel/schema';
 import { useCreateServidor, useServidor, useUpdateServidor } from '../../../hooks/useReferences';
 import { getErrorMessage } from '../../../lib/http';
@@ -20,9 +20,13 @@ function toCreateBody(data: FormValues): ServidorCreateInput {
   return {
     nome: data.nome,
     cpf: data.cpf ? onlyDigits(data.cpf) : null,
+    rgFuncional: null,
     cargo: data.cargo || null,
+    orgaoId: null,
+    unidadeId: null,
     email: data.email || null,
     telefone: data.telefone || null,
+    ativo: true,
   };
 }
 
@@ -70,26 +74,24 @@ export default function ServidoresForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="app-form">
         <div className="app-form__panel">
           <div className="app-form__grid">
-            <div className="app-form__span-2">
-              <Input label="Nome" {...register('nome', { required: true })} />
-              {errors.nome && <p className="field-error">Obrigatório</p>}
-            </div>
-            <div>
+            <FormField label="Nome" error={errors.nome ? 'Obrigatório' : undefined} className="app-form__span-2">
+              <Input {...register('nome', { required: true })} />
+            </FormField>
+            <FormField label="CPF">
               <Input
-                label="CPF"
                 {...register('cpf')}
                 onBlur={() => setValue('cpf', maskCpf(getValues('cpf') || ''))}
               />
-            </div>
-            <div>
-              <Input label="Cargo" {...register('cargo')} />
-            </div>
-            <div>
-              <Input label="E-mail" type="email" {...register('email')} />
-            </div>
-            <div>
-              <Input label="Telefone" {...register('telefone')} />
-            </div>
+            </FormField>
+            <FormField label="Cargo">
+              <Input {...register('cargo')} />
+            </FormField>
+            <FormField label="E-mail">
+              <Input type="email" {...register('email')} />
+            </FormField>
+            <FormField label="Telefone">
+              <Input {...register('telefone')} />
+            </FormField>
           </div>
           <div className="app-form__actions">
             <Button type="submit">Salvar</Button>

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Input, Page, Textarea, useToast } from '@painel/ui';
+import { Button, FormField, Input, Page, Textarea, useToast } from '@painel/ui';
 import type { DotacaoCreateInput, DotacaoDTO, DotacaoUpdateInput } from '@painel/schema';
 import { http, getErrorMessage } from '../../../lib/http';
 import { LookupSelect } from '../../../components/LookupSelect';
@@ -93,61 +93,56 @@ export default function DotacaoForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="app-form">
         <div className="app-form__panel">
           <div className="app-form__grid">
-            <div>
+            <FormField label="Exercício" error={errors.exercicio ? 'Obrigatório (≥ 2000)' : undefined}>
               <Input
-                label="Exercício"
                 type="number"
                 {...register('exercicio', { required: true, valueAsNumber: true, min: 2000 })}
               />
-              {errors.exercicio && <p className="field-error">Obrigatório (≥ 2000)</p>}
-            </div>
-            <div>
-              <Input label="Código" {...register('codigo', { required: true })} />
-              {errors.codigo && <p className="field-error">Obrigatório</p>}
-            </div>
-            <div>
-              <Input label="Unidade orçamentária" {...register('unidadeOrcamentaria')} />
-            </div>
-            <div>
-              <Input label="Funcional programática" {...register('funcionalProgramatica')} />
-            </div>
-            <div>
-              <Controller
-                name="naturezaDespesaId"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
+            </FormField>
+            <FormField label="Código" error={errors.codigo ? 'Obrigatório' : undefined}>
+              <Input {...register('codigo', { required: true })} />
+            </FormField>
+            <FormField label="Unidade orçamentária">
+              <Input {...register('unidadeOrcamentaria')} />
+            </FormField>
+            <FormField label="Funcional programática">
+              <Input {...register('funcionalProgramatica')} />
+            </FormField>
+            <Controller
+              name="naturezaDespesaId"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <FormField label="Natureza" error={errors.naturezaDespesaId ? 'Obrigatório' : undefined}>
                   <LookupSelect
+                    hideLabel
                     slug="natureza-despesa"
-                    label="Natureza de despesa"
                     valueMode="id"
                     value={field.value}
                     onChange={field.onChange}
-                    error={errors.naturezaDespesaId ? 'Obrigatório' : undefined}
                   />
-                )}
-              />
-            </div>
-            <div>
-              <Controller
-                name="fonteRecursoId"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
+                </FormField>
+              )}
+            />
+            <Controller
+              name="fonteRecursoId"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <FormField label="Fonte" error={errors.fonteRecursoId ? 'Obrigatório' : undefined}>
                   <LookupSelect
+                    hideLabel
                     slug="fonte-recurso"
-                    label="Fonte de recurso"
                     valueMode="id"
                     value={field.value}
                     onChange={field.onChange}
-                    error={errors.fonteRecursoId ? 'Obrigatório' : undefined}
                   />
-                )}
-              />
-            </div>
-            <div className="app-form__span-2">
-              <Textarea label="Descrição" rows={3} {...register('descricao')} />
-            </div>
+                </FormField>
+              )}
+            />
+            <FormField label="Descrição" className="app-form__span-2">
+              <Textarea rows={3} {...register('descricao')} />
+            </FormField>
           </div>
           <div className="app-form__actions">
             <Button type="button" variant="ghost" onClick={() => navigate('/cadastros?tab=dotacoes')}>

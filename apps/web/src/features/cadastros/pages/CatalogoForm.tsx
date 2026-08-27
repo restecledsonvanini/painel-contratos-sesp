@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, Input, Page, Textarea, useToast } from '@painel/ui';
+import { Button, FormField, Input, Page, Textarea, useToast } from '@painel/ui';
 import type {
   CatalogoItemCreateInput,
   CatalogoItemDTO,
@@ -93,50 +93,47 @@ export default function CatalogoForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="app-form">
         <div className="app-form__panel">
           <div className="app-form__grid">
-            <div className="app-form__span-2">
-              <Input label="Nome" {...register('nome', { required: true })} />
-              {errors.nome && <p className="field-error">Obrigatório</p>}
-            </div>
-            <div>
-              <Input label="Código (CATMAT/CATSER)" {...register('codigo')} />
-            </div>
-            <div>
-              <Controller
-                name="categoriaItemId"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
+            <FormField label="Nome" error={errors.nome ? 'Obrigatório' : undefined} className="app-form__span-2">
+              <Input {...register('nome', { required: true })} />
+            </FormField>
+            <FormField label="Código" hint="CATMAT/CATSER">
+              <Input {...register('codigo')} />
+            </FormField>
+            <Controller
+              name="categoriaItemId"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <FormField label="Categoria" error={errors.categoriaItemId ? 'Obrigatório' : undefined}>
                   <LookupSelect
+                    hideLabel
                     slug="categoria-item"
-                    label="Categoria"
                     valueMode="id"
                     value={field.value}
                     onChange={field.onChange}
-                    error={errors.categoriaItemId ? 'Obrigatório' : undefined}
                   />
-                )}
-              />
-            </div>
-            <div>
-              <Controller
-                name="unidadeMedidaPadraoId"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
+                </FormField>
+              )}
+            />
+            <Controller
+              name="unidadeMedidaPadraoId"
+              control={control}
+              rules={{ required: true }}
+              render={({ field }) => (
+                <FormField label="Unidade" error={errors.unidadeMedidaPadraoId ? 'Obrigatório' : undefined}>
                   <LookupSelect
+                    hideLabel
                     slug="unidade-medida"
-                    label="Unidade de medida"
                     valueMode="id"
                     value={field.value}
                     onChange={field.onChange}
-                    error={errors.unidadeMedidaPadraoId ? 'Obrigatório' : undefined}
                   />
-                )}
-              />
-            </div>
-            <div className="app-form__span-2">
-              <Textarea label="Descrição" rows={3} {...register('descricao')} />
-            </div>
+                </FormField>
+              )}
+            />
+            <FormField label="Descrição" className="app-form__span-2">
+              <Textarea rows={3} {...register('descricao')} />
+            </FormField>
           </div>
           <div className="app-form__actions">
             <Button type="submit">Salvar</Button>
