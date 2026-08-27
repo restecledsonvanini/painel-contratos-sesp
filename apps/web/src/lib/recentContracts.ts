@@ -63,16 +63,26 @@ export function readRecentContracts(): RecentContract[] {
   }
 }
 
-export function pushRecentContract(entry: Omit<RecentContract, 'visitedAt'>) {
-  if (typeof window === 'undefined' || !entry.id) return;
-  const next: RecentContract[] = [
-    { ...entry, visitedAt: Date.now() },
-    ...readRecentContracts().filter((r) => r.id !== entry.id),
-  ].slice(0, RECENT_CONTRACTS_MAX);
+function persistRecentContracts(next: RecentContract[]) {
   try {
     window.localStorage.setItem(RECENT_CONTRACTS_KEY, JSON.stringify(next));
     window.dispatchEvent(new CustomEvent('painel:recent-contracts'));
   } catch {
     /* ignore quota */
   }
+}
+
+export function pushRecentContract(entry: Omit<RecentContract, 'visitedAt'>) {
+  if (typeof window === 'undefined' || !entry.id) return;
+  persistRecentContracts(
+    [
+      { ...entry, visitedAt: Date.now() },
+      ...readRecentContracts().filter((r) => r.id !== entry.id),
+    ].slice(0, RECENT_CONTRACTS_MAX),
+  );
+}
+
+export function removeRecentContract(id: string) {
+  if (typeof window === 'undefined' || !id) return;
+  persistRecentContracts(readRecentContracts().filter((r) => r.id !== id));
 }

@@ -13,11 +13,11 @@ import {
   Tabs,
   useToast,
 } from '@painel/ui';
-import { getErrorMessage } from '../../../lib/http';
+import { ApiError, getErrorMessage } from '../../../lib/http';
 import { downloadApiFile } from '../../../lib/download';
 import { useConfirmDialog } from '../../../lib/useConfirmDialog';
 import { useCanManage, useCanWrite } from '../../../lib/access';
-import { CONTRACT_TAB_LABELS, pushRecentContract } from '../../../lib/recentContracts';
+import { CONTRACT_TAB_LABELS, pushRecentContract, removeRecentContract } from '../../../lib/recentContracts';
 import { authorLabel, formatDateBr, formatRelativePast } from '../../../lib/formatRelative';
 import { useContractExtras } from './useContractExtras';
 import { Download } from 'lucide-react';
@@ -50,7 +50,7 @@ export default function ContractDetail() {
   const { id } = useParams();
   const [tab, setTab] = useTabParam(TAB_IDS, 'resumo');
 
-  const { data: contract, isLoading, error, refetch } = useContract(id);
+  const { data: contract, isLoading, error, isSuccess, refetch } = useContract(id);
   const deleteContract = useDeleteContract();
   const toast = useToast();
   const confirm = useConfirmDialog<string>();
@@ -67,6 +67,13 @@ export default function ContractDetail() {
     });
   }, [contract?.id, contract?.numGms, contract?.anoGms, contract?.protocoloCabeca]);
 
+  useEffect(() => {
+    if (!id) return;
+    if (error instanceof ApiError && error.status === 404) {
+      removeRecentContract(id);
+    }
+  }, [id, error]);
+
   const {
     financeiro,
     dotacoes,
@@ -76,7 +83,7 @@ export default function ContractDetail() {
     timeline,
     limites,
     auditoria,
-  } = useContractExtras(id, tab);
+  } = useContractExtras(id, tab, Boolean(id) && isSuccess);
 
   const handleDelete = async () => {
     if (!confirm.pending) return;

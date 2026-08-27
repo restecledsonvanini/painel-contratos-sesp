@@ -16,6 +16,20 @@ async function dbReady() {
   }
 }
 
+describe('rotas aninhadas do contrato (Express 5)', () => {
+  it('GET /contracts/:id/documentos não é 404 de roteamento', async () => {
+    const res = await request(app).get(
+      '/api/v1/contracts/00000000-0000-4000-8000-000000000000/documentos',
+    );
+    // Rota existe: 401 (sem auth) ou 404 JSON (contrato inexistente). Não "Cannot GET".
+    expect(res.headers['content-type']).toMatch(/json/);
+    expect([401, 404]).toContain(res.status);
+    if (res.status === 404) {
+      expect(res.body?.error?.code).toBe('NOT_FOUND');
+    }
+  });
+});
+
 describe('orcamento e publicidade API', () => {
   let ready = false;
   let contratoId = '';

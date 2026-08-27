@@ -1,20 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  Badge,
   Button,
   Card,
+  DataTable,
   Input,
   Page,
   Select,
   Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  StatusBadge,
   useToast,
+  type ColumnDef,
 } from '@painel/ui';
 import { ROLE_LABELS, type Role } from '@painel/domain';
 import type { UsuarioCreateInput, UsuarioDTO, UsuarioUpdateInput } from '@painel/schema';
@@ -102,6 +98,101 @@ export default function UsuariosPage() {
 
   const rows = list.data ?? [];
 
+  const columns: ColumnDef<UsuarioDTO>[] = useMemo(
+    () => [
+      {
+        id: 'email',
+        header: 'E-mail',
+        enableSorting: false,
+        cell: ({ row }) => <span className="font-semibold">{row.original.email}</span>,
+      },
+      {
+        accessorKey: 'nome',
+        header: 'Nome',
+        enableSorting: false,
+        cell: ({ row }) => row.original.nome || '—',
+      },
+      {
+        id: 'papel',
+        header: 'Papel',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <Select
+            className="min-w-[9rem]"
+            aria-label={`Papel de ${row.original.email}`}
+            value={row.original.role}
+            onChange={(v) => patch.mutate({ id: row.original.id, data: { role: v as Role } })}
+            options={ROLES.map((r) => ({ id: r, label: ROLE_LABELS[r] }))}
+          />
+        ),
+      },
+      {
+        id: 'orgao',
+        header: 'Órgão',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <Select
+            className="min-w-[12rem]"
+            aria-label={`Órgão de ${row.original.email}`}
+            value={row.original.orgaoId ?? NONE}
+            onChange={(v) =>
+              patch.mutate({
+                id: row.original.id,
+                data: { orgaoId: v === NONE ? null : v },
+              })
+            }
+            options={orgaoOptions}
+          />
+        ),
+      },
+      {
+        id: 'servidor',
+        header: 'Servidor',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <Select
+            className="min-w-[14rem]"
+            aria-label={`Servidor de ${row.original.email}`}
+            value={row.original.servidorId ?? NONE}
+            onChange={(v) =>
+              patch.mutate({
+                id: row.original.id,
+                data: { servidorId: v === NONE ? null : v },
+              })
+            }
+            options={servidorOptions}
+          />
+        ),
+      },
+      {
+        id: 'situacao',
+        header: 'Situação',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <StatusBadge status={row.original.ativo ? 'ATIVO' : 'INATIVO'} />
+        ),
+      },
+      {
+        id: 'acoes',
+        header: 'Ações',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <Button
+            size="sm"
+            variant="ghost"
+            disabled={patch.isPending}
+            onClick={() =>
+              patch.mutate({ id: row.original.id, data: { ativo: !row.original.ativo } })
+            }
+          >
+            {row.original.ativo ? 'Desativar' : 'Ativar'}
+          </Button>
+        ),
+      },
+    ],
+    [orgaoOptions, patch, servidorOptions],
+  );
+
   return (
     <Page
       title="Usuários"
@@ -150,83 +241,11 @@ export default function UsuariosPage() {
       {list.isLoading ? (
         <Skeleton variant="table" lines={6} />
       ) : (
-        <Card variant="bordered" className="overflow-hidden p-0">
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeader>E-mail</TableHeader>
-                <TableHeader>Nome</TableHeader>
-                <TableHeader>Papel</TableHeader>
-                <TableHeader>Órgão</TableHeader>
-                <TableHeader>Servidor</TableHeader>
-                <TableHeader>Situação</TableHeader>
-                <TableHeader></TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {rows.map((u) => (
-                <TableRow key={u.id}>
-                  <TableCell className="font-semibold">{u.email}</TableCell>
-                  <TableCell>{u.nome || '—'}</TableCell>
-                  <TableCell>
-                    <Select
-                      className="min-w-[9rem]"
-                      aria-label={`Papel de ${u.email}`}
-                      value={u.role}
-                      onChange={(v) =>
-                        patch.mutate({ id: u.id, data: { role: v as Role } })
-                      }
-                      options={ROLES.map((r) => ({ id: r, label: ROLE_LABELS[r] }))}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      className="min-w-[12rem]"
-                      aria-label={`Órgão de ${u.email}`}
-                      value={u.orgaoId ?? NONE}
-                      onChange={(v) =>
-                        patch.mutate({
-                          id: u.id,
-                          data: { orgaoId: v === NONE ? null : v },
-                        })
-                      }
-                      options={orgaoOptions}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      className="min-w-[14rem]"
-                      aria-label={`Servidor de ${u.email}`}
-                      value={u.servidorId ?? NONE}
-                      onChange={(v) =>
-                        patch.mutate({
-                          id: u.id,
-                          data: { servidorId: v === NONE ? null : v },
-                        })
-                      }
-                      options={servidorOptions}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={u.ativo ? 'success' : 'default'}>
-                      {u.ativo ? 'Ativo' : 'Inativo'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      disabled={patch.isPending}
-                      onClick={() => patch.mutate({ id: u.id, data: { ativo: !u.ativo } })}
-                    >
-                      {u.ativo ? 'Desativar' : 'Ativar'}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+        <DataTable
+          columns={columns}
+          data={rows}
+          emptyMessage="Nenhum usuário cadastrado."
+        />
       )}
     </Page>
   );

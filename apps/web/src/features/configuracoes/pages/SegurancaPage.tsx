@@ -1,18 +1,15 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Button,
   Card,
+  DataTable,
   Input,
   Page,
   Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  StatusBadge,
   useToast,
+  type ColumnDef,
 } from '@painel/ui';
 import { EMAIL_DOMAINS_SLUG } from '@painel/domain';
 import { getErrorMessage, http } from '../../../lib/http';
@@ -73,6 +70,36 @@ export default function SegurancaPage() {
     onError: (err) => toast.error('Falha ao atualizar.', getErrorMessage(err)),
   });
 
+  const domainColumns: ColumnDef<DominioValor>[] = useMemo(
+    () => [
+      {
+        accessorKey: 'codigo',
+        header: 'Domínio',
+        enableSorting: false,
+        cell: ({ row }) => <span className="font-semibold">{row.original.codigo}</span>,
+      },
+      {
+        id: 'situacao',
+        header: 'Situação',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <StatusBadge status={row.original.ativo ? 'ATIVO' : 'INATIVO'} />
+        ),
+      },
+      {
+        id: 'acoes',
+        header: 'Ações',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <Button size="sm" variant="ghost" onClick={() => toggle.mutate(row.original)}>
+            {row.original.ativo ? 'Desativar' : 'Ativar'}
+          </Button>
+        ),
+      },
+    ],
+    [toggle],
+  );
+
   return (
     <Page
       title="Segurança"
@@ -98,37 +125,11 @@ export default function SegurancaPage() {
       {valores.isLoading ? (
         <Skeleton variant="table" lines={4} />
       ) : (
-        <Card variant="bordered" className="overflow-hidden p-0">
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableHeader>Domínio</TableHeader>
-                <TableHeader>Situação</TableHeader>
-                <TableHeader></TableHeader>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {(valores.data ?? []).map((v) => (
-                <TableRow key={v.id}>
-                  <TableCell className="font-semibold">{v.codigo}</TableCell>
-                  <TableCell>{v.ativo ? 'Ativo' : 'Inativo'}</TableCell>
-                  <TableCell>
-                    <Button size="sm" variant="ghost" onClick={() => toggle.mutate(v)}>
-                      {v.ativo ? 'Desativar' : 'Ativar'}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {!valores.data?.length && (
-                <TableRow>
-                  <TableCell colSpan={3} className="text-[var(--text-muted)]">
-                    Nenhum domínio cadastrado — rode o seed ou adicione acima.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </Card>
+        <DataTable
+          columns={domainColumns}
+          data={valores.data ?? []}
+          emptyMessage="Nenhum domínio cadastrado — rode o seed ou adicione acima."
+        />
       )}
     </Page>
   );

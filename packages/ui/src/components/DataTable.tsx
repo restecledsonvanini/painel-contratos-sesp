@@ -15,9 +15,9 @@ import { Skeleton } from './Skeleton';
 interface DataTableProps<TData> {
   columns: ColumnDef<TData, unknown>[];
   data: TData[];
-  pageCount: number;
-  pagination: PaginationState;
-  onPaginationChange: OnChangeFn<PaginationState>;
+  pageCount?: number;
+  pagination?: PaginationState;
+  onPaginationChange?: OnChangeFn<PaginationState>;
   sorting?: SortingState;
   onSortingChange?: OnChangeFn<SortingState>;
   totalRows?: number;
@@ -41,15 +41,16 @@ export function DataTable<TData>({
   className,
   pageSizeOptions,
 }: DataTableProps<TData>) {
+  const paged = Boolean(pagination && onPaginationChange);
   const table = useReactTable({
     data,
     columns,
-    pageCount,
-    state: { pagination, sorting },
+    pageCount: paged ? pageCount : 1,
+    state: paged ? { pagination, sorting } : { sorting },
     onPaginationChange,
     onSortingChange,
     getCoreRowModel: getCoreRowModel(),
-    manualPagination: true,
+    manualPagination: paged,
     manualSorting: true,
   });
 
@@ -89,7 +90,7 @@ export function DataTable<TData>({
           </thead>
           <tbody>
             {loading &&
-              Array.from({ length: pagination.pageSize }).map((_, i) => (
+              Array.from({ length: pagination?.pageSize ?? 8 }).map((_, i) => (
                 <tr key={`sk-${i}`}>
                   {columns.map((_, j) => (
                     <td key={j} className="border-b border-[var(--border)] px-[var(--space-md)] py-3">
@@ -157,15 +158,17 @@ export function DataTable<TData>({
           ))}
       </div>
 
-      <Pagination
-        pageIndex={pagination.pageIndex}
-        pageSize={pagination.pageSize}
-        pageCount={pageCount}
-        totalRows={totalRows}
-        onPageChange={(pageIndex) => table.setPageIndex(pageIndex)}
-        onPageSizeChange={(pageSize) => table.setPageSize(pageSize)}
-        pageSizeOptions={pageSizeOptions}
-      />
+      {paged && pagination && (
+        <Pagination
+          pageIndex={pagination.pageIndex}
+          pageSize={pagination.pageSize}
+          pageCount={pageCount ?? 1}
+          totalRows={totalRows}
+          onPageChange={(pageIndex) => table.setPageIndex(pageIndex)}
+          onPageSizeChange={onPaginationChange ? (pageSize) => table.setPageSize(pageSize) : undefined}
+          pageSizeOptions={pageSizeOptions}
+        />
+      )}
     </div>
   );
 }

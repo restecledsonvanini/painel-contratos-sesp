@@ -4,18 +4,15 @@ import {
   Button,
   Card,
   ConfirmDialog,
+  DataTable,
   EmptyState,
   ErrorState,
   Input,
   Page,
   Skeleton,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  StatusBadge,
   useToast,
+  type ColumnDef,
 } from '@painel/ui';
 import { http, getErrorMessage } from '../../../lib/http';
 import { useIsAdmin } from '../../../lib/access';
@@ -92,6 +89,68 @@ export default function DominiosPage() {
     },
     onError: (err) => toast.error('Erro ao desativar', getErrorMessage(err)),
   });
+
+  const valorColumns: ColumnDef<DominioValorDTO>[] = useMemo(
+    () => [
+      {
+        accessorKey: 'ordem',
+        header: 'Ordem',
+        enableSorting: false,
+      },
+      {
+        accessorKey: 'codigo',
+        header: 'Código',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <span className="font-mono text-[var(--font-size-xs)]">{row.original.codigo}</span>
+        ),
+      },
+      {
+        accessorKey: 'label',
+        header: 'Rótulo',
+        enableSorting: false,
+      },
+      {
+        id: 'ativo',
+        header: 'Ativo',
+        enableSorting: false,
+        cell: ({ row }) => (
+          <StatusBadge status={row.original.ativo ? 'ATIVO' : 'INATIVO'} />
+        ),
+      },
+      {
+        id: 'acoes',
+        header: 'Ações',
+        enableSorting: false,
+        cell: ({ row }) =>
+          selected?.editavelPeloUsuario && canEdit ? (
+            <div className="flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => toggleAtivo.mutate({ id: row.original.id, ativo: !row.original.ativo })}
+              >
+                {row.original.ativo ? 'Desativar' : 'Reativar'}
+              </Button>
+              {row.original.ativo && (
+                <Button
+                  size="sm"
+                  variant="danger"
+                  onClick={() =>
+                    confirm.ask(row.original.id, 'Desativar valor?', `Desativar «${row.original.label}»?`)
+                  }
+                >
+                  Remover
+                </Button>
+              )}
+            </div>
+          ) : (
+            '—'
+          ),
+      },
+    ],
+    [canEdit, confirm, selected?.editavelPeloUsuario, toggleAtivo],
+  );
 
   if (dominiosQuery.isLoading) {
     return (
@@ -175,57 +234,15 @@ export default function DominiosPage() {
                 )}
               </Card>
 
-              <Card variant="bordered" className="overflow-hidden">
-                {valoresQuery.isLoading ? (
-                  <Skeleton variant="table" lines={6} />
-                ) : (
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableHeader>Ordem</TableHeader>
-                        <TableHeader>Código</TableHeader>
-                        <TableHeader>Rótulo</TableHeader>
-                        <TableHeader>Ativo</TableHeader>
-                        <TableHeader>Ações</TableHeader>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {(valoresQuery.data ?? []).map((v) => (
-                        <TableRow key={v.id}>
-                          <TableCell>{v.ordem}</TableCell>
-                          <TableCell className="font-mono text-[var(--font-size-xs)]">{v.codigo}</TableCell>
-                          <TableCell>{v.label}</TableCell>
-                          <TableCell>{v.ativo ? 'Sim' : 'Não'}</TableCell>
-                          <TableCell>
-                            {selected.editavelPeloUsuario && canEdit && (
-                              <div className="flex flex-wrap gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  onClick={() => toggleAtivo.mutate({ id: v.id, ativo: !v.ativo })}
-                                >
-                                  {v.ativo ? 'Desativar' : 'Reativar'}
-                                </Button>
-                                {v.ativo && (
-                                  <Button
-                                    size="sm"
-                                    variant="danger"
-                                    onClick={() =>
-                                      confirm.ask(v.id, 'Desativar valor?', `Desativar «${v.label}»?`)
-                                    }
-                                  >
-                                    Remover
-                                  </Button>
-                                )}
-                              </div>
-                            )}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </Card>
+              {valoresQuery.isLoading ? (
+                <Skeleton variant="table" lines={6} />
+              ) : (
+                <DataTable
+                  columns={valorColumns}
+                  data={valoresQuery.data ?? []}
+                  emptyMessage="Nenhum valor nesta lista."
+                />
+              )}
             </>
           )}
         </div>
