@@ -4,6 +4,7 @@ import {
   Button,
   Card,
   DataTable,
+  FormField,
   Input,
   Page,
   Skeleton,
@@ -105,21 +106,24 @@ export default function SegurancaPage() {
       title="Segurança"
       description="Domínios de e-mail permitidos no login e no cadastro de usuários. AUTH_EMAIL_DOMAINS na API sobrescreve esta lista."
     >
-      <Card variant="bordered" className="mb-4 flex flex-wrap items-end gap-3 p-4">
-        <div className="min-w-[16rem] flex-1">
-          <Input
-            label="Novo domínio"
-            placeholder="sesp.pr.gov.br"
-            value={domain}
-            onChange={(e) => setDomain(e.target.value)}
-          />
+      <Card variant="bordered" className="mb-4 p-4">
+        <div className="app-form__grid">
+          <FormField label="Domínio" hint="Ex.: sesp.pr.gov.br" className="app-form__col-10">
+            <Input
+              placeholder="sesp.pr.gov.br"
+              value={domain}
+              onChange={(e) => setDomain(e.target.value)}
+            />
+          </FormField>
+          <div className="app-form__col-2 flex items-end">
+            <Button
+              disabled={create.isPending || !domain.includes('.')}
+              onClick={() => create.mutate()}
+            >
+              Adicionar
+            </Button>
+          </div>
         </div>
-        <Button
-          disabled={create.isPending || !domain.includes('.')}
-          onClick={() => create.mutate()}
-        >
-          Adicionar
-        </Button>
       </Card>
 
       {valores.isLoading ? (

@@ -147,8 +147,8 @@ export default function ImportacaoWizard() {
             )}
           </p>
         ) : null}
-        <div className="flex flex-wrap gap-3 items-center">
-          <FormField label="Entidade" className="min-w-[12rem]">
+        <div className="app-form__grid">
+          <FormField label="Entidade" className="app-form__col-3">
             <Select
               disabled={!canImport}
               value={tipoEntidade}
@@ -161,48 +161,50 @@ export default function ImportacaoWizard() {
               ]}
             />
           </FormField>
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".csv,text/csv"
-            className="hidden"
-            onChange={(e) => onFileSelected(e.target.files?.[0])}
-          />
-          <Button
-            variant="ghost"
-            disabled={!canImport}
-            onClick={() => fileRef.current?.click()}
-          >
-            Carregar arquivo
-          </Button>
-          <Button
-            variant="ghost"
-            disabled={!canImport}
-            onClick={() => {
-              setCsv(SAMPLES[tipoEntidade]);
-              setNomeArquivo(`${tipoEntidade}.csv`);
-              setLote(null);
-              setError(null);
-            }}
-          >
-            Restaurar exemplo
-          </Button>
-          <Button onClick={() => dryRun.mutate()} disabled={!canImport || dryRun.isPending}>
-            {dryRun.isPending ? 'Validando…' : '1. Dry-run'}
-          </Button>
-          <Button
-            variant="ghost"
-            disabled={
-              !canImport ||
-              !lote ||
-              lote.linhasComErro > 0 ||
-              lote.situacao === 'APLICADO' ||
-              aplicar.isPending
-            }
-            onClick={() => lote && aplicar.mutate(lote.id)}
-          >
-            {aplicar.isPending ? 'Aplicando…' : '2. Aplicar'}
-          </Button>
+          <div className="app-form__col-9 flex flex-wrap items-end gap-2">
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={(e) => onFileSelected(e.target.files?.[0])}
+            />
+            <Button
+              variant="ghost"
+              disabled={!canImport}
+              onClick={() => fileRef.current?.click()}
+            >
+              Arquivo
+            </Button>
+            <Button
+              variant="ghost"
+              disabled={!canImport}
+              onClick={() => {
+                setCsv(SAMPLES[tipoEntidade]);
+                setNomeArquivo(`${tipoEntidade}.csv`);
+                setLote(null);
+                setError(null);
+              }}
+            >
+              Exemplo
+            </Button>
+            <Button onClick={() => dryRun.mutate()} disabled={!canImport || dryRun.isPending}>
+              {dryRun.isPending ? 'Validando…' : 'Dry-run'}
+            </Button>
+            <Button
+              variant="ghost"
+              disabled={
+                !canImport ||
+                !lote ||
+                lote.linhasComErro > 0 ||
+                lote.situacao === 'APLICADO' ||
+                aplicar.isPending
+              }
+              onClick={() => lote && aplicar.mutate(lote.id)}
+            >
+              {aplicar.isPending ? 'Aplicando…' : 'Aplicar'}
+            </Button>
+          </div>
         </div>
 
         <p className="text-sm text-[var(--text-muted)]">
@@ -215,7 +217,7 @@ export default function ImportacaoWizard() {
           value={csv}
           disabled={!canImport}
           onChange={(e) => setCsv(e.target.value)}
-          className="font-mono text-sm"
+          className="app-form__textarea font-mono text-sm"
         />
 
         {error && <p className="text-sm text-red-700">{error}</p>}

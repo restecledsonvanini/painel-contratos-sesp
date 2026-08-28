@@ -654,34 +654,11 @@ a:focus-visible {
   .app-form__col-11 { grid-column: span 11; }
   .app-form__col-12 { grid-column: span 12; }
 
-  /* Campos sem col explícita: meia largura (comportamento legado 2 colunas) */
-  .app-form__grid > .app-form__field:not([class*='app-form__col-']):not([class*='app-form__span-']),
-  .app-form__grid > label:not([class*='app-form__col-']):not([class*='app-form__span-']),
-  .app-form__grid > p:not([class*='app-form__col-']):not([class*='app-form__span-']) {
+  /* Campos sem col explícita: meia largura */
+  .app-form__grid > .app-form__field:not([class*='app-form__col-']),
+  .app-form__grid > label:not([class*='app-form__col-']),
+  .app-form__grid > p:not([class*='app-form__col-']) {
     grid-column: span 6;
-  }
-
-  .app-form__grid.is-dense > .app-form__field:not([class*='app-form__col-']):not([class*='app-form__span-']),
-  .app-form__grid.is-dense > label:not([class*='app-form__col-']):not([class*='app-form__span-']),
-  .app-form__grid.is-dense > p:not([class*='app-form__col-']):not([class*='app-form__span-']) {
-    grid-column: span 4;
-  }
-
-  /* Aliases legados → 12 colunas */
-  .app-form__span-2 {
-    grid-column: span 12;
-  }
-
-  .app-form__span-3 {
-    grid-column: span 12;
-  }
-
-  .app-form__grid.is-dense .app-form__span-2 {
-    grid-column: span 8;
-  }
-
-  .app-form__grid.is-dense .app-form__span-3 {
-    grid-column: span 12;
   }
 }
 

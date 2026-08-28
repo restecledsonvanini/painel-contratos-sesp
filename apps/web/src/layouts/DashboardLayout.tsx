@@ -22,7 +22,7 @@ function AuthTrailing() {
       <button
         type="button"
         className="font-semibold text-[var(--primary)]"
-        onClick={logout}
+        onClick={() => void logout()}
         aria-label="Sair da sessão"
       >
         Sair

@@ -12,7 +12,7 @@ type AuthContextValue = {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshMe: () => Promise<void>;
   hasMinRole: (min: string) => boolean;
 };
@@ -60,9 +60,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const logout = useCallback(() => {
-    void http.post('/auth/logout').catch(() => undefined);
-    clearSession();
+  const logout = useCallback(async () => {
+    try {
+      await http.post('/auth/logout');
+    } catch {
+      /* cookie pode já ter expirado */
+    } finally {
+      clearSession();
+    }
   }, [clearSession]);
 
   const value = useMemo<AuthContextValue>(

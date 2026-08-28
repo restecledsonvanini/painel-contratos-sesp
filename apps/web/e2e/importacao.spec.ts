@@ -9,12 +9,12 @@ test.describe('importação CSV', () => {
       timeout: 15_000,
     });
 
-    await page.getByRole('button', { name: /Restaurar exemplo/i }).click();
-    await page.getByRole('button', { name: /1\. Dry-run/i }).click();
+    await page.getByRole('button', { name: /^Exemplo$/i }).click();
+    await page.getByRole('button', { name: /^Dry-run$/i }).click();
 
     await expect(page.getByText(/1 válidas/i)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/1 com erro/i)).toBeVisible();
-    await expect(page.getByRole('button', { name: /2\. Aplicar/i })).toBeDisabled();
+    await expect(page.getByRole('button', { name: /^Aplicar$/i })).toBeDisabled();
   });
 
   test('aplica lote 100% válido', async ({ page }) => {
@@ -31,11 +31,11 @@ test.describe('importação CSV', () => {
     ].join('\n');
 
     await page.locator('textarea').fill(csv);
-    await page.getByRole('button', { name: /1\. Dry-run/i }).click();
+    await page.getByRole('button', { name: /^Dry-run$/i }).click();
     await expect(page.getByText(/1 válidas/i)).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/0 com erro/i)).toBeVisible();
 
-    await page.getByRole('button', { name: /2\. Aplicar/i }).click();
+    await page.getByRole('button', { name: /^Aplicar$/i }).click();
     await expect(page.getByText(/APLICADO/i)).toBeVisible({ timeout: 15_000 });
   });
 });
