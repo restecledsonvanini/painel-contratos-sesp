@@ -22,6 +22,7 @@ import {
   Meter,
   Page,
   Select,
+  Skeleton,
   Stepper,
   Table,
   TableBody,
@@ -447,7 +448,7 @@ export default function ContractForm() {
   if (id && isContractLoading) {
     return (
       <Page title="Editar contrato">
-        <div className="app-form__panel">Carregando contrato...</div>
+        <Skeleton variant="card" lines={6} />
       </Page>
     );
   }

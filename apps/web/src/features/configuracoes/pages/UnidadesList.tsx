@@ -142,7 +142,7 @@ export default function UnidadesList() {
 
   if (isLoading) {
     return (
-      <Page title="Estrutura organizacional" description="Carregando hierarquia...">
+      <Page title="Estrutura organizacional">
         <Skeleton variant="table" lines={8} />
       </Page>
     );

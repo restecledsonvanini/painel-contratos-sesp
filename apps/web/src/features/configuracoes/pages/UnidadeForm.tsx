@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
-import { Button, FormActions, FormField, Input, Page, Select, useToast } from '@painel/ui';
+import { Button, FormActions, FormField, Input, Page, Select, Skeleton, useToast } from '@painel/ui';
 import {
   NIVEL_UNIDADE_LABELS,
   enumOptions,
@@ -133,7 +133,7 @@ export default function UnidadeForm() {
   if (id && isLoading) {
     return (
       <Page title="Editar unidade">
-        <div className="app-form__panel">Carregando…</div>
+        <Skeleton variant="card" lines={4} />
       </Page>
     );
   }

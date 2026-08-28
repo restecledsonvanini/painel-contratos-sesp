@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { Card, Page } from '@painel/ui';
+import { Card, Page, Skeleton } from '@painel/ui';
 import { useAuth } from '../providers/AuthProvider';
 import { isAuthRequired } from './RequireRole';
 
@@ -15,9 +15,7 @@ export function RequireAuth({ children }: { children: React.ReactNode }) {
   if (isLoading) {
     return (
       <Page title="Autenticando">
-        <Card variant="bordered" className="p-4 text-sm text-[var(--text-muted)]">
-          Verificando sessão…
-        </Card>
+        <Skeleton variant="card" lines={2} />
       </Page>
     );
   }

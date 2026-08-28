@@ -144,7 +144,7 @@ export default function ContractDetail() {
 
   if (isLoading) {
     return (
-      <Page title="Contrato" description="Carregando...">
+      <Page title="Contrato">
         <Skeleton variant="card" />
       </Page>
     );

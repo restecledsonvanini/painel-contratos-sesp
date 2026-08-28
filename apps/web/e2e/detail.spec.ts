@@ -17,6 +17,7 @@ test.describe('detalhe do contrato', () => {
 
     await page.getByRole('tab', { name: /Linha do tempo/i }).click();
     await expect(page).toHaveURL(/tab=timeline/);
+    await expect(page.locator('[role="tabpanel"]:not([hidden]) [tabindex="-1"]')).toBeFocused();
 
     await page.getByRole('tab', { name: /^Resumo$/i }).click();
     await expect(page).toHaveURL(/tab=resumo/);

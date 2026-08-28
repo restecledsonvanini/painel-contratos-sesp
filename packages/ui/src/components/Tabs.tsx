@@ -1,5 +1,5 @@
 import * as RadixTabs from '@radix-ui/react-tabs';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { cn } from '../lib/cn';
 
 interface TabItem {
@@ -20,6 +20,20 @@ interface TabsProps {
 export function Tabs({ items, value, defaultValue, onValueChange, className }: TabsProps) {
   const initial = defaultValue ?? items[0]?.id;
   const panelRefs = useRef<Record<string, HTMLElement | null>>({});
+  const prevValue = useRef<string | undefined>(undefined);
+
+  useEffect(() => {
+    if (!value) return;
+    if (prevValue.current === undefined) {
+      prevValue.current = value;
+      return;
+    }
+    if (prevValue.current === value) return;
+    prevValue.current = value;
+    requestAnimationFrame(() => {
+      panelRefs.current[value]?.focus();
+    });
+  }, [value]);
 
   const handleValueChange = useCallback(
     (next: string) => {
