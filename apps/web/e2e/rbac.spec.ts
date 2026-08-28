@@ -65,7 +65,7 @@ test.describe('RBAC — Nova alteração contratual', () => {
     await expect(page.getByLabel(/^Tipo$/i)).toBeVisible();
     await expect(page.getByLabel(/^Situação$/i)).toBeVisible();
     await expect(page.locator('select.select-field')).toHaveCount(0);
-    const dataFim = page.getByLabel(/Nova data fim vigência/i);
+    const dataFim = page.getByLabel(/Nova fim vigência/i);
     await expect(dataFim).toBeVisible();
     await expect(dataFim).not.toHaveValue('');
   });

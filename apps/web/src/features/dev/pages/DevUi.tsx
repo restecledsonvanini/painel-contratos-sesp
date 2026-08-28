@@ -115,7 +115,7 @@ export default function DevUi() {
           <section>
             <h2 className="mb-4 text-lg font-semibold text-[var(--heading)]">Formulário</h2>
             <FormSection title="Campos" description="Select, combobox, inputs mascarados e monetários.">
-              <FormField label="Select" className="app-form__span-2">
+              <FormField label="Select" className="app-form__col-6">
                 <Select
                   options={[
                     { id: 'a', label: 'Opção A' },
@@ -125,7 +125,7 @@ export default function DevUi() {
                   onChange={setSelectValue}
                 />
               </FormField>
-              <FormField label="Combobox">
+              <FormField label="Combobox" className="app-form__col-6">
                 <Combobox
                   options={[
                     { id: '1', label: 'Fornecedor Alpha' },
@@ -136,7 +136,7 @@ export default function DevUi() {
                   onCreate={(q) => toast.info(`Criar: ${q}`)}
                 />
               </FormField>
-              <FormField label="MultiSelect">
+              <FormField label="MultiSelect" className="app-form__col-6">
                 <MultiSelect
                   options={[
                     { id: '1', label: 'Atributo 1' },
@@ -147,7 +147,7 @@ export default function DevUi() {
                   onChange={setMultiValue}
                 />
               </FormField>
-              <FormField label="TreeSelect">
+              <FormField label="TreeSelect" className="app-form__col-6">
                 <TreeSelect
                   nodes={[
                     {
@@ -163,10 +163,18 @@ export default function DevUi() {
                   onChange={setTreeValue}
                 />
               </FormField>
-              <CurrencyInput label="Valor" value={currency} onChange={setCurrency} />
-              <NumberInput label="Quantidade" value={number} onChange={setNumber} />
-              <MaskedInput mask="cnpj" label="CNPJ" value={masked} onChange={setMasked} />
-              <DatePicker label="Data" value={date} onChange={setDate} />
+              <div className="app-form__col-4">
+                <CurrencyInput label="Valor" value={currency} onChange={setCurrency} />
+              </div>
+              <div className="app-form__col-4">
+                <NumberInput label="Quantidade" value={number} onChange={setNumber} />
+              </div>
+              <div className="app-form__col-4">
+                <MaskedInput mask="cnpj" label="CNPJ" value={masked} onChange={setMasked} />
+              </div>
+              <div className="app-form__col-4">
+                <DatePicker label="Data" value={date} onChange={setDate} />
+              </div>
             </FormSection>
             <FormActions className="mt-4">
               <Button variant="secondary">Cancelar</Button>

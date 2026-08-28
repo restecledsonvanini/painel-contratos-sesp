@@ -24,16 +24,22 @@ test.describe('smoke + a11y', () => {
     await assertNoCriticalAxe(page, 'tático');
   });
 
-  test('lista de contratos e skip-link', async ({ page }) => {
+  test('lista de contratos e skip-link', async ({ page }, testInfo) => {
     await loginAs(page, 'admin@sesp.pr.gov.br', 'admin123');
     await page.goto('/contracts');
     await expect(page.getByRole('heading', { name: /Contratos/i })).toBeVisible({ timeout: 15_000 });
 
-    const search = page.getByRole('button', { name: /Buscar contratos/i });
-    await expect(search).toBeVisible();
-    await search.click();
-    await expect(page.getByRole('dialog', { name: /Busca global/i })).toBeVisible();
-    await page.keyboard.press('Escape');
+    if (testInfo.project.name !== 'mobile') {
+      const search = page.getByRole('button', { name: /Buscar contratos/i });
+      await expect(search).toBeVisible();
+      await search.click();
+      await expect(page.getByRole('dialog', { name: /Busca global/i })).toBeVisible();
+      await page.keyboard.press('Escape');
+    } else {
+      await page.keyboard.press('Control+K');
+      await expect(page.getByRole('dialog', { name: /Busca global/i })).toBeVisible();
+      await page.keyboard.press('Escape');
+    }
 
     const skip = page.getByRole('link', { name: /Ir para o conteúdo principal/i });
     await skip.focus();

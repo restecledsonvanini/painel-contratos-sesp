@@ -7,6 +7,7 @@ import {
   DataTable,
   EmptyState,
   ErrorState,
+  FormField,
   Input,
   Page,
   Skeleton,
@@ -216,16 +217,20 @@ export default function DominiosPage() {
 
                 {selected.editavelPeloUsuario && canEdit && (
                   <form
-                    className="mt-[var(--space-md)] grid grid-cols-1 gap-3 md:grid-cols-[1fr_1fr_auto]"
+                    className="app-form__grid mt-[var(--space-md)]"
                     onSubmit={(e) => {
                       e.preventDefault();
                       if (!codigo.trim() || !label.trim()) return;
                       createValor.mutate();
                     }}
                   >
-                    <Input label="Código" value={codigo} onChange={(e) => setCodigo(e.target.value)} />
-                    <Input label="Rótulo" value={label} onChange={(e) => setLabel(e.target.value)} />
-                    <div className="flex items-end">
+                    <FormField label="Código" className="app-form__col-5">
+                      <Input value={codigo} onChange={(e) => setCodigo(e.target.value)} />
+                    </FormField>
+                    <FormField label="Rótulo" className="app-form__col-5">
+                      <Input value={label} onChange={(e) => setLabel(e.target.value)} />
+                    </FormField>
+                    <div className="app-form__col-2 flex items-end">
                       <Button type="submit" disabled={createValor.isPending}>
                         Adicionar
                       </Button>

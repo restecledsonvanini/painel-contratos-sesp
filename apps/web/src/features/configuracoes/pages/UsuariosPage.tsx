@@ -4,6 +4,8 @@ import {
   Button,
   Card,
   DataTable,
+  FormActions,
+  FormField,
   Input,
   Page,
   Select,
@@ -200,42 +202,48 @@ export default function UsuariosPage() {
     >
       <Card variant="bordered" className="mb-4 space-y-3 p-4">
         <h2 className="text-sm font-semibold">Novo usuário</h2>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-          <Input label="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Input label="Nome" value={nome} onChange={(e) => setNome(e.target.value)} />
-          <Input
-            label="Senha"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-          <Select
-            label="Papel"
-            value={role}
-            onChange={(v) => setRole(v as Role)}
-            options={ROLES.map((r) => ({ id: r, label: ROLE_LABELS[r] }))}
-          />
-          <Select
-            label="Órgão"
-            value={orgaoId || undefined}
-            onChange={setOrgaoId}
-            options={orgaoOptions}
-            placeholder="— sem órgão —"
-          />
-          <Select
-            label="Servidor"
-            value={servidorId || undefined}
-            onChange={setServidorId}
-            options={servidorOptions}
-            placeholder="— sem servidor —"
-          />
+        <div className="app-form__grid">
+          <FormField label="E-mail" className="app-form__col-4">
+            <Input value={email} onChange={(e) => setEmail(e.target.value)} />
+          </FormField>
+          <FormField label="Nome" className="app-form__col-4">
+            <Input value={nome} onChange={(e) => setNome(e.target.value)} />
+          </FormField>
+          <FormField label="Senha" hint="Mín. 6 caracteres" className="app-form__col-4">
+            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          </FormField>
+          <FormField label="Papel" className="app-form__col-4">
+            <Select
+              value={role}
+              onChange={(v) => setRole(v as Role)}
+              options={ROLES.map((r) => ({ id: r, label: ROLE_LABELS[r] }))}
+            />
+          </FormField>
+          <FormField label="Órgão" className="app-form__col-4">
+            <Select
+              value={orgaoId || undefined}
+              onChange={setOrgaoId}
+              options={orgaoOptions}
+              placeholder="— sem órgão —"
+            />
+          </FormField>
+          <FormField label="Servidor" className="app-form__col-4">
+            <Select
+              value={servidorId || undefined}
+              onChange={setServidorId}
+              options={servidorOptions}
+              placeholder="— sem servidor —"
+            />
+          </FormField>
         </div>
-        <Button
-          disabled={create.isPending || !email.trim() || password.length < 6}
-          onClick={() => create.mutate()}
-        >
-          {create.isPending ? 'Salvando…' : 'Criar usuário'}
-        </Button>
+        <FormActions>
+          <Button
+            disabled={create.isPending || !email.trim() || password.length < 6}
+            onClick={() => create.mutate()}
+          >
+            {create.isPending ? 'Salvando…' : 'Criar'}
+          </Button>
+        </FormActions>
       </Card>
 
       {list.isLoading ? (

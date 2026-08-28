@@ -18,6 +18,8 @@ const reactDomPkg = path.resolve(repoRoot, 'node_modules/react-dom');
 const isCodespaces = process.env.CODESPACES === 'true';
 const forwardingDomain =
   process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN || 'app.github.dev';
+const devApiPort = Number(process.env.PW_API_PORT || process.env.API_PORT || 8888);
+const devApiOrigin = `http://localhost:${devApiPort}`;
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
@@ -47,12 +49,12 @@ export default defineConfig({
     fs: { allow: [repoRoot] },
     proxy: {
       '/api/v1': {
-        target: 'http://localhost:8888',
+        target: devApiOrigin,
         changeOrigin: true,
         secure: false,
       },
       '/.netlify/functions/api': {
-        target: 'http://localhost:8888',
+        target: devApiOrigin,
         changeOrigin: true,
         secure: false,
       },
