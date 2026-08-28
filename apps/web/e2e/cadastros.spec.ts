@@ -73,6 +73,20 @@ test.describe('cadastros — formulários FormField', () => {
   });
 });
 
+test.describe('cadastros — mobile', () => {
+  test('formulário de fornecedor carrega em viewport estreita', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile', 'somente projeto mobile');
+    await loginAs(page, 'admin@sesp.pr.gov.br', 'admin123');
+    await page.goto('/fornecedores/new');
+    await expect(page.getByRole('heading', { name: /Novo fornecedor/i })).toBeVisible({
+      timeout: 15_000,
+    });
+    await expect(page.getByLabel(/^Razão social$/i)).toBeVisible();
+    await expect(page.getByRole('button', { name: /^Criar$/i })).toBeVisible();
+    await expect(page.locator('select.select-field')).toHaveCount(0);
+  });
+});
+
 test.describe('filtros e telas auxiliares — Select do DS', () => {
   test('órgão, pilar, entidade e usuários não usam select nativo', async ({ page }) => {
     await loginAs(page, 'admin@sesp.pr.gov.br', 'admin123');

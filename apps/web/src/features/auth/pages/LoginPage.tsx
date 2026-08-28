@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { Button, Card, Input, Page } from '@painel/ui';
+import { Button, Card, Input, Page, Skeleton } from '@painel/ui';
 import { useAuth } from '../../../providers/AuthProvider';
 import { getErrorMessage } from '../../../lib/http';
 
@@ -21,7 +21,15 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
-  if (!isLoading && user) {
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center p-6">
+        <Skeleton variant="card" lines={3} className="w-full max-w-md" />
+      </div>
+    );
+  }
+
+  if (user) {
     return <Navigate to={from} replace />;
   }
 

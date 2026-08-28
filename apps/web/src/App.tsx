@@ -41,7 +41,13 @@ export default function App() {
   return (
     <Suspense
       fallback={
-        <div role="status" aria-busy="true" className="p-6 text-sm text-[var(--text-muted)]">
+        <div
+          role="status"
+          aria-busy="true"
+          aria-live="polite"
+          className="p-6 text-sm text-[var(--text-muted)]"
+        >
+          <span className="sr-only">Carregando</span>
           Carregando…
         </div>
       }
