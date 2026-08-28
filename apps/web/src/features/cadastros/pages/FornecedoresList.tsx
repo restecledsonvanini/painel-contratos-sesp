@@ -15,7 +15,7 @@ import { useFornecedores, useDeleteFornecedor, type Fornecedor } from '../../../
 import { getErrorMessage } from '../../../lib/http';
 import { useCanWrite } from '../../../lib/access';
 import { useConfirmDialog } from '../../../lib/useConfirmDialog';
-import { maskCnpj, maskCpf } from '../../../lib/masks';
+import { maskCnpj, maskCpf } from '@painel/ui';
 import { useListParams } from '../../../lib/useListParams';
 import { ListSearch } from '../../../components/ListSearch';
 

@@ -5,7 +5,7 @@ import { Button, FormField, Input, Page, useToast } from '@painel/ui';
 import type { ServidorCreateInput, ServidorUpdateInput } from '@painel/schema';
 import { useCreateServidor, useServidor, useUpdateServidor } from '../../../hooks/useReferences';
 import { getErrorMessage } from '../../../lib/http';
-import { maskCpf, onlyDigits } from '../../../lib/masks';
+import { maskCpf, onlyDigits } from '@painel/ui';
 
 /** UI (máscara CPF / strings vazias) ≠ payload API. */
 type FormValues = {

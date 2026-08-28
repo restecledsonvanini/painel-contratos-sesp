@@ -14,7 +14,7 @@ import { useServidores, useDeleteServidor, type Servidor } from '../../../hooks/
 import { getErrorMessage } from '../../../lib/http';
 import { useCanWrite } from '../../../lib/access';
 import { useConfirmDialog } from '../../../lib/useConfirmDialog';
-import { maskCpf } from '../../../lib/masks';
+import { maskCpf } from '@painel/ui';
 import { useListParams } from '../../../lib/useListParams';
 import { ListSearch } from '../../../components/ListSearch';
 

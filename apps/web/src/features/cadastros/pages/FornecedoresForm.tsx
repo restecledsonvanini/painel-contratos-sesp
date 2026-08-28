@@ -16,7 +16,7 @@ import {
   type FornecedorSancao,
 } from '../../../hooks/useReferences';
 import { getErrorMessage } from '../../../lib/http';
-import { maskCnpj, maskCpf, onlyDigits } from '../../../lib/masks';
+import { maskCnpj, maskCpf, onlyDigits } from '@painel/ui';
 import { useConfirmDialog } from '../../../lib/useConfirmDialog';
 
 type FormValues = {
