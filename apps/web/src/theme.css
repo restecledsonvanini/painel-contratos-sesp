@@ -556,9 +556,10 @@ a:focus-visible {
   }
 }
 
-/* Formulários padronizados */
+/* Formulários padronizados — grade 12 colunas (estilo Bootstrap) */
 .app-form {
   width: 100%;
+  max-width: none;
 }
 
 .app-form__panel {
@@ -573,6 +574,41 @@ a:focus-visible {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-md);
+  align-items: start;
+}
+
+.app-form__field > label:first-of-type {
+  line-height: 1.3;
+  overflow-wrap: normal;
+}
+
+.app-form__field .app-form__textarea,
+.app-form__field textarea.app-form__textarea {
+  min-height: 4.5rem;
+  max-height: 8rem;
+  resize: vertical;
+}
+
+.app-form__array-table .app-form__field {
+  margin: 0;
+}
+
+.app-form__array-table .app-form__field > label:first-of-type {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.app-form__array-table td .select-field,
+.app-form__array-table td input {
+  width: 100%;
+  min-width: 0;
 }
 
 .app-form__actions {
@@ -593,33 +629,59 @@ a:focus-visible {
   font-size: var(--font-size-md);
   font-weight: 700;
   color: var(--text);
+  grid-column: 1 / -1;
 }
 
 @media (min-width: 768px) {
   .app-form__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(12, minmax(0, 1fr));
   }
 
   .app-form__panel {
     padding: var(--space-lg);
   }
 
-  .app-form__span-2 {
-    grid-column: span 2;
-  }
-}
+  .app-form__col-1 { grid-column: span 1; }
+  .app-form__col-2 { grid-column: span 2; }
+  .app-form__col-3 { grid-column: span 3; }
+  .app-form__col-4 { grid-column: span 4; }
+  .app-form__col-5 { grid-column: span 5; }
+  .app-form__col-6 { grid-column: span 6; }
+  .app-form__col-7 { grid-column: span 7; }
+  .app-form__col-8 { grid-column: span 8; }
+  .app-form__col-9 { grid-column: span 9; }
+  .app-form__col-10 { grid-column: span 10; }
+  .app-form__col-11 { grid-column: span 11; }
+  .app-form__col-12 { grid-column: span 12; }
 
-@media (min-width: 1280px) {
-  .app-form__grid.is-dense {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* Campos sem col explícita: meia largura (comportamento legado 2 colunas) */
+  .app-form__grid > .app-form__field:not([class*='app-form__col-']):not([class*='app-form__span-']),
+  .app-form__grid > label:not([class*='app-form__col-']):not([class*='app-form__span-']),
+  .app-form__grid > p:not([class*='app-form__col-']):not([class*='app-form__span-']) {
+    grid-column: span 6;
+  }
+
+  .app-form__grid.is-dense > .app-form__field:not([class*='app-form__col-']):not([class*='app-form__span-']),
+  .app-form__grid.is-dense > label:not([class*='app-form__col-']):not([class*='app-form__span-']),
+  .app-form__grid.is-dense > p:not([class*='app-form__col-']):not([class*='app-form__span-']) {
+    grid-column: span 4;
+  }
+
+  /* Aliases legados → 12 colunas */
+  .app-form__span-2 {
+    grid-column: span 12;
+  }
+
+  .app-form__span-3 {
+    grid-column: span 12;
   }
 
   .app-form__grid.is-dense .app-form__span-2 {
-    grid-column: span 2;
+    grid-column: span 8;
   }
 
   .app-form__grid.is-dense .app-form__span-3 {
-    grid-column: span 3;
+    grid-column: span 12;
   }
 }
 

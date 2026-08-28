@@ -48,7 +48,7 @@ export function FieldArrayList<T>({
         </div>
       ))}
       <Button type="button" variant="secondary" size="sm" onClick={onAdd}>
-        <Plus className="h-4 w-4" />
+        <Plus className="h-4 w-4 shrink-0" />
         {addLabel}
       </Button>
     </div>

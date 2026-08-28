@@ -15,13 +15,20 @@ import { limiteProrrogacaoMesesDefault } from '@painel/domain';
 import {
   Button,
   DescriptionList,
-  FieldArrayList,
+  FieldArrayTable,
+  FormActions,
   FormField,
   Input,
   Meter,
   Page,
   Select,
   Stepper,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
   Textarea,
   useToast,
   type StepStatus,
@@ -460,7 +467,7 @@ export default function ContractForm() {
       title={id ? 'Editar contrato' : 'Novo contrato'}
       description="Wizard em 8 etapas com rascunho no servidor (Ctrl+S). Publique só quando a revisão estiver completa."
     >
-      <form onSubmit={onSubmit} className="app-form Form-Grade space-y-4">
+      <form onSubmit={onSubmit} className="app-form space-y-4">
         <div className="app-form__panel">
           <Stepper
             steps={stepperSteps}
@@ -470,25 +477,29 @@ export default function ContractForm() {
 
         <div className="app-form__panel" aria-live="polite">
           {currentStep === 'identificacao' && (
-            <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
+            <fieldset className="app-form__grid m-0 min-w-0 border-0 p-0">
               <legend className="app-form__legend">Identificação</legend>
-              <FormField label="Protocolo" hint="e-Protocolo, se houver" className="app-form__span-2">
+              <FormField label="Protocolo" hint="e-Protocolo" className="app-form__col-5">
                 <Input {...register('protocoloCabeca')} />
               </FormField>
-              <FormField label="Nº do contrato">
+              <FormField label="Contrato nº" className="app-form__col-3">
                 <Input {...register('numeroContrato')} />
               </FormField>
-              <FormField label="GMS">
+              <FormField label="GMS" className="app-form__col-2">
                 <Input type="number" {...register('numGms', { valueAsNumber: true })} />
               </FormField>
-              <FormField label="Ano">
+              <FormField label="Ano" className="app-form__col-2">
                 <Input type="number" {...register('anoGms', { valueAsNumber: true })} />
               </FormField>
               <Controller
                 name="modalidade"
                 control={control}
                 render={({ field }) => (
-                  <FormField label="Modalidade" error={errors.modalidade ? String(errors.modalidade.message) : undefined}>
+                  <FormField
+                    label="Modalidade"
+                    className="app-form__col-4"
+                    error={errors.modalidade ? String(errors.modalidade.message) : undefined}
+                  >
                     <LookupSelect
                       hideLabel
                       slug="modalidade-licitacao"
@@ -503,7 +514,7 @@ export default function ContractForm() {
                 name="fundamentoLegalId"
                 control={control}
                 render={({ field }) => (
-                  <FormField label="Fundamento">
+                  <FormField label="Fundamento" className="app-form__col-4">
                     <LookupSelect
                       hideLabel
                       slug="fundamento-legal"
@@ -518,7 +529,7 @@ export default function ContractForm() {
                 name="pilar"
                 control={control}
                 render={({ field }) => (
-                  <FormField label="Pilar">
+                  <FormField label="Pilar" className="app-form__col-4">
                     <Select
                       options={PILAR_OPTIONS}
                       value={field.value}
@@ -531,7 +542,7 @@ export default function ContractForm() {
                 name="naturezaObjeto"
                 control={control}
                 render={({ field }) => (
-                  <FormField label="Natureza" className="app-form__span-2">
+                  <FormField label="Natureza" className="app-form__col-6">
                     <Select
                       options={NATUREZA_OPTIONS}
                       value={field.value}
@@ -543,21 +554,21 @@ export default function ContractForm() {
               <FormField
                 label="Objeto"
                 error={errors.objeto ? String(errors.objeto.message) : undefined}
-                className="app-form__span-3"
+                className="app-form__col-12"
               >
-                <Textarea rows={4} {...register('objeto')} />
+                <Textarea rows={2} className="app-form__textarea" {...register('objeto')} />
               </FormField>
             </fieldset>
           )}
 
           {currentStep === 'partes' && (
-            <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
+            <fieldset className="app-form__grid m-0 min-w-0 border-0 p-0">
               <legend className="app-form__legend">Partes</legend>
               <Controller
                 name="unidadeGestoraId"
                 control={control}
                 render={({ field }) => (
-                  <FormField label="Unidade" hint="Força / SESP">
+                  <FormField label="Unidade" hint="Força / SESP" className="app-form__col-6">
                     <Select
                       options={(orgaos ?? []).map((item) => ({
                         id: item.id,
@@ -578,7 +589,7 @@ export default function ContractForm() {
                 name="subunidadeId"
                 control={control}
                 render={({ field }) => (
-                  <FormField label="Subunidade" hint="Opcional">
+                  <FormField label="Subunidade" hint="Opcional" className="app-form__col-6">
                     <Select
                       options={(unidades ?? [])
                         .filter((u) => (u.orgaoId || u.orgao?.id) === unidadeGestoraId)
@@ -598,7 +609,7 @@ export default function ContractForm() {
                 name="fornecedorId"
                 control={control}
                 render={({ field }) => (
-                  <FormField label="Fornecedor" className="app-form__span-3">
+                  <FormField label="Fornecedor" className="app-form__col-12">
                     <Select
                       options={(fornecedores ?? []).map((item) => ({
                         id: item.id,
@@ -616,7 +627,7 @@ export default function ContractForm() {
                 name="gestorId"
                 control={control}
                 render={({ field }) => (
-                  <FormField label="Gestor">
+                  <FormField label="Gestor" className="app-form__col-6">
                     <Select
                       options={(servidores ?? [])
                         .filter((item) => /gestor/i.test(item.cargo || item.nome || ''))
@@ -636,7 +647,7 @@ export default function ContractForm() {
                 name="fiscalId"
                 control={control}
                 render={({ field }) => (
-                  <FormField label="Fiscal">
+                  <FormField label="Fiscal" className="app-form__col-6">
                     <Select
                       options={(servidores ?? [])
                         .filter((item) => /fiscal/i.test(item.cargo || item.nome || ''))
@@ -656,124 +667,144 @@ export default function ContractForm() {
           )}
 
           {currentStep === 'itens' && (
-            <fieldset className="m-0 min-w-0 border-0 p-0">
+            <fieldset className="app-form__grid m-0 min-w-0 border-0 p-0">
               <legend className="app-form__legend">Itens</legend>
-              {id ? (
-                <div className="space-y-2">
-                  {existingContract?.itens?.length ? (
-                    existingContract.itens.map((item) => (
-                      <div
-                        key={item.id}
-                        className="rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--surface-muted)] p-3 text-[var(--font-size-sm)]"
-                      >
-                        <strong>{item.catalogoNome || item.catalogoItemId}</strong>
-                        {' · '}
-                        {item.quantidade} {item.unidadeMedida || 'un'}
-                        {' · '}
-                        {formatCurrencyFromReais(item.valorUnitario ?? 0)}
-                      </div>
-                    ))
+              <div className="app-form__col-12 min-w-0">
+                {id ? (
+                  existingContract?.itens?.length ? (
+                    <div className="overflow-x-auto rounded-[var(--radius-md)] border border-[var(--border)]">
+                      <Table>
+                        <TableHead>
+                          <TableRow>
+                            <TableHeader>Item</TableHeader>
+                            <TableHeader className="text-right">Qtd.</TableHeader>
+                            <TableHeader className="text-right">Valor un.</TableHeader>
+                            <TableHeader>Período</TableHeader>
+                          </TableRow>
+                        </TableHead>
+                        <TableBody>
+                          {existingContract.itens.map((item) => (
+                            <TableRow key={item.id}>
+                              <TableCell>
+                                <strong>{item.catalogoNome || item.catalogoItemId}</strong>
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums">
+                                {item.quantidade} {item.unidadeMedida || 'un'}
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums">
+                                {formatCurrencyFromReais(item.valorUnitario ?? 0)}
+                              </TableCell>
+                              <TableCell>{item.periodicidade || '—'}</TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
                   ) : (
                     <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">
                       Nenhum item cadastrado neste contrato.
                     </p>
-                  )}
-                </div>
-              ) : (
-                <FieldArrayList
-                  items={itensArray.fields}
-                  onAdd={() =>
-                    itensArray.append({
-                      catalogoItemId: '',
-                      quantidade: 1,
-                      valorUnitario: 0,
-                      periodicidade: 'UNICA',
-                    })
-                  }
-                  onRemove={(index) => itensArray.remove(index)}
-                  addLabel="Adicionar item"
-                  emptyLabel="Nenhum item — opcional no rascunho."
-                  renderItem={(_item, index) => (
-                    <div className="app-form__grid is-dense">
+                  )
+                ) : (
+                  <FieldArrayTable
+                    columns={[
+                      { id: 'item', header: 'Item', width: '42%' },
+                      { id: 'qtd', header: 'Qtd.', width: '12%', align: 'right' },
+                      { id: 'valor', header: 'Valor un.', width: '16%', align: 'right' },
+                      { id: 'periodo', header: 'Período', width: '18%' },
+                    ]}
+                    items={itensArray.fields}
+                    onAdd={() =>
+                      itensArray.append({
+                        catalogoItemId: '',
+                        quantidade: 1,
+                        valorUnitario: 0,
+                        periodicidade: 'UNICA',
+                      })
+                    }
+                    onRemove={(index) => itensArray.remove(index)}
+                    addLabel="Linha"
+                    emptyLabel="Nenhum item — opcional no rascunho."
+                    renderCells={(_item, index) => [
                       <Controller
+                        key="item"
                         name={`itens.${index}.catalogoItemId`}
                         control={control}
                         render={({ field }) => (
-                          <FormField label="Item" className="app-form__span-2">
-                            <Select
-                              options={(catalogo ?? []).map((c) => ({
-                                id: c.id,
-                                label: `${c.categoriaItem?.codigo ? `${c.categoriaItem.codigo} · ` : ''}${c.nome}`,
-                              }))}
-                              value={field.value}
-                              onChange={field.onChange}
-                              placeholder="Selecione"
-                            />
-                          </FormField>
+                          <Select
+                            aria-label="Item do catálogo"
+                            options={(catalogo ?? []).map((c) => ({
+                              id: c.id,
+                              label: `${c.categoriaItem?.codigo ? `${c.categoriaItem.codigo} · ` : ''}${c.nome}`,
+                            }))}
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Selecione"
+                          />
                         )}
-                      />
-                      <FormField label="Qtd.">
-                        <Input
-                          type="number"
-                          step="0.0001"
-                          {...register(`itens.${index}.quantidade` as const, { valueAsNumber: true })}
-                        />
-                      </FormField>
-                      <FormField label="Valor un. (R$)">
-                        <Input
-                          type="number"
-                          step="0.01"
-                          {...register(`itens.${index}.valorUnitario` as const, { valueAsNumber: true })}
-                        />
-                      </FormField>
+                      />,
+                      <Input
+                        key="qtd"
+                        type="number"
+                        step="0.0001"
+                        aria-label="Quantidade"
+                        {...register(`itens.${index}.quantidade` as const, { valueAsNumber: true })}
+                      />,
+                      <Input
+                        key="valor"
+                        type="number"
+                        step="0.01"
+                        aria-label="Valor unitário"
+                        {...register(`itens.${index}.valorUnitario` as const, { valueAsNumber: true })}
+                      />,
                       <Controller
+                        key="periodo"
                         name={`itens.${index}.periodicidade`}
                         control={control}
                         render={({ field }) => (
-                          <FormField label="Periodicidade">
-                            <Select
-                              options={PERIODICIDADE_OPTIONS}
-                              value={field.value}
-                              onChange={field.onChange}
-                            />
-                          </FormField>
+                          <Select
+                            aria-label="Periodicidade"
+                            options={PERIODICIDADE_OPTIONS}
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
                         )}
-                      />
-                    </div>
-                  )}
-                />
-              )}
+                      />,
+                    ]}
+                  />
+                )}
+              </div>
             </fieldset>
           )}
 
           {currentStep === 'vigencia' && (
-            <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
+            <fieldset className="app-form__grid m-0 min-w-0 border-0 p-0">
               <legend className="app-form__legend">Vigência</legend>
-              <FormField label="Início">
+              <FormField label="Início" className="app-form__col-3">
                 <Input type="date" {...register('dataInicio')} />
               </FormField>
-              <FormField label="Prazo">
+              <FormField label="Prazo" className="app-form__col-2">
                 <Input type="number" {...register('prazoInicialValor', { valueAsNumber: true })} />
               </FormField>
               <Controller
                 name="prazoInicialUnidade"
                 control={control}
                 render={({ field }) => (
-                  <FormField label="Unidade">
+                  <FormField label="Unidade" className="app-form__col-2">
                     <Select options={PRAZO_UNIDADE_OPTIONS} value={field.value} onChange={field.onChange} />
                   </FormField>
                 )}
               />
-              <FormField label="Fim" hint="Sugerido pelo prazo">
+              <FormField label="Fim" hint="Sugerido" className="app-form__col-3">
                 <Input type="date" {...register('dataFimOrig')} />
               </FormField>
-              <FormField label="Limite (meses)">
+              <FormField label="Limite prorrog." hint="Meses" className="app-form__col-2">
                 <Input type="number" {...register('limiteProrrogacaoMeses', { valueAsNumber: true })} />
               </FormField>
-              <FormField label="Índice">
+              <FormField label="Índice" className="app-form__col-4">
                 <Input {...register('indiceReajuste')} />
               </FormField>
-              <FormField label="Mês reajuste">
+              <FormField label="Mês aniv." hint="Reajuste" className="app-form__col-2">
                 <Input
                   type="number"
                   min={1}
@@ -781,88 +812,97 @@ export default function ContractForm() {
                   {...register('mesAniversarioReajuste', { valueAsNumber: true })}
                 />
               </FormField>
-              <label className="flex items-center gap-2 self-end pb-2 text-[var(--font-size-sm)]">
-                <input type="checkbox" {...register('prorrogavel')} />
-                Prorrogável
-              </label>
+              <FormField label="Prorrogação" className="app-form__col-4">
+                <label className="flex min-h-[2.5rem] items-center gap-2 text-[var(--font-size-sm)]">
+                  <input type="checkbox" className="shrink-0" {...register('prorrogavel')} />
+                  Permitida
+                </label>
+              </FormField>
             </fieldset>
           )}
 
           {currentStep === 'orcamento' && (
-            <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
+            <fieldset className="app-form__grid m-0 min-w-0 border-0 p-0">
               <legend className="app-form__legend">Orçamento</legend>
-              <FormField label="Valor global (R$)">
+              <FormField label="Valor global" hint="Reais, valor anual" className="app-form__col-4">
                 <Input type="number" step="0.01" {...register('valorAnual', { valueAsNumber: true })} />
               </FormField>
-              <p className="app-form__span-3 m-0 text-[var(--font-size-sm)] text-[var(--text-muted)]">
+              <p className="app-form__col-12 m-0 text-[var(--font-size-sm)] text-[var(--text-muted)]">
                 Dotações e empenhos detalhados ficam na ficha, após o rascunho.
               </p>
             </fieldset>
           )}
 
           {currentStep === 'rateio' && (
-            <fieldset className="m-0 min-w-0 space-y-4 border-0 p-0">
+            <fieldset className="app-form__grid m-0 min-w-0 border-0 p-0">
               <legend className="app-form__legend">Rateio</legend>
-              <Meter
-                label="Soma dos percentuais"
-                value={rateioPct}
-                max={100}
-                thresholds={{ amber: 80, red: 100 }}
-              />
+              <div className="app-form__col-12">
+                <Meter
+                  label="Soma dos percentuais"
+                  value={rateioPct}
+                  max={100}
+                  thresholds={{ amber: 80, red: 100 }}
+                />
+              </div>
               {id ? (
-                <p className="text-[var(--font-size-sm)] text-[var(--text-muted)]">
+                <p className="app-form__col-12 text-[var(--font-size-sm)] text-[var(--text-muted)]">
                   Rateio já gravado é editável na ficha do contrato. Inclua linhas novas só na criação.
                 </p>
               ) : (
-                <FieldArrayList
-                  items={rateiosArray.fields}
-                  onAdd={() => rateiosArray.append({ unidadeId: '', percentual: 0, valorCents: null })}
-                  onRemove={(index) => rateiosArray.remove(index)}
-                  addLabel="Adicionar unidade"
-                  emptyLabel="Sem rateio — opcional no rascunho."
-                  renderItem={(_item, index) => (
-                    <div className="app-form__grid is-dense">
+                <div className="app-form__col-12 min-w-0">
+                  <FieldArrayTable
+                    columns={[
+                      { id: 'unidade', header: 'Unidade', width: '78%' },
+                      { id: 'pct', header: '%', width: '14%', align: 'right' },
+                    ]}
+                    items={rateiosArray.fields}
+                    onAdd={() => rateiosArray.append({ unidadeId: '', percentual: 0, valorCents: null })}
+                    onRemove={(index) => rateiosArray.remove(index)}
+                    addLabel="Linha"
+                    emptyLabel="Sem rateio — opcional no rascunho."
+                    renderCells={(_item, index) => [
                       <Controller
+                        key="unidade"
                         name={`rateios.${index}.unidadeId`}
                         control={control}
                         render={({ field }) => (
-                          <FormField label="Unidade" className="app-form__span-2">
-                            <Select
-                              options={(unidades ?? []).map((u) => ({
-                                id: u.id,
-                                label: `${u.orgao?.sigla ? `${u.orgao.sigla} / ` : ''}${u.sigla}`,
-                              }))}
-                              value={field.value}
-                              onChange={field.onChange}
-                              placeholder="Selecione"
-                            />
-                          </FormField>
+                          <Select
+                            aria-label="Unidade de rateio"
+                            options={(unidades ?? []).map((u) => ({
+                              id: u.id,
+                              label: `${u.orgao?.sigla ? `${u.orgao.sigla} / ` : ''}${u.sigla}`,
+                            }))}
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Selecione"
+                          />
                         )}
-                      />
-                      <FormField label="%">
-                        <Input
-                          type="number"
-                          step="0.01"
-                          {...register(`rateios.${index}.percentual` as const, { valueAsNumber: true })}
-                        />
-                      </FormField>
-                    </div>
-                  )}
-                />
+                      />,
+                      <Input
+                        key="pct"
+                        type="number"
+                        step="0.01"
+                        aria-label="Percentual"
+                        className="text-right tabular-nums"
+                        {...register(`rateios.${index}.percentual` as const, { valueAsNumber: true })}
+                      />,
+                    ]}
+                  />
+                </div>
               )}
               {rateioPct > 100 && (
-                <p className="field-error">A soma dos percentuais não pode ultrapassar 100%.</p>
+                <p className="app-form__col-12 field-error">A soma dos percentuais não pode ultrapassar 100%.</p>
               )}
             </fieldset>
           )}
 
           {currentStep === 'publicidade' && (
-            <fieldset className="app-form__grid is-dense m-0 min-w-0 border-0 p-0">
+            <fieldset className="app-form__grid m-0 min-w-0 border-0 p-0">
               <legend className="app-form__legend">Publicidade</legend>
-              <FormField label="Observações" className="app-form__span-3">
-                <Textarea rows={4} {...register('observacoes')} />
+              <FormField label="Observações" className="app-form__col-12">
+                <Textarea rows={2} className="app-form__textarea" {...register('observacoes')} />
               </FormField>
-              <p className="app-form__span-3 m-0 text-[var(--font-size-sm)] text-[var(--text-muted)]">
+              <p className="app-form__col-12 m-0 text-[var(--font-size-sm)] text-[var(--text-muted)]">
                 PNCP/DOE e anexos ficam na ficha depois do rascunho.
               </p>
             </fieldset>
@@ -904,27 +944,36 @@ export default function ContractForm() {
             </div>
           )}
 
-          <div className="app-form__actions mt-6 flex flex-wrap gap-2">
-            <Button variant="ghost" type="button" onClick={() => navigate('/contracts')}>
-              Cancelar
-            </Button>
-            <Button variant="ghost" type="button" onClick={goPrev} disabled={currentStep === 'identificacao'}>
-              Anterior
-            </Button>
-            {currentStep !== 'revisao' && (
-              <Button type="button" variant="secondary" onClick={goNext}>
-                Próxima
+          <FormActions className="mt-6" align="between">
+            <div className="flex flex-wrap gap-2">
+              <Button variant="ghost" type="button" onClick={() => navigate('/contracts')}>
+                Cancelar
               </Button>
-            )}
-            <Button type="button" variant="secondary" onClick={() => void saveDraft()} disabled={saving || rateioPct > 100}>
-              {saving ? 'Salvando…' : 'Salvar rascunho'}
-            </Button>
-            {currentStep === 'revisao' && (
-              <Button type="button" onClick={() => void publish()} disabled={saving || rateioPct > 100}>
-                {saving ? 'Publicando…' : 'Publicar contrato'}
+              <Button variant="ghost" type="button" onClick={goPrev} disabled={currentStep === 'identificacao'}>
+                Voltar
               </Button>
-            )}
-          </div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {currentStep !== 'revisao' && (
+                <Button type="button" variant="secondary" onClick={goNext}>
+                  Avançar
+                </Button>
+              )}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => void saveDraft()}
+                disabled={saving || rateioPct > 100}
+              >
+                {saving ? 'Salvando…' : 'Rascunho'}
+              </Button>
+              {currentStep === 'revisao' && (
+                <Button type="button" onClick={() => void publish()} disabled={saving || rateioPct > 100}>
+                  {saving ? 'Publicando…' : 'Publicar'}
+                </Button>
+              )}
+            </div>
+          </FormActions>
         </div>
       </form>
     </Page>

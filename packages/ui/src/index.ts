@@ -38,6 +38,7 @@ export * from './components/FormField';
 export * from './components/FormSection';
 export * from './components/FormActions';
 export * from './components/FieldArrayList';
+export * from './components/FieldArrayTable';
 export * from './components/Skeleton';
 export * from './components/EmptyState';
 export * from './components/ErrorState';

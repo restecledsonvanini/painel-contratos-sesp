@@ -6,10 +6,9 @@ interface FormSectionProps {
   description?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
-  dense?: boolean;
 }
 
-export function FormSection({ title, description, children, className, dense }: FormSectionProps) {
+export function FormSection({ title, description, children, className }: FormSectionProps) {
   return (
     <section className={cn('app-form__panel', className)}>
       {(title || description) && (
@@ -22,7 +21,7 @@ export function FormSection({ title, description, children, className, dense }: 
           )}
         </header>
       )}
-      <div className={cn('app-form__grid', dense && 'is-dense')}>{children}</div>
+      <div className={cn('app-form__grid', className)}>{children}</div>
     </section>
   );
 }
