@@ -2,7 +2,7 @@
 
 /* Scan do design system compartilhado — sem isso as classes do packages/ui não geram CSS */
 @source "../../../packages/ui/src/**/*.{js,ts,tsx}";
-@source "./pages/**/*.{js,ts,tsx}";
+@source "./pages/NotFound.tsx";
 @source "./layouts/**/*.{js,ts,tsx}";
 @source "./components/**/*.{js,ts,tsx}";
 @source "./lib/**/*.{js,ts,tsx}";

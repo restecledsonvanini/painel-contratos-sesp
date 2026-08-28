@@ -26,7 +26,6 @@ export default function UsuariosPage() {
   const qc = useQueryClient();
   const { data: orgaos = [] } = useOrgaos();
   const { data: servidoresPage } = useServidores({ pageSize: 100 });
-  const servidores = servidoresPage?.data ?? [];
   const [email, setEmail] = useState('');
   const [nome, setNome] = useState('');
   const [password, setPassword] = useState('');
@@ -89,12 +88,12 @@ export default function UsuariosPage() {
   const servidorOptions = useMemo(
     () => [
       { id: NONE, label: '— sem servidor —' },
-      ...servidores.map((s) => ({
+      ...(servidoresPage?.data ?? []).map((s) => ({
         id: s.id,
         label: s.cpf ? `${s.nome} (${s.cpf})` : s.nome,
       })),
     ],
-    [servidores],
+    [servidoresPage?.data],
   );
 
   const rows = list.data ?? [];

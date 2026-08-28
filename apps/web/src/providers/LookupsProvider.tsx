@@ -45,7 +45,7 @@ export function LookupsProvider({ children }: { children: React.ReactNode }) {
         void query.refetch();
       },
     }),
-    [query.data, query.isLoading, query.error, query.refetch],
+    [query],
   );
 
   return <LookupsContext.Provider value={value}>{children}</LookupsContext.Provider>;
