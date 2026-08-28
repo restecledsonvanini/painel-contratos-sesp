@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
-import { Button, FormField, Input, Meter, Page, Select, Textarea, useToast } from '@painel/ui';
+import { Button, FormActions, FormField, Input, Meter, Page, Select, Textarea, useToast } from '@painel/ui';
 import {
   TIPO_ALTERACAO_LABELS,
   isAditivoPrazo,
@@ -164,11 +164,11 @@ export default function AlteracaoForm() {
         }}
       >
         <div className="app-form__panel">
-          <div className="app-form__grid is-dense">
+          <div className="app-form__grid">
             <FormField
               label="Tipo"
-              hint="Aditivo altera prazo/valor; apostilamento não pode alterar valor global nem prazo."
-              className="app-form__span-3"
+              hint="Aditivo altera prazo/valor; apostilamento não altera valor global."
+              className="app-form__col-12"
             >
               <Select
                 options={TIPOS_FORM.map((value) => ({
@@ -183,17 +183,17 @@ export default function AlteracaoForm() {
               />
             </FormField>
 
-            <FormField label="e-Protocolo">
+            <FormField label="Protocolo" className="app-form__col-4">
               <Input value={eProtocolo} onChange={(e) => setEProtocolo(e.target.value)} />
             </FormField>
-            <FormField label="Data de assinatura">
+            <FormField label="Assinatura" className="app-form__col-4">
               <Input
                 type="date"
                 value={dataAssinatura}
                 onChange={(e) => setDataAssinatura(e.target.value)}
               />
             </FormField>
-            <FormField label="Situação">
+            <FormField label="Situação" className="app-form__col-4">
               <Select
                 options={[
                   { id: 'MINUTA', label: 'Minuta' },
@@ -207,11 +207,12 @@ export default function AlteracaoForm() {
 
             {precisaPrazo && (
               <FormField
-                label="Nova data fim vigência"
+                label="Nova fim vigência"
                 required
+                className="app-form__col-6"
                 hint={
                   fimVigenciaAtual
-                    ? `Vigência atual: ${fimVigenciaAtual} — escolha uma data posterior.`
+                    ? `Atual: ${fimVigenciaAtual} — escolha data posterior.`
                     : 'Obrigatória para aditivo de prazo.'
                 }
               >
@@ -225,7 +226,7 @@ export default function AlteracaoForm() {
             )}
             {precisaValor && (
               <>
-                <FormField label="Valor acrescido (R$)">
+                <FormField label="Acréscimo" hint="Reais" className="app-form__col-3">
                   <Input
                     type="number"
                     step="0.01"
@@ -233,7 +234,7 @@ export default function AlteracaoForm() {
                     onChange={(e) => setValorAcrescido(Number(e.target.value))}
                   />
                 </FormField>
-                <FormField label="Valor suprimido (R$)">
+                <FormField label="Supressão" hint="Reais" className="app-form__col-3">
                   <Input
                     type="number"
                     step="0.01"
@@ -244,20 +245,22 @@ export default function AlteracaoForm() {
               </>
             )}
 
-            <FormField label="Descrição do objeto" className="app-form__span-3">
+            <FormField label="Objeto" className="app-form__col-12">
               <Textarea
-                rows={3}
+                rows={2}
+                className="app-form__textarea"
                 value={objetoDescricao}
                 onChange={(e) => setObjetoDescricao(e.target.value)}
               />
             </FormField>
             <FormField
-              label="Justificativa excepcional"
+              label="Justificativa"
               hint="Obrigatória se exceder 25%/50% ou prazo máximo."
-              className="app-form__span-3"
+              className="app-form__col-12"
             >
               <Textarea
                 rows={2}
+                className="app-form__textarea"
                 value={justificativaExcepcional}
                 onChange={(e) => setJustificativaExcepcional(e.target.value)}
               />
@@ -298,19 +301,19 @@ export default function AlteracaoForm() {
             </div>
           )}
 
-          <div className="app-form__actions">
+          <FormActions align="between">
             <Button
               type="button"
               variant="secondary"
               onClick={() => simular.mutate()}
               disabled={simular.isPending}
             >
-              {simular.isPending ? 'Simulando…' : 'Simular limites'}
+              {simular.isPending ? 'Simulando…' : 'Simular'}
             </Button>
             <Button type="submit" disabled={salvar.isPending || Boolean(simulacao && !simulacao.ok)}>
-              {salvar.isPending ? 'Salvando…' : 'Salvar alteração'}
+              {salvar.isPending ? 'Salvando…' : 'Salvar'}
             </Button>
-          </div>
+          </FormActions>
         </div>
       </form>
     </Page>

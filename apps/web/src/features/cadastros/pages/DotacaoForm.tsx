@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, FormField, Input, Page, Textarea, useToast } from '@painel/ui';
+import { Button, FormActions, FormField, Input, Page, Textarea, useToast } from '@painel/ui';
 import type { DotacaoCreateInput, DotacaoDTO, DotacaoUpdateInput } from '@painel/schema';
 import { http, getErrorMessage } from '../../../lib/http';
 import { LookupSelect } from '../../../components/LookupSelect';
@@ -93,19 +93,19 @@ export default function DotacaoForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="app-form">
         <div className="app-form__panel">
           <div className="app-form__grid">
-            <FormField label="Exercício" error={errors.exercicio ? 'Obrigatório (≥ 2000)' : undefined}>
+            <FormField label="Exercício" className="app-form__col-2" error={errors.exercicio ? 'Obrigatório (≥ 2000)' : undefined}>
               <Input
                 type="number"
                 {...register('exercicio', { required: true, valueAsNumber: true, min: 2000 })}
               />
             </FormField>
-            <FormField label="Código" error={errors.codigo ? 'Obrigatório' : undefined}>
+            <FormField label="Código" className="app-form__col-4" error={errors.codigo ? 'Obrigatório' : undefined}>
               <Input {...register('codigo', { required: true })} />
             </FormField>
-            <FormField label="Unidade orçamentária">
+            <FormField label="UO" hint="Unidade orçamentária" className="app-form__col-3">
               <Input {...register('unidadeOrcamentaria')} />
             </FormField>
-            <FormField label="Funcional programática">
+            <FormField label="Funcional" hint="Programática" className="app-form__col-3">
               <Input {...register('funcionalProgramatica')} />
             </FormField>
             <Controller
@@ -113,7 +113,11 @@ export default function DotacaoForm() {
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
-                <FormField label="Natureza" error={errors.naturezaDespesaId ? 'Obrigatório' : undefined}>
+                <FormField
+                  label="Natureza"
+                  className="app-form__col-6"
+                  error={errors.naturezaDespesaId ? 'Obrigatório' : undefined}
+                >
                   <LookupSelect
                     hideLabel
                     slug="natureza-despesa"
@@ -129,7 +133,11 @@ export default function DotacaoForm() {
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
-                <FormField label="Fonte" error={errors.fonteRecursoId ? 'Obrigatório' : undefined}>
+                <FormField
+                  label="Fonte"
+                  className="app-form__col-6"
+                  error={errors.fonteRecursoId ? 'Obrigatório' : undefined}
+                >
                   <LookupSelect
                     hideLabel
                     slug="fonte-recurso"
@@ -140,18 +148,18 @@ export default function DotacaoForm() {
                 </FormField>
               )}
             />
-            <FormField label="Descrição" className="app-form__span-2">
-              <Textarea rows={3} {...register('descricao')} />
+            <FormField label="Descrição" className="app-form__col-12">
+              <Textarea rows={2} className="app-form__textarea" {...register('descricao')} />
             </FormField>
           </div>
-          <div className="app-form__actions">
+          <FormActions>
             <Button type="button" variant="ghost" onClick={() => navigate('/cadastros?tab=dotacoes')}>
               Cancelar
             </Button>
             <Button type="submit" disabled={save.isPending}>
               {save.isPending ? 'Salvando…' : 'Salvar'}
             </Button>
-          </div>
+          </FormActions>
         </div>
       </form>
     </Page>

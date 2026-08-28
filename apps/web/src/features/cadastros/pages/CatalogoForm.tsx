@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Button, FormField, Input, Page, Textarea, useToast } from '@painel/ui';
+import { Button, FormActions, FormField, Input, Page, Textarea, useToast } from '@painel/ui';
 import type {
   CatalogoItemCreateInput,
   CatalogoItemDTO,
@@ -93,10 +93,10 @@ export default function CatalogoForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="app-form">
         <div className="app-form__panel">
           <div className="app-form__grid">
-            <FormField label="Nome" error={errors.nome ? 'Obrigatório' : undefined} className="app-form__span-2">
+            <FormField label="Nome" error={errors.nome ? 'Obrigatório' : undefined} className="app-form__col-8">
               <Input {...register('nome', { required: true })} />
             </FormField>
-            <FormField label="Código" hint="CATMAT/CATSER">
+            <FormField label="Código" hint="CATMAT/CATSER" className="app-form__col-4">
               <Input {...register('codigo')} />
             </FormField>
             <Controller
@@ -104,7 +104,11 @@ export default function CatalogoForm() {
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
-                <FormField label="Categoria" error={errors.categoriaItemId ? 'Obrigatório' : undefined}>
+                <FormField
+                  label="Categoria"
+                  className="app-form__col-6"
+                  error={errors.categoriaItemId ? 'Obrigatório' : undefined}
+                >
                   <LookupSelect
                     hideLabel
                     slug="categoria-item"
@@ -120,7 +124,11 @@ export default function CatalogoForm() {
               control={control}
               rules={{ required: true }}
               render={({ field }) => (
-                <FormField label="Unidade" error={errors.unidadeMedidaPadraoId ? 'Obrigatório' : undefined}>
+                <FormField
+                  label="Unidade"
+                  className="app-form__col-6"
+                  error={errors.unidadeMedidaPadraoId ? 'Obrigatório' : undefined}
+                >
                   <LookupSelect
                     hideLabel
                     slug="unidade-medida"
@@ -131,16 +139,16 @@ export default function CatalogoForm() {
                 </FormField>
               )}
             />
-            <FormField label="Descrição" className="app-form__span-2">
-              <Textarea rows={3} {...register('descricao')} />
+            <FormField label="Descrição" className="app-form__col-12">
+              <Textarea rows={2} className="app-form__textarea" {...register('descricao')} />
             </FormField>
           </div>
-          <div className="app-form__actions">
-            <Button type="submit">Salvar</Button>
+          <FormActions>
             <Button variant="ghost" type="button" onClick={() => navigate('/catalogo-itens')}>
               Cancelar
             </Button>
-          </div>
+            <Button type="submit">Salvar</Button>
+          </FormActions>
         </div>
       </form>
     </Page>

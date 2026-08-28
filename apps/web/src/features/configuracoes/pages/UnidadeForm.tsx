@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
-import { Button, FormField, Input, Page, Select, useToast } from '@painel/ui';
+import { Button, FormActions, FormField, Input, Page, Select, useToast } from '@painel/ui';
 import {
   NIVEL_UNIDADE_LABELS,
   enumOptions,
@@ -145,13 +145,13 @@ export default function UnidadeForm() {
     >
       <form onSubmit={handleSubmit(onSubmit)} className="app-form">
         <div className="app-form__panel">
-          <div className="app-form__grid is-dense">
+          <div className="app-form__grid">
             <Controller
               name="orgaoId"
               control={form.control}
               rules={{ required: true }}
               render={({ field }) => (
-                <FormField label="Órgão" hint="Força" error={errors.orgaoId ? 'Obrigatório' : undefined}>
+                <FormField label="Órgão" hint="Força" className="app-form__col-6" error={errors.orgaoId ? 'Obrigatório' : undefined}>
                   <Select
                     options={(orgaos ?? []).map((o) => ({
                       id: o.id,
@@ -168,7 +168,7 @@ export default function UnidadeForm() {
               name="parentId"
               control={form.control}
               render={({ field }) => (
-                <FormField label="Superior" hint="Sede se vazio">
+                <FormField label="Superior" hint="Sede se vazio" className="app-form__col-6">
                   <Select
                     options={[
                       { id: '__none__', label: 'Nenhuma (sede)' },
@@ -185,17 +185,17 @@ export default function UnidadeForm() {
                 </FormField>
               )}
             />
-            <FormField label="Sigla" error={errors.sigla ? 'Obrigatório' : undefined}>
+            <FormField label="Sigla" className="app-form__col-3" error={errors.sigla ? 'Obrigatório' : undefined}>
               <Input {...register('sigla', { required: true })} />
             </FormField>
-            <FormField label="Nome" error={errors.nome ? 'Obrigatório' : undefined} className="app-form__span-2">
+            <FormField label="Nome" className="app-form__col-9" error={errors.nome ? 'Obrigatório' : undefined}>
               <Input {...register('nome', { required: true })} />
             </FormField>
             <Controller
               name="nivel"
               control={form.control}
               render={({ field }) => (
-                <FormField label="Nível">
+                <FormField label="Nível" className="app-form__col-4">
                   <Select
                     options={[
                       { id: '__none__', label: 'Não informado' },
@@ -208,14 +208,14 @@ export default function UnidadeForm() {
                 </FormField>
               )}
             />
-            <FormField label="Município" hint="Busca, opcional" className="app-form__span-2">
+            <FormField label="Município" hint="Busca, opcional" className="app-form__col-8">
               <Input
                 value={municipioQ}
                 onChange={(e) => setMunicipioQ(e.target.value)}
                 placeholder="Digite ao menos 2 letras…"
               />
             </FormField>
-            <div className="app-form__span-2">
+            <div className="app-form__col-12">
               <input type="hidden" {...register('municipioId')} />
               {municipioLabel && municipioId && (
                 <p className="mt-1 text-[var(--font-size-sm)] text-[var(--text-muted)]">
@@ -253,20 +253,22 @@ export default function UnidadeForm() {
               )}
             </div>
 
-            <label className="flex items-center gap-2 text-[var(--font-size-sm)]">
-              <input type="checkbox" {...register('ativo')} />
-              Unidade ativa
-            </label>
+            <FormField label="Situação" className="app-form__col-4">
+              <label className="flex min-h-[2.5rem] items-center gap-2 text-[var(--font-size-sm)]">
+                <input type="checkbox" className="shrink-0" {...register('ativo')} />
+                Ativa
+              </label>
+            </FormField>
           </div>
 
-          <div className="app-form__actions">
-            <Button type="submit" disabled={create.isPending || update.isPending}>
-              {create.isPending || update.isPending ? 'Salvando…' : 'Salvar'}
-            </Button>
+          <FormActions>
             <Button variant="ghost" type="button" onClick={() => navigate('/unidades')}>
               Cancelar
             </Button>
-          </div>
+            <Button type="submit" disabled={create.isPending || update.isPending}>
+              {create.isPending || update.isPending ? 'Salvando…' : 'Salvar'}
+            </Button>
+          </FormActions>
         </div>
       </form>
     </Page>

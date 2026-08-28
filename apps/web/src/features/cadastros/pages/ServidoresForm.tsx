@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Button, FormField, Input, Page, useToast } from '@painel/ui';
+import { Button, FormActions, FormField, Input, Page, useToast } from '@painel/ui';
 import type { ServidorCreateInput, ServidorUpdateInput } from '@painel/schema';
 import { useCreateServidor, useServidor, useUpdateServidor } from '../../../hooks/useReferences';
 import { getErrorMessage } from '../../../lib/http';
@@ -74,31 +74,31 @@ export default function ServidoresForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="app-form">
         <div className="app-form__panel">
           <div className="app-form__grid">
-            <FormField label="Nome" error={errors.nome ? 'Obrigatório' : undefined} className="app-form__span-2">
+            <FormField label="Nome" error={errors.nome ? 'Obrigatório' : undefined} className="app-form__col-8">
               <Input {...register('nome', { required: true })} />
             </FormField>
-            <FormField label="CPF">
+            <FormField label="CPF" className="app-form__col-4">
               <Input
                 {...register('cpf')}
                 onBlur={() => setValue('cpf', maskCpf(getValues('cpf') || ''))}
               />
             </FormField>
-            <FormField label="Cargo">
+            <FormField label="Cargo" className="app-form__col-4">
               <Input {...register('cargo')} />
             </FormField>
-            <FormField label="E-mail">
+            <FormField label="E-mail" className="app-form__col-4">
               <Input type="email" {...register('email')} />
             </FormField>
-            <FormField label="Telefone">
+            <FormField label="Telefone" className="app-form__col-4">
               <Input {...register('telefone')} />
             </FormField>
           </div>
-          <div className="app-form__actions">
-            <Button type="submit">Salvar</Button>
+          <FormActions>
             <Button variant="ghost" type="button" onClick={() => navigate('/servidores')}>
               Cancelar
             </Button>
-          </div>
+            <Button type="submit">Salvar</Button>
+          </FormActions>
         </div>
       </form>
     </Page>

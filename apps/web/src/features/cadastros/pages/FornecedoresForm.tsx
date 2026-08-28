@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Controller, useForm } from 'react-hook-form';
-import { Button, ConfirmDialog, FormField, Input, Page, Select, useToast } from '@painel/ui';
+import { Button, ConfirmDialog, FormActions, FormField, Input, Page, Select, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, useToast } from '@painel/ui';
 import { TIPO_SANCAO_LABELS, enumOptions, type TipoSancao } from '@painel/domain';
 import {
   useCreateFornecedor,
@@ -86,77 +86,94 @@ function ContatosSection({ fornecedorId, contatos }: { fornecedorId: string; con
 
   return (
     <div className="app-form__panel">
-      <h2 className="text-base font-semibold mb-3">Contatos</h2>
-      <ul className="mb-4 space-y-2">
-        {contatos.length === 0 && (
-          <li className="text-sm text-[var(--muted)]">Nenhum contato cadastrado.</li>
-        )}
-        {contatos.map((c) => (
-          <li
-            key={c.id}
-            className="flex flex-wrap items-center justify-between gap-2 rounded border border-[var(--border)] px-3 py-2"
-          >
-            <div className="min-w-0">
-              <p className="font-medium">
-                {c.nome}
-                {c.principal ? (
-                  <span className="ml-2 text-xs text-[var(--muted)]">principal</span>
-                ) : null}
-              </p>
-              <p className="text-sm text-[var(--muted)]">
-                {[c.cargo, c.email, c.telefone].filter(Boolean).join(' · ') || '—'}
-              </p>
-            </div>
-            <div className="flex gap-2">
-              {!c.principal && (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="secondary"
-                  onClick={async () => {
-                    try {
-                      await update.mutateAsync({ contatoId: c.id, payload: { principal: true } });
-                      toast.success('Contato marcado como principal.');
-                    } catch (err) {
-                      toast.error('Falha ao atualizar', getErrorMessage(err));
-                    }
-                  }}
-                >
-                  Principal
-                </Button>
-              )}
-              <Button
-                type="button"
-                size="sm"
-                variant="ghost"
-                onClick={() => confirm.ask(c.id, 'Remover contato?', c.nome)}
-              >
-                Remover
-              </Button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      <h2 className="mb-3 text-base font-semibold">Contatos</h2>
+      <div className="mb-4 overflow-x-auto rounded-[var(--radius-md)] border border-[var(--border)]">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeader>Nome</TableHeader>
+              <TableHeader>Cargo</TableHeader>
+              <TableHeader>E-mail</TableHeader>
+              <TableHeader>Telefone</TableHeader>
+              <TableHeader className="w-32 text-right">Ações</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {contatos.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5} className="text-center text-[var(--text-muted)]">
+                  Nenhum contato cadastrado.
+                </TableCell>
+              </TableRow>
+            ) : (
+              contatos.map((c) => (
+                <TableRow key={c.id}>
+                  <TableCell>
+                    <span className="font-medium">{c.nome}</span>
+                    {c.principal ? (
+                      <span className="ml-2 text-xs text-[var(--text-muted)]">principal</span>
+                    ) : null}
+                  </TableCell>
+                  <TableCell>{c.cargo || '—'}</TableCell>
+                  <TableCell>{c.email || '—'}</TableCell>
+                  <TableCell>{c.telefone || '—'}</TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex flex-wrap justify-end gap-1">
+                      {!c.principal && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="secondary"
+                          onClick={async () => {
+                            try {
+                              await update.mutateAsync({ contatoId: c.id, payload: { principal: true } });
+                              toast.success('Contato marcado como principal.');
+                            } catch (err) {
+                              toast.error('Falha ao atualizar', getErrorMessage(err));
+                            }
+                          }}
+                        >
+                          Principal
+                        </Button>
+                      )}
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => confirm.ask(c.id, 'Remover contato?', c.nome)}
+                      >
+                        Remover
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
       <form onSubmit={onAdd} className="app-form__grid">
-        <FormField label="Nome" className="app-form__span-2">
+        <FormField label="Nome" className="app-form__col-4">
           <Input value={nome} onChange={(e) => setNome(e.target.value)} />
         </FormField>
-        <FormField label="Cargo">
+        <FormField label="Cargo" className="app-form__col-2">
           <Input value={cargo} onChange={(e) => setCargo(e.target.value)} />
         </FormField>
-        <FormField label="Telefone">
+        <FormField label="Telefone" className="app-form__col-2">
           <Input value={telefone} onChange={(e) => setTelefone(e.target.value)} />
         </FormField>
-        <FormField label="E-mail" className="app-form__span-2">
+        <FormField label="E-mail" className="app-form__col-4">
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </FormField>
-        <label className="flex items-center gap-2 text-sm app-form__span-2">
-          <input type="checkbox" checked={principal} onChange={(e) => setPrincipal(e.target.checked)} />
-          Contato principal
-        </label>
-        <div className="app-form__actions app-form__span-2">
+        <FormField label="Principal" className="app-form__col-3">
+          <label className="flex min-h-[2.5rem] items-center gap-2 text-[var(--font-size-sm)]">
+            <input type="checkbox" className="shrink-0" checked={principal} onChange={(e) => setPrincipal(e.target.checked)} />
+            Sim
+          </label>
+        </FormField>
+        <div className="app-form__col-3 flex items-end">
           <Button type="submit" size="sm" disabled={create.isPending}>
-            Adicionar contato
+            Linha
           </Button>
         </div>
       </form>
@@ -229,67 +246,76 @@ function SancoesSection({ fornecedorId, sancoes }: { fornecedorId: string; sanco
 
   return (
     <div className="app-form__panel">
-      <h2 className="text-base font-semibold mb-3">Sanções</h2>
-      <ul className="mb-4 space-y-2">
-        {sancoes.length === 0 && (
-          <li className="text-sm text-[var(--muted)]">Nenhuma sanção registrada.</li>
-        )}
-        {sancoes.map((s) => (
-          <li
-            key={s.id}
-            className="flex flex-wrap items-center justify-between gap-2 rounded border border-[var(--border)] px-3 py-2"
-          >
-            <div className="min-w-0">
-              <p className="font-medium">{labelTipo(s.tipo)}</p>
-              <p className="text-sm text-[var(--muted)]">
-                {[
-                  s.processo && `Proc. ${s.processo}`,
-                  s.dataInicio?.slice?.(0, 10) || s.dataInicio,
-                  s.dataFim ? `até ${String(s.dataFim).slice(0, 10)}` : null,
-                  s.abrangencia,
-                  s.fonte,
-                ]
-                  .filter(Boolean)
-                  .join(' · ') || '—'}
-              </p>
-            </div>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              onClick={() => confirm.ask(s.id, 'Remover sanção?', labelTipo(s.tipo))}
-            >
-              Remover
-            </Button>
-          </li>
-        ))}
-      </ul>
+      <h2 className="mb-3 text-base font-semibold">Sanções</h2>
+      <div className="mb-4 overflow-x-auto rounded-[var(--radius-md)] border border-[var(--border)]">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableHeader>Tipo</TableHeader>
+              <TableHeader>Processo</TableHeader>
+              <TableHeader>Início</TableHeader>
+              <TableHeader>Fim</TableHeader>
+              <TableHeader>Abrangência</TableHeader>
+              <TableHeader className="w-24 text-right">Ações</TableHeader>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sancoes.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-[var(--text-muted)]">
+                  Nenhuma sanção registrada.
+                </TableCell>
+              </TableRow>
+            ) : (
+              sancoes.map((s) => (
+                <TableRow key={s.id}>
+                  <TableCell className="font-medium">{labelTipo(s.tipo)}</TableCell>
+                  <TableCell>{s.processo || '—'}</TableCell>
+                  <TableCell>{s.dataInicio?.slice?.(0, 10) || s.dataInicio || '—'}</TableCell>
+                  <TableCell>{s.dataFim ? String(s.dataFim).slice(0, 10) : '—'}</TableCell>
+                  <TableCell>{s.abrangencia || '—'}</TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => confirm.ask(s.id, 'Remover sanção?', labelTipo(s.tipo))}
+                    >
+                      Remover
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
       <form onSubmit={onAdd} className="app-form__grid">
-        <FormField label="Tipo">
+        <FormField label="Tipo" className="app-form__col-4">
           <Select
             options={TIPOS_SANCAO.map((t) => ({ id: t.value, label: t.label }))}
             value={tipo}
             onChange={(v) => setTipo(v as TipoSancao)}
           />
         </FormField>
-        <FormField label="Processo">
+        <FormField label="Processo" className="app-form__col-4">
           <Input value={processo} onChange={(e) => setProcesso(e.target.value)} />
         </FormField>
-        <FormField label="Início">
+        <FormField label="Início" className="app-form__col-2">
           <Input type="date" value={dataInicio} onChange={(e) => setDataInicio(e.target.value)} />
         </FormField>
-        <FormField label="Fim">
+        <FormField label="Fim" className="app-form__col-2">
           <Input type="date" value={dataFim} onChange={(e) => setDataFim(e.target.value)} />
         </FormField>
-        <FormField label="Abrangência">
+        <FormField label="Abrangência" className="app-form__col-4">
           <Input value={abrangencia} onChange={(e) => setAbrangencia(e.target.value)} />
         </FormField>
-        <FormField label="Fonte">
+        <FormField label="Fonte" className="app-form__col-4">
           <Input value={fonte} onChange={(e) => setFonte(e.target.value)} />
         </FormField>
-        <div className="app-form__actions app-form__span-2">
+        <div className="app-form__col-4 flex items-end">
           <Button type="submit" size="sm" disabled={create.isPending}>
-            Registrar sanção
+            Linha
           </Button>
         </div>
       </form>
@@ -381,11 +407,11 @@ export default function FornecedoresForm() {
               control={form.control}
               rules={{ required: true }}
               render={({ field }) => (
-                <FormField label="Tipo">
+                <FormField label="Tipo" className="app-form__col-3">
                   <Select
                     options={[
-                      { id: 'JURIDICA', label: 'Pessoa jurídica' },
-                      { id: 'FISICA', label: 'Pessoa física' },
+                      { id: 'JURIDICA', label: 'Jurídica' },
+                      { id: 'FISICA', label: 'Física' },
                     ]}
                     value={field.value}
                     onChange={field.onChange}
@@ -397,7 +423,7 @@ export default function FornecedoresForm() {
               name="situacao"
               control={form.control}
               render={({ field }) => (
-                <FormField label="Situação">
+                <FormField label="Situação" className="app-form__col-3">
                   <Select
                     options={[
                       { id: 'ATIVO', label: 'Ativo' },
@@ -412,17 +438,8 @@ export default function FornecedoresForm() {
               )}
             />
             <FormField
-              label="Razão social"
-              error={errors.razaoSocial ? 'Obrigatório' : undefined}
-              className="app-form__span-2"
-            >
-              <Input {...register('razaoSocial', { required: true })} />
-            </FormField>
-            <FormField label="Nome fantasia">
-              <Input {...register('nomeFantasia')} />
-            </FormField>
-            <FormField
               label={tipoPessoa === 'FISICA' ? 'CPF' : 'CNPJ'}
+              className="app-form__col-3"
               error={errors.documento ? 'Obrigatório' : undefined}
             >
               <Input
@@ -433,34 +450,44 @@ export default function FornecedoresForm() {
                 }}
               />
             </FormField>
+            <FormField label="Fantasia" className="app-form__col-3">
+              <Input {...register('nomeFantasia')} />
+            </FormField>
+            <FormField
+              label="Razão social"
+              error={errors.razaoSocial ? 'Obrigatório' : undefined}
+              className="app-form__col-12"
+            >
+              <Input {...register('razaoSocial', { required: true })} />
+            </FormField>
           </div>
 
           {!id && (
             <div className="mt-4 border-t border-[var(--border)] pt-4">
-              <h2 className="text-base font-semibold mb-3">Contato principal (opcional)</h2>
+              <h2 className="mb-3 text-base font-semibold">Contato principal (opcional)</h2>
               <div className="app-form__grid">
-                <FormField label="Nome" className="app-form__span-2">
+                <FormField label="Nome" className="app-form__col-4">
                   <Input {...register('contatoNome')} />
                 </FormField>
-                <FormField label="Cargo">
+                <FormField label="Cargo" className="app-form__col-2">
                   <Input {...register('contatoCargo')} />
                 </FormField>
-                <FormField label="Telefone">
+                <FormField label="Telefone" className="app-form__col-2">
                   <Input {...register('contatoTelefone')} />
                 </FormField>
-                <FormField label="E-mail" className="app-form__span-2">
+                <FormField label="E-mail" className="app-form__col-4">
                   <Input type="email" {...register('contatoEmail')} />
                 </FormField>
               </div>
             </div>
           )}
 
-          <div className="app-form__actions">
-            <Button type="submit">{id ? 'Salvar identidade' : 'Criar fornecedor'}</Button>
+          <FormActions>
             <Button variant="ghost" type="button" onClick={() => navigate('/fornecedores')}>
-              {id ? 'Voltar à lista' : 'Cancelar'}
+              {id ? 'Voltar' : 'Cancelar'}
             </Button>
-          </div>
+            <Button type="submit">{id ? 'Salvar' : 'Criar'}</Button>
+          </FormActions>
         </div>
       </form>
 
