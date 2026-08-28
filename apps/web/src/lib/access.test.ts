@@ -21,4 +21,14 @@ describe('canSeeNav', () => {
     expect(canSeeNav('ANALISTA', analista, true)).toBe(true);
     expect(canSeeNav('ADMIN', analista, true)).toBe(false);
   });
+
+  it('com AUTH, aceita user sem token (cookie HttpOnly)', () => {
+    const withUser = {
+      user: { id: 'u1', role: 'ANALISTA' },
+      hasMinRole: (m: string) => m === 'ANALISTA' || m === 'VISITANTE',
+    };
+    expect(canSeeNav('ANALISTA', withUser, true)).toBe(true);
+    expect(canSeeNav('ADMIN', withUser, true)).toBe(false);
+    expect(canSeeNav('ADMIN', { user: null, hasMinRole: () => false }, true)).toBe(false);
+  });
 });

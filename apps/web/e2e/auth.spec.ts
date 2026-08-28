@@ -28,4 +28,22 @@ test.describe('auth — shell', () => {
     await expect(page.getByRole('link', { name: /Novo contrato/i })).toHaveCount(0);
     await expect(page.getByRole('button', { name: /Novo contrato/i })).toHaveCount(0);
   });
+
+  test('logout encerra sessão e bloqueia rotas protegidas', async ({ page, context }) => {
+    await loginAs(page, 'analista@sesp.pr.gov.br', 'analista123');
+    await page.goto('/contracts');
+    await expect(page.getByRole('heading', { name: /Contratos/i })).toBeVisible({
+      timeout: 15_000,
+    });
+
+    await page.getByRole('button', { name: /Sair/i }).click();
+    await expect(page).toHaveURL(/\/login/, { timeout: 15_000 });
+
+    await page.goto('/contracts');
+    await expect(page).toHaveURL(/\/login/, { timeout: 15_000 });
+
+    const cookies = await context.cookies();
+    const session = cookies.find((c) => c.name === 'painel_session');
+    expect(session?.value ?? '').toBe('');
+  });
 });
