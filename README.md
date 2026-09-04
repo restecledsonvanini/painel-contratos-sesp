@@ -50,7 +50,14 @@ Arquitetura: **Planilhas Mestre** → **Google Apps Script (ETL / Join de Aditiv
 - Backend: **Express**, **Prisma**, **Postgres** (Docker)
 - Tests: **Vitest** (API/domain), **Playwright** (e2e)
 
-**Rodar local (Windows ou Codespaces):** veja [`docs/DEV.md`](docs/DEV.md) — `npm run setup` → `npm run dev`.
+**Rodar local (Windows ou Codespaces):** [`docs/DEV.md`](docs/DEV.md) · Codespaces: [`docs/CODESPACES.md`](docs/CODESPACES.md)
+
+```bash
+npm run bootstrap   # 1ª vez
+npm run dev         # dia a dia
+```
+
+(Este monorepo usa **npm** workspaces, não pnpm.)
 
 ---
 

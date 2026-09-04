@@ -12,24 +12,20 @@ Guia único para subir o monorepo **painel-contratos-sesp** em qualquer máquina
 
 ## Setup rápido (ambos os ambientes)
 
-Na **raiz** do repositório:
+Na **raiz** do repositório (npm workspaces — **não** usamos pnpm):
 
 ```bash
-npm run setup
+npm run bootstrap   # 1ª vez: .env + install + Docker + migrate + seed
+npm run dev         # dia a dia: API + Web
 ```
 
-Isso:
+`bootstrap` orquestra:
 
 1. Cria `.env` a partir de `.env.example` (se não existir)
-2. Instala dependências (`npm install`)
-3. Sobe Postgres em Docker (`localhost:5434`)
-4. Roda `prisma generate`, `migrate deploy` e `seed`
+2. Instala dependências (`npm ci` / `npm install`)
+3. Chama `db:bootstrap` (Docker Postgres → migrate → seed)
 
-Depois:
-
-```bash
-npm run dev
-```
+`npm run setup` continua existindo como alias de `bootstrap`.
 
 | Serviço | URL |
 |---------|-----|
@@ -40,27 +36,37 @@ npm run dev
 
 ## GitHub Codespaces
 
-1. Abra o repo no GitHub → **Code** → **Codespaces** → **Create codespace**.
-2. O `.devcontainer` roda `npm run setup` na criação e `npm run db:up` ao retomar.
-3. Quando terminar, no terminal: `npm run dev`.
-4. A aba **Ports** encaminha **5173** (web) e **8888** (API). Abra a URL do 5173 — é a única que você precisa: o front chama `/api/v1` e o próprio Vite faz o proxy para a API dentro do container.
+Guia dedicado: [`docs/CODESPACES.md`](./CODESPACES.md).
 
-O `vite.config.ts` detecta a variável `CODESPACES` e ajusta o dev server sozinho: bind em `0.0.0.0`, host `*.app.github.dev` liberado (sem isso o Vite responde `Blocked request`) e HMR pela porta 443. Em Windows nada disso é aplicado.
+Resumo:
 
-Não deixe a porta **8888** pública: a API confia no `AUTH_DEV_BYPASS` que o devcontainer injeta e responderia como ADMIN a qualquer um com a URL.
+1. **Code** → **Codespaces** → **Create codespace**.
+2. O `.devcontainer` roda `npm run bootstrap` na criação e `npm run db:bootstrap` ao retomar.
+3. No terminal: `npm run dev`.
+4. Aba **Ports** → abra a URL do **5173**.
 
-**Nota:** na primeira criação o setup pode levar alguns minutos (Docker build + seed).
+Se o Docker subiu mas a lista veio vazia:
+
+```bash
+npm run bootstrap
+# ou só o banco:
+npm run db:bootstrap -- --force-seed
+```
+
+O `vite.config.ts` detecta `CODESPACES` e ajusta bind / `allowedHosts` / HMR. Não deixe a porta **8888** pública (bypass de auth no codespace).
+
+**Nota:** na primeira criação o bootstrap pode levar alguns minutos (Docker build + seed).
 
 ## Windows (local)
 
 1. Instale [Node LTS](https://nodejs.org/) e [Docker Desktop](https://www.docker.com/products/docker-desktop/) (WSL2 recomendado).
 2. Clone o repo e abra PowerShell ou Git Bash na raiz.
-3. `npm run setup` → `npm run dev`.
+3. `npm run bootstrap` → `npm run dev`.
 
 ### Windows — dicas
 
 - **Prisma / testes:** pare a API (`Ctrl+C` no terminal do `npm run dev`) antes de `npm run db:generate` ou `npm run api:test` se aparecer erro de DLL bloqueada (`query_engine-windows.dll.node`).
-- **Prisma 7:** o client usa `@prisma/adapter-pg` (pool `pg`). URL e pastas de migrate estão em `packages/db/prisma.config.ts`, não no schema. `npm run setup` roda `prisma generate`. Não pule o generate depois do clone.
+- **Prisma 7:** o client usa `@prisma/adapter-pg` (pool `pg`). URL e pastas de migrate estão em `packages/db/prisma.config.ts`, não no schema. `npm run bootstrap` roda `prisma generate`. Não pule o generate depois do clone.
 - **Portas ocupadas:** `npm run db:down` para parar Postgres; mate processos em 8888/5173 se necessário.
 - **PowerShell:** os scripts npm funcionam nativamente; prefira `npm run …` em vez de comandos bash.
 
@@ -139,12 +145,14 @@ Se o seed estiver desatualizado: `npx tsx scripts/ensure-demo-users.ts`
 ## Scripts úteis
 
 ```bash
-npm run dev          # API :8888 + Web :5173
-npm run setup        # install + docker + migrate + seed
-npm run db:up        # só Postgres
+npm run bootstrap    # .env + install + Docker + migrate + seed
+npm run setup        # alias de bootstrap
+npm run db:up        # só container Postgres
+npm run db:bootstrap # container + migrate + seed se vazio (Codespaces postStart)
 npm run db:down      # para Postgres
 npm run db:seed      # reaplica seed
-npm run api:test     # Vitest API (78 testes)
+npm run dev          # API :8888 + Web :5173
+npm run api:test     # Vitest API
 npm run domain:test  # Vitest domain
 npm run web:e2e      # Playwright (AUTH ligada; sobe servidores sozinho)
 ```
@@ -177,7 +185,7 @@ Mapas detalhados: [`plan/flow-maps/`](../plan/flow-maps/README.md)
 
 | Sintoma | Solução |
 |---------|---------|
-| `ECONNREFUSED` na API | `npm run db:up`; confira `DATABASE_URL` |
+| `ECONNREFUSED` na API | `npm run db:bootstrap`; confira `DATABASE_URL` |
 | 404 contrato | ID inexistente ou já excluído |
 | 403 alteração | Login como **GESTOR+** |
 | Select / React estranho | Hard refresh; confirme React 18 único (`npm ls react`) |
@@ -194,4 +202,6 @@ Mapas detalhados: [`plan/flow-maps/`](../plan/flow-maps/README.md)
 | Codespaces: `Blocked request` no 5173 | Container antigo, sem o `allowedHosts`; rebuild para pegar o `vite.config.ts` atual |
 | Codespaces: HMR não recarrega | Confirme que a porta 5173 está encaminhada e que `CODESPACES=true` no terminal |
 | Codespaces: Docker falhou | Rebuild container; verifique se Docker-in-Docker iniciou |
+| Codespaces: Docker sobe, base vazia | `postStart` antigo só fazia `db:up`. Rode `npm run bootstrap` ou `npm run db:bootstrap` |
+| Codespaces: `Postgres não respondeu` | Espere o DinD; `npm run db:logs`; depois `npm run db:bootstrap` |
 | `port already in use` | `npm run db:down`; pare `npm run dev` |

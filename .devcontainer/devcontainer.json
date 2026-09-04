@@ -23,8 +23,8 @@
     "DATABASE_URL": "postgresql://painel:pass@localhost:5434/painel_db",
     "AUTH_DEV_BYPASS": "1"
   },
-  "postCreateCommand": "npm run setup",
-  "postStartCommand": "npm run db:up",
+  "postCreateCommand": "npm run bootstrap",
+  "postStartCommand": "npm run db:bootstrap",
   "customizations": {
     "vscode": {
       "extensions": [

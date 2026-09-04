@@ -6,11 +6,13 @@
     "apps/*"
   ],
   "scripts": {
+    "bootstrap": "node scripts/bootstrap.mjs",
     "setup": "node scripts/setup.mjs",
     "dev": "concurrently -k -n api,web -c blue,green \"npm run api:dev\" \"npm --workspace apps/web run dev\"",
     "db:up": "docker compose -f apps/docker/docker-compose.postgres.yml up -d --build",
     "db:down": "docker compose -f apps/docker/docker-compose.postgres.yml down",
     "db:logs": "docker compose -f apps/docker/docker-compose.postgres.yml logs -f db",
+    "db:bootstrap": "node scripts/db-bootstrap.mjs",
     "db:generate": "cd packages/db && npx prisma generate",
     "db:migrate:create": "cd packages/db && npx prisma migrate dev --create-only --name init",
     "db:migrate:deploy": "cd packages/db && npx prisma migrate deploy",
